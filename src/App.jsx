@@ -49,6 +49,91 @@ export default function App() {
           textAlign: "center",
         }}
       >
+{/* APPOINTMENT FORM */}
+<section
+  style={{
+    padding: "60px 20px",
+    background: "#ffffff",
+    textAlign: "center",
+  }}
+>
+  <h2>Book Appointment</h2>
+
+  <form
+    onSubmit={(e) => {
+      e.preventDefault();
+
+      const name = e.target.name.value;
+      const phone = e.target.phone.value;
+      const test = e.target.test.value;
+
+      const message = `Hello PEFA Medical Diagnostic Services.%0A%0AName: ${name}%0APhone: ${phone}%0ATest Needed: ${test}`;
+
+      window.open(
+        `https://wa.me/2348086618221?text=${message}`,
+        "_blank"
+      );
+    }}
+    style={{
+      maxWidth: "500px",
+      margin: "auto",
+      display: "flex",
+      flexDirection: "column",
+      gap: "15px",
+    }}
+  >
+    <input
+      type="text"
+      name="name"
+      placeholder="Full Name"
+      required
+      style={{
+        padding: "15px",
+        borderRadius: "8px",
+        border: "1px solid #ccc",
+      }}
+    />
+
+    <input
+      type="text"
+      name="phone"
+      placeholder="Phone Number"
+      required
+      style={{
+        padding: "15px",
+        borderRadius: "8px",
+        border: "1px solid #ccc",
+      }}
+    />
+
+    <input
+      type="text"
+      name="test"
+      placeholder="Test Needed"
+      required
+      style={{
+        padding: "15px",
+        borderRadius: "8px",
+        border: "1px solid #ccc",
+      }}
+    />
+
+    <button
+      type="submit"
+      style={{
+        padding: "15px",
+        background: "#25D366",
+        color: "white",
+        border: "none",
+        borderRadius: "8px",
+        fontSize: "16px",
+        cursor: "pointer",
+      }}
+    >
+      Book via WhatsApp
+    </button>
+  </form>
+</section>
         <h2>Contact Us</h2>
 
         <p>32 Ogunru-Ori, Pakuro Road, Mowe, Ogun State</p>
