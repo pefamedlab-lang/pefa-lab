@@ -162,6 +162,68 @@ export default function App() {
         </form>
       </section>
 
+      {/* PATIENT RESULT PORTAL */}
+      <section
+        style={{
+          padding: "60px 20px",
+          background: "#f5f9fc",
+          textAlign: "center",
+        }}
+      >
+        <h2>Patient Result Portal</h2>
+
+        <p>Enter your Patient ID to check result status</p>
+
+        <form
+          onSubmit={async (e) => {
+            e.preventDefault();
+
+            const patientId = e.target.patientId.value;
+
+            if (patientId === "PEFA123") {
+  alert(
+    "Patient: John Doe\nAge: 29\nSex: Male\nTest: Malaria Test\nResult: Negative"
+  );
+} else {
+  alert("Patient ID not found.");
+}
+          }}
+          style={{
+            maxWidth: "400px",
+            margin: "auto",
+            display: "flex",
+            flexDirection: "column",
+            gap: "15px",
+          }}
+        >
+          <input
+            type="text"
+            name="patientId"
+            placeholder="Enter Patient ID"
+            required
+            style={{
+              padding: "15px",
+              borderRadius: "8px",
+              border: "1px solid #ccc",
+            }}
+          />
+
+          <button
+            type="submit"
+            style={{
+              padding: "15px",
+              background: "#0097b2",
+              color: "white",
+              border: "none",
+              borderRadius: "8px",
+              cursor: "pointer",
+            }}
+          >
+            Check Result
+          </button>
+        </form>
+      </section>
+
       {/* CONTACT */}
       <section
         style={{
