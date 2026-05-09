@@ -551,7 +551,9 @@ export default function App() {
           <div
             ref={reportRef}
             style={{
-              background: "white",
+              background:
+  "linear-gradient(rgba(255,255,255,0.96), rgba(255,255,255,0.96)), url('https://upload.wikimedia.org/wikipedia/commons/8/89/HD_transparent_picture.png')",
+backgroundSize: "cover",
               maxWidth: "850px",
               margin: "auto",
               padding: "40px",
@@ -617,7 +619,7 @@ export default function App() {
                   fontSize: "24px",
                 }}
               >
-                PEFA
+               MLS
               </div>
             </div>
 
@@ -628,13 +630,43 @@ export default function App() {
                 marginTop: "30px",
               }}
             >
-              <h2
-                style={{
-                  color: "#0097b2",
-                }}
-              >
-                LABORATORY REPORT
-              </h2>
+<div
+  style={{
+    display: "flex",
+    justifyContent:
+      "space-between",
+    alignItems: "center",
+  }}
+>
+  <h2
+    style={{
+      color: "#0097b2",
+    }}
+  >
+    LABORATORY REPORT
+  </h2>
+
+  <div
+    style={{
+      textAlign: "right",
+    }}
+  >
+    <p>
+      <strong>
+        Report No:
+      </strong>{" "}
+      PEFA-
+      {selectedPatient.patient_id}
+    </p>
+
+    <p>
+      <strong>
+        Date:
+      </strong>{" "}
+      {new Date().toLocaleDateString()}
+    </p>
+  </div>
+</div>
             </div>
 
             {/* PATIENT INFO */}
