@@ -714,7 +714,7 @@ export default function App() {
               </div>
             </div>
 
-            {/* RESULT TABLE */}
+                        {/* RESULT TABLE */}
             <div
               style={{
                 marginTop: "40px",
@@ -765,8 +765,7 @@ export default function App() {
                           "1px solid #ddd",
                       }}
                     >
-                      Reference
-                      Range
+                      Reference Range
                     </th>
 
                     <th
@@ -818,7 +817,16 @@ export default function App() {
                           "1px solid #ddd",
                       }}
                     >
-                      Normal
+                      {selectedPatient.test_name ===
+                      "FBS"
+                        ? "70 - 110 mg/dL"
+                        : selectedPatient.test_name ===
+                          "HbA1c"
+                        ? "4.0 - 5.6 %"
+                        : selectedPatient.test_name ===
+                          "Lipid Profile"
+                        ? "Desirable"
+                        : "Normal"}
                     </td>
 
                     <td
@@ -827,15 +835,40 @@ export default function App() {
                           "15px",
                         border:
                           "1px solid #ddd",
+                        color:
+                          selectedPatient.result
+                            .toLowerCase()
+                            .includes(
+                              "high"
+                            ) ||
+                          selectedPatient.result
+                            .toLowerCase()
+                            .includes(
+                              "elevated"
+                            )
+                            ? "red"
+                            : "green",
+                        fontWeight:
+                          "bold",
                       }}
                     >
-                      Reviewed
+                      {selectedPatient.result
+                        .toLowerCase()
+                        .includes(
+                          "high"
+                        ) ||
+                      selectedPatient.result
+                        .toLowerCase()
+                        .includes(
+                          "elevated"
+                        )
+                        ? "Abnormal"
+                        : "Normal"}
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
-
             {/* FOOTER */}
             <div
               style={{
