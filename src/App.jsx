@@ -458,7 +458,7 @@ export default function App() {
             <input
               type="text"
               name="test"
-              placeholder="Test Name"
+              placeholder="Tests (Example: FBS, Urea, Creatinine)"
               required
               style={inputStyle}
             />
@@ -466,7 +466,7 @@ export default function App() {
             <input
               type="text"
               name="result"
-              placeholder="Result"
+             placeholder="Results (Example: Normal, High, Elevated)"
               required
               style={inputStyle}
             />
@@ -714,7 +714,7 @@ export default function App() {
               </div>
             </div>
 
-                        {/* RESULT TABLE */}
+            {/* RESULT TABLE */}
             <div
               style={{
                 marginTop: "40px",
@@ -782,90 +782,117 @@ export default function App() {
                 </thead>
 
                 <tbody>
-                  <tr>
-                    <td
-                      style={{
-                        padding:
-                          "15px",
-                        border:
-                          "1px solid #ddd",
-                      }}
-                    >
-                      {
-                        selectedPatient.test_name
-                      }
-                    </td>
-
-                    <td
-                      style={{
-                        padding:
-                          "15px",
-                        border:
-                          "1px solid #ddd",
-                      }}
-                    >
-                      {
-                        selectedPatient.result
-                      }
-                    </td>
-
-                    <td
-                      style={{
-                        padding:
-                          "15px",
-                        border:
-                          "1px solid #ddd",
-                      }}
-                    >
-                      {selectedPatient.test_name ===
-                      "FBS"
-                        ? "70 - 110 mg/dL"
-                        : selectedPatient.test_name ===
-                          "HbA1c"
-                        ? "4.0 - 5.6 %"
-                        : selectedPatient.test_name ===
-                          "Lipid Profile"
-                        ? "Desirable"
-                        : "Normal"}
-                    </td>
-
-                    <td
-                      style={{
-                        padding:
-                          "15px",
-                        border:
-                          "1px solid #ddd",
-                        color:
+                  {selectedPatient.test_name
+                    .split(",")
+                    .map(
+                      (
+                        test,
+                        index
+                      ) => {
+                        const result =
                           selectedPatient.result
-                            .toLowerCase()
-                            .includes(
-                              "high"
-                            ) ||
-                          selectedPatient.result
-                            .toLowerCase()
-                            .includes(
-                              "elevated"
-                            )
-                            ? "red"
-                            : "green",
-                        fontWeight:
-                          "bold",
-                      }}
-                    >
-                      {selectedPatient.result
-                        .toLowerCase()
-                        .includes(
-                          "high"
-                        ) ||
-                      selectedPatient.result
-                        .toLowerCase()
-                        .includes(
-                          "elevated"
-                        )
-                        ? "Abnormal"
-                        : "Normal"}
-                    </td>
-                  </tr>
+                            .split(
+                              ","
+                            )[index];
+
+                        return (
+                          <tr
+                            key={
+                              index
+                            }
+                          >
+                            <td
+                              style={{
+                                padding:
+                                  "15px",
+                                border:
+                                  "1px solid #ddd",
+                              }}
+                            >
+                              {test.trim()}
+                            </td>
+
+                            <td
+                              style={{
+                                padding:
+                                  "15px",
+                                border:
+                                  "1px solid #ddd",
+                              }}
+                            >
+                              {result
+                                ? result.trim()
+                                : ""}
+                            </td>
+
+                            <td
+                              style={{
+                                padding:
+                                  "15px",
+                                border:
+                                  "1px solid #ddd",
+                              }}
+                            >
+                              {test.trim() ===
+                              "FBS"
+                                ? "70 - 110 mg/dL"
+                                : test.trim() ===
+                                  "HbA1c"
+                                ? "4.0 - 5.6 %"
+                                : test.trim() ===
+                                  "Urea"
+                                ? "15 - 40 mg/dL"
+                                : test.trim() ===
+                                  "Creatinine"
+                                ? "0.6 - 1.3 mg/dL"
+                                : test.trim() ===
+                                  "Lipid Profile"
+                                ? "Desirable"
+                                : "Normal"}
+                            </td>
+
+                            <td
+                              style={{
+                                padding:
+                                  "15px",
+                                border:
+                                  "1px solid #ddd",
+                                color:
+                                  result &&
+                                  (result
+                                    .toLowerCase()
+                                    .includes(
+                                      "high"
+                                    ) ||
+                                    result
+                                      .toLowerCase()
+                                      .includes(
+                                        "elevated"
+                                      ))
+                                    ? "red"
+                                    : "green",
+                                fontWeight:
+                                  "bold",
+                              }}
+                            >
+                              {result &&
+                              (result
+                                .toLowerCase()
+                                .includes(
+                                  "high"
+                                ) ||
+                                result
+                                  .toLowerCase()
+                                  .includes(
+                                    "elevated"
+                                  ))
+                                ? "Abnormal"
+                                : "Normal"}
+                            </td>
+                          </tr>
+                        );
+                      }
+                    )}
                 </tbody>
               </table>
             </div>
