@@ -540,91 +540,350 @@ export default function App() {
         </div>
       </section>
 
-      {/* REPORT */}
+      {/* PROFESSIONAL LAB REPORT */}
       {selectedPatient && (
         <section
           style={{
             padding: "50px 20px",
+            background: "#eef7fb",
           }}
         >
           <div
             ref={reportRef}
             style={{
               background: "white",
-              maxWidth: "700px",
+              maxWidth: "850px",
               margin: "auto",
               padding: "40px",
-              borderRadius: "15px",
+              borderRadius: "12px",
               boxShadow:
-                "0 2px 10px rgba(0,0,0,0.1)",
+                "0 3px 15px rgba(0,0,0,0.1)",
             }}
           >
-            <h2
+            {/* HEADER */}
+            <div
               style={{
-                color: "#0097b2",
+                display: "flex",
+                justifyContent:
+                  "space-between",
+                alignItems: "center",
+                borderBottom:
+                  "3px solid #0097b2",
+                paddingBottom: "20px",
               }}
             >
-              PEFA Medical Diagnostic
-              Services
-            </h2>
+              <div>
+                <h1
+                  style={{
+                    color: "#0097b2",
+                    margin: 0,
+                  }}
+                >
+                  PEFA Medical Diagnostic
+                  Services
+                </h1>
 
-            <hr />
+                <p
+                  style={{
+                    margin: "5px 0",
+                  }}
+                >
+                  32 Ogunru-Ori, Pakuro
+                  Road, Mowe, Ogun State
+                </p>
 
-            <p>
-              <strong>
-                Patient ID:
-              </strong>{" "}
-              {
-                selectedPatient.patient_id
-              }
-            </p>
+                <p
+                  style={{
+                    margin: "5px 0",
+                  }}
+                >
+                  08086618221 |
+                  09052853701
+                </p>
+              </div>
 
-            <p>
-              <strong>Name:</strong>{" "}
-              {
-                selectedPatient.full_name
-              }
-            </p>
+              <div
+                style={{
+                  width: "100px",
+                  height: "100px",
+                  background: "#0097b2",
+                  borderRadius: "50%",
+                  display: "flex",
+                  justifyContent:
+                    "center",
+                  alignItems: "center",
+                  color: "white",
+                  fontWeight: "bold",
+                  fontSize: "24px",
+                }}
+              >
+                PEFA
+              </div>
+            </div>
 
-            <p>
-              <strong>Age:</strong>{" "}
-              {selectedPatient.age}
-            </p>
+            {/* REPORT TITLE */}
+            <div
+              style={{
+                textAlign: "center",
+                marginTop: "30px",
+              }}
+            >
+              <h2
+                style={{
+                  color: "#0097b2",
+                }}
+              >
+                LABORATORY REPORT
+              </h2>
+            </div>
 
-            <p>
-              <strong>Sex:</strong>{" "}
-              {selectedPatient.sex}
-            </p>
+            {/* PATIENT INFO */}
+            <div
+              style={{
+                marginTop: "30px",
+                display: "grid",
+                gridTemplateColumns:
+                  "1fr 1fr",
+                gap: "20px",
+              }}
+            >
+              <div>
+                <p>
+                  <strong>
+                    Patient ID:
+                  </strong>{" "}
+                  {
+                    selectedPatient.patient_id
+                  }
+                </p>
 
-            <p>
-              <strong>Test:</strong>{" "}
-              {
-                selectedPatient.test_name
-              }
-            </p>
+                <p>
+                  <strong>
+                    Full Name:
+                  </strong>{" "}
+                  {
+                    selectedPatient.full_name
+                  }
+                </p>
 
-            <p>
-              <strong>Result:</strong>{" "}
-              {selectedPatient.result}
-            </p>
+                <p>
+                  <strong>Age:</strong>{" "}
+                  {
+                    selectedPatient.age
+                  }
+                </p>
+
+                <p>
+                  <strong>Sex:</strong>{" "}
+                  {
+                    selectedPatient.sex
+                  }
+                </p>
+              </div>
+
+              <div>
+                <p>
+                  <strong>
+                    Test:
+                  </strong>{" "}
+                  {
+                    selectedPatient.test_name
+                  }
+                </p>
+
+                <p>
+                  <strong>
+                    Result Status:
+                  </strong>{" "}
+                  Completed
+                </p>
+
+                <p>
+                  <strong>
+                    Report Date:
+                  </strong>{" "}
+                  {new Date().toLocaleDateString()}
+                </p>
+
+                <p>
+                  <strong>
+                    Laboratory:
+                  </strong>{" "}
+                  PEFA Lab
+                </p>
+              </div>
+            </div>
+
+            {/* RESULT TABLE */}
+            <div
+              style={{
+                marginTop: "40px",
+              }}
+            >
+              <table
+                style={{
+                  width: "100%",
+                  borderCollapse:
+                    "collapse",
+                }}
+              >
+                <thead>
+                  <tr
+                    style={{
+                      background:
+                        "#0097b2",
+                      color: "white",
+                    }}
+                  >
+                    <th
+                      style={{
+                        padding:
+                          "15px",
+                        border:
+                          "1px solid #ddd",
+                      }}
+                    >
+                      Investigation
+                    </th>
+
+                    <th
+                      style={{
+                        padding:
+                          "15px",
+                        border:
+                          "1px solid #ddd",
+                      }}
+                    >
+                      Result
+                    </th>
+
+                    <th
+                      style={{
+                        padding:
+                          "15px",
+                        border:
+                          "1px solid #ddd",
+                      }}
+                    >
+                      Reference
+                      Range
+                    </th>
+
+                    <th
+                      style={{
+                        padding:
+                          "15px",
+                        border:
+                          "1px solid #ddd",
+                      }}
+                    >
+                      Remark
+                    </th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <tr>
+                    <td
+                      style={{
+                        padding:
+                          "15px",
+                        border:
+                          "1px solid #ddd",
+                      }}
+                    >
+                      {
+                        selectedPatient.test_name
+                      }
+                    </td>
+
+                    <td
+                      style={{
+                        padding:
+                          "15px",
+                        border:
+                          "1px solid #ddd",
+                      }}
+                    >
+                      {
+                        selectedPatient.result
+                      }
+                    </td>
+
+                    <td
+                      style={{
+                        padding:
+                          "15px",
+                        border:
+                          "1px solid #ddd",
+                      }}
+                    >
+                      Normal
+                    </td>
+
+                    <td
+                      style={{
+                        padding:
+                          "15px",
+                        border:
+                          "1px solid #ddd",
+                      }}
+                    >
+                      Reviewed
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            {/* FOOTER */}
+            <div
+              style={{
+                marginTop: "60px",
+                display: "flex",
+                justifyContent:
+                  "space-between",
+              }}
+            >
+              <div>
+                <p>
+                  ___________________
+                </p>
+
+                <p>
+                  Medical Laboratory
+                  Scientist
+                </p>
+              </div>
+
+              <div>
+                <p>
+                  ___________________
+                </p>
+
+                <p>
+                  Authorized Signature
+                </p>
+              </div>
+            </div>
           </div>
 
+          {/* DOWNLOAD BUTTON */}
           <div
             style={{
               textAlign: "center",
-              marginTop: "20px",
+              marginTop: "30px",
             }}
           >
             <button
               onClick={generatePDF}
               style={primaryButton}
             >
-              Download PDF
+              Download PDF Report
             </button>
           </div>
         </section>
       )}
-
       {/* CONTACT */}
       <section
         style={{
