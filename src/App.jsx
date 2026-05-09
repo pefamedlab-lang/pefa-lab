@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "./supabaseClient";
 import jsPDF from "jspdf";
+import pefaLogo from "./assets/pefa-logo.png";
 import { QRCodeCanvas } from "qrcode.react";
 import html2canvas from "html2canvas";
 
@@ -640,23 +641,15 @@ backgroundSize: "cover",
                 </p>
               </div>
 
-              <div
-                style={{
-                  width: "100px",
-                  height: "100px",
-                  background: "#0097b2",
-                  borderRadius: "50%",
-                  display: "flex",
-                  justifyContent:
-                    "center",
-                  alignItems: "center",
-                  color: "white",
-                  fontWeight: "bold",
-                  fontSize: "24px",
-                }}
-              >
-               MLS
-              </div>
+             <img
+  src={pefaLogo}
+  alt="PEFA Logo"
+  style={{
+    width: "120px",
+    height: "120px",
+    objectFit: "contain",
+  }}
+/>
             </div>
 
             {/* REPORT TITLE */}
