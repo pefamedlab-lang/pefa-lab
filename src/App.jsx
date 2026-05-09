@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { supabase } from "./supabaseClient";
 import jsPDF from "jspdf";
+import { QRCodeCanvas } from "qrcode.react";
 import html2canvas from "html2canvas";
 
 export default function App() {
@@ -24,6 +25,10 @@ export default function App() {
     setSelectedPatient,
   ] = useState(null);
 
+const [
+  verificationMode,
+  setVerificationMode,
+] = useState(false);
   useEffect(() => {
     fetchPatients();
   }, []);
@@ -536,12 +541,43 @@ export default function App() {
             }}
           >
             Search
+<button
+  style={{
+    ...secondaryButton,
+    marginLeft: "10px",
+  }}
+  onClick={() => {
+    const foundPatient =
+      patients.find(
+        (patient) =>
+          patient.patient_id ===
+          patientId
+      );
+
+    if (foundPatient) {
+      setSelectedPatient(
+        foundPatient
+      );
+
+      setVerificationMode(
+        true
+      );
+    } else {
+      alert(
+        "Verification Failed"
+      );
+    }
+  }}
+>
+  Verify Report
+</button>
           </button>
         </div>
       </section>
 
       {/* PROFESSIONAL LAB REPORT */}
-      {selectedPatient && (
+      {selectedPatient &&
+ !verificationMode && (
         <section
           style={{
             padding: "50px 20px",
@@ -928,6 +964,28 @@ backgroundSize: "cover",
                 </tbody>
               </table>
             </div>
+            {/* QR VERIFICATION */}
+            <div
+              style={{
+                marginTop: "40px",
+                textAlign: "center",
+              }}
+            >
+              <QRCodeCanvas
+                value={`http://localhost:5173/verify/${selectedPatient.patient_id}`}
+                size={120}
+              />
+
+              <p
+                style={{
+                  marginTop: "10px",
+                  fontSize: "14px",
+                  color: "#555",
+                }}
+              >
+                Scan to Verify Report
+              </p>
+            </div>
             {/* FOOTER */}
             <div
               style={{
@@ -976,6 +1034,96 @@ backgroundSize: "cover",
           </div>
         </section>
       )}
+      {/* ONLINE REPORT VERIFICATION */}
+      {selectedPatient &&
+        verificationMode && (
+          <section
+            style={{
+              padding:
+                "80px 20px",
+              textAlign:
+                "center",
+            }}
+          >
+            <div
+              style={{
+                background:
+                  "white",
+                maxWidth:
+                  "600px",
+                margin: "auto",
+                padding:
+                  "40px",
+                borderRadius:
+                  "15px",
+                boxShadow:
+                  "0 2px 10px rgba(0,0,0,0.1)",
+              }}
+            >
+              <h1
+                style={{
+                  color:
+                    "#0097b2",
+                }}
+              >
+                VERIFIED REPORT
+              </h1>
+
+              <p>
+                This laboratory
+                report belongs to:
+              </p>
+
+              <h2>
+                {
+                  selectedPatient.full_name
+                }
+              </h2>
+
+              <p>
+                Patient ID:{" "}
+                {
+                  selectedPatient.patient_id
+                }
+              </p>
+
+              <p>
+                Test(s):{" "}
+                {
+                  selectedPatient.test_name
+                }
+              </p>
+
+              <p
+                style={{
+                  color:
+                    "green",
+                  fontWeight:
+                    "bold",
+                  fontSize:
+                    "20px",
+                }}
+              >
+                AUTHENTIC REPORT
+              </p>
+
+              <button
+                style={{
+                  ...primaryButton,
+                  marginTop:
+                    "20px",
+                }}
+                onClick={() =>
+                  setVerificationMode(
+                    false
+                  )
+                }
+              >
+                Back To Report
+              </button>
+            </div>
+          </section>
+        )}
       {/* CONTACT */}
       <section
         style={{
