@@ -372,6 +372,8 @@ const [
                 full_name:
                   e.target.fullName
                     .value,
+email:
+  e.target.email.value,
 
                 age:
                   e.target.age.value,
@@ -434,6 +436,13 @@ const [
               required
               style={inputStyle}
             />
+<input
+  type="email"
+  name="email"
+  placeholder="Patient Email"
+  required
+  style={inputStyle}
+/>
 
             <input
               type="number"
@@ -740,6 +749,10 @@ backgroundSize: "cover",
                     selectedPatient.sex
                   }
                 </p>
+<p>
+  <strong>Email:</strong>{" "}
+  {selectedPatient.email}
+</p>
               </div>
 
               <div>
@@ -1007,25 +1020,38 @@ backgroundSize: "cover",
                 <p>
                   Authorized Signature
                 </p>
-              </div>
+                         </div>
             </div>
+
           </div>
 
-          {/* DOWNLOAD BUTTON */}
-          <div
-            style={{
-              textAlign: "center",
-              marginTop: "30px",
-            }}
-          >
-            <button
-              onClick={generatePDF}
-              style={primaryButton}
+          {/* DOWNLOAD BUTTONS */}
+            <div
+              style={{
+                textAlign: "center",
+                marginTop: "30px",
+              }}
             >
-              Download PDF Report
-            </button>
-          </div>
-        </section>
+              <button
+                onClick={generatePDF}
+                style={primaryButton}
+              >
+                Download PDF Report
+              </button>
+
+              <button
+                style={{
+                  ...secondaryButton,
+                  marginLeft: "10px",
+                }}
+                onClick={() => {
+                  window.location.href = `mailto:${selectedPatient.email}?subject=PEFA Laboratory Report&body=Dear ${selectedPatient.full_name}, your laboratory report is ready.`;
+                }}
+              >
+                Send Report Email
+              </button>
+            </div>
+          </section>
       )}
       {/* ONLINE REPORT VERIFICATION */}
       {selectedPatient &&
