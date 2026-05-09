@@ -7,6 +7,10 @@ export default function App() {
 
   const reportRef = useRef();
   const [patients, setPatients] = useState([]);
+const [selectedPatient, setSelectedPatient] =
+  useState(null);
+const [isLoggedIn, setIsLoggedIn] =
+  useState(false);
   return (
     <div
       style={{
@@ -253,17 +257,17 @@ export default function App() {
             const patientId =
               e.target.patientId.value;
 
-            if (patientId === "PEFA123") {
-              alert(
-                "Patient: John Doe\n" +
-                "Age: 29\n" +
-                "Sex: Male\n" +
-                "Test: Malaria Test\n" +
-                "Result: Negative"
-              );
-            } else {
-              alert("Patient ID not found.");
-            }
+            const foundPatient =
+  patients.find(
+    (patient) =>
+      patient.patientId === patientId
+  );
+
+if (foundPatient) {
+  setSelectedPatient(foundPatient);
+} else {
+  alert("Patient ID not found.");
+}
           }}
           style={{
             maxWidth: "450px",
@@ -286,167 +290,257 @@ export default function App() {
           </button>
         </form>
       </section>
-      {/* ADMIN DASHBOARD */}
-      <section
-        style={{
-          background: "#ffffff",
-          padding: "80px 20px",
-          textAlign: "center",
-        }}
-      >
-        <h2 style={{ fontSize: "36px" }}>
-          Admin Dashboard
-        </h2>
-
-        <p style={{ color: "#666" }}>
-          Add patient laboratory records
-        </p>
-
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-
-            const newPatient = {
-              patientId: e.target.patientId.value,
-              fullName: e.target.fullName.value,
-              age: e.target.age.value,
-              sex: e.target.sex.value,
-              test: e.target.test.value,
-              result: e.target.result.value,
-            };
-
-            setPatients([...patients, newPatient]);
-
-            alert("Patient Record Added");
-
-            e.target.reset();
-          }}
+      {/* STAFF LOGIN */}
+      {!isLoggedIn && (
+        <section
           style={{
-            maxWidth: "600px",
-            margin: "40px auto",
-            display: "flex",
-            flexDirection: "column",
-            gap: "15px",
+            background: "#ffffff",
+            padding: "80px 20px",
+            textAlign: "center",
           }}
         >
-          <input
-            type="text"
-            name="patientId"
-            placeholder="Patient ID"
-            required
-            style={inputStyle}
-          />
+          <h2 style={{ fontSize: "36px" }}>
+            Staff Login
+          </h2>
 
-          <input
-            type="text"
-            name="fullName"
-            placeholder="Full Name"
-            required
-            style={inputStyle}
-          />
+          <p style={{ color: "#666" }}>
+            Authorized laboratory staff only
+          </p>
 
-          <input
-            type="number"
-            name="age"
-            placeholder="Age"
-            required
-            style={inputStyle}
-          />
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
 
-          <select
-            name="sex"
-            required
-            style={inputStyle}
+              const username =
+                e.target.username.value;
+
+              const password =
+                e.target.password.value;
+
+              if (
+                username === "admin" &&
+                password === "pefa123"
+              ) {
+                setIsLoggedIn(true);
+
+                alert(
+                  "Login Successful"
+                );
+              } else {
+                alert(
+                  "Invalid Login Details"
+                );
+              }
+            }}
+            style={{
+              maxWidth: "400px",
+              margin: "40px auto",
+              display: "flex",
+              flexDirection: "column",
+              gap: "15px",
+            }}
           >
-            <option value="">
-              Select Sex
-            </option>
+            <input
+              type="text"
+              name="username"
+              placeholder="Username"
+              required
+              style={inputStyle}
+            />
 
-            <option value="Male">
-              Male
-            </option>
+            <input
+              type="password"
+              name="password"
+              placeholder="Password"
+              required
+              style={inputStyle}
+            />
 
-            <option value="Female">
-              Female
-            </option>
-          </select>
-
-          <input
-            type="text"
-            name="test"
-            placeholder="Test Name"
-            required
-            style={inputStyle}
-          />
-
-          <input
-            type="text"
-            name="result"
-            placeholder="Result"
-            required
-            style={inputStyle}
-          />
+            <button
+              type="submit"
+              style={primaryButton}
+            >
+              Login
+            </button>
+          </form>
+        </section>
+      )}
+    
+                {/* ADMIN DASHBOARD */}
+      {isLoggedIn && (
+        <section
+          style={{
+            background: "#ffffff",
+            padding: "80px 20px",
+            textAlign: "center",
+          }}
+        >
+          <h2 style={{ fontSize: "36px" }}>
+            Admin Dashboard
+          </h2>
 
           <button
-            type="submit"
-            style={primaryButton}
+            onClick={() =>
+              setIsLoggedIn(false)
+            }
+            style={{
+              ...secondaryButton,
+              marginTop: "15px",
+            }}
           >
-            Save Patient Record
+            Logout
           </button>
-        </form>
 
-        {/* DISPLAY PATIENTS */}
-        <div
-          style={{
-            maxWidth: "900px",
-            margin: "50px auto",
-            textAlign: "left",
-          }}
-        >
-          {patients.map((patient, index) => (
-            <div
-              key={index}
-              style={{
-                background: "#f5f9fc",
-                padding: "20px",
-                borderRadius: "12px",
-                marginBottom: "15px",
-                boxShadow:
-                  "0 3px 10px rgba(0,0,0,0.05)",
-              }}
+          <p style={{ color: "#666" }}>
+            Add patient laboratory records
+          </p>
+
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+
+              const newPatient = {
+                patientId: e.target.patientId.value,
+                fullName: e.target.fullName.value,
+                age: e.target.age.value,
+                sex: e.target.sex.value,
+                test: e.target.test.value,
+                result: e.target.result.value,
+              };
+
+              setPatients([...patients, newPatient]);
+
+              alert("Patient Record Added");
+
+              e.target.reset();
+            }}
+            style={{
+              maxWidth: "600px",
+              margin: "40px auto",
+              display: "flex",
+              flexDirection: "column",
+              gap: "15px",
+            }}
+          >
+            <input
+              type="text"
+              name="patientId"
+              placeholder="Patient ID"
+              required
+              style={inputStyle}
+            />
+
+            <input
+              type="text"
+              name="fullName"
+              placeholder="Full Name"
+              required
+              style={inputStyle}
+            />
+
+            <input
+              type="number"
+              name="age"
+              placeholder="Age"
+              required
+              style={inputStyle}
+            />
+
+            <select
+              name="sex"
+              required
+              style={inputStyle}
             >
-              <h3>
-                {patient.fullName}
-              </h3>
+              <option value="">
+                Select Sex
+              </option>
 
-              <p>
-                <strong>ID:</strong>{" "}
-                {patient.patientId}
-              </p>
+              <option value="Male">
+                Male
+              </option>
 
-              <p>
-                <strong>Age:</strong>{" "}
-                {patient.age}
-              </p>
+              <option value="Female">
+                Female
+              </option>
+            </select>
 
-              <p>
-                <strong>Sex:</strong>{" "}
-                {patient.sex}
-              </p>
+            <input
+              type="text"
+              name="test"
+              placeholder="Test Name"
+              required
+              style={inputStyle}
+            />
 
-              <p>
-                <strong>Test:</strong>{" "}
-                {patient.test}
-              </p>
+            <input
+              type="text"
+              name="result"
+              placeholder="Result"
+              required
+              style={inputStyle}
+            />
 
-              <p>
-                <strong>Result:</strong>{" "}
-                {patient.result}
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
+            <button
+              type="submit"
+              style={primaryButton}
+            >
+              Save Patient Record
+            </button>
+          </form>
+
+          {/* DISPLAY PATIENTS */}
+          <div
+            style={{
+              maxWidth: "900px",
+              margin: "50px auto",
+              textAlign: "left",
+            }}
+          >
+            {patients.map((patient, index) => (
+              <div
+                key={index}
+                style={{
+                  background: "#f5f9fc",
+                  padding: "20px",
+                  borderRadius: "12px",
+                  marginBottom: "15px",
+                  boxShadow:
+                    "0 3px 10px rgba(0,0,0,0.05)",
+                }}
+              >
+                <h3>
+                  {patient.fullName}
+                </h3>
+
+                <p>
+                  <strong>ID:</strong>{" "}
+                  {patient.patientId}
+                </p>
+
+                <p>
+                  <strong>Age:</strong>{" "}
+                  {patient.age}
+                </p>
+
+                <p>
+                  <strong>Sex:</strong>{" "}
+                  {patient.sex}
+                </p>
+
+                <p>
+                  <strong>Test:</strong>{" "}
+                  {patient.test}
+                </p>
+
+                <p>
+                  <strong>Result:</strong>{" "}
+                  {patient.result}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
       {/* PROFESSIONAL LAB REPORT */}
       <section
         style={{
@@ -516,20 +610,20 @@ export default function App() {
           >
             <p>
               <strong>Patient Name:</strong>{" "}
-              John Doe
+             {selectedPatient?.fullName || "-----"}
             </p>
 
             <p>
               <strong>Patient ID:</strong>{" "}
-              PEFA123
+              {selectedPatient?.patientId || "-----"}
             </p>
 
             <p>
-              <strong>Age:</strong> 29
+              <strong>Age:</strong> {selectedPatient?.age || "-----"}
             </p>
 
             <p>
-              <strong>Sex:</strong> Male
+              <strong>Sex:</strong> {selectedPatient?.sex || "-----"}
             </p>
 
             <p>
@@ -579,11 +673,11 @@ export default function App() {
             <tbody>
               <tr>
                 <td style={tableCell}>
-                  Malaria Parasite
+                  {selectedPatient?.test || "-----"}
                 </td>
 
                 <td style={tableCell}>
-                  Negative
+                  {selectedPatient?.result || "-----"}
                 </td>
 
                 <td style={tableCell}>
