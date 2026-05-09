@@ -1,6 +1,11 @@
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
+import { useRef } from "react";
 import { useState } from "react";
 
 export default function App() {
+
+  const reportRef = useRef();
   const [patients, setPatients] = useState([]);
   return (
     <div
@@ -442,6 +447,268 @@ export default function App() {
           ))}
         </div>
       </section>
+      {/* PROFESSIONAL LAB REPORT */}
+      <section
+        style={{
+          background: "#ffffff",
+          padding: "80px 20px",
+        }}
+      >
+        <div
+  ref={reportRef}
+  style={{
+    maxWidth: "900px",
+            margin: "auto",
+            background: "white",
+            padding: "40px",
+            borderRadius: "12px",
+            boxShadow:
+              "0 5px 15px rgba(0,0,0,0.08)",
+          }}
+        >
+          {/* HEADER */}
+          <div
+            style={{
+              textAlign: "center",
+              borderBottom:
+                "3px solid #0097b2",
+              paddingBottom: "20px",
+              marginBottom: "30px",
+            }}
+          >
+            <h1
+              style={{
+                color: "#0097b2",
+                marginBottom: "10px",
+              }}
+            >
+              PEFA Medical Diagnostic Services
+            </h1>
+
+            <p>
+              32 Ogunru-Ori, Pakuro Road,
+              Mowe, Ogun State | 5 Olorombo Street, Imedu-Nla,
+              Mowe, Ogun State | Iya-Ijebu Junction, Orimerunmu 
+            </p>
+
+            <p>
+              09052853701 | 08086618621
+            </p>
+
+            <h2
+              style={{
+                marginTop: "20px",
+              }}
+            >
+              LABORATORY REPORT
+            </h2>
+          </div>
+
+          {/* PATIENT DETAILS */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns:
+                "repeat(auto-fit, minmax(250px, 1fr))",
+              gap: "15px",
+              marginBottom: "30px",
+            }}
+          >
+            <p>
+              <strong>Patient Name:</strong>{" "}
+              John Doe
+            </p>
+
+            <p>
+              <strong>Patient ID:</strong>{" "}
+              PEFA123
+            </p>
+
+            <p>
+              <strong>Age:</strong> 29
+            </p>
+
+            <p>
+              <strong>Sex:</strong> Male
+            </p>
+
+            <p>
+              <strong>Request Date:</strong>{" "}
+              08-05-2026
+            </p>
+
+            <p>
+              <strong>Report Date:</strong>{" "}
+              08-05-2026
+            </p>
+          </div>
+
+          {/* TEST RESULT TABLE */}
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              marginBottom: "40px",
+            }}
+          >
+            <thead>
+              <tr
+                style={{
+                  background: "#0097b2",
+                  color: "white",
+                }}
+              >
+                <th style={tableCell}>
+                  Test
+                </th>
+
+                <th style={tableCell}>
+                  Result
+                </th>
+
+                <th style={tableCell}>
+                  Reference Range
+                </th>
+
+                <th style={tableCell}>
+                  Status
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr>
+                <td style={tableCell}>
+                  Malaria Parasite
+                </td>
+
+                <td style={tableCell}>
+                  Negative
+                </td>
+
+                <td style={tableCell}>
+                  Negative
+                </td>
+
+                <td style={tableCell}>
+                  Normal
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          {/* COMMENTS */}
+          <div
+            style={{
+              marginBottom: "50px",
+            }}
+          >
+            <h3>Scientist Comment</h3>
+
+            <p>
+              Laboratory findings are within
+              normal limits.
+            </p>
+          </div>
+
+          {/* SIGNATURE */}
+          <div
+            style={{
+              display: "flex",
+              justifyContent:
+                "space-between",
+              marginTop: "60px",
+            }}
+          >
+            <div>
+              <p>
+                ____________________
+              </p>
+
+              <strong>
+                Medical Laboratory Scientist
+              </strong>
+            </div>
+
+            <div>
+              <p>
+                ____________________
+              </p>
+
+              <strong>
+                Authorized Signature
+              </strong>
+            </div>
+          </div>
+
+          {/* PRINT BUTTON */}
+          <div
+            style={{
+              textAlign: "center",
+              marginTop: "50px",
+            }}
+          >
+            <div
+  style={{
+    display: "flex",
+    justifyContent: "center",
+    gap: "15px",
+    flexWrap: "wrap",
+  }}
+>
+  <button
+    onClick={() =>
+      window.print()
+    }
+    style={primaryButton}
+  >
+    Print Report
+  </button>
+
+  <button
+    onClick={async () => {
+      const canvas =
+        await html2canvas(
+          reportRef.current
+        );
+
+      const imgData =
+        canvas.toDataURL("image/png");
+
+      const pdf = new jsPDF(
+        "p",
+        "mm",
+        "a4"
+      );
+
+      const pdfWidth =
+        pdf.internal.pageSize.getWidth();
+
+      const pdfHeight =
+        (canvas.height * pdfWidth) /
+        canvas.width;
+
+      pdf.addImage(
+        imgData,
+        "PNG",
+        0,
+        0,
+        pdfWidth,
+        pdfHeight
+      );
+
+      pdf.save(
+        "PEFA_Lab_Report.pdf"
+      );
+    }}
+    style={secondaryButton}
+  >
+    Download PDF
+  </button>
+</div>
+          </div>
+        </div>
+      </section>
       {/* CONTACT */}
       <section
         style={{
@@ -533,4 +800,9 @@ const serviceCard = {
   padding: "30px",
   borderRadius: "16px",
   boxShadow: "0 5px 15px rgba(0,0,0,0.08)",
+};
+const tableCell = {
+  border: "1px solid #ccc",
+  padding: "12px",
+  textAlign: "left",
 };
