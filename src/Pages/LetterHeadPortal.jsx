@@ -3,7 +3,7 @@ import { Printer, Download } from "lucide-react";
 import LetterHeadDocument from "../components/printing/LetterHeadDocument";
 import PrintEngine from "../utils/PrintEngine";
 
-import "../styles/letterHeadPortal.css";
+import "../styles/LetterHeadPortal.css";
 
 export default function LetterHeadPortal() {
 
