@@ -1,5 +1,4 @@
-import "../styles/testControl.css";
-
+import "../styles/testcontrol.css";
 import {
   useEffect,
   useMemo,
@@ -20,9 +19,7 @@ import {
   supabase,
 } from "../supabase";
 
-import {
-  pefaTestLibrary,
-} from "../data/pefaTestLibrary";
+import { pefaTestLibrary } from "../Data/pefaTestLibrary";
 
 export default function TestControlPortal() {
 
