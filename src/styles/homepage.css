@@ -1,0 +1,685 @@
+/* =====================================================
+   RESET
+===================================================== */
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+html{
+  scroll-behavior:smooth;
+}
+
+body{
+  font-family:Arial, sans-serif;
+  background:#f8fafc;
+  color:#0f172a;
+  overflow-x:hidden;
+}
+
+a{
+  text-decoration:none;
+}
+
+/* =====================================================
+   HOMEPAGE
+===================================================== */
+
+.homepage{
+  width:100%;
+  overflow-x:hidden;
+  background:#ffffff;
+}
+
+/* =====================================================
+   HERO
+===================================================== */
+
+.hero{
+  position:relative;
+  min-height:100vh;
+
+  background:
+    linear-gradient(
+      rgba(255,255,255,0.42),
+      rgba(248,250,252,0.38)
+    ),
+    url("/hero-bg.jpg");
+
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+
+  background-blend-mode:lighten;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  padding:120px 20px 70px;
+
+  color:#0f172a;
+
+  overflow:hidden;
+}
+
+.hero::before{
+  content:"";
+  position:absolute;
+  width:420px;
+  height:420px;
+  background:rgba(34,197,94,0.03);
+  filter:blur(120px);
+  border-radius:50%;
+  top:-100px;
+  left:-100px;
+}
+
+.hero::after{
+  content:"";
+  position:absolute;
+  width:420px;
+  height:420px;
+  background:rgba(37,99,235,0.03);
+  filter:blur(120px);
+  border-radius:50%;
+  bottom:-100px;
+  right:-100px;
+}
+
+.overlay{
+  position:absolute;
+  inset:0;
+  background:rgba(255,255,255,0.65);
+}
+
+.hero-container{
+  position:relative;
+  z-index:2;
+  width:100%;
+  max-width:1200px;
+  text-align:center;
+}
+
+.hero-title{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.main-title{
+  font-size:5rem;
+  font-weight:900;
+  line-height:1;
+  letter-spacing:2px;
+  color:#0f172a;
+}
+
+.services-title{
+  font-size:2rem;
+  margin-top:10px;
+  color:#16a34a;
+  letter-spacing:7px;
+  font-weight:700;
+}
+
+.microscope{
+  width:115px;
+  margin-top:5px;
+margin-bottom:15px;
+  animation:float 4s ease-in-out infinite;
+  opacity:1;
+}
+
+.title-line{
+  width:130px;
+  height:5px;
+  border-radius:999px;
+  background:#16a34a;
+  margin-top:20px;
+}
+
+.subtitle{
+  max-width:720px;
+  margin:35px auto;
+  line-height:1.9;
+  font-size:1.05rem;
+  color:#334155;
+  text-shadow:none;
+}
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+.button-group{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:18px;
+  margin-top:35px;
+}
+
+.home-link button{
+  border:none;
+  padding:14px 26px;
+  border-radius:14px;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  transition:0.3s;
+}
+
+.green-btn{
+  background:#16a34a;
+  color:white;
+}
+
+.red-btn{
+  background:#dc2626;
+  color:white;
+}
+
+.whatsapp-btn{
+  background:#25d366;
+  color:white;
+}
+
+.home-link button:hover{
+  transform:translateY(-4px);
+  opacity:0.94;
+}
+
+/* =====================================================
+   FEATURES
+===================================================== */
+
+.features{
+  margin-top:60px;
+  display:grid;
+  grid-template-columns:
+    repeat(auto-fit,minmax(220px,1fr));
+  gap:20px;
+}
+
+.feature{
+  background:rgba(255,255,255,0.75);
+  border:1px solid rgba(255,255,255,0.5);
+  backdrop-filter:blur(8px);
+
+  border-radius:22px;
+
+  padding:26px;
+
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+
+  gap:14px;
+
+  transition:0.3s;
+
+  box-shadow:
+    0 8px 20px rgba(0,0,0,0.04);
+}
+
+.feature:hover{
+  transform:translateY(-5px);
+}
+
+.feature p{
+  font-size:14px;
+  font-weight:600;
+  text-align:center;
+  color:#0f172a;
+}
+
+.icon{
+  width:60px;
+  height:60px;
+  border-radius:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+}
+
+.blue{
+  background:#2563eb;
+}
+
+.green{
+  background:#16a34a;
+}
+
+.red{
+  background:#dc2626;
+}
+
+/* =====================================================
+   ANIMATION
+===================================================== */
+
+@keyframes float{
+
+  0%{
+    transform:translateY(0px);
+  }
+
+  50%{
+    transform:translateY(-10px);
+  }
+
+  100%{
+    transform:translateY(0px);
+  }
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media(max-width:768px){
+
+  .main-title{
+    font-size:2.5rem;
+  }
+
+  .services-title{
+    font-size:1.3rem;
+    letter-spacing:4px;
+  }
+
+  .subtitle{
+    font-size:0.98rem;
+  }
+
+  .button-group{
+    flex-direction:column;
+  }
+}/* =====================================================
+   ABOUT
+===================================================== */
+
+.about-section{
+  padding:90px 20px;
+  background:white;
+}
+
+.about-smart-card{
+  max-width:1200px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:
+    repeat(auto-fit,minmax(320px,1fr));
+  gap:50px;
+}
+
+.about-left h2{
+  font-size:2.0rem;
+  margin:18px 0;
+}
+
+.about-left p{
+  line-height:1.9;
+  color:#475569;
+  margin-top:18px;
+}
+
+.about-badge{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  background:#dcfce7;
+  color:#166534;
+  padding:10px 18px;
+  border-radius:999px;
+  font-weight:700;
+}
+
+.small-line{
+  width:85px;
+  height:5px;
+  background:#16a34a;
+  border-radius:900px;
+  margin-top:10px;
+}
+
+.about-right{
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+}
+
+.about-highlight{
+  background:#f8fafc;
+  border-radius:16px;
+  padding:18px;
+  display:flex;
+  align-items:center;
+  gap:14px;
+  box-shadow:0 4px 12px rgba(0,0,0,0.04);
+  font-weight:700;
+  font-size:15px;
+  color:#0f172a;
+}
+
+/* =====================================================
+   MISSION & VISION
+===================================================== */
+
+.mission-vision-grid{
+  max-width:900px;
+  margin:10px auto 0;
+  display:grid;
+  grid-template-columns:
+    repeat(auto-fit,minmax(320px,1fr));
+  gap:25px;
+}
+
+.info-card{
+  background:#f8fafc;
+  padding:35px;
+  border-radius:20px;
+  box-shadow:0 8px 18px rgba(0,0,0,0.05);
+  text-align:center;
+}
+
+.info-card-header{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  gap:5px;
+  margin-bottom:10px;
+}
+
+.info-card h2{
+  margin:0;
+  font-size:1.5rem;
+  font-weight:800;
+  color:#0f172a;
+}
+
+.info-card p{
+  line-height:1.5;
+  color:#475569;
+  text-align:center;
+}
+
+.info-icon{
+  width:50px;
+  height:50px;
+  border-radius:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  margin:auto;
+  color:white;
+}
+
+/* =====================================================
+   SERVICES
+===================================================== */
+
+.services-section{
+  padding:50px 10px;
+  background:#f1f5f9;
+}
+
+.section-header{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  margin-bottom:0px;
+}
+
+.section-header h2{
+  font-size:1.0rem;
+  font-weight:500;
+}
+
+.line{
+  width:50px;
+  height:4px;
+  border-radius:999px;
+  background:#16a34a;
+}
+
+.services-grid{
+  max-width:1000px;
+  margin:auto;
+  display:grid;
+  grid-template-columns:
+    repeat(auto-fit,minmax(200px,1fr));
+  gap:15px;
+}
+
+.service-card{
+  background:white;
+  padding:20px;
+  border-radius:20px;
+  text-align:center;
+  transition:0.3s;
+  box-shadow:0 8px 20px rgba(0,0,0,0.05);
+}
+
+.service-card:hover{
+  transform:translateY(-5px);
+}
+
+.service-card h3{
+  margin-top:10px;
+  font-size:1rem;
+}
+
+.service-icon{
+  width:50px;
+  height:50px;
+  border-radius:15px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  color:white;
+}
+
+/* =====================================================
+   CONTACT
+===================================================== */
+
+.contact-section{
+  padding:40px 20px 10px;
+  background:white;
+}
+
+.smart-contact-card{
+  max-width:900px;
+  margin:auto;
+  background:white;
+  border-radius:24px;
+  padding:20px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.05);
+}
+
+.address-wrapper{
+  display:grid;
+  grid-template-columns:
+    repeat(auto-fit,minmax(200px,1fr));
+  gap:16px;
+  margin-bottom:20px;
+}
+
+.branch-box,
+.head-office-box{
+  background:#f8fafc;
+  border-radius:16px;
+  padding:16px;
+  transition:0.3s;
+}
+
+.branch-box:hover,
+.head-office-box:hover{
+  transform:translateY(-4px);
+}
+
+.branch-box h4,
+.head-office-box h3{
+  margin-bottom:8px;
+  font-size:0.95rem;
+  font-weight:800;
+}
+
+.branch-box p,
+.head-office-box p{
+  font-size:13px;
+  line-height:1.7;
+  color:#475569;
+}
+
+.head-office-box{
+  background:#2563eb;
+  color:white;
+}
+
+.head-office-box p{
+  color:#e2e8f0;
+}
+
+.mini-contact-grid{
+  display:grid;
+  grid-template-columns:
+    repeat(auto-fit,minmax(200px,1fr));
+  gap:14px;
+}
+
+.mini-contact-item{
+  background:#f8fafc;
+  border-radius:14px;
+  padding:14px;
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  font-size:13px;
+  transition:0.3s;
+}
+
+.mini-contact-item:hover{
+  transform:translateY(-3px);
+}
+
+.mini-contact-item span{
+  line-height:1.7;
+  color:#334155;
+}
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.footer{
+  background:#2563eb;
+  color:white;
+  padding:20px 15px;
+  margin-top:-5px;
+}
+
+.footer-content{
+  max-width:1200px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:15px;
+  text-align:left;
+}
+
+.footer-logo{
+  width:80px;
+}
+
+.footer-text h2{
+  font-size:1.0rem;
+}
+
+.footer-text p{
+  color:#dbeafe;
+  margin-top:8px;
+}
+
+.copyright{
+  display:block;
+  margin-top:10px;
+  color:#dbeafe;
+  font-size:13px;
+}
+
+/* =====================================================
+   ANIMATION
+===================================================== */
+
+@keyframes float{
+
+  0%{
+    transform:translateY(0px);
+  }
+
+  50%{
+    transform:translateY(-10px);
+  }
+
+  100%{
+    transform:translateY(0px);
+  }
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media(max-width:768px){
+
+  .main-title{
+    font-size:2.5rem;
+  }
+
+  .services-title{
+    font-size:1.3rem;
+    letter-spacing:4px;
+  }
+
+  .subtitle{
+    font-size:0.98rem;
+  }
+
+  .button-group{
+    flex-direction:column;
+  }
+
+  .section-header h2{
+    font-size:2rem;
+  }
+
+  .about-left h2{
+    font-size:2rem;
+  }
+
+  .footer-content{
+    flex-direction:column;
+    text-align:center;
+  }
+
+  .footer-text h2{
+    font-size:1.2rem;
+  }
+
+  .smart-contact-card{
+    padding:20px;
+  }
+}

@@ -1,0 +1,209 @@
+.blood-page {
+  max-width: 1200px;
+
+  margin: 40px auto;
+
+  background: white;
+
+  padding: 40px;
+
+  border-radius: 20px;
+
+  box-shadow:
+    0 4px 18px
+    rgba(0, 0, 0, 0.08);
+}
+
+.blood-header {
+  display: flex;
+
+  align-items: center;
+
+  gap: 20px;
+
+  border-bottom:
+    3px solid #003f6f;
+
+  padding-bottom: 20px;
+
+  margin-bottom: 30px;
+}
+
+.blood-logo {
+  width: 90px;
+}
+
+.blood-header h1 {
+  font-size: 34px;
+
+  color: #003f6f;
+}
+
+.blood-header p {
+  color: #e41e26;
+
+  margin-top: 6px;
+
+  font-size: 18px;
+}
+
+.blood-title {
+  display: flex;
+
+  justify-content:
+    center;
+
+  align-items: center;
+
+  gap: 12px;
+
+  margin-bottom: 35px;
+
+  color: #003f6f;
+}
+
+.blood-title h2 {
+  font-size: 34px;
+}
+
+.blood-card {
+  margin-bottom: 30px;
+
+  background: #f9fbfd;
+
+  padding: 30px;
+
+  border-radius: 18px;
+}
+
+.blood-card h3 {
+  margin-bottom: 20px;
+
+  color: #003f6f;
+
+  font-size: 24px;
+}
+
+.blood-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(250px, 1fr)
+    );
+
+  gap: 20px;
+}
+
+.blood-grid div {
+  display: flex;
+
+  flex-direction: column;
+}
+
+.blood-grid label {
+  margin-bottom: 8px;
+
+  font-weight: bold;
+
+  color: #003f6f;
+}
+
+.blood-grid input,
+.blood-grid select,
+.blood-card textarea {
+  padding: 14px;
+
+  border-radius: 10px;
+
+  border:
+    1px solid #ccc;
+
+  font-size: 16px;
+}
+
+.blood-card textarea {
+  width: 100%;
+}
+
+.blood-sign {
+  display: flex;
+
+  justify-content:
+    space-between;
+
+  margin-top: 50px;
+
+  text-align: center;
+}
+
+.blood-sign span {
+  color: #555;
+}
+
+.blood-buttons {
+  margin-top: 40px;
+
+  display: flex;
+
+  justify-content: center;
+
+  gap: 20px;
+
+  flex-wrap: wrap;
+}
+
+.blood-buttons button {
+  border: none;
+
+  padding: 16px 28px;
+
+  border-radius: 12px;
+
+  color: white;
+
+  font-size: 16px;
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+}
+
+.save-blood {
+  background: #68c414;
+}
+
+.print-blood {
+  background: #003f6f;
+}
+
+/* MOBILE */
+
+@media (max-width: 768px) {
+  .blood-page {
+    padding: 20px;
+  }
+
+  .blood-header {
+    flex-direction: column;
+
+    text-align: center;
+  }
+
+  .blood-title h2 {
+    font-size: 24px;
+  }
+
+  .blood-sign {
+    flex-direction: column;
+
+    gap: 30px;
+  }
+}

@@ -1,0 +1,340 @@
+/* =========================
+   PRINT CONTAINER
+========================= */
+
+.ultrasound-print{
+  width:100%;
+  max-width:1000px;
+  margin:0 auto;
+  padding:40px;
+  background:white;
+  color:#0f172a;
+  font-family:
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.print-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  padding-bottom:25px;
+  border-bottom:
+    3px solid #2563eb;
+  margin-bottom:30px;
+}
+
+.print-header h1{
+  margin:0;
+  font-size:30px;
+  font-weight:700;
+  color:#2563eb;
+}
+
+.print-header p{
+  margin:6px 0;
+  color:#475569;
+  font-size:15px;
+}
+
+.print-header span{
+  color:#64748b;
+  font-size:14px;
+}
+
+.print-header-right{
+  text-align:right;
+}
+
+.print-header-right h3{
+  margin:0 0 12px;
+  font-size:22px;
+  color:#0f172a;
+}
+
+/* =========================
+   SECTION
+========================= */
+
+.print-section{
+  margin-bottom:30px;
+}
+
+.print-section h2{
+  font-size:20px;
+  color:#2563eb;
+  margin-bottom:18px;
+  border-left:
+    5px solid #2563eb;
+  padding-left:12px;
+}
+
+.print-section p{
+  margin:0;
+  line-height:1.8;
+  color:#1e293b;
+  font-size:15px;
+}
+
+/* =========================
+   GRID
+========================= */
+
+.print-grid{
+  display:grid;
+  grid-template-columns:
+    repeat(2,1fr);
+  gap:20px;
+}
+
+.print-grid div{
+  border:
+    1px solid #e2e8f0;
+  border-radius:14px;
+  padding:16px;
+  background:#f8fafc;
+}
+
+.print-grid label{
+  display:block;
+  font-size:13px;
+  font-weight:700;
+  color:#64748b;
+  margin-bottom:8px;
+  text-transform:uppercase;
+}
+
+.print-grid span{
+  font-size:15px;
+  color:#0f172a;
+  font-weight:500;
+  word-break:break-word;
+}
+
+/* =========================
+   VALIDATION
+========================= */
+
+.validation-section{
+  display:grid;
+  grid-template-columns:
+    repeat(2,1fr);
+  gap:25px;
+  margin-top:40px;
+}
+
+.validation-section div{
+  border:
+    1px solid #e2e8f0;
+  border-radius:14px;
+  padding:20px;
+  background:#f8fafc;
+}
+
+.validation-section label{
+  display:block;
+  margin-bottom:10px;
+  font-size:13px;
+  font-weight:700;
+  color:#64748b;
+  text-transform:uppercase;
+}
+
+.validation-section p{
+  margin:0;
+  font-size:15px;
+  color:#0f172a;
+  font-weight:600;
+}
+
+/* =========================
+   SIGNATURE
+========================= */
+
+.signature-section{
+  margin-top:60px;
+  display:flex;
+  justify-content:flex-end;
+}
+
+.signature-box{
+  width:280px;
+  text-align:center;
+}
+
+.signature-line{
+  border-top:
+    2px solid #0f172a;
+  margin-bottom:10px;
+  height:1px;
+}
+
+.signature-box span{
+  font-size:14px;
+  color:#475569;
+  font-weight:600;
+}
+
+/* =========================
+   PRINT NOTES
+========================= */
+
+.print-note{
+  margin-top:40px;
+  text-align:center;
+  color:#64748b;
+  font-size:13px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width:768px){
+
+  .ultrasound-print{
+    padding:20px;
+  }
+
+  .print-header{
+    flex-direction:column;
+    gap:20px;
+  }
+
+  .print-header-right{
+    text-align:left;
+  }
+
+  .print-grid{
+    grid-template-columns:1fr;
+  }
+
+  .validation-section{
+    grid-template-columns:1fr;
+  }
+
+  .signature-section{
+    justify-content:flex-start;
+  }
+
+  .signature-box{
+    width:100%;
+  }
+}
+
+/* =========================
+   PRINT MODE
+========================= */
+
+@media print{
+
+  body{
+    background:white;
+  }
+
+  .ultrasound-print{
+    max-width:100%;
+    padding:0;
+    margin:0;
+    box-shadow:none;
+  }
+
+  .print-grid div,
+  .validation-section div{
+    break-inside:avoid;
+  }
+
+  .print-section{
+    break-inside:avoid;
+  }
+
+  .signature-section{
+    break-inside:avoid;
+  }
+
+  @page{
+    size:A4;
+    margin:15mm;
+  }
+}
+
+/* =========================
+   ULTRASOUND IMAGE GRID
+========================= */
+
+.ultrasound-images-grid{
+  display:grid;
+  grid-template-columns:
+    repeat(auto-fit,minmax(240px,1fr));
+  gap:20px;
+  margin-top:20px;
+}
+
+/* =========================
+   IMAGE CARD
+========================= */
+
+.ultrasound-image-card{
+  border:
+    1px solid #dbeafe;
+  border-radius:18px;
+  overflow:hidden;
+  background:white;
+  display:flex;
+  flex-direction:column;
+  break-inside:avoid;
+}
+
+/* =========================
+   IMAGE
+========================= */
+
+.ultrasound-image-card img{
+  width:100%;
+  height:220px;
+  object-fit:cover;
+  display:block;
+  background:#f8fafc;
+}
+
+/* =========================
+   IMAGE LABEL
+========================= */
+
+.ultrasound-image-card span{
+  padding:14px;
+  font-size:14px;
+  font-weight:600;
+  color:#475569;
+  text-align:center;
+  border-top:
+    1px solid #e2e8f0;
+}
+
+/* =========================
+   PRINT SAFE IMAGES
+========================= */
+
+@media print{
+
+  .ultrasound-images-grid{
+    gap:12px;
+  }
+
+  .ultrasound-image-card{
+    border:
+      1px solid #cbd5e1;
+    box-shadow:none;
+  }
+
+  .ultrasound-image-card img{
+    height:180px;
+    object-fit:contain;
+    background:white;
+  }
+}

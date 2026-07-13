@@ -1,0 +1,1419 @@
+/* ==========================================
+   PAGE LAYOUT
+========================================== */
+
+.ultrasound-dashboard {
+
+  display: grid;
+
+  grid-template-columns: 320px 1fr;
+
+  gap: 24px;
+
+  padding: 24px;
+
+  min-height: calc(100vh - 80px);
+
+  background: #f8fafc;
+
+}
+
+/* ==========================================
+   LEFT PANEL
+========================================== */
+
+.patient-list {
+
+  background: #ffffff;
+
+  border-radius: 24px;
+
+  padding: 24px;
+
+  border: 1px solid #e2e8f0;
+
+  box-shadow:
+
+    0 10px 30px
+
+    rgba(15,23,42,.05);
+
+  overflow-y: auto;
+
+}
+
+.patient-list h2 {
+
+  margin: 0 0 20px;
+
+  font-size: 22px;
+
+  font-weight: 800;
+
+  color: #0f172a;
+
+}
+
+/* ==========================================
+   PATIENT CARD
+========================================== */
+
+.patient-item {
+
+  width: 100%;
+
+  text-align: left;
+
+  padding: 16px;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 18px;
+
+  background: #f8fafc;
+
+  cursor: pointer;
+
+  transition: .25s;
+
+  margin-bottom: 14px;
+
+  font-size: 14px;
+
+}
+
+.patient-item:hover {
+
+  background: #eff6ff;
+
+  border-color: #0ea5e9;
+
+  transform: translateY(-2px);
+
+}
+
+.patient-item strong {
+
+  display: block;
+
+  margin-bottom: 5px;
+
+  color: #0f172a;
+
+  font-size: 15px;
+
+  font-weight: 700;
+
+}
+
+/* ==========================================
+   RESULT EDITOR
+========================================== */
+
+.result-editor {
+
+  background: #ffffff;
+
+  border-radius: 24px;
+
+  padding: 30px;
+
+  border: 1px solid #e2e8f0;
+
+  box-shadow:
+
+    0 10px 30px
+
+    rgba(15,23,42,.05);
+
+}
+
+.result-editor h1 {
+
+  margin: 0 0 25px;
+
+  color: #0f172a;
+
+  font-size: 28px;
+
+  font-weight: 800;
+
+}
+
+/* ==========================================
+   SCAN FORM GRID
+========================================== */
+
+.scan-form-grid {
+
+  display: grid;
+
+  gap: 18px;
+
+}
+
+.scan-form-grid h3 {
+
+  margin: 10px 0 6px;
+
+  color: #0f172a;
+
+  font-size: 15px;
+
+  font-weight: 700;
+
+  border-left: 4px solid #0ea5e9;
+
+  padding-left: 10px;
+
+}
+
+/* ==========================================
+   TEXTAREA
+========================================== */
+
+.scan-form-grid textarea {
+
+  width: 100%;
+
+  border: 1px solid #cbd5e1;
+
+  border-radius: 16px;
+
+  padding: 14px;
+
+  resize: vertical;
+
+  min-height: 80px;
+
+  font-size: 14px;
+
+  font-family: inherit;
+
+  background: #f8fafc;
+
+  transition: .2s;
+
+}
+
+.scan-form-grid textarea:focus {
+
+  outline: none;
+
+  border-color: #0ea5e9;
+
+  background: #ffffff;
+
+  box-shadow:
+
+    0 0 0 4px
+
+    rgba(14,165,233,.12);
+
+}
+
+/* ==========================================
+   SAVE BUTTON
+========================================== */
+
+.save-btn {
+
+  margin-top: 30px;
+
+  height: 54px;
+
+  padding: 0 28px;
+
+  border: none;
+
+  border-radius: 16px;
+
+  background: linear-gradient(
+
+    135deg,
+
+    #0284c7,
+
+    #0ea5e9
+
+  );
+
+  color: #ffffff;
+
+  font-size: 15px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: .25s;
+
+}
+
+.save-btn:hover {
+
+  transform: translateY(-2px);
+
+  box-shadow:
+
+    0 10px 25px
+
+    rgba(14,165,233,.25);
+
+}
+
+/* ==========================================
+   EMPTY STATE
+========================================== */
+
+.empty-ultrasound-state {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-height: 500px;
+
+  color: #64748b;
+
+  font-size: 18px;
+
+  font-weight: 600;
+
+}
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width: 1200px) {
+
+  .ultrasound-dashboard {
+
+    grid-template-columns: 1fr;
+
+  }
+
+}
+
+@media (max-width: 768px) {
+
+  .ultrasound-dashboard {
+
+    padding: 16px;
+
+    gap: 16px;
+
+  }
+
+  .patient-list,
+
+  .result-editor {
+
+    padding: 20px;
+
+    border-radius: 20px;
+
+  }
+
+  .result-editor h1 {
+
+    font-size: 22px;
+
+  }
+
+}
+
+/* ==========================================
+   TEMPLATE SELECTOR
+========================================== */
+
+.ultrasound-template-grid {
+
+  display: grid;
+
+  grid-template-columns:
+
+    repeat(
+
+      auto-fit,
+
+      minmax(180px,1fr)
+
+    );
+
+  gap: 18px;
+
+}
+
+.ultrasound-template-card {
+
+  height: 120px;
+
+  border: 1px solid #e2e8f0;
+
+  border-radius: 22px;
+
+  background: #ffffff;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 12px;
+
+  cursor: pointer;
+
+  transition: .25s;
+
+  color: #334155;
+
+}
+
+.ultrasound-template-card:hover {
+
+  transform: translateY(-4px);
+
+  border-color: #0ea5e9;
+
+  box-shadow:
+
+    0 10px 30px
+
+    rgba(
+
+      14,
+
+      165,
+
+      233,
+
+      .15
+
+    );
+
+}
+
+.ultrasound-template-card svg {
+
+  color: #0284c7;
+
+}
+
+.ultrasound-template-card span {
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+}
+
+.ultrasound-template-card.active {
+
+  background:
+
+    linear-gradient(
+
+      135deg,
+
+      #0284c7,
+
+      #0ea5e9
+
+    );
+
+  color: white;
+
+  border-color: transparent;
+
+}
+
+.ultrasound-template-card.active svg {
+
+  color: white;
+
+}
+
+/* ==========================================
+   KPI CARDS
+========================================== */
+
+.ultrasound-kpi-grid {
+
+  display: grid;
+
+  grid-template-columns:
+
+    repeat(
+
+      5,
+
+      1fr
+
+    );
+
+  gap: 20px;
+
+  margin-bottom: 30px;
+
+}
+
+.ultrasound-kpi-card {
+
+  background: white;
+
+  border-radius: 22px;
+
+  padding: 24px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 18px;
+
+  border: 1px solid #e2e8f0;
+
+  box-shadow:
+
+    0 10px 30px
+
+    rgba(15,23,42,.05);
+
+}
+
+.kpi-icon {
+
+  width: 65px;
+
+  height: 65px;
+
+  border-radius: 18px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+}
+
+.kpi-content h2 {
+
+  margin: 0;
+
+  font-size: 30px;
+
+  font-weight: 800;
+
+  color: #0f172a;
+
+}
+
+.kpi-content p {
+
+  margin-top: 6px;
+
+  color: #64748b;
+
+  font-size: 14px;
+
+  font-weight: 600;
+
+}
+
+/* ==========================
+   COLORS
+========================== */
+
+.card-blue .kpi-icon {
+
+  background:
+
+    rgba(14,165,233,.15);
+
+  color: #0284c7;
+
+}
+
+.card-orange .kpi-icon {
+
+  background:
+
+    rgba(245,158,11,.15);
+
+  color: #d97706;
+
+}
+
+.card-green .kpi-icon {
+
+  background:
+
+    rgba(34,197,94,.15);
+
+  color: #15803d;
+
+}
+
+.card-purple .kpi-icon {
+
+  background:
+
+    rgba(168,85,247,.15);
+
+  color: #7e22ce;
+
+}
+
+.card-red .kpi-icon {
+
+  background:
+
+    rgba(239,68,68,.15);
+
+  color: #dc2626;
+
+}
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width:1400px) {
+
+  .ultrasound-kpi-grid {
+
+    grid-template-columns:
+
+      repeat(
+
+        3,
+
+        1fr
+
+      );
+
+  }
+
+}
+
+@media (max-width:900px) {
+
+  .ultrasound-kpi-grid {
+
+    grid-template-columns:
+
+      repeat(
+
+        2,
+
+        1fr
+
+      );
+
+  }
+
+}
+
+@media (max-width:600px) {
+
+  .ultrasound-kpi-grid {
+
+    grid-template-columns:
+
+      1fr;
+
+  }
+
+}
+
+/* ==========================================
+   CALENDAR
+========================================== */
+
+.ultrasound-calendar-card {
+
+  background: white;
+
+  border-radius: 24px;
+
+  padding: 28px;
+
+  border: 1px solid #e2e8f0;
+
+  box-shadow:
+
+    0 10px 30px
+
+    rgba(15,23,42,.05);
+
+}
+
+.calendar-header {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  align-items: center;
+
+  margin-bottom: 25px;
+
+}
+
+.calendar-header h2 {
+
+  margin: 0;
+
+  color: #0f172a;
+
+  font-size: 22px;
+
+  font-weight: 800;
+
+}
+
+.calendar-header p {
+
+  margin-top: 6px;
+
+  color: #64748b;
+
+  font-size: 14px;
+
+}
+
+.calendar-header svg {
+
+  color: #0284c7;
+
+}
+
+.calendar-empty {
+
+  text-align: center;
+
+  padding: 50px;
+
+  color: #64748b;
+
+}
+
+.calendar-item {
+
+  display: grid;
+
+  grid-template-columns:
+
+    140px
+
+    1fr
+
+    120px;
+
+  gap: 20px;
+
+  align-items: center;
+
+  padding: 18px 0;
+
+  border-bottom:
+
+    1px solid #f1f5f9;
+
+}
+
+.calendar-item:last-child {
+
+  border-bottom: none;
+
+}
+
+.calendar-time {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  font-weight: 700;
+
+  color: #0284c7;
+
+}
+
+.calendar-body h4 {
+
+  margin: 0;
+
+  font-size: 15px;
+
+  font-weight: 700;
+
+  color: #0f172a;
+
+}
+
+.calendar-body p {
+
+  margin: 5px 0;
+
+  color: #475569;
+
+  font-size: 14px;
+
+}
+
+.calendar-body span {
+
+  font-size: 13px;
+
+  color: #94a3b8;
+
+}
+
+.calendar-status {
+
+  display: flex;
+
+  justify-content: flex-end;
+
+}
+
+.urgent-tag,
+
+.completed-tag,
+
+.pending-tag {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 8px 14px;
+
+  border-radius: 999px;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+}
+
+.urgent-tag {
+
+  background:
+
+    rgba(239,68,68,.12);
+
+  color: #dc2626;
+
+}
+
+.completed-tag {
+
+  background:
+
+    rgba(34,197,94,.12);
+
+  color: #15803d;
+
+}
+
+.pending-tag {
+
+  background:
+
+    rgba(245,158,11,.12);
+
+  color: #d97706;
+
+}
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width:900px) {
+
+  .calendar-item {
+
+    grid-template-columns: 1fr;
+
+    gap: 12px;
+
+  }
+
+}
+
+/* ==========================================
+   RECENT TABLE
+========================================== */
+
+.recent-ultrasound-card {
+
+  background: #ffffff;
+
+  border-radius: 24px;
+
+  padding: 28px;
+
+  border: 1px solid #e2e8f0;
+
+  box-shadow:
+
+    0 10px 30px
+
+    rgba(15,23,42,.05);
+
+}
+
+.recent-header {
+
+  margin-bottom: 24px;
+
+}
+
+.recent-header h2 {
+
+  margin: 0;
+
+  color: #0f172a;
+
+  font-size: 22px;
+
+  font-weight: 800;
+
+}
+
+.recent-header p {
+
+  margin-top: 6px;
+
+  color: #64748b;
+
+}
+
+.recent-table-wrapper {
+
+  overflow-x: auto;
+
+}
+
+.recent-table {
+
+  width: 100%;
+
+  border-collapse: collapse;
+
+}
+
+.recent-table th {
+
+  padding: 16px;
+
+  text-align: left;
+
+  background: #f8fafc;
+
+  color: #475569;
+
+  font-size: 13px;
+
+  font-weight: 700;
+
+}
+
+.recent-table td {
+
+  padding: 18px 16px;
+
+  border-top:
+
+    1px solid #f1f5f9;
+
+}
+
+.patient-cell {
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 4px;
+
+}
+
+.patient-cell strong {
+
+  color: #0f172a;
+
+}
+
+.patient-cell span {
+
+  color: #94a3b8;
+
+  font-size: 12px;
+
+}
+
+.priority-badge {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-width: 90px;
+
+  height: 32px;
+
+  border-radius: 999px;
+
+  font-size: 12px;
+
+  font-weight: 700;
+
+}
+
+.priority-badge.Routine {
+
+  background:
+
+    rgba(14,165,233,.12);
+
+  color: #0284c7;
+
+}
+
+.priority-badge.Urgent {
+
+  background:
+
+    rgba(239,68,68,.12);
+
+  color: #dc2626;
+
+}
+
+.recent-actions {
+
+  display: flex;
+
+  gap: 8px;
+
+}
+
+.recent-actions button {
+
+  width: 36px;
+
+  height: 36px;
+
+  border: none;
+
+  border-radius: 10px;
+
+  background: #f1f5f9;
+
+  color: #475569;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  cursor: pointer;
+
+  transition: .2s;
+
+}
+
+.recent-actions button:hover {
+
+  background: #0ea5e9;
+
+  color: white;
+
+}
+
+/* ==========================================
+   QUICK ACTIONS
+========================================== */
+
+.ultrasound-quick-actions {
+
+  display: grid;
+
+  grid-template-columns:
+
+    repeat(
+
+      3,
+
+      1fr
+
+    );
+
+  gap: 20px;
+
+}
+
+.quick-action-card {
+
+  border: none;
+
+  background: white;
+
+  border-radius: 24px;
+
+  padding: 24px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 18px;
+
+  cursor: pointer;
+
+  transition: .25s;
+
+  border: 1px solid #e2e8f0;
+
+  box-shadow:
+
+    0 10px 30px
+
+    rgba(15,23,42,.05);
+
+}
+
+.quick-action-card:hover {
+
+  transform:
+
+    translateY(-4px);
+
+}
+
+.quick-action-icon {
+
+  width: 65px;
+
+  height: 65px;
+
+  border-radius: 18px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+}
+
+.quick-action-content h3 {
+
+  margin: 0;
+
+  color: #0f172a;
+
+  font-size: 16px;
+
+  font-weight: 800;
+
+}
+
+.quick-action-content p {
+
+  margin-top: 6px;
+
+  color: #64748b;
+
+  font-size: 13px;
+
+}
+
+/* ==========================================
+   COLORS
+========================================== */
+
+.quick-blue .quick-action-icon {
+
+  background:
+
+    rgba(14,165,233,.12);
+
+  color: #0284c7;
+
+}
+
+.quick-orange .quick-action-icon {
+
+  background:
+
+    rgba(245,158,11,.12);
+
+  color: #d97706;
+
+}
+
+.quick-green .quick-action-icon {
+
+  background:
+
+    rgba(34,197,94,.12);
+
+  color: #15803d;
+
+}
+
+.quick-purple .quick-action-icon {
+
+  background:
+
+    rgba(168,85,247,.12);
+
+  color: #7c3aed;
+
+}
+
+.quick-cyan .quick-action-icon {
+
+  background:
+
+    rgba(6,182,212,.12);
+
+  color: #0891b2;
+
+}
+
+.quick-red .quick-action-icon {
+
+  background:
+
+    rgba(239,68,68,.12);
+
+  color: #dc2626;
+
+}
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width:1200px) {
+
+  .ultrasound-quick-actions {
+
+    grid-template-columns:
+
+      repeat(
+
+        2,
+
+        1fr
+
+      );
+
+  }
+
+}
+
+@media (max-width:768px) {
+
+  .ultrasound-quick-actions {
+
+    grid-template-columns:
+
+      1fr;
+
+  }
+
+}
+
+/* ==========================================
+   IMAGE UPLOADER
+========================================== */
+
+.ultrasound-image-section {
+
+  margin-top: 30px;
+
+}
+
+.image-header {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  margin-bottom: 18px;
+
+}
+
+.image-header h3 {
+
+  margin: 0;
+
+  color: #0f172a;
+
+  font-size: 18px;
+
+  font-weight: 800;
+
+}
+
+.image-header svg {
+
+  color: #0284c7;
+
+}
+
+.image-upload-box {
+
+  height: 140px;
+
+  border: 2px dashed #cbd5e1;
+
+  border-radius: 20px;
+
+  background: #f8fafc;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 12px;
+
+  cursor: pointer;
+
+  transition: .25s;
+
+}
+
+.image-upload-box:hover {
+
+  border-color: #0ea5e9;
+
+  background: #eff6ff;
+
+}
+
+.image-upload-box svg {
+
+  color: #0284c7;
+
+}
+
+.image-upload-box span {
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+  color: #475569;
+
+}
+
+.image-preview-grid {
+
+  display: grid;
+
+  grid-template-columns:
+
+    repeat(
+
+      auto-fill,
+
+      minmax(180px,1fr)
+
+    );
+
+  gap: 20px;
+
+  margin-top: 25px;
+
+}
+
+.preview-card {
+
+  position: relative;
+
+  border-radius: 18px;
+
+  overflow: hidden;
+
+  background: #ffffff;
+
+  border: 1px solid #e2e8f0;
+
+  box-shadow:
+
+    0 10px 25px
+
+    rgba(15,23,42,.05);
+
+}
+
+.preview-card img {
+
+  width: 100%;
+
+  height: 180px;
+
+  object-fit: cover;
+
+  display: block;
+
+}
+
+.preview-card button {
+
+  position: absolute;
+
+  top: 10px;
+
+  right: 10px;
+
+  width: 34px;
+
+  height: 34px;
+
+  border: none;
+
+  border-radius: 50%;
+
+  background: rgba(220,38,38,.9);
+
+  color: white;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  cursor: pointer;
+
+}

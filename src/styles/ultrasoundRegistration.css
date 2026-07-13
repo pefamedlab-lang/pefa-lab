@@ -1,0 +1,253 @@
+/* ==========================================
+   PAGE
+========================================== */
+
+.ultrasound-registration {
+
+  max-width: 1500px;
+
+  margin: 0 auto;
+
+  padding: 30px;
+
+  background: #f8fafc;
+
+  min-height: 100vh;
+
+}
+
+/* ==========================================
+   HEADER
+========================================== */
+
+.registration-header {
+
+  margin-bottom: 30px;
+
+}
+
+.registration-header h1 {
+
+  margin: 0;
+
+  color: #0f172a;
+
+  font-size: 34px;
+
+  font-weight: 800;
+
+}
+
+.registration-header p {
+
+  margin-top: 8px;
+
+  color: #64748b;
+
+  font-size: 15px;
+
+}
+
+/* ==========================================
+   CARD
+========================================== */
+
+.registration-card {
+
+  background: #ffffff;
+
+  border-radius: 24px;
+
+  padding: 28px;
+
+  margin-bottom: 25px;
+
+  border: 1px solid #e2e8f0;
+
+  box-shadow:
+
+    0 10px 30px
+
+    rgba(15,23,42,.05);
+
+}
+
+.registration-card h2 {
+
+  margin: 0 0 25px;
+
+  color: #0f172a;
+
+  font-size: 20px;
+
+  font-weight: 800;
+
+}
+
+/* ==========================================
+   GRID
+========================================== */
+
+.registration-grid {
+
+  display: grid;
+
+  grid-template-columns:
+
+    repeat(
+
+      auto-fit,
+
+      minmax(240px,1fr)
+
+    );
+
+  gap: 18px;
+
+}
+
+/* ==========================================
+   INPUTS
+========================================== */
+
+.registration-grid input,
+
+.registration-grid select,
+
+.registration-card textarea {
+
+  width: 100%;
+
+  border: 1px solid #cbd5e1;
+
+  border-radius: 16px;
+
+  padding: 14px 18px;
+
+  background: #f8fafc;
+
+  font-size: 14px;
+
+  font-family: inherit;
+
+  transition: .25s;
+
+}
+
+.registration-grid input:focus,
+
+.registration-grid select:focus,
+
+.registration-card textarea:focus {
+
+  outline: none;
+
+  background: #ffffff;
+
+  border-color: #0ea5e9;
+
+  box-shadow:
+
+    0 0 0 4px
+
+    rgba(14,165,233,.12);
+
+}
+
+.registration-card textarea {
+
+  margin-top: 20px;
+
+  resize: vertical;
+
+  min-height: 130px;
+
+}
+
+/* ==========================================
+   BUTTON
+========================================== */
+
+.save-request-btn {
+
+  width: 100%;
+
+  height: 60px;
+
+  border: none;
+
+  border-radius: 18px;
+
+  background:
+
+    linear-gradient(
+
+      135deg,
+
+      #0284c7,
+
+      #0ea5e9
+
+    );
+
+  color: #ffffff;
+
+  font-size: 16px;
+
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition: .25s;
+
+}
+
+.save-request-btn:hover {
+
+  transform: translateY(-2px);
+
+  box-shadow:
+
+    0 12px 30px
+
+    rgba(
+
+      14,
+
+      165,
+
+      233,
+
+      .25
+
+    );
+
+}
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width:768px) {
+
+  .ultrasound-registration {
+
+    padding: 16px;
+
+  }
+
+  .registration-card {
+
+    padding: 20px;
+
+    border-radius: 20px;
+
+  }
+
+  .registration-header h1 {
+
+    font-size: 28px;
+
+  }
+
+}

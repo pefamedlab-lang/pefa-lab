@@ -1,0 +1,885 @@
+/* ==========================================================
+   PEFA MEDICAL DIAGNOSTIC SERVICES
+   PREMIUM PATIENT RESULT PORTAL
+========================================================== */
+
+:root{
+
+  --primary:#0f766e;
+  --primary-light:#14b8a6;
+  --primary-dark:#115e59;
+
+  --secondary:#2563eb;
+
+  --success:#16a34a;
+  --warning:#f59e0b;
+
+  --text:#0f172a;
+  --text-light:#64748b;
+
+  --border:#e2e8f0;
+
+  --white:#ffffff;
+  --surface:#f8fafc;
+
+  --shadow-sm:
+    0 4px 12px rgba(15,23,42,.05);
+
+  --shadow-md:
+    0 12px 30px rgba(15,23,42,.08);
+
+  --shadow-lg:
+    0 25px 60px rgba(15,23,42,.12);
+
+}
+
+
+/* ==========================================================
+   PAGE
+========================================================== */
+
+.patient-result-page{
+
+  min-height:100vh;
+
+  padding:50px 24px 80px;
+
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(20,184,166,.08),
+      transparent 30%
+    ),
+    linear-gradient(
+      180deg,
+      #f8fafc 0%,
+      #eef6ff 100%
+    );
+
+}
+
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+.patient-result-header{
+
+  max-width:1400px;
+
+  margin:0 auto 35px;
+
+  text-align:center;
+
+}
+
+.patient-result-header svg{
+
+  width:72px;
+  height:72px;
+
+  padding:16px;
+
+  border-radius:22px;
+
+  color:var(--primary);
+
+  background:#ecfeff;
+
+  box-shadow:var(--shadow-sm);
+
+  margin-bottom:16px;
+
+}
+
+.patient-result-header h1{
+
+  margin:0;
+
+  font-size:42px;
+
+  font-weight:800;
+
+  letter-spacing:-1px;
+
+  color:var(--text);
+
+}
+
+.patient-result-header p{
+
+  margin-top:10px;
+
+  font-size:15px;
+
+  font-weight:500;
+
+  color:var(--text-light);
+
+}
+
+
+/* ==========================================================
+   SEARCH CARD
+========================================================== */
+
+.patient-result-card{
+
+  max-width:1400px;
+
+  margin:auto;
+
+  padding:35px;
+
+  border-radius:32px;
+
+  background:
+    rgba(255,255,255,.92);
+
+  backdrop-filter:blur(18px);
+
+  border:1px solid rgba(255,255,255,.7);
+
+  box-shadow:var(--shadow-lg);
+
+}
+
+
+/* ==========================================================
+   SEARCH GRID
+========================================================== */
+
+.search-grid{
+
+  display:grid;
+
+  grid-template-columns:
+    repeat(3,1fr);
+
+  gap:24px;
+
+}
+
+
+/* ==========================================================
+   FORM
+========================================================== */
+
+.form-group{
+
+  display:flex;
+
+  flex-direction:column;
+
+}
+
+.form-group label{
+
+  margin-bottom:10px;
+
+  font-size:13px;
+
+  font-weight:700;
+
+  text-transform:uppercase;
+
+  letter-spacing:.4px;
+
+  color:#475569;
+
+}
+
+.form-group input{
+
+  width:100%;
+
+  height:58px;
+
+  padding:0 18px;
+
+  border:1px solid var(--border);
+
+  border-radius:16px;
+
+  background:var(--surface);
+
+  font-size:14px;
+
+  color:var(--text);
+
+  outline:none;
+
+  transition:.25s;
+
+}
+
+.form-group input::placeholder{
+
+  color:#94a3b8;
+
+}
+
+.form-group input:focus{
+
+  background:#fff;
+
+  border-color:var(--primary-light);
+
+  box-shadow:
+    0 0 0 4px
+    rgba(20,184,166,.12);
+
+}
+
+
+/* ==========================================================
+   SEARCH BUTTON
+========================================================== */
+
+.search-btn{
+
+  width:100%;
+
+  height:58px;
+
+  margin-top:28px;
+
+  border:none;
+
+  border-radius:18px;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary),
+      var(--primary-light)
+    );
+
+  color:#fff;
+
+  font-size:15px;
+
+  font-weight:700;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  gap:10px;
+
+  cursor:pointer;
+
+  transition:.25s;
+
+  box-shadow:
+    0 12px 30px
+    rgba(15,118,110,.25);
+
+}
+
+.search-btn:hover{
+
+  transform:translateY(-2px);
+
+  box-shadow:
+    0 18px 40px
+    rgba(15,118,110,.3);
+
+}
+
+.search-btn:disabled{
+
+  opacity:.7;
+
+  cursor:not-allowed;
+
+  transform:none;
+
+}
+
+
+/* ==========================================================
+   HOME SECTION
+========================================================== */
+
+.patient-portal-home{
+
+  max-width:1400px;
+
+  margin:35px auto;
+
+}
+
+
+/* ==========================================================
+   WELCOME CARD
+========================================================== */
+
+.welcome-card{
+
+  position:relative;
+
+  overflow:hidden;
+
+  padding:40px;
+
+  border-radius:32px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #0f172a,
+      #0f766e,
+      #14b8a6
+    );
+
+  color:#fff;
+
+  margin-bottom:28px;
+
+  box-shadow:
+    0 30px 70px
+    rgba(15,23,42,.18);
+
+}
+
+.welcome-card::before{
+
+  content:"";
+
+  position:absolute;
+
+  top:-100px;
+  right:-100px;
+
+  width:260px;
+  height:260px;
+
+  border-radius:50%;
+
+  background:
+    rgba(255,255,255,.08);
+
+}
+
+.welcome-card::after{
+
+  content:"PEFA";
+
+  position:absolute;
+
+  right:40px;
+  bottom:20px;
+
+  font-size:80px;
+
+  font-weight:900;
+
+  color:
+    rgba(255,255,255,.05);
+
+  letter-spacing:8px;
+
+}
+
+.welcome-card h2{
+
+  position:relative;
+
+  z-index:2;
+
+  margin:0;
+
+  font-size:32px;
+
+  font-weight:800;
+
+}
+
+.patient-name{
+
+  margin-left:8px;
+
+  color:#fde68a;
+
+}
+
+.welcome-card p{
+
+  position:relative;
+
+  z-index:2;
+
+  max-width:720px;
+
+  margin-top:15px;
+
+  line-height:1.8;
+
+  font-size:15px;
+
+  color:
+    rgba(255,255,255,.94);
+
+}
+
+
+/* ==========================================================
+   REPORT SELECTOR WRAPPER
+========================================================== */
+
+.report-selector-wrapper{
+
+  padding:28px;
+
+  border-radius:28px;
+
+  background:
+    rgba(255,255,255,.85);
+
+  backdrop-filter:blur(18px);
+
+  border:1px solid var(--border);
+
+  box-shadow:var(--shadow-md);
+
+}
+
+.report-selector-wrapper h3{
+
+  margin:0 0 20px;
+
+  font-size:18px;
+
+  font-weight:700;
+
+  color:var(--text);
+
+}
+
+
+/* ==========================================================
+   REPORT CHIPS
+========================================================== */
+
+.report-selector{
+
+  display:flex;
+
+  flex-wrap:wrap;
+
+  gap:14px;
+
+}
+
+.report-chip{
+
+  min-height:52px;
+
+  padding:0 22px;
+
+  border:none;
+
+  border-radius:18px;
+
+  background:#fff;
+
+  border:1px solid var(--border);
+
+  color:#334155;
+
+  font-size:14px;
+
+  font-weight:700;
+
+  cursor:pointer;
+
+  transition:.25s;
+
+  box-shadow:var(--shadow-sm);
+
+}
+
+.report-chip:hover{
+
+  transform:translateY(-3px);
+
+  border-color:var(--primary-light);
+
+  box-shadow:
+    0 12px 25px
+    rgba(20,184,166,.12);
+
+}
+
+.report-chip.active{
+
+  color:#fff;
+
+  border:none;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--primary),
+      var(--primary-light)
+    );
+
+  box-shadow:
+    0 15px 35px
+    rgba(20,184,166,.25);
+
+}
+
+
+/* ==========================================================
+   REPORT DISPLAY
+========================================================== */
+
+#selected-report{
+
+  width:100%;
+
+  max-width:1450px;
+
+  margin:35px auto;
+
+  padding:30px;
+
+  background:#fff;
+
+  border-radius:30px;
+
+  border:1px solid var(--border);
+
+  box-shadow:var(--shadow-lg);
+
+  overflow-x:auto;
+
+}
+
+.report-print-container{
+
+    width:210mm;
+
+    min-height:297mm;
+
+    margin:40px auto;
+
+    background:#ffffff;
+
+    box-shadow:
+        0 10px 30px rgba(0,0,0,.08);
+
+    overflow:hidden;
+
+}
+
+
+/* ==========================================================
+   PORTAL MODE CLEANUP
+========================================================== */
+
+#selected-report .enterprise-header,
+#selected-report .verification-section,
+#selected-report .signatory-section,
+#selected-report .enterprise-footer,
+#selected-report .footer-signatures,
+#selected-report .report-footer,
+#selected-report .footer-note{
+
+  display:none !important;
+
+}
+
+#selected-report .report-wrapper{
+
+  margin:0 !important;
+
+  padding:0 !important;
+
+}
+
+#selected-report .enterprise-print{
+
+  border:none !important;
+
+  box-shadow:none !important;
+
+  border-radius:0 !important;
+
+  padding:0 !important;
+
+}
+
+#selected-report .report-page,
+#selected-report .report-page.portal{
+
+  width:100% !important;
+
+  max-width:none !important;
+
+}
+
+#selected-report .report-page.portal{
+
+  padding:20px !important;
+
+}
+
+
+/* ==========================================================
+   PENDING CARD
+========================================================== */
+
+.pending-release-card{
+
+  max-width:1400px;
+
+  margin:35px auto;
+
+  padding:40px;
+
+  text-align:center;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fff7ed,
+      #fffbeb
+    );
+
+  border:1px solid #fdba74;
+
+  border-radius:28px;
+
+}
+
+.pending-release-card h3{
+
+  margin:0 0 12px;
+
+  color:#c2410c;
+
+  font-size:24px;
+
+}
+
+.pending-release-card p{
+
+  margin:0;
+
+  color:#7c2d12;
+
+}
+
+
+/* ==========================================================
+   ACTION BUTTONS
+========================================================== */
+
+.report-actions{
+
+  max-width:1450px;
+
+  margin:25px auto 0;
+
+  display:flex;
+
+  justify-content:center;
+
+  gap:18px;
+
+}
+
+.report-action-btn{
+
+  min-width:220px;
+
+  height:58px;
+
+  padding:0 28px;
+
+  border:none;
+
+  border-radius:18px;
+
+  display:flex;
+
+  align-items:center;
+
+  justify-content:center;
+
+  gap:10px;
+
+  font-size:14px;
+
+  font-weight:700;
+
+  cursor:pointer;
+
+  transition:.25s;
+
+}
+
+.download-btn{
+
+  background:#fff;
+
+  color:#0f172a;
+
+  border:1px solid var(--border);
+
+  box-shadow:var(--shadow-sm);
+
+}
+
+.download-btn:hover{
+
+  transform:translateY(-3px);
+
+  background:#f8fafc;
+
+}
+
+.print-btn{
+
+  color:#fff;
+
+  background:
+    linear-gradient(
+      135deg,
+      #0f172a,
+      var(--secondary)
+    );
+
+  box-shadow:
+    0 15px 35px
+    rgba(37,99,235,.2);
+
+}
+
+.print-btn:hover{
+
+  transform:translateY(-3px);
+
+}
+
+
+/* ==========================================================
+   SCROLLBAR
+========================================================== */
+
+::-webkit-scrollbar{
+
+  width:10px;
+  height:10px;
+
+}
+
+::-webkit-scrollbar-thumb{
+
+  background:#cbd5e1;
+
+  border-radius:999px;
+
+}
+
+::-webkit-scrollbar-thumb:hover{
+
+  background:#94a3b8;
+
+}
+
+
+/* ==========================================================
+   TABLET
+========================================================== */
+
+@media(max-width:1024px){
+
+  .search-grid{
+
+    grid-template-columns:1fr;
+
+  }
+
+}
+
+
+/* ==========================================================
+   MOBILE
+========================================================== */
+
+@media(max-width:768px){
+
+  .patient-result-page{
+
+    padding:20px 14px 50px;
+
+  }
+
+  .patient-result-header h1{
+
+    font-size:30px;
+
+  }
+
+  .patient-result-card{
+
+    padding:22px;
+
+    border-radius:24px;
+
+  }
+
+  .welcome-card{
+
+    padding:26px;
+
+  }
+
+  .welcome-card h2{
+
+    font-size:24px;
+
+  }
+
+  .welcome-card::after{
+
+    display:none;
+
+  }
+
+  .report-selector-wrapper{
+
+    padding:20px;
+
+  }
+
+  #selected-report{
+
+    padding:16px;
+
+    border-radius:20px;
+
+  }
+
+  .report-actions{
+
+    flex-direction:column;
+
+  }
+
+  .report-action-btn{
+
+    width:100%;
+
+    min-width:100%;
+
+  }
+
+}
+

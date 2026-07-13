@@ -1,0 +1,77 @@
+.patient-preview {
+  background: #eff6ff;
+
+  border: 1px solid #bfdbfe;
+
+  padding: 18px;
+
+  border-radius: 18px;
+
+  margin-top: 15px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 12px;
+}
+
+.patient-preview div {
+  display: flex;
+
+  justify-content: space-between;
+
+  gap: 15px;
+}
+
+.patient-preview strong {
+  color: #1e3a8a;
+}
+
+.release-btn {
+  background: linear-gradient(
+    135deg,
+    #16a34a,
+    #15803d
+  );
+
+  color: white;
+
+  border: none;
+
+  padding: 14px 24px;
+
+  border-radius: 14px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.flag-badge {
+  padding: 8px 12px;
+
+  border-radius: 10px;
+
+  font-weight: 700;
+
+  font-size: 13px;
+}
+
+.high-flag {
+  background: #fee2e2;
+
+  color: #991b1b;
+}
+
+.low-flag {
+  background: #dbeafe;
+
+  color: #1d4ed8;
+}
+
+.normal-flag {
+  background: #dcfce7;
+
+  color: #166534;
+}

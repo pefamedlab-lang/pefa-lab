@@ -1,0 +1,79 @@
+/* =========================================
+   DASHBOARD LAYOUT
+========================================= */
+
+.dashboard-container {
+
+  display: flex;
+
+  width: 100%;
+
+  height: 100vh;
+
+  overflow: hidden;
+
+}
+
+/* =========================================
+   SIDEBAR COLUMN
+========================================= */
+
+.sidebar-wrapper {
+
+  width: 280px;
+
+  min-width: 280px;
+
+  max-width: 280px;
+
+  flex-shrink: 0;
+
+}
+
+/* =========================================
+   RIGHT SIDE
+========================================= */
+
+.content-panel {
+
+  flex: 1;
+
+  display: flex;
+
+  flex-direction: column;
+
+  min-width: 0;
+
+  overflow: hidden;
+
+}
+
+/* =========================================
+   NAVBAR
+========================================= */
+
+.topbar {
+
+  height: 85px;
+
+  flex-shrink: 0;
+
+}
+
+/* =========================================
+   PAGE CONTENT
+========================================= */
+
+.page-content {
+
+  flex: 1;
+
+  overflow-y: auto;
+
+  overflow-x: auto;
+
+  padding: 20px;
+
+  background: #f8fafc;
+
+}

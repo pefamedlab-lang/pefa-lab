@@ -1,0 +1,456 @@
+/* =====================================================
+   ENTERPRISE PRINT CONTAINER
+===================================================== */
+
+.enterprise-print-container{
+  width:100%;
+  background:white;
+  padding:18px 22px;
+  color:#0f172a;
+  font-family:Arial,sans-serif;
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.enterprise-print-header{
+  display:flex;
+  align-items:center;
+  gap:14px;
+
+  padding-bottom:8px;
+
+  border-bottom:2px solid #2563eb;
+
+  margin-bottom:10px;
+}
+
+/* =====================================================
+   LOGO
+===================================================== */
+
+.enterprise-logo-box{
+  width:80px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.enterprise-logo{
+  width:65px;
+  height:65px;
+  object-fit:contain;
+}
+
+/* =====================================================
+   CENTER
+===================================================== */
+
+.enterprise-center{
+  flex:1;
+  text-align:center;
+}
+
+.enterprise-center h1{
+  margin:0;
+
+  font-size:22px;
+
+  font-weight:900;
+
+  letter-spacing:0.3px;
+
+  color:#2563eb;
+
+  line-height:1.2;
+}
+
+/* =====================================================
+   ADDRESS
+===================================================== */
+
+.branch-line{
+  margin:0;
+
+  font-size:10px;
+
+  line-height:1.3;
+
+  color:#334155;
+}
+
+/* =====================================================
+   CONTACT
+===================================================== */
+
+.enterprise-contact{
+  margin-top:4px;
+
+  display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
+
+  gap:10px;
+
+  font-size:10px;
+
+  font-weight:700;
+
+  color:#2563eb;
+}
+
+/* =====================================================
+   PATIENT INFO
+===================================================== */
+
+.enterprise-patient-info{
+  margin-top:10px;
+  margin-bottom:12px;
+
+  border:1px solid #cbd5e1;
+
+  overflow:hidden;
+}
+
+/* =====================================================
+   PATIENT ROW
+===================================================== */
+
+.patient-row{
+  display:grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  gap:18px;
+
+  padding:7px 10px;
+
+  border-bottom:1px solid #e2e8f0;
+
+  font-size:11px;
+
+  color:#0f172a;
+}
+
+.patient-row:last-child{
+  border-bottom:none;
+}
+
+.patient-row strong{
+  color:#2563eb;
+}
+
+/* =====================================================
+   RESULT TABLE
+===================================================== */
+
+.enterprise-result-table{
+  margin-top:10px;
+
+  border:1px solid #cbd5e1;
+
+  overflow:hidden;
+}
+
+/* =====================================================
+   TABLE HEADER
+===================================================== */
+
+.enterprise-table-header{
+  display:grid;
+
+  grid-template-columns:
+    2fr
+    1fr
+    1fr
+    1fr
+    1.5fr;
+
+  gap:8px;
+
+  padding:8px 10px;
+
+  background:#f1f5f9;
+
+  color:#0f172a;
+
+  border-bottom:1px solid #cbd5e1;
+
+  font-size:10px;
+
+  font-weight:800;
+
+  text-transform:uppercase;
+}
+
+/* =====================================================
+   TABLE ROW
+===================================================== */
+
+.enterprise-table-row{
+  display:grid;
+
+  grid-template-columns:
+    2fr
+    1fr
+    1fr
+    1fr
+    1.5fr;
+
+  gap:8px;
+
+  align-items:center;
+
+  padding:7px 10px;
+
+  border-top:1px solid #e2e8f0;
+
+  font-size:10px;
+
+  color:#0f172a;
+}
+
+.enterprise-table-row:nth-child(even){
+  background:#fafcff;
+}
+
+/* =====================================================
+   RESULT VALUE
+===================================================== */
+
+.bold-result{
+  font-weight:800;
+  color:#0f172a;
+}
+
+/* =====================================================
+   FLAGS
+===================================================== */
+
+.result-flag{
+  font-weight:700;
+}
+
+.result-flag.High{
+  color:#dc2626;
+}
+
+.result-flag.Low{
+  color:#ea580c;
+}
+
+.result-flag.Normal{
+  color:#16a34a;
+}
+
+/* =====================================================
+   COMMENT
+===================================================== */
+
+.enterprise-comment{
+  margin-top:12px;
+
+  padding:10px 12px;
+
+  border:1px solid #cbd5e1;
+
+  background:#fafcff;
+}
+
+.enterprise-comment h3{
+  margin:0;
+
+  font-size:11px;
+
+  color:#2563eb;
+}
+
+.enterprise-comment p{
+  margin-top:4px;
+
+  font-size:10px;
+
+  line-height:1.5;
+
+  color:#0f172a;
+}
+
+/* =====================================================
+   SIGNATORY
+===================================================== */
+
+.enterprise-signatory{
+  display:flex;
+
+  justify-content:space-between;
+
+  gap:40px;
+
+  margin-top:28px;
+}
+
+.enterprise-signatory div{
+  width:220px;
+
+  text-align:center;
+}
+
+.enterprise-signatory h4{
+  margin:0;
+
+  font-size:10px;
+
+  color:#0f172a;
+}
+
+.enterprise-signatory p{
+  margin-top:24px;
+
+  border-top:1px solid #0f172a;
+
+  padding-top:5px;
+
+  font-size:10px;
+
+  font-weight:700;
+
+  color:#0f172a;
+}
+
+/* =====================================================
+   FOOTER
+===================================================== */
+
+.enterprise-footer{
+  margin-top:16px;
+
+  padding-top:8px;
+
+  text-align:center;
+}
+
+.enterprise-footer p{
+  margin:0;
+
+  font-size:10px;
+
+  font-style:italic;
+
+  color:#2563eb;
+
+  line-height:1.4;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media(max-width:768px){
+
+  .enterprise-print-container{
+    padding:14px;
+  }
+
+  .enterprise-print-header{
+    flex-direction:column;
+    text-align:center;
+  }
+
+  .enterprise-center h1{
+    font-size:18px;
+  }
+
+  .enterprise-contact{
+    flex-direction:column;
+    gap:4px;
+  }
+
+  .patient-row{
+    grid-template-columns:1fr;
+  }
+
+  .enterprise-result-table{
+    overflow-x:auto;
+  }
+
+  .enterprise-table-header,
+  .enterprise-table-row{
+    min-width:760px;
+  }
+
+  .enterprise-signatory{
+    flex-direction:column;
+    gap:30px;
+  }
+
+  .enterprise-signatory div{
+    width:100%;
+  }
+}
+
+/* =====================================================
+   PRINT SETTINGS
+===================================================== */
+
+@media print{
+
+  body{
+    background:white !important;
+  }
+
+  body *{
+    visibility:hidden;
+  }
+
+  .print-preview,
+  .print-preview *{
+    visibility:visible;
+  }
+
+  .print-preview{
+    position:absolute;
+    left:0;
+    top:0;
+    width:100%;
+    background:white;
+  }
+
+  .enterprise-print-container{
+    width:100%;
+    padding:0;
+    box-shadow:none;
+  }
+
+  .patient-row{
+    display:grid !important;
+
+    grid-template-columns:
+      1fr 1fr !important;
+
+    gap:18px !important;
+  }
+
+  .enterprise-table-header,
+  .enterprise-table-row{
+    font-size:9.5px;
+  }
+
+  .enterprise-signatory{
+    margin-top:24px;
+  }
+}
+
+.report-title{
+  margin-bottom:6px;
+
+  font-size:13px;
+
+  font-weight:800;
+
+  color:#0f172a;
+
+  text-transform:uppercase;
+}

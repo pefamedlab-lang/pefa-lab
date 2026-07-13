@@ -1,0 +1,401 @@
+/* =====================================================
+   LAYOUT
+===================================================== */
+
+.dashboard-layout{
+  display:flex;
+  min-height:100vh;
+  background:#f8fafc;
+}
+
+.dashboard-content{
+  flex:1;
+  padding:28px;
+  overflow-y:auto;
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.registration-records-header{
+  margin-bottom:24px;
+}
+
+.registration-records-header h1{
+  margin:0;
+  font-size:30px;
+  font-weight:800;
+  color:#0f172a;
+}
+
+.registration-records-header p{
+  margin-top:6px;
+  color:#64748b;
+  font-size:14px;
+}
+
+/* =====================================================
+   CARD
+===================================================== */
+
+.registration-records-card{
+  background:white;
+
+  border:1px solid #e2e8f0;
+
+  border-radius:22px;
+
+  padding:22px;
+
+  margin-bottom:24px;
+
+  box-shadow:
+    0 4px 14px
+    rgba(15,23,42,0.04);
+}
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+.registration-search{
+  height:58px;
+
+  border:1px solid #cbd5e1;
+
+  border-radius:16px;
+
+  padding:0 18px;
+
+  display:flex;
+  align-items:center;
+  gap:14px;
+
+  background:#f8fafc;
+}
+
+.registration-search svg{
+  color:#64748b;
+}
+
+.registration-search input{
+  flex:1;
+
+  border:none;
+  outline:none;
+
+  background:transparent;
+
+  font-size:15px;
+
+  color:#0f172a;
+}
+
+.registration-search input::placeholder{
+  color:#94a3b8;
+}
+
+/* =====================================================
+   TABLE
+===================================================== */
+
+.registration-table{
+  width:100%;
+}
+
+/* =====================================================
+   TABLE HEADER
+===================================================== */
+
+.registration-table-header{
+  display:grid;
+
+  grid-template-columns:
+    1.3fr
+    2fr
+    1fr
+    1fr
+    1fr
+    1fr
+    1.5fr;
+
+  gap:16px;
+
+  padding:16px 18px;
+
+  background:#eff6ff;
+
+  border-radius:16px;
+
+  font-size:13px;
+  font-weight:800;
+
+  color:#1e3a8a;
+
+  text-transform:uppercase;
+}
+
+/* =====================================================
+   ROW
+===================================================== */
+
+.registration-row{
+  display:grid;
+
+  grid-template-columns:
+    1.3fr
+    2fr
+    1fr
+    1fr
+    1fr
+    1fr
+    1.5fr;
+
+  gap:16px;
+
+  align-items:center;
+
+  padding:18px;
+
+  border-bottom:1px solid #e2e8f0;
+
+  transition:0.2s ease;
+}
+
+.registration-row:last-child{
+  border-bottom:none;
+}
+
+.registration-row:hover{
+  background:#f8fbff;
+}
+
+/* =====================================================
+   LAB NUMBER
+===================================================== */
+
+.lab-id{
+  font-size:14px;
+  font-weight:800;
+  color:#2563eb;
+}
+
+/* =====================================================
+   AMOUNT
+===================================================== */
+
+.amount{
+  font-weight:800;
+  color:#16a34a;
+}
+
+/* =====================================================
+   PAYMENT STATUS
+===================================================== */
+
+.payment-status{
+  width:fit-content;
+
+  padding:7px 14px;
+
+  border-radius:999px;
+
+  display:flex;
+  align-items:center;
+  gap:6px;
+
+  font-size:12px;
+  font-weight:700;
+}
+
+/* PAID */
+
+.payment-status.Paid{
+  background:#dcfce7;
+  color:#16a34a;
+}
+
+/* PENDING */
+
+.payment-status.Pending{
+  background:#fef3c7;
+  color:#d97706;
+}
+
+/* UNPAID */
+
+.payment-status.Unpaid{
+  background:#fee2e2;
+  color:#dc2626;
+}
+
+/* =====================================================
+   ACTIONS
+===================================================== */
+
+.registration-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+.registration-actions button{
+  width:40px;
+  height:40px;
+
+  border:none;
+
+  border-radius:12px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  cursor:pointer;
+
+  transition:0.2s ease;
+}
+
+/* VIEW */
+
+.view-btn{
+  background:#dbeafe;
+  color:#2563eb;
+}
+
+.view-btn:hover{
+  background:#bfdbfe;
+}
+
+/* PAYMENT */
+
+.payment-btn{
+  background:#fef3c7;
+  color:#d97706;
+}
+
+.payment-btn:hover{
+  background:#fde68a;
+}
+
+/* INVOICE */
+
+.invoice-btn{
+  background:#dcfce7;
+  color:#16a34a;
+}
+
+.invoice-btn:hover{
+  background:#bbf7d0;
+}
+
+/* RECEIPT */
+
+.receipt-btn{
+  background:#f3e8ff;
+  color:#9333ea;
+}
+
+.receipt-btn:hover{
+  background:#e9d5ff;
+}
+
+/* =====================================================
+   EMPTY STATE
+===================================================== */
+
+.empty-state{
+  padding:50px 20px;
+
+  text-align:center;
+
+  font-size:15px;
+
+  color:#64748b;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media(max-width:1200px){
+
+  .registration-table{
+    overflow-x:auto;
+  }
+
+  .registration-table-header,
+  .registration-row{
+    min-width:1100px;
+  }
+}
+
+/* =====================================================
+   TABLET
+===================================================== */
+
+@media(max-width:992px){
+
+  .dashboard-content{
+    padding:20px;
+  }
+
+  .registration-records-card{
+    padding:18px;
+  }
+}
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(max-width:768px){
+
+  .dashboard-content{
+    padding:16px;
+  }
+
+  .registration-records-header h1{
+    font-size:24px;
+  }
+
+  .registration-records-card{
+    border-radius:18px;
+  }
+
+  .registration-search{
+    height:54px;
+  }
+
+  .registration-table-header,
+  .registration-row{
+    min-width:1100px;
+  }
+}
+
+/* =====================================================
+   PRINT
+===================================================== */
+
+@media print{
+
+  .dashboard-navbar,
+  .registration-search,
+  .registration-actions{
+    display:none !important;
+  }
+
+  .dashboard-content{
+    padding:0;
+  }
+
+  .registration-records-card{
+    box-shadow:none;
+    border:none;
+  }
+}

@@ -1,0 +1,520 @@
+/* ==========================================================
+   PEFA MEDICAL DIAGNOSTIC SERVICES
+   CLINICAL DOCUMENTS STYLESHEET
+========================================================== */
+
+
+/* ==========================================================
+   DOCUMENT
+========================================================== */
+
+.print-document,
+.clinical-document{
+
+    width:100%;
+
+    background:#fff;
+
+    color:#222;
+
+    font-family:Arial, Helvetica, sans-serif;
+
+}
+
+
+
+/* ==========================================================
+   PAGE TITLE
+========================================================== */
+
+.document-title{
+
+    text-align:center;
+
+    margin:10px 0 25px;
+
+}
+
+.document-title h1,
+.document-title h2{
+
+    margin:0;
+
+    font-size:24px;
+
+    font-weight:700;
+
+    color:#003b7a;
+
+    text-transform:uppercase;
+
+}
+
+.document-title h3{
+
+    margin:8px 0;
+
+    font-size:18px;
+
+    color:#444;
+
+}
+
+.document-title p{
+
+    margin-top:8px;
+
+    color:#666;
+
+    font-size:14px;
+
+}
+
+
+
+/* ==========================================================
+   SECTION
+========================================================== */
+
+.referral-section{
+
+    margin-bottom:28px;
+
+}
+
+.section-header{
+
+    background:#003b7a;
+
+    color:#fff;
+
+    padding:10px 14px;
+
+    border-radius:4px;
+
+    margin-bottom:18px;
+
+    font-size:15px;
+
+    font-weight:700;
+
+    text-transform:uppercase;
+
+    letter-spacing:.4px;
+
+}
+
+
+
+/* ==========================================================
+   GRID
+========================================================== */
+
+.patient-grid,
+.signature-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:18px;
+
+}
+
+
+
+/* ==========================================================
+   FORM GROUP
+========================================================== */
+
+.form-group{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.form-group label{
+
+    margin-bottom:6px;
+
+    font-weight:600;
+
+    color:#333;
+
+    font-size:14px;
+
+}
+
+
+
+/* ==========================================================
+   INPUTS
+========================================================== */
+
+.form-group input,
+
+.form-group select,
+
+.form-group textarea{
+
+    width:100%;
+
+    padding:10px 12px;
+
+    border:1px solid #cfcfcf;
+
+    border-radius:4px;
+
+    background:#fff;
+
+    font-size:14px;
+
+    font-family:inherit;
+
+    box-sizing:border-box;
+
+    transition:.25s;
+
+}
+
+
+
+.form-group input:focus,
+
+.form-group select:focus,
+
+.form-group textarea:focus{
+
+    border-color:#003b7a;
+
+    outline:none;
+
+    box-shadow:0 0 0 2px rgba(0,59,122,.08);
+
+}
+
+
+
+.form-group textarea{
+
+    resize:vertical;
+
+    min-height:80px;
+
+}
+
+
+
+/* ==========================================================
+   FULL WIDTH
+========================================================== */
+
+.full-width{
+
+    grid-column:1/-1;
+
+}
+
+
+
+/* ==========================================================
+   INVESTIGATION SEARCH
+========================================================== */
+
+.investigation-search{
+
+    margin-bottom:20px;
+
+}
+
+.investigation-search input{
+
+    width:100%;
+
+    padding:12px;
+
+    border:1px solid #ccc;
+
+    border-radius:4px;
+
+}
+
+
+
+/* ==========================================================
+   CATEGORY
+========================================================== */
+
+.investigation-category{
+
+    margin-bottom:30px;
+
+}
+
+.investigation-category h3{
+
+    margin-bottom:12px;
+
+    color:#003b7a;
+
+    border-bottom:2px solid #003b7a;
+
+    padding-bottom:5px;
+
+    font-size:17px;
+
+}
+
+
+
+/* ==========================================================
+   INVESTIGATION GRID
+========================================================== */
+
+.investigation-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(3,1fr);
+
+    gap:10px 20px;
+
+}
+
+
+
+/* ==========================================================
+   INVESTIGATION ITEM
+========================================================== */
+
+.investigation-item{
+
+    display:flex;
+
+    align-items:flex-start;
+
+    gap:8px;
+
+    cursor:pointer;
+
+    font-size:14px;
+
+    line-height:1.5;
+
+}
+
+.investigation-item input{
+
+    margin-top:3px;
+
+}
+
+
+
+/* ==========================================================
+   SELECTED TESTS
+========================================================== */
+
+.selected-tests{
+
+    margin-top:30px;
+
+    padding:18px;
+
+    border:1px solid #ddd;
+
+    border-radius:5px;
+
+    background:#fafafa;
+
+}
+
+.selected-header{
+
+    font-weight:700;
+
+    color:#003b7a;
+
+    margin-bottom:10px;
+
+}
+
+.selected-tests ul{
+
+    margin:0;
+
+    padding-left:20px;
+
+}
+
+.selected-tests li{
+
+    margin-bottom:6px;
+
+}
+
+
+
+/* ==========================================================
+   SIGNATURE
+========================================================== */
+
+.signature-row{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:40px;
+
+    margin:35px 0;
+
+}
+
+.signature-box{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.signature-box label{
+
+    margin-bottom:40px;
+
+    font-weight:600;
+
+}
+
+.signature-line{
+
+    border-bottom:1px solid #000;
+
+    height:1px;
+
+}
+
+
+
+/* ==========================================================
+   TABLES
+========================================================== */
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    margin-top:15px;
+
+}
+
+table th{
+
+    background:#003b7a;
+
+    color:white;
+
+    padding:10px;
+
+    border:1px solid #ddd;
+
+}
+
+table td{
+
+    padding:9px;
+
+    border:1px solid #ddd;
+
+}
+
+
+
+/* ==========================================================
+   HORIZONTAL RULE
+========================================================== */
+
+.document-divider{
+
+    margin:30px 0;
+
+    border:none;
+
+    border-top:1px solid #ddd;
+
+}
+
+
+
+/* ==========================================================
+   PRINT
+========================================================== */
+
+@media print{
+
+    *{
+
+        -webkit-print-color-adjust:exact;
+
+        print-color-adjust:exact;
+
+    }
+
+    body{
+
+        background:white;
+
+    }
+
+    .referral-section{
+
+        break-inside:avoid;
+
+        page-break-inside:avoid;
+
+    }
+
+    .section-header{
+
+        background:#003b7a !important;
+
+        color:white !important;
+
+    }
+
+    input,
+    textarea,
+    select{
+
+        border:1px solid #999;
+
+    }
+
+}
+
+
+
+/* ==========================================================
+   RESPONSIVE
+========================================================== */
+
+@media (max-width:900px){
+
+    .patient-grid,
+
+    .signature-grid,
+
+    .investigation-grid,
+
+    .signature-row{
+
+        grid-template-columns:1fr;
+
+    }
+
+}

@@ -1,0 +1,163 @@
+.auth-page {
+  min-height: 100vh;
+
+  background-image:
+    url("/lab-bg.jpg");
+
+  background-size: cover;
+
+  background-position:
+    center;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  position: relative;
+
+  padding: 20px;
+}
+
+.auth-overlay {
+  position: absolute;
+
+  inset: 0;
+
+  background: rgba(
+    255,
+    255,
+    255,
+    0.7
+  );
+}
+
+.auth-card {
+  position: relative;
+
+  z-index: 2;
+
+  width: 100%;
+
+  max-width: 450px;
+
+  background: white;
+
+  border-radius: 24px;
+
+  padding: 45px;
+
+  box-shadow:
+    0 10px 35px
+    rgba(0, 0, 0, 0.12);
+
+  text-align: center;
+}
+
+.auth-icon {
+  width: 90px;
+
+  height: 90px;
+
+  border-radius: 50%;
+
+  background: #003f6f;
+
+  color: white;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  margin: auto auto 20px;
+}
+
+.auth-card h1 {
+  font-size: 36px;
+
+  color: #003f6f;
+
+  margin-bottom: 10px;
+}
+
+.auth-card p {
+  color: #68c414;
+
+  font-size: 18px;
+
+  margin-bottom: 35px;
+
+  font-weight: 600;
+}
+
+.auth-form {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 20px;
+}
+
+.input-group {
+  display: flex;
+
+  align-items: center;
+
+  gap: 12px;
+
+  border:
+    1px solid #ccc;
+
+  border-radius: 12px;
+
+  padding: 14px;
+
+  background: #f9f9f9;
+}
+
+.input-group input {
+  border: none;
+
+  outline: none;
+
+  background: transparent;
+
+  width: 100%;
+
+  font-size: 16px;
+}
+
+.login-btn {
+  border: none;
+
+  background: #003f6f;
+
+  color: white;
+
+  padding: 16px;
+
+  border-radius: 12px;
+
+  font-size: 17px;
+
+  font-weight: bold;
+
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+.login-btn:hover {
+  background: #002b4d;
+}
+
+.auth-card small {
+  display: block;
+
+  margin-top: 25px;
+
+  color: #777;
+}

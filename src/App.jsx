@@ -1,1169 +1,775 @@
-import { useState, useEffect, useRef } from "react";
-import { supabase } from "./supabaseClient";
-import jsPDF from "jspdf";
-import pefaLogo from "./assets/pefa-logo.png";
-import { QRCodeCanvas } from "qrcode.react";
-import html2canvas from "html2canvas";
+import {
+  BrowserRouter,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+
+import ProtectedRoute from "./Pages/ProtectedRoute";
+
+/* =====================================================
+   LAYOUT
+===================================================== */
+
+import DashboardLayout from "./Pages/DashboardLayout";
+
+/* =====================================================
+   PUBLIC PAGES
+===================================================== */
+
+import HomePage from "./Pages/HomePage";
+import LoginPortal from "./Pages/LoginPortal";
+import PatientResultPortal from "./Pages/PatientResultPortal";
+
+/* =====================================================
+   MAIN DASHBOARD
+===================================================== */
+
+import Dashboard from "./Pages/Dashboard";
+
+/* =====================================================
+   LAB MODULES
+===================================================== */
+
+import RegistrationPortal from "./Pages/RegistrationPortal";
+import PaymentPortal from "./Pages/PaymentPortal";
+import ResultDashboard from "./Pages/ResultDashboard";
+import ResultRecords from "./Pages/ResultRecords";
+import RegistrationRecords from "./Pages/RegistrationRecords";
+import TestControlPortal from "./Pages/TestControlPortal";
+import HematologyDashboard from "./Pages/HematologyDashboard";
+import ChemistryDashboard from "./Pages/ChemistryDashboard";
+import MicrobiologyDashboard from "./Pages/MicrobiologyDashboard";
+import SpecimenTracking from "./Pages/SpecimenTracking";
+import AuditTrail
+from "./Pages/AuditTrail";
+import InventoryTransactions
+from "./Pages/InventoryTransactions";
+import QualityControl
+from "./Pages/QualityControl";
+import EquipmentManagement
+from "./Pages/EquipmentManagement";
+import TemperatureMonitoring
+from "./Pages/TemperatureMonitoring";
+import MaintenanceHistory
+from "./Pages/MaintenanceHistory";
+import FinanceDashboard
+from "./Pages/FinanceDashboard";
+import PaymentHistory
+from "./Pages/PaymentHistory";
+import PatientFinanceHistory
+from "./Pages/PatientFinanceHistory";
+import LetterHeadPortal
+from "./Pages/LetterHeadPortal";
+
+
+/* =====================================================
+   ULTRASOUND
+===================================================== */
+
+import UltrasoundRegistration
+from "./Pages/UltrasoundRegistration";
+import UltrasoundResultDashboard from "./Pages/UltrasoundResultDashboard";
+import UltrasoundRecords
+from "./Pages/UltrasoundRecords";
+import UltrasoundAnalytics
+from "./Pages/UltrasoundAnalytics";
+
+/* =====================================================
+   ENTERPRISE MODULES
+===================================================== */
+
+import ReferralDashboard from "./Pages/ReferralDashboard";
+import InventoryDashboard from "./Pages/InventoryDashboard";
+import StaffManagementDashboard from "./Pages/StaffManagementDashboard";
+
+import ExpensePortal
+from "./Pages/ExpensePortal";
+
+import IncomePortal
+from "./Pages/IncomePortal";
+
+import FinancialReports
+from "./Pages/FinancialReports";
+
+import FinanceAnalytics
+from "./Pages/FinanceAnalytics";
+
+import RolePermissionManager
+from "./Pages/RolePermissionManager";
+
+
+
+/* =====================================================
+   APP
+===================================================== */
 
 export default function App() {
-  const reportRef = useRef();
-
-  const [patients, setPatients] = useState([]);
-  const [isLoggedIn, setIsLoggedIn] =
-    useState(false);
-
-  const [loginData, setLoginData] =
-    useState({
-      username: "",
-      password: "",
-    });
-
-  const [patientId, setPatientId] =
-    useState("");
-
-  const [
-    selectedPatient,
-    setSelectedPatient,
-  ] = useState(null);
-
-const [
-  verificationMode,
-  setVerificationMode,
-] = useState(false);
-  useEffect(() => {
-    fetchPatients();
-  }, []);
-
-  const fetchPatients = async () => {
-    const { data, error } =
-      await supabase
-        .from("patients")
-        .select("*");
-
-    if (data) {
-      setPatients(data);
-    }
-  };
-
-  const inputStyle = {
-    padding: "15px",
-    borderRadius: "10px",
-    border: "1px solid #ccc",
-    fontSize: "16px",
-  };
-
-  const primaryButton = {
-    padding: "15px",
-    background: "#0097b2",
-    color: "white",
-    border: "none",
-    borderRadius: "10px",
-    cursor: "pointer",
-    fontSize: "16px",
-  };
-
-  const secondaryButton = {
-    padding: "12px 20px",
-    background: "#e63946",
-    color: "white",
-    border: "none",
-    borderRadius: "10px",
-    cursor: "pointer",
-  };
-
-  const handleLogin = (e) => {
-    e.preventDefault();
-
-    if (
-      loginData.username === "admin" &&
-      loginData.password === "pefa123"
-    ) {
-      setIsLoggedIn(true);
-    } else {
-      alert("Invalid Login");
-    }
-  };
-
-  const generatePDF = () => {
-    const input = reportRef.current;
-
-    html2canvas(input).then((canvas) => {
-      const imgData =
-        canvas.toDataURL("image/png");
-
-      const pdf = new jsPDF();
-
-      const imgWidth = 190;
-
-      const pageHeight =
-        pdf.internal.pageSize.height;
-
-      const imgHeight =
-        (canvas.height * imgWidth) /
-        canvas.width;
-
-      let heightLeft = imgHeight;
-
-      let position = 0;
-
-      pdf.addImage(
-        imgData,
-        "PNG",
-        10,
-        position,
-        imgWidth,
-        imgHeight
-      );
-
-      heightLeft -= pageHeight;
-
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight;
-
-        pdf.addPage();
-
-        pdf.addImage(
-          imgData,
-          "PNG",
-          10,
-          position,
-          imgWidth,
-          imgHeight
-        );
-
-        heightLeft -= pageHeight;
-      }
-
-      pdf.save("PEFA_Report.pdf");
-    });
-  };
 
   return (
-    <div
-      style={{
-        fontFamily:
-          "Arial, sans-serif",
-        background: "#f5f9fc",
-      }}
-    >
-      {/* NAVBAR */}
-      <nav
-        style={{
-          background: "#ffffff",
-          padding: "15px 30px",
-          display: "flex",
-          justifyContent:
-            "space-between",
-          alignItems: "center",
-          boxShadow:
-            "0 2px 10px rgba(0,0,0,0.1)",
-          position: "sticky",
-          top: 0,
-          zIndex: 1000,
-        }}
-      >
-        <h2 style={{ color: "#0097b2" }}>
-          PEFA
-        </h2>
 
-        <div
-          style={{
-            display: "flex",
-            gap: "20px",
-          }}
+    <BrowserRouter>
+
+      <Routes>
+
+        {/* =====================================================
+            PUBLIC ROUTES
+        ===================================================== */}
+
+        <Route
+          path="/"
+          element={<HomePage />}
+        />
+
+        <Route
+          path="/login"
+          element={<LoginPortal />}
+        />
+
+        <Route
+          path="/patient-results"
+          element={<PatientResultPortal />}
+        />
+
+        {/* =====================================================
+            PROTECTED DASHBOARD LAYOUT
+        ===================================================== */}
+
+        <Route
+          element={
+
+            <ProtectedRoute>
+
+              <DashboardLayout />
+
+            </ProtectedRoute>
+          }
         >
-          <a
-            href="#"
-            style={{
-              textDecoration: "none",
-              color: "#333",
-            }}
-          >
-            Home
-          </a>
 
-          <a
-            href="#"
-            style={{
-              textDecoration: "none",
-              color: "#333",
-            }}
-          >
-            Services
-          </a>
+          {/* =====================================================
+              DASHBOARD
+          ===================================================== */}
 
-          <a
-            href="#"
-            style={{
-              textDecoration: "none",
-              color: "#333",
-            }}
-          >
-            Contact
-          </a>
-        </div>
-      </nav>
-
-      {/* HERO */}
-      <section
-        style={{
-          background: "#0097b2",
-          color: "white",
-          padding: "100px 20px",
-          textAlign: "center",
-        }}
-      >
-        <h1
-          style={{
-            fontSize: "48px",
-          }}
-        >
-          PEFA Medical Diagnostic
-          Services
-        </h1>
-
-        <p
-          style={{
-            fontSize: "22px",
-          }}
-        >
-          Leading the Way in Medical
-          Excellences
-        </p>
-      </section>
-
-      {/* SERVICES */}
-      <section
-        style={{
-          padding: "60px 20px",
-          textAlign: "center",
-        }}
-      >
-        <h2>Our Services</h2>
-
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns:
-              "repeat(auto-fit, minmax(220px,1fr))",
-            gap: "20px",
-            marginTop: "40px",
-          }}
-        >
-          {[
-            "Hematology",
-            "Chemical Pathology",
-            "Microbiology",
-            "Tumor Markers",
-            "Wellness Check",
-            "Ultrasound Scan",
-            "Infertility Check",
-            "Diabetes Screening",
-            "Medical Fitness",
-          ].map((service, index) => (
-            <div
-              key={index}
-              style={{
-                background: "white",
-                padding: "25px",
-                borderRadius: "15px",
-                boxShadow:
-                  "0 2px 10px rgba(0,0,0,0.1)",
-              }}
-            >
-              {service}
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* STAFF LOGIN */}
-      {!isLoggedIn && (
-        <section
-          style={{
-            background: "#ffffff",
-            padding: "60px 20px",
-            textAlign: "center",
-          }}
-        >
-          <h2>Staff Login</h2>
-
-          <form
-            onSubmit={handleLogin}
-            style={{
-              maxWidth: "400px",
-              margin: "30px auto",
-              display: "flex",
-              flexDirection:
-                "column",
-              gap: "15px",
-            }}
-          >
-            <input
-              type="text"
-              placeholder="Username"
-              required
-              style={inputStyle}
-              onChange={(e) =>
-                setLoginData({
-                  ...loginData,
-                  username:
-                    e.target.value,
-                })
-              }
-            />
-
-            <input
-              type="password"
-              placeholder="Password"
-              required
-              style={inputStyle}
-              onChange={(e) =>
-                setLoginData({
-                  ...loginData,
-                  password:
-                    e.target.value,
-                })
-              }
-            />
-
-            <button
-              type="submit"
-              style={primaryButton}
-            >
-              Login
-            </button>
-          </form>
-        </section>
-      )}
-
-      {/* ADMIN DASHBOARD */}
-      {isLoggedIn && (
-        <section
-          style={{
-            background: "#ffffff",
-            padding: "60px 20px",
-            textAlign: "center",
-          }}
-        >
-          <h2>Admin Dashboard</h2>
-
-          <button
-            onClick={() =>
-              setIsLoggedIn(false)
-            }
-            style={{
-              ...secondaryButton,
-              marginBottom: "20px",
-            }}
-          >
-            Logout
-          </button>
-
-          <form
-            onSubmit={async (e) => {
-              e.preventDefault();
-
-              const newPatient = {
-                patient_id:
-                  e.target.patientId
-                    .value,
-
-                full_name:
-                  e.target.fullName
-                    .value,
-email:
-  e.target.email.value,
-
-                age:
-                  e.target.age.value,
-
-                sex:
-                  e.target.sex.value,
-
-                test_name:
-                  e.target.test.value,
-
-                result:
-                  e.target.result
-                    .value,
-              };
-
-              const { error } =
-                await supabase
-                  .from("patients")
-                  .insert([
-                    newPatient,
-                  ]);
-
-              if (error) {
-                console.log(error);
-
-                alert(
-                  "Error saving patient"
-                );
-              } else {
-                fetchPatients();
-
-                alert(
-                  "Patient Record Saved"
-                );
-
-                e.target.reset();
-              }
-            }}
-            style={{
-              maxWidth: "600px",
-              margin: "40px auto",
-              display: "flex",
-              flexDirection:
-                "column",
-              gap: "15px",
-            }}
-          >
-            <input
-              type="text"
-              name="patientId"
-              placeholder="Patient ID"
-              required
-              style={inputStyle}
-            />
-
-            <input
-              type="text"
-              name="fullName"
-              placeholder="Full Name"
-              required
-              style={inputStyle}
-            />
-<input
-  type="email"
-  name="email"
-  placeholder="Patient Email"
-  required
-  style={inputStyle}
-/>
-
-            <input
-              type="number"
-              name="age"
-              placeholder="Age"
-              required
-              style={inputStyle}
-            />
-
-            <select
-              name="sex"
-              required
-              style={inputStyle}
-            >
-              <option value="">
-                Select Sex
-              </option>
-
-              <option value="Male">
-                Male
-              </option>
-
-              <option value="Female">
-                Female
-              </option>
-            </select>
-
-            <input
-              type="text"
-              name="test"
-              placeholder="Tests (Example: FBS, Urea, Creatinine)"
-              required
-              style={inputStyle}
-            />
-
-            <input
-              type="text"
-              name="result"
-             placeholder="Results (Example: Normal, High, Elevated)"
-              required
-              style={inputStyle}
-            />
-
-            <button
-              type="submit"
-              style={primaryButton}
-            >
-              Save Patient Record
-            </button>
-          </form>
-        </section>
-      )}
-
-      {/* PATIENT RESULT PORTAL */}
-      <section
-        style={{
-          padding: "60px 20px",
-          background: "#eef7fb",
-          textAlign: "center",
-        }}
-      >
-        <h2>Patient Result Portal</h2>
-
-        <div
-          style={{
-            maxWidth: "500px",
-            margin: "30px auto",
-            display: "flex",
-            gap: "10px",
-          }}
-        >
-          <input
-            type="text"
-            placeholder="Enter Patient ID"
-            value={patientId}
-            onChange={(e) =>
-              setPatientId(
-                e.target.value
-              )
-            }
-            style={{
-              ...inputStyle,
-              flex: 1,
-            }}
+          <Route
+            path="/dashboard"
+            element={<Dashboard />}
           />
 
-          <button
-            style={primaryButton}
-            onClick={() => {
-              const foundPatient =
-                patients.find(
-                  (patient) =>
-                    patient.patient_id ===
-                    patientId
-                );
+          {/* =====================================================
+              REGISTRATION
+          ===================================================== */}
 
-              if (foundPatient) {
-                setSelectedPatient(
-                  foundPatient
-                );
-              } else {
-                alert(
-                  "Patient not found"
-                );
-              }
-            }}
-          >
-            Search
-<button
-  style={{
-    ...secondaryButton,
-    marginLeft: "10px",
-  }}
-  onClick={() => {
-    const foundPatient =
-      patients.find(
-        (patient) =>
-          patient.patient_id ===
-          patientId
-      );
+          <Route
+            path="/registration"
+            element={
 
-    if (foundPatient) {
-      setSelectedPatient(
-        foundPatient
-      );
+              <ProtectedRoute
+               allowedRoles={[
+  "Receptionist",
+  "Manager",
+  "Director",
+  "Admin",
+]}
+              >
 
-      setVerificationMode(
-        true
-      );
-    } else {
-      alert(
-        "Verification Failed"
-      );
-    }
-  }}
->
-  Verify Report
-</button>
-          </button>
-        </div>
-      </section>
+                <RegistrationPortal />
 
-      {/* PROFESSIONAL LAB REPORT */}
-      {selectedPatient &&
- !verificationMode && (
-        <section
-          style={{
-            padding: "50px 20px",
-            background: "#eef7fb",
-          }}
-        >
-          <div
-            ref={reportRef}
-            style={{
-              background:
-  "linear-gradient(rgba(255,255,255,0.96), rgba(255,255,255,0.96)), url('https://upload.wikimedia.org/wikipedia/commons/8/89/HD_transparent_picture.png')",
-backgroundSize: "cover",
-              maxWidth: "850px",
-              margin: "auto",
-              padding: "40px",
-              borderRadius: "12px",
-              boxShadow:
-                "0 3px 15px rgba(0,0,0,0.1)",
-            }}
-          >
-            {/* HEADER */}
-            <div
-              style={{
-                display: "flex",
-                justifyContent:
-                  "space-between",
-                alignItems: "center",
-                borderBottom:
-                  "3px solid #0097b2",
-                paddingBottom: "20px",
-              }}
-            >
-              <div>
-                <h1
-                  style={{
-                    color: "#0097b2",
-                    margin: 0,
-                  }}
-                >
-                  PEFA Medical Diagnostic
-                  Services
-                </h1>
+              </ProtectedRoute>
+            }
+          />
 
-                <p
-                  style={{
-                    margin: "5px 0",
-                  }}
-                >
-                  32 Ogunru-Ori, Pakuro
-                  Road, Mowe, Ogun State
-                </p>
+          {/* =====================================================
+              PAYMENT
+          ===================================================== */}
 
-                <p
-                  style={{
-                    margin: "5px 0",
-                  }}
-                >
-                  08086618221 |
-                  09052853701
-                </p>
-              </div>
+          <Route
+            path="/payment-portal"
+            element={
 
-             <img
-  src={pefaLogo}
-  alt="PEFA Logo"
-  style={{
-    width: "120px",
-    height: "120px",
-    objectFit: "contain",
-  }}
+              <ProtectedRoute
+                allowedRoles={[
+  "Receptionist",
+  "Manager",
+  "Director",
+  "Admin",
+]}
+              >
+
+                <PaymentPortal />
+
+              </ProtectedRoute>
+            }
+          />
+
+          {/* =====================================================
+              REGISTRATION RECORDS
+          ===================================================== */}
+
+          <Route
+            path="/registration-records"
+            element={
+
+              <ProtectedRoute
+                allowedRoles={[
+                  "Receptionist",
+                  "Cashier",
+                  "Admin",
+                ]}
+              >
+
+                <RegistrationRecords />
+
+              </ProtectedRoute>
+            }
+          />
+
+          {/* =====================================================
+              RESULT DASHBOARD
+          ===================================================== */}
+
+          <Route
+            path="/result-dashboard"
+            element={
+
+              <ProtectedRoute
+                allowedRoles={[
+  "Scientist",
+  "Manager",
+  "Director",
+  "Admin",
+]}
+              >
+
+                <ResultDashboard />
+
+              </ProtectedRoute>
+            }
+          />
+
+          {/* =====================================================
+              RESULT RECORDS
+          ===================================================== */}
+
+          <Route
+            path="/result-records"
+            element={
+
+              <ProtectedRoute
+               allowedRoles={[
+  "Scientist",
+  "Manager",
+  "Director",
+  "Admin",
+]}
+              >
+
+                <ResultRecords />
+
+              </ProtectedRoute>
+            }
+          />
+
+          {/* =====================================================
+              SPECIMEN TRACKING
+          ===================================================== */}
+
+          <Route
+            path="/specimen-tracking"
+            element={
+
+              <ProtectedRoute
+                allowedRoles={[
+                  "Scientist",
+                  "Admin",
+                ]}
+              >
+
+                <SpecimenTracking />
+
+              </ProtectedRoute>
+            }
+          />
+
+          {/* =====================================================
+              TEST CONTROL
+          ===================================================== */}
+
+          <Route
+            path="/test-control"
+            element={
+
+              <ProtectedRoute
+                allowedRoles={[
+                   "Director",
+                  "Admin",
+                ]}
+              >
+
+                <TestControlPortal />
+
+              </ProtectedRoute>
+            }
+          />
+
+          {/* =====================================================
+              HEMATOLOGY
+          ===================================================== */}
+
+          <Route
+            path="/hematology"
+            element={
+
+              <ProtectedRoute
+                allowedRoles={[
+  "Scientist",
+  "Manager",
+  "Director",
+  "Admin",
+]}
+              >
+
+                <HematologyDashboard />
+
+              </ProtectedRoute>
+            }
+          />
+
+          {/* =====================================================
+              CHEMISTRY
+          ===================================================== */}
+
+          <Route
+            path="/chemistry"
+            element={
+
+              <ProtectedRoute
+               allowedRoles={[
+  "Scientist",
+  "Manager",
+  "Director",
+  "Admin",
+]}
+              >
+
+                <ChemistryDashboard />
+
+              </ProtectedRoute>
+            }
+          />
+
+          {/* =====================================================
+              MICROBIOLOGY
+          ===================================================== */}
+
+          <Route
+            path="/microbiology"
+            element={
+
+              <ProtectedRoute
+                allowedRoles={[
+  "Scientist",
+  "Manager",
+  "Director",
+  "Admin",
+]}
+              >
+
+                <MicrobiologyDashboard />
+
+              </ProtectedRoute>
+            }
+          />
+
+          {/* =====================================================
+              ULTRASOUND REGISTRATION
+          ===================================================== */}
+
+          <Route
+
+  path="/ultrasound-registration"
+
+  element={
+
+    <ProtectedRoute
+
+      allowedRoles={[
+
+        "Receptionist",
+
+        "Director",
+
+        "Admin",
+
+      ]}
+
+    >
+
+      <UltrasoundRegistration />
+
+    </ProtectedRoute>
+
+  }
+
 />
-            </div>
 
-            {/* REPORT TITLE */}
-            <div
-              style={{
-                textAlign: "center",
-                marginTop: "30px",
-              }}
-            >
-<div
-  style={{
-    display: "flex",
-    justifyContent:
-      "space-between",
-    alignItems: "center",
-  }}
->
-  <h2
-    style={{
-      color: "#0097b2",
-    }}
-  >
-    LABORATORY REPORT
-  </h2>
+          {/* =====================================================
+              ULTRASOUND RESULTS
+          ===================================================== */}
 
-  <div
-    style={{
-      textAlign: "right",
-    }}
-  >
-    <p>
-      <strong>
-        Report No:
-      </strong>{" "}
-      PEFA-
-      {selectedPatient.patient_id}
-    </p>
+         <Route
+  path="/ultrasound-results"
+  element={
+    <ProtectedRoute
+      allowedRoles={[
+        "Radiologist",
+        "Director",
+        "Admin",
+      ]}
+    >
+      <UltrasoundResultDashboard />
+    </ProtectedRoute>
+  }
+/>
 
-    <p>
-      <strong>
-        Date:
-      </strong>{" "}
-      {new Date().toLocaleDateString()}
-    </p>
-  </div>
-</div>
-            </div>
+<Route
+  path="/ultrasound-records"
+  element={
+    <ProtectedRoute
+      allowedRoles={[
+        "Radiologist",
+        "Director",
+        "Admin",
+      ]}
+    >
+      <UltrasoundRecords />
+    </ProtectedRoute>
+  }
+/>
 
-            {/* PATIENT INFO */}
-            <div
-              style={{
-                marginTop: "30px",
-                display: "grid",
-                gridTemplateColumns:
-                  "1fr 1fr",
-                gap: "20px",
-              }}
-            >
-              <div>
-                <p>
-                  <strong>
-                    Patient ID:
-                  </strong>{" "}
-                  {
-                    selectedPatient.patient_id
-                  }
-                </p>
+          {/* =====================================================
+              ULTRASOUND ANALYTICS
+          ===================================================== */}
 
-                <p>
-                  <strong>
-                    Full Name:
-                  </strong>{" "}
-                  {
-                    selectedPatient.full_name
-                  }
-                </p>
+         <Route
 
-                <p>
-                  <strong>Age:</strong>{" "}
-                  {
-                    selectedPatient.age
-                  }
-                </p>
+  path="/ultrasound-analytics"
 
-                <p>
-                  <strong>Sex:</strong>{" "}
-                  {
-                    selectedPatient.sex
-                  }
-                </p>
-<p>
-  <strong>Email:</strong>{" "}
-  {selectedPatient.email}
-</p>
-              </div>
+  element={
 
-              <div>
-                <p>
-                  <strong>
-                    Test:
-                  </strong>{" "}
-                  {
-                    selectedPatient.test_name
-                  }
-                </p>
+    <ProtectedRoute
 
-                <p>
-                  <strong>
-                    Result Status:
-                  </strong>{" "}
-                  Completed
-                </p>
+      allowedRoles={[
 
-                <p>
-                  <strong>
-                    Report Date:
-                  </strong>{" "}
-                  {new Date().toLocaleDateString()}
-                </p>
+        "Radiologist",
+        "Director",
+        "Admin",
 
-                <p>
-                  <strong>
-                    Laboratory:
-                  </strong>{" "}
-                  PEFA Lab
-                </p>
-              </div>
-            </div>
+      ]}
 
-            {/* RESULT TABLE */}
-            <div
-              style={{
-                marginTop: "40px",
-              }}
-            >
-              <table
-                style={{
-                  width: "100%",
-                  borderCollapse:
-                    "collapse",
-                }}
+    >
+
+      <UltrasoundAnalytics />
+
+    </ProtectedRoute>
+
+  }
+
+/>
+
+<Route
+  path="/finance"
+  element={
+    <ProtectedRoute
+      allowedRoles={[
+        "Manager",
+        "Director",
+        "Admin",
+      ]}
+    >
+      <FinanceDashboard />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/finance-analytics"
+  element={
+    <ProtectedRoute
+      allowedRoles={[
+        "Manager",
+        "Director",
+        "Admin",
+      ]}
+    >
+      <FinanceAnalytics />
+    </ProtectedRoute>
+  }
+/>
+
+          {/* =====================================================
+              REFERRAL DASHBOARD
+          ===================================================== */}
+
+        <Route
+  path="/referrals"
+  element={
+    <ProtectedRoute
+      allowedRoles={[
+        "Manager",
+        "Director",
+        "Admin",
+      ]}
+    >
+      <ReferralDashboard />
+    </ProtectedRoute>
+  }
+/>
+
+         
+          {/* =====================================================
+              INVENTORY
+          ===================================================== */}
+
+          <Route
+            path="/inventory"
+            element={
+
+              <ProtectedRoute
+               allowedRoles={[
+  "Manager",
+  "Director",
+  "Admin",
+]}
               >
-                <thead>
-                  <tr
-                    style={{
-                      background:
-                        "#0097b2",
-                      color: "white",
-                    }}
-                  >
-                    <th
-                      style={{
-                        padding:
-                          "15px",
-                        border:
-                          "1px solid #ddd",
-                      }}
-                    >
-                      Investigation
-                    </th>
 
-                    <th
-                      style={{
-                        padding:
-                          "15px",
-                        border:
-                          "1px solid #ddd",
-                      }}
-                    >
-                      Result
-                    </th>
+                <InventoryDashboard />
 
-                    <th
-                      style={{
-                        padding:
-                          "15px",
-                        border:
-                          "1px solid #ddd",
-                      }}
-                    >
-                      Reference Range
-                    </th>
+              </ProtectedRoute>
+            }
+          />
 
-                    <th
-                      style={{
-                        padding:
-                          "15px",
-                        border:
-                          "1px solid #ddd",
-                      }}
-                    >
-                      Remark
-                    </th>
-                  </tr>
-                </thead>
+<Route
+  path="/payment-history"
+  element={
+    <ProtectedRoute
+      allowedRoles={[
+        "Manager",
+        "Director",
+        "Admin",
+      ]}
+    >
+      <PaymentHistory />
+    </ProtectedRoute>
+  }
+/>
 
-                <tbody>
-                  {selectedPatient.test_name
-                    .split(",")
-                    .map(
-                      (
-                        test,
-                        index
-                      ) => {
-                        const result =
-                          selectedPatient.result
-                            .split(
-                              ","
-                            )[index];
+<Route
+  path="/patient-finance-history"
+  element={
+    <ProtectedRoute
+      allowedRoles={[
+        "Manager",
+        "Director",
+        "Admin",
+      ]}
+    >
+      <PatientFinanceHistory />
+    </ProtectedRoute>
+  }
+/>
 
-                        return (
-                          <tr
-                            key={
-                              index
-                            }
-                          >
-                            <td
-                              style={{
-                                padding:
-                                  "15px",
-                                border:
-                                  "1px solid #ddd",
-                              }}
-                            >
-                              {test.trim()}
-                            </td>
+<Route
+  path="/income"
+  element={
+    <ProtectedRoute
+      allowedRoles={[
+        "Manager",
+        "Director",
+        "Admin",
+      ]}
+    >
+      <IncomePortal />
+    </ProtectedRoute>
+  }
+/>
 
-                            <td
-                              style={{
-                                padding:
-                                  "15px",
-                                border:
-                                  "1px solid #ddd",
-                              }}
-                            >
-                              {result
-                                ? result.trim()
-                                : ""}
-                            </td>
+<Route
+  path="/expenses"
+  element={
+    <ProtectedRoute
+      allowedRoles={[
+        "Manager",
+        "Director",
+        "Admin",
+      ]}
+    >
+      <ExpensePortal />
+    </ProtectedRoute>
+  }
+/>
 
-                            <td
-                              style={{
-                                padding:
-                                  "15px",
-                                border:
-                                  "1px solid #ddd",
-                              }}
-                            >
-                              {test.trim() ===
-                              "FBS"
-                                ? "70 - 110 mg/dL"
-                                : test.trim() ===
-                                  "HbA1c"
-                                ? "4.0 - 5.6 %"
-                                : test.trim() ===
-                                  "Urea"
-                                ? "15 - 40 mg/dL"
-                                : test.trim() ===
-                                  "Creatinine"
-                                ? "0.6 - 1.3 mg/dL"
-                                : test.trim() ===
-                                  "Lipid Profile"
-                                ? "Desirable"
-                                : "Normal"}
-                            </td>
+<Route
+  path="/financial-reports"
+  element={
+    <ProtectedRoute
+      allowedRoles={[
+        "Manager",
+        "Director",
+        "Admin",
+      ]}
+    >
+      <FinancialReports />
+    </ProtectedRoute>
+  }
+/>
 
-                            <td
-                              style={{
-                                padding:
-                                  "15px",
-                                border:
-                                  "1px solid #ddd",
-                                color:
-                                  result &&
-                                  (result
-                                    .toLowerCase()
-                                    .includes(
-                                      "high"
-                                    ) ||
-                                    result
-                                      .toLowerCase()
-                                      .includes(
-                                        "elevated"
-                                      ))
-                                    ? "red"
-                                    : "green",
-                                fontWeight:
-                                  "bold",
-                              }}
-                            >
-                              {result &&
-                              (result
-                                .toLowerCase()
-                                .includes(
-                                  "high"
-                                ) ||
-                                result
-                                  .toLowerCase()
-                                  .includes(
-                                    "elevated"
-                                  ))
-                                ? "Abnormal"
-                                : "Normal"}
-                            </td>
-                          </tr>
-                        );
-                      }
-                    )}
-                </tbody>
-              </table>
-            </div>
-            {/* QR VERIFICATION */}
-            <div
-              style={{
-                marginTop: "40px",
-                textAlign: "center",
-              }}
-            >
-              <QRCodeCanvas
-                value={`http://localhost:5173/verify/${selectedPatient.patient_id}`}
-                size={120}
-              />
+<Route
+  path="/letterhead"
+  element={<LetterHeadPortal />}
+/>
 
-              <p
-                style={{
-                  marginTop: "10px",
-                  fontSize: "14px",
-                  color: "#555",
-                }}
+
+ {/* =====================================================
+              STAFF MANAGEMENT
+          ===================================================== */}
+
+          <Route
+            path="/staff-management"
+            element={
+
+              <ProtectedRoute
+                allowedRoles={[
+    "Director",
+  "Admin",
+]}
               >
-                Scan to Verify Report
-              </p>
-            </div>
-            {/* FOOTER */}
-            <div
-              style={{
-                marginTop: "60px",
-                display: "flex",
-                justifyContent:
-                  "space-between",
-              }}
-            >
-              <div>
-                <p>
-                  ___________________
-                </p>
 
-                <p>
-                  Medical Laboratory
-                  Scientist
-                </p>
-              </div>
+                <StaffManagementDashboard />
 
-              <div>
-                <p>
-                  ___________________
-                </p>
+              </ProtectedRoute>
+            }
+          />
 
-                <p>
-                  Authorized Signature
-                </p>
-                         </div>
-            </div>
+        </Route>
 
-          </div>
+<Route
+  path="/role-permissions"
+  element={
+    <RolePermissionManager />
+  }
+/>
 
-          {/* DOWNLOAD BUTTONS */}
-            <div
-              style={{
-                textAlign: "center",
-                marginTop: "30px",
-              }}
-            >
-              <button
-                onClick={generatePDF}
-                style={primaryButton}
-              >
-                Download PDF Report
-              </button>
+<Route
+  path="/audit-trail"
+  element={
+    <ProtectedRoute
+      allowedRoles={[
+        "Director",
+        "Admin",
+      ]}
+    >
+      <AuditTrail />
+    </ProtectedRoute>
+  }
+/>
 
-              <button
-                style={{
-                  ...secondaryButton,
-                  marginLeft: "10px",
-                }}
-                onClick={() => {
-                  window.location.href = `mailto:${selectedPatient.email}?subject=PEFA Laboratory Report&body=Dear ${selectedPatient.full_name}, your laboratory report is ready.`;
-                }}
-              >
-                Send Report Email
-              </button>
-            </div>
-          </section>
-      )}
-      {/* ONLINE REPORT VERIFICATION */}
-      {selectedPatient &&
-        verificationMode && (
-          <section
-            style={{
-              padding:
-                "80px 20px",
-              textAlign:
-                "center",
-            }}
-          >
-            <div
-              style={{
-                background:
-                  "white",
-                maxWidth:
-                  "600px",
-                margin: "auto",
-                padding:
-                  "40px",
-                borderRadius:
-                  "15px",
-                boxShadow:
-                  "0 2px 10px rgba(0,0,0,0.1)",
-              }}
-            >
-              <h1
-                style={{
-                  color:
-                    "#0097b2",
-                }}
-              >
-                VERIFIED REPORT
-              </h1>
+<Route
+  path="/inventory-transactions"
+  element={
+    <ProtectedRoute
+      allowedRoles={[
+        "Manager",
+        "Director",
+        "Admin",
+      ]}
+    >
+      <InventoryTransactions />
+    </ProtectedRoute>
+  }
+/>
 
-              <p>
-                This laboratory
-                report belongs to:
-              </p>
+<Route
+  path="/quality-control"
+  element={
+    <ProtectedRoute
+      allowedRoles={[
+        "Scientist",
+        "Manager",
+        "Director",
+        "Admin",
+      ]}
+    >
+      <QualityControl />
+    </ProtectedRoute>
+  }
+/>
 
-              <h2>
-                {
-                  selectedPatient.full_name
-                }
-              </h2>
+<Route
+  path="/equipment"
+  element={
+    <ProtectedRoute
+      allowedRoles={[
+        "Scientist",
+        "Manager",
+        "Director",
+        "Admin",
+      ]}
+    >
+      <EquipmentManagement />
+    </ProtectedRoute>
+  }
+/>
 
-              <p>
-                Patient ID:{" "}
-                {
-                  selectedPatient.patient_id
-                }
-              </p>
+<Route
+  path="/maintenance-history"
+  element={
+    <ProtectedRoute
+      allowedRoles={[
+        "Scientist",
+        "Manager",
+        "Director",
+        "Admin",
+      ]}
+    >
+      <MaintenanceHistory />
+    </ProtectedRoute>
+  }
+/>
 
-              <p>
-                Test(s):{" "}
-                {
-                  selectedPatient.test_name
-                }
-              </p>
 
-              <p
-                style={{
-                  color:
-                    "green",
-                  fontWeight:
-                    "bold",
-                  fontSize:
-                    "20px",
-                }}
-              >
-                AUTHENTIC REPORT
-              </p>
+<Route
+  path="/temperature-monitoring"
+  element={
+    <ProtectedRoute
+      allowedRoles={[
+        "Scientist",
+        "Manager",
+        "Director",
+        "Admin",
+      ]}
+    >
+      <TemperatureMonitoring />
+    </ProtectedRoute>
+  }
+/>
 
-              <button
-                style={{
-                  ...primaryButton,
-                  marginTop:
-                    "20px",
-                }}
-                onClick={() =>
-                  setVerificationMode(
-                    false
-                  )
-                }
-              >
-                Back To Report
-              </button>
-            </div>
-          </section>
-        )}
-      {/* CONTACT */}
-      <section
-        style={{
-          background: "#0097b2",
-          color: "white",
-          padding: "40px 20px",
-          textAlign: "center",
-        }}
-      >
-        <h2>Contact Us</h2>
+        {/* =====================================================
+            FALLBACK
+        ===================================================== */}
 
-        <p>
-          32 Ogunru-Ori, Pakuro
-          Road, Mowe, Ogun State
-        </p>
+        <Route
+          path="*"
+          element={
+            <Navigate
+              to="/"
+              replace
+            />
+          }
+        />
 
-        <p>
-          08086618221 |
-          09052853701
-        </p>
-      </section>
-    </div>
+      </Routes>
+
+    </BrowserRouter>
+
   );
 }

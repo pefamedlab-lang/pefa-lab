@@ -1,0 +1,113 @@
+.chemistry-report {
+  padding: 30px;
+  background: #ffffff;
+  color: #111827;
+}
+
+.report-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.panel-section {
+  margin-bottom: 40px;
+}
+
+.panel-section h2 {
+  background: #0f172a;
+  color: white;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 15px;
+}
+
+table th,
+table td {
+  border: 1px solid #d1d5db;
+  padding: 10px;
+  text-align: left;
+}
+
+table th {
+  background: #f3f4f6;
+}
+
+input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+}
+
+.flag {
+  font-weight: bold;
+}
+
+.flag.h {
+  color: #dc2626;
+}
+
+.flag.l {
+  color: #2563eb;
+}
+
+.authorization-section {
+  margin-top: 60px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.chemistry-dashboard {
+  padding: 40px;
+  min-height: 100vh;
+  background: #f8fafc;
+}
+
+.dashboard-header {
+  margin-bottom: 40px;
+}
+
+.dashboard-header h1 {
+  font-size: 2.5rem;
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+
+.dashboard-header p {
+  color: #475569;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 25px;
+}
+
+.chemistry-card {
+  background: white;
+  padding: 30px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+  transition: 0.3s ease;
+}
+
+.chemistry-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+}
+
+.chemistry-card h2 {
+  margin-bottom: 12px;
+}
+
+.chemistry-card span {
+  color: #2563eb;
+  font-weight: bold;
+}

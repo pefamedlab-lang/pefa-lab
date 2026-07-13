@@ -1,0 +1,331 @@
+/* =====================================================
+   LAYOUT
+===================================================== */
+
+.dashboard-layout{
+  display:flex;
+  min-height:100vh;
+  background:#f8fafc;
+}
+
+.dashboard-content{
+  flex:1;
+  padding:28px;
+  overflow-y:auto;
+}
+
+/* =====================================================
+   HEADER
+===================================================== */
+
+.records-header{
+  margin-bottom:22px;
+}
+
+.records-header h1{
+  margin:0;
+  font-size:30px;
+  font-weight:800;
+  color:#0f172a;
+}
+
+.records-header p{
+  margin-top:6px;
+  color:#64748b;
+  font-size:14px;
+}
+
+/* =====================================================
+   CARD
+===================================================== */
+
+.records-card{
+  background:white;
+  border:1px solid #e2e8f0;
+  border-radius:18px;
+  padding:20px;
+  margin-bottom:20px;
+  box-shadow:
+    0 2px 8px rgba(15,23,42,0.04);
+}
+
+/* =====================================================
+   SEARCH
+===================================================== */
+
+.records-search{
+  height:54px;
+  border:1px solid #cbd5e1;
+  border-radius:14px;
+  padding:0 16px;
+
+  display:flex;
+  align-items:center;
+  gap:12px;
+
+  background:#f8fafc;
+}
+
+.records-search svg{
+  color:#64748b;
+}
+
+.records-search input{
+  flex:1;
+  border:none;
+  outline:none;
+  background:transparent;
+
+  font-size:14px;
+  color:#0f172a;
+}
+
+.records-search input::placeholder{
+  color:#94a3b8;
+}
+
+/* =====================================================
+   TABLE
+===================================================== */
+
+.records-table{
+  width:100%;
+}
+
+/* =====================================================
+   TABLE HEADER
+===================================================== */
+
+.records-table-header{
+  display:grid;
+
+  grid-template-columns:
+    1.3fr
+    2fr
+    1fr
+    1fr
+    1fr;
+
+  gap:14px;
+
+  padding:14px 16px;
+
+  background:#f1f5f9;
+
+  border-radius:12px;
+
+  font-size:13px;
+  font-weight:800;
+
+  color:#0f172a;
+
+  text-transform:uppercase;
+}
+
+/* =====================================================
+   ROW
+===================================================== */
+
+.records-row{
+  display:grid;
+
+  grid-template-columns:
+    1.3fr
+    2fr
+    1fr
+    1fr
+    1fr;
+
+  gap:14px;
+
+  align-items:center;
+
+  padding:16px;
+
+  border-bottom:1px solid #e2e8f0;
+
+  font-size:14px;
+
+  color:#0f172a;
+
+  transition:0.2s ease;
+}
+
+.records-row:hover{
+  background:#f8fbff;
+}
+
+.records-row:last-child{
+  border-bottom:none;
+}
+
+/* =====================================================
+   LAB ID
+===================================================== */
+
+.lab-id{
+  font-weight:800;
+  color:#2563eb;
+}
+
+/* =====================================================
+   STATUS
+===================================================== */
+
+.status-badge{
+  width:fit-content;
+
+  padding:7px 12px;
+
+  border-radius:999px;
+
+  display:flex;
+  align-items:center;
+  gap:6px;
+
+  font-size:12px;
+  font-weight:700;
+}
+
+/* RELEASED */
+
+.status-badge.Released{
+  background:#dcfce7;
+  color:#16a34a;
+}
+
+/* VALIDATED */
+
+.status-badge.Validated{
+  background:#dbeafe;
+  color:#2563eb;
+}
+
+/* PENDING */
+
+.status-badge.Pending{
+  background:#fef3c7;
+  color:#d97706;
+}
+
+/* =====================================================
+   ACTIONS
+===================================================== */
+
+.records-actions{
+  display:flex;
+  align-items:center;
+  gap:10px;
+}
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+.records-actions button{
+  width:38px;
+  height:38px;
+
+  border:none;
+  border-radius:10px;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  cursor:pointer;
+
+  transition:0.2s ease;
+}
+
+/* VIEW */
+
+.view-btn{
+  background:#dbeafe;
+  color:#2563eb;
+}
+
+.view-btn:hover{
+  background:#bfdbfe;
+}
+
+/* PRINT */
+
+.print-btn{
+  background:#dcfce7;
+  color:#16a34a;
+}
+
+.print-btn:hover{
+  background:#bbf7d0;
+}
+
+/* RESULT */
+
+.result-btn{
+  background:#f3e8ff;
+  color:#9333ea;
+}
+
+.result-btn:hover{
+  background:#e9d5ff;
+}
+
+/* =====================================================
+   EMPTY
+===================================================== */
+
+.empty-state{
+  padding:40px 20px;
+
+  text-align:center;
+
+  color:#64748b;
+
+  font-size:14px;
+}
+
+/* =====================================================
+   RESPONSIVE
+===================================================== */
+
+@media(max-width:992px){
+
+  .dashboard-content{
+    padding:20px;
+  }
+
+  .records-table{
+    overflow-x:auto;
+  }
+
+  .records-table-header,
+  .records-row{
+    min-width:900px;
+  }
+}
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media(max-width:768px){
+
+  .records-header h1{
+    font-size:24px;
+  }
+
+  .records-card{
+    padding:16px;
+    border-radius:16px;
+  }
+
+  .records-search{
+    height:50px;
+  }
+
+  .records-table-header,
+  .records-row{
+    min-width:850px;
+  }
+}

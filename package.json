@@ -10,13 +10,25 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.105.4",
+    "@supabase/supabase-js": "^2.106.0",
+    "axios": "^1.16.1",
+    "chart.js": "^4.5.1",
+    "es-toolkit": "^1.47.0",
     "html2canvas": "^1.4.1",
+    "html2pdf.js": "^0.14.0",
+    "jsbarcode": "^3.12.3",
     "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.8",
+    "lucide-react": "^1.14.0",
     "qrcode.react": "^4.2.0",
     "react": "^19.2.5",
+    "react-barcode": "^1.6.1",
+    "react-chartjs-2": "^5.3.1",
     "react-dom": "^19.2.5",
-    "react-router-dom": "^7.15.0"
+    "react-qr-code": "^2.0.21",
+    "react-router-dom": "^7.15.0",
+    "react-to-print": "^3.3.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -1,0 +1,103 @@
+
+.temperature-summary{
+  display:grid;
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(
+        180px,
+        1fr
+      )
+    );
+  gap:15px;
+  margin-bottom:20px;
+}
+
+.temperature-card{
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  text-align:center;
+  box-shadow:
+    0 2px 10px
+    rgba(
+      0,
+      0,
+      0,
+      0.08
+    );
+}
+
+.temperature-form{
+  display:grid;
+  gap:12px;
+  margin-top:20px;
+}
+
+.temperature-form input,
+.temperature-form select{
+  padding:10px;
+  border:1px solid #ddd;
+  border-radius:8px;
+}
+
+.temperature-form button{
+  background:#2563eb;
+  color:white;
+  border:none;
+  padding:12px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.temperature-table{
+  width:100%;
+  margin-top:20px;
+  border-collapse:collapse;
+}
+
+.temperature-table th,
+.temperature-table td{
+  border:1px solid #ddd;
+  padding:10px;
+}
+
+.temperature-table th{
+  background:#f5f5f5;
+}
+
+.temp-normal{
+  background:#16a34a;
+  color:white;
+  padding:4px 10px;
+  border-radius:6px;
+}
+
+.temp-alert{
+  background:#dc2626;
+  color:white;
+  padding:4px 10px;
+  border-radius:6px;
+}
+
+.temp-danger{
+  color:#dc2626;
+  font-weight:700;
+}
+
+.temperature-search{
+  margin:20px 0;
+}
+
+.temperature-search input{
+  width:100%;
+  padding:12px;
+  border:1px solid #ddd;
+  border-radius:8px;
+}
+
+.temp-high{
+  background:#fee2e2;
+  color:#b91c1c;
+  font-weight:700;
+}

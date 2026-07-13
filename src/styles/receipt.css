@@ -1,0 +1,85 @@
+.receipt-paper {
+  width: 350px;
+
+  background: white;
+
+  padding: 25px;
+
+  color: black;
+}
+
+/* HEADER */
+
+.receipt-header {
+  text-align: center;
+
+  margin-bottom: 20px;
+}
+
+.receipt-header h1 {
+  font-size: 20px;
+}
+
+.receipt-header p {
+  font-size: 12px;
+  color: #555;
+}
+
+/* INFO */
+
+.receipt-info {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  margin-bottom: 20px;
+}
+
+.receipt-info div {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* TABLE */
+
+.receipt-tests table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  margin-bottom: 20px;
+}
+
+.receipt-tests th,
+.receipt-tests td {
+  border: 1px solid #ccc;
+
+  padding: 10px;
+
+  font-size: 13px;
+}
+
+/* SUMMARY */
+
+.receipt-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  margin-bottom: 20px;
+}
+
+.receipt-summary div {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* FOOTER */
+
+.receipt-footer {
+  text-align: center;
+
+  font-size: 12px;
+
+  margin-top: 25px;
+}

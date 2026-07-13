@@ -1,0 +1,599 @@
+/* =========================================
+   ENTERPRISE PRINTABLE REPORT
+========================================= */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+
+  padding: 0;
+
+  font-family:
+    Arial,
+    sans-serif;
+
+  background: #f5f7fb;
+}
+
+/* PAGE */
+
+.print-page {
+  background: #f5f7fb;
+
+  min-height: 100vh;
+
+  padding: 30px 20px;
+}
+
+/* =========================================
+   ACTIONS
+========================================= */
+
+.print-actions {
+  display: flex;
+
+  justify-content: center;
+
+  margin-bottom: 24px;
+}
+
+.print-actions button {
+  background: #14b8a6;
+
+  color: white;
+
+  border: none;
+
+  border-radius: 14px;
+
+  padding: 14px 24px;
+
+  font-size: 15px;
+
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition: 0.3s;
+}
+
+.print-actions button:hover {
+  background: #0f9b8e;
+}
+
+/* =========================================
+   REPORT
+========================================= */
+
+.print-report {
+  max-width: 1100px;
+
+  margin: auto;
+
+  background: white;
+
+  border-radius: 24px;
+
+  padding: 35px;
+
+  box-shadow:
+    0 6px 24px
+    rgba(
+      0,
+      0,
+      0,
+      0.08
+    );
+}
+
+/* =========================================
+   VERIFIED
+========================================= */
+
+.verified-banner {
+  background:
+    rgba(
+      22,
+      163,
+      74,
+      0.08
+    );
+
+  border:
+    1px solid
+    rgba(
+      22,
+      163,
+      74,
+      0.15
+    );
+
+  color: #16a34a;
+
+  border-radius: 16px;
+
+  padding: 16px 20px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 10px;
+
+  font-size: 14px;
+
+  font-weight: 700;
+
+  margin-bottom: 28px;
+}
+
+/* =========================================
+   HEADER
+========================================= */
+
+.report-header {
+  display: flex;
+
+  align-items: center;
+
+  gap: 24px;
+
+  padding-bottom: 24px;
+
+  border-bottom:
+    2px solid #eef2f7;
+
+  margin-bottom: 30px;
+}
+
+.report-header img {
+  width: 95px;
+
+  height: 95px;
+
+  object-fit: contain;
+}
+
+.report-header h1 {
+  color: #003f6f;
+
+  font-size: 34px;
+
+  margin-bottom: 12px;
+}
+
+.report-header p {
+  color: #555;
+
+  line-height: 1.8;
+
+  font-size: 14px;
+
+  margin-bottom: 14px;
+}
+
+/* CONTACT */
+
+.header-contact {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 16px;
+}
+
+.header-contact span {
+  color: #14b8a6;
+
+  font-size: 13px;
+
+  font-weight: 600;
+}
+
+/* =========================================
+   TITLE
+========================================= */
+
+.report-title {
+  background: #003f6f;
+
+  color: white;
+
+  border-radius: 14px;
+
+  padding: 16px;
+
+  text-align: center;
+
+  font-size: 22px;
+
+  font-weight: 800;
+
+  margin-bottom: 28px;
+}
+
+/* =========================================
+   PATIENT SECTION
+========================================= */
+
+.patient-section {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(220px,1fr)
+    );
+
+  gap: 18px;
+
+  margin-bottom: 28px;
+}
+
+.patient-section div {
+  background: #f9fafb;
+
+  border:
+    1px solid #eef2f7;
+
+  border-radius: 16px;
+
+  padding: 16px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.patient-section strong {
+  color: #003f6f;
+
+  font-size: 13px;
+}
+
+.patient-section span {
+  color: #444;
+
+  font-size: 14px;
+
+  line-height: 1.6;
+}
+
+/* =========================================
+   CLINICAL HISTORY
+========================================= */
+
+.clinical-box {
+  background:
+    rgba(
+      20,
+      184,
+      166,
+      0.05
+    );
+
+  border:
+    1px solid
+    rgba(
+      20,
+      184,
+      166,
+      0.1
+    );
+
+  border-radius: 18px;
+
+  padding: 20px;
+
+  margin-bottom: 30px;
+}
+
+.clinical-box strong {
+  display: block;
+
+  color: #003f6f;
+
+  margin-bottom: 10px;
+}
+
+.clinical-box p {
+  color: #444;
+
+  line-height: 1.8;
+
+  font-size: 14px;
+}
+
+/* =========================================
+   TABLE
+========================================= */
+
+.print-table {
+  width: 100%;
+
+  border-collapse:
+    collapse;
+
+  margin-bottom: 35px;
+}
+
+/* HEAD */
+
+.print-table thead {
+  background: #003f6f;
+
+  color: white;
+}
+
+.print-table th {
+  padding: 14px;
+
+  text-align: left;
+
+  font-size: 14px;
+
+  font-weight: 700;
+}
+
+/* BODY */
+
+.print-table td {
+  padding: 14px;
+
+  border-bottom:
+    1px solid #eef2f7;
+
+  font-size: 14px;
+
+  color: #333;
+}
+
+.print-table tbody tr:nth-child(even) {
+  background: #fafafa;
+}
+
+/* =========================================
+   FLAGS
+========================================= */
+
+.flag {
+  font-weight: 800;
+
+  text-align: center;
+}
+
+/* HIGH */
+
+.flag.high {
+  color: #e41e26;
+}
+
+/* LOW */
+
+.flag.low {
+  color: #f59e0b;
+}
+
+/* NORMAL */
+
+.flag.normal {
+  color: #16a34a;
+}
+
+/* =========================================
+   AUTHORIZATION
+========================================= */
+
+.authorization-section {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(220px,1fr)
+    );
+
+  gap: 18px;
+
+  margin-bottom: 30px;
+}
+
+.authorization-section div {
+  background:
+    rgba(
+      22,
+      163,
+      74,
+      0.05
+    );
+
+  border:
+    1px solid
+    rgba(
+      22,
+      163,
+      74,
+      0.1
+    );
+
+  border-radius: 18px;
+
+  padding: 18px;
+
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.authorization-section strong {
+  color: #003f6f;
+
+  font-size: 13px;
+}
+
+.authorization-section span {
+  color: #333;
+
+  font-size: 14px;
+}
+
+/* VERIFIED */
+
+.verified-status {
+  color: #16a34a !important;
+
+  font-weight: 800;
+}
+
+/* =========================================
+   FOOTER
+========================================= */
+
+.report-footer {
+  background: #003f6f;
+
+  color: white;
+
+  border-radius: 18px;
+
+  padding: 18px 22px;
+
+  text-align: center;
+
+  font-size: 14px;
+
+  line-height: 1.8;
+}
+
+/* =========================================
+   BLOCKED
+========================================= */
+
+.print-blocked {
+  min-height: 100vh;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  text-align: center;
+
+  padding: 40px;
+}
+
+.print-blocked h2 {
+  color: #e41e26;
+
+  font-size: 32px;
+
+  margin-bottom: 16px;
+}
+
+.print-blocked p {
+  color: #555;
+
+  font-size: 16px;
+
+  max-width: 500px;
+
+  line-height: 1.8;
+}
+
+/* =========================================
+   LOADING
+========================================= */
+
+.print-loading {
+  min-height: 100vh;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 22px;
+
+  color: #003f6f;
+
+  font-weight: 700;
+}
+
+/* =========================================
+   PRINT MODE
+========================================= */
+
+@media print {
+  body {
+    background: white;
+  }
+
+  .print-page {
+    padding: 0;
+
+    background: white;
+  }
+
+  .print-actions {
+    display: none;
+  }
+
+  .print-report {
+    box-shadow: none;
+
+    border-radius: 0;
+
+    max-width: 100%;
+
+    padding: 0;
+  }
+}
+
+/* =========================================
+   MOBILE
+========================================= */
+
+@media (max-width: 768px) {
+  .print-page {
+    padding: 14px;
+  }
+
+  .print-report {
+    padding: 22px;
+  }
+
+  .report-header {
+    flex-direction: column;
+
+    text-align: center;
+  }
+
+  .report-header h1 {
+    font-size: 24px;
+  }
+
+  .patient-section,
+  .authorization-section {
+    grid-template-columns:
+      1fr;
+  }
+
+  .print-table {
+    display: block;
+
+    overflow-x: auto;
+
+    white-space: nowrap;
+  }
+}

@@ -1,0 +1,101 @@
+.qc-form{
+  display:grid;
+  gap:12px;
+  margin-top:20px;
+}
+
+.qc-form input{
+  padding:10px;
+  border:1px solid #ddd;
+  border-radius:8px;
+}
+
+.qc-form button{
+  padding:12px;
+  border:none;
+  background:#2563eb;
+  color:white;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.qc-table{
+  width:100%;
+  margin-top:20px;
+  border-collapse:collapse;
+}
+
+.qc-table th,
+.qc-table td{
+  border:1px solid #ddd;
+  padding:10px;
+}
+
+.qc-table th{
+  background:#f5f5f5;
+}
+
+.qc-pass{
+  background:#16a34a;
+  color:white;
+  padding:4px 10px;
+  border-radius:6px;
+}
+
+.qc-fail{
+  background:#dc2626;
+  color:white;
+  padding:4px 10px;
+  border-radius:6px;
+}
+
+.qc-summary{
+  display:grid;
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(
+        180px,
+        1fr
+      )
+    );
+  gap:15px;
+  margin-bottom:20px;
+}
+
+.qc-card{
+  background:white;
+  padding:20px;
+  border-radius:12px;
+  text-align:center;
+  box-shadow:
+    0 2px 10px
+    rgba(
+      0,
+      0,
+      0,
+      0.08
+    );
+}
+
+.qc-form select{
+  padding:10px;
+  border:1px solid #ddd;
+  border-radius:8px;
+}
+
+.qc-search{
+  margin:20px 0;
+}
+
+.qc-search input{
+  width:100%;
+  padding:12px;
+  border:1px solid #ddd;
+  border-radius:8px;
+}
+
+.qc-fail-count{
+  color:#dc2626;
+  font-weight:700;
+}

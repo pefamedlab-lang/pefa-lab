@@ -1,0 +1,654 @@
+/* ==========================================
+   ACTION BOX
+========================================== */
+
+.action-box{
+
+  display:flex;
+
+  gap:8px;
+
+  align-items:center;
+
+  flex-wrap:wrap;
+}
+
+/* ==========================================
+   LABEL BUTTON
+========================================== */
+
+.label-btn{
+
+  border:none;
+
+  background:
+    linear-gradient(
+      135deg,
+      #84cc16,
+      #65a30d
+    );
+
+  color:white;
+
+  padding:10px 14px;
+
+  border-radius:10px;
+
+  font-size:13px;
+
+  font-weight:700;
+
+  cursor:pointer;
+
+  transition:.3s;
+}
+
+.label-btn:hover{
+
+  transform:
+    translateY(-2px);
+
+  box-shadow:
+    0 8px 20px
+    rgba(
+      132,
+      204,
+      22,
+      .35
+    );
+}
+
+/* ==========================================
+   PREMIUM HEADER
+========================================== */
+
+.specimen-header{
+
+  display:flex;
+
+  justify-content:
+    space-between;
+
+  align-items:center;
+
+  margin-bottom:25px;
+}
+
+.specimen-header h1{
+
+  font-size:32px;
+
+  font-weight:800;
+
+  color:#0f172a;
+}
+
+.specimen-header p{
+
+  color:#64748b;
+}
+
+/* ==========================================
+   CARD
+========================================== */
+
+.specimen-card{
+
+  background:white;
+
+  border-radius:20px;
+
+  padding:20px;
+
+  margin-bottom:20px;
+
+  box-shadow:
+    0 8px 24px
+    rgba(
+      15,
+      23,
+      42,
+      .06
+    );
+}
+
+/* ==========================================
+   TABLE HEADER
+========================================== */
+
+.specimen-table-header{
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #1d4ed8
+    );
+
+  color:white;
+
+  font-weight:700;
+
+  border-radius:14px;
+
+  padding:15px;
+}
+
+/* ==========================================
+   ROW HOVER
+========================================== */
+
+.specimen-row{
+
+  transition:.3s;
+}
+
+.specimen-row:hover{
+
+  background:#f8fafc;
+
+  border-radius:12px;
+}
+
+/* ===================================
+   LABEL MODAL
+=================================== */
+
+.label-overlay{
+
+  position:fixed;
+
+  inset:0;
+
+  background:
+    rgba(
+      0,
+      0,
+      0,
+      .5
+    );
+
+  display:flex;
+
+  justify-content:center;
+
+  align-items:center;
+
+  z-index:9999;
+}
+
+.label-modal{
+
+  width:500px;
+
+  max-width:95%;
+
+  background:white;
+
+  border-radius:20px;
+
+  overflow:hidden;
+
+  box-shadow:
+    0 20px 50px
+    rgba(
+      0,
+      0,
+      0,
+      .2
+    );
+}
+
+.label-header{
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #84cc16
+    );
+
+  color:white;
+
+  padding:20px;
+
+  display:flex;
+
+  justify-content:
+    space-between;
+
+  align-items:center;
+}
+
+.label-body{
+
+  padding:25px;
+}
+
+.label-body h3{
+
+  color:#2563eb;
+
+  font-size:24px;
+
+  margin-bottom:15px;
+}
+
+.label-body ul{
+
+  margin-top:10px;
+
+  padding-left:20px;
+}
+
+.label-footer{
+
+  padding:20px;
+
+  border-top:
+    1px solid #e2e8f0;
+
+  text-align:right;
+}
+
+.print-btn{
+
+  background:#84cc16;
+
+  color:white;
+
+  border:none;
+
+  padding:12px 20px;
+
+  border-radius:10px;
+
+  cursor:pointer;
+
+  font-weight:700;
+}
+
+.close-btn{
+
+  border:none;
+
+  background:white;
+
+  color:#dc2626;
+
+  width:36px;
+
+  height:36px;
+
+  border-radius:50%;
+
+  cursor:pointer;
+
+  font-size:20px;
+
+  font-weight:bold;
+}
+
+.barcode-section{
+
+  margin-top:20px;
+
+  display:flex;
+
+  justify-content:center;
+
+  align-items:center;
+
+  padding:15px;
+
+  background:#f8fafc;
+
+  border-radius:12px;
+}
+
+.print-label{
+
+  width:300px;
+
+  margin:auto;
+
+  text-align:center;
+}
+
+.print-label h3{
+
+  color:#2563eb;
+
+  margin-bottom:10px;
+
+  font-size:18px;
+}
+
+.label-lab-number{
+
+  font-size:20px;
+
+  font-weight:800;
+
+  margin-bottom:10px;
+}
+
+.label-patient{
+
+  font-size:14px;
+
+  margin-bottom:10px;
+}
+
+.label-specimen{
+
+  color:#64748b;
+
+  font-size:12px;
+
+  margin-bottom:10px;
+}
+
+.view-btn{
+
+  border:none;
+
+  background:#2563eb;
+
+  color:white;
+
+  padding:10px 14px;
+
+  border-radius:10px;
+
+  cursor:pointer;
+
+  font-weight:600;
+}
+
+.patient-modal{
+
+  width:650px;
+
+  max-width:95%;
+
+  background:white;
+
+  border-radius:20px;
+
+  overflow:hidden;
+}
+
+.patient-modal-header{
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #84cc16
+    );
+
+  color:white;
+
+  padding:20px;
+
+  display:flex;
+
+  justify-content:
+    space-between;
+
+  align-items:center;
+}
+
+.patient-modal-body{
+
+  padding:25px;
+
+  max-height:70vh;
+
+  overflow:auto;
+}
+
+.reject-btn{
+
+  border:none;
+
+  background:#dc2626;
+
+  color:white;
+
+  padding:10px 14px;
+
+  border-radius:10px;
+
+  cursor:pointer;
+
+  font-weight:600;
+}
+
+.reject-modal{
+
+  width:450px;
+
+  background:white;
+
+  padding:25px;
+
+  border-radius:20px;
+}
+
+.reject-modal select{
+
+  width:100%;
+
+  padding:12px;
+
+  margin-top:15px;
+
+  border:1px solid #cbd5e1;
+
+  border-radius:10px;
+}
+
+.reject-actions{
+
+  display:flex;
+
+  justify-content:flex-end;
+
+  gap:10px;
+
+  margin-top:20px;
+}
+
+.collect-btn{
+
+  border:none;
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #1d4ed8
+    );
+
+  color:white;
+
+  padding:10px 16px;
+
+  border-radius:12px;
+
+  cursor:pointer;
+
+  font-size:13px;
+
+  font-weight:700;
+
+  transition:.3s;
+
+  box-shadow:
+    0 6px 18px
+    rgba(
+      37,
+      99,
+      235,
+      .25
+    );
+}
+
+.collect-btn:hover{
+
+  transform:
+    translateY(-2px);
+
+  box-shadow:
+    0 10px 24px
+    rgba(
+      37,
+      99,
+      235,
+      .35
+    );
+}
+
+.collect-btn:active{
+
+  transform:
+    scale(.98);
+}
+
+.receive-btn{
+
+  background:
+    linear-gradient(
+      135deg,
+      #84cc16,
+      #65a30d
+    );
+
+  color:white;
+
+  border:none;
+
+  padding:10px 16px;
+
+  border-radius:12px;
+
+  font-weight:700;
+}
+
+.processing-btn{
+
+  background:
+    linear-gradient(
+      135deg,
+      #f59e0b,
+      #d97706
+    );
+
+  color:white;
+
+  border:none;
+
+  padding:10px 16px;
+
+  border-radius:12px;
+
+  font-weight:700;
+}
+
+.complete-btn{
+
+  background:
+    linear-gradient(
+      135deg,
+      #dc2626,
+      #b91c1c
+    );
+
+  color:white;
+
+  border:none;
+
+  padding:10px 16px;
+
+  border-radius:12px;
+
+  font-weight:700;
+}
+
+.history-btn{
+
+  border:none;
+
+  background:
+    linear-gradient(
+      135deg,
+      #0f172a,
+      #334155
+    );
+
+  color:white;
+
+  padding:10px 14px;
+
+  border-radius:10px;
+
+  cursor:pointer;
+
+  font-weight:600;
+}
+
+.history-modal{
+
+  width:600px;
+
+  max-width:95%;
+
+  background:white;
+
+  border-radius:20px;
+
+  overflow:hidden;
+}
+
+.history-header{
+
+  background:
+    linear-gradient(
+      135deg,
+      #2563eb,
+      #84cc16
+    );
+
+  color:white;
+
+  padding:20px;
+
+  display:flex;
+
+  justify-content:
+    space-between;
+
+  align-items:center;
+}
+
+.history-body{
+
+  padding:25px;
+}
+
+.history-item{
+
+  padding:14px;
+
+  margin-bottom:10px;
+
+  background:#f8fafc;
+
+  border-radius:10px;
+
+  border-left:
+    4px solid #2563eb;
+}
+

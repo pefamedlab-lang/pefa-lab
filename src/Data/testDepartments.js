@@ -1,0 +1,63 @@
+export const pefaTestLibrary = [
+
+  {
+    department: "Hematology",
+    panel_name: "",
+    test_name: "PCV",
+    test_type: "Single",
+    result_type: "Quantitative",
+    result_category: "Quantitative Single",
+    template_type: "quantitative_single",
+    unit: "%",
+    male_range: "40-54",
+    female_range: "36-48",
+    child_range: "35-45",
+    elderly_range: "35-50",
+    single_test_price: 2000,
+    active_status: "Active",
+  },
+
+  {
+    department: "Hematology",
+    panel_name: "",
+    test_name: "ESR",
+    test_type: "Single",
+    result_type: "Quantitative",
+    result_category: "Quantitative Single",
+    template_type: "quantitative_single",
+    unit: "mm/hr",
+    male_range: "0-15",
+    female_range: "0-20",
+    child_range: "0-10",
+    elderly_range: "0-20",
+    single_test_price: 2500,
+    active_status: "Active",
+  },
+
+  {
+    department: "Serology",
+    panel_name: "",
+    test_name: "HBsAg",
+    test_type: "Single",
+    result_type: "Qualitative",
+    result_category: "Qualitative",
+    template_type: "qualitative",
+    unit: "",
+    single_test_price: 3000,
+    active_status: "Active",
+  },
+
+  {
+    department: "Microbiology",
+    panel_name: "",
+    test_name: "Widal Test",
+    test_type: "Single",
+    result_type: "Qualitative",
+    result_category: "Widal",
+    template_type: "widal",
+    unit: "",
+    single_test_price: 3000,
+    active_status: "Active",
+  },
+
+];

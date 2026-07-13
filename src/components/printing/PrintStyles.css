@@ -1,0 +1,1681 @@
+/* ==========================================================
+   MODULE 1
+   PRINT ENGINE FOUNDATION
+   PEFA Medical Diagnostic Services
+========================================================== */
+
+/* ----------------------------------------------------------
+   PAGE
+---------------------------------------------------------- */
+
+@page{
+    size:A4 portrait;
+    margin:0;
+}
+
+/* ----------------------------------------------------------
+   GLOBAL
+---------------------------------------------------------- */
+
+html,
+body{
+
+    margin:0;
+    padding:0;
+
+    background:#f3f5f7;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    color:#111;
+
+}
+
+/* ----------------------------------------------------------
+   PRINT ROOT
+---------------------------------------------------------- */
+
+#print-root{
+
+    width:210mm;
+    min-height:297mm;
+
+    margin:20px auto;
+
+    background:#ffffff;
+
+    position:relative;
+
+    overflow:hidden;
+
+}
+
+/* ----------------------------------------------------------
+   REPORT PAGE
+---------------------------------------------------------- */
+
+.report-page{
+
+    width:210mm;
+    min-height:297mm;
+
+    background:#ffffff;
+
+    box-sizing:border-box;
+
+    padding:12mm;
+
+}
+
+/* ----------------------------------------------------------
+   PDF MODE
+---------------------------------------------------------- */
+
+body.pdf-mode{
+
+    background:#ffffff;
+
+}
+
+body.pdf-mode #print-root{
+
+    margin:0 auto;
+
+    box-shadow:none;
+
+}
+
+/* ----------------------------------------------------------
+   PRINT MODE
+---------------------------------------------------------- */
+
+@media print{
+
+html,
+body{
+
+    width:210mm;
+    height:297mm;
+
+    margin:0;
+    padding:0;
+
+    background:#ffffff;
+
+    overflow:visible;
+
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+
+}
+
+/* Hide application */
+
+body.print-mode *{
+
+    visibility:hidden !important;
+
+}
+
+/* Show report */
+
+body.print-mode #print-root,
+body.print-mode #print-root *{
+
+    visibility:visible !important;
+
+}
+
+/* Printable page */
+
+#print-root{
+
+    position:absolute;
+
+    top:0;
+    left:0;
+
+    width:210mm;
+
+    margin:0;
+
+    box-shadow:none;
+
+}
+
+}
+
+/* ==========================================================
+   MODULE 2
+   REPORT PAGE LAYOUT
+========================================================== */
+
+/* ----------------------------------------------------------
+   PAGE STRUCTURE
+---------------------------------------------------------- */
+
+.report-page{
+
+    display:flex;
+    flex-direction:column;
+
+    width:210mm;
+    min-height:297mm;
+
+    background:#ffffff;
+
+    box-sizing:border-box;
+
+    padding:12mm;
+
+}
+
+/* ----------------------------------------------------------
+   REPORT BODY
+---------------------------------------------------------- */
+
+.report-body{
+
+    flex:1;
+
+    display:flex;
+    flex-direction:column;
+
+}
+
+/* ----------------------------------------------------------
+   REPORT FOOTER AREA
+---------------------------------------------------------- */
+
+.report-footer{
+
+    margin-top:auto;
+
+}
+
+/* ----------------------------------------------------------
+   PAGE BREAK HELPERS
+---------------------------------------------------------- */
+
+.page-break{
+
+    page-break-before:always;
+
+}
+
+.avoid-break{
+
+    page-break-inside:avoid;
+    break-inside:avoid;
+
+}
+
+/* ----------------------------------------------------------
+   COMMON PRINT SAFETY
+---------------------------------------------------------- */
+
+.report-body,
+.report-footer{
+
+    page-break-inside:auto;
+
+}
+
+table{
+
+    width:100%;
+    border-collapse:collapse;
+
+}
+
+thead{
+
+    display:table-header-group;
+
+}
+
+tfoot{
+
+    display:table-footer-group;
+
+}
+
+tr{
+
+    page-break-inside:avoid;
+
+}
+
+img{
+
+    max-width:100%;
+    height:auto;
+
+}
+
+canvas{
+
+    max-width:100% !important;
+
+}
+
+/* ----------------------------------------------------------
+   PRINT
+---------------------------------------------------------- */
+
+@media print{
+
+.report-page{
+
+    box-shadow:none;
+
+}
+
+.report-body{
+
+    page-break-inside:auto;
+
+}
+
+.report-footer{
+
+    page-break-inside:avoid;
+    break-inside:avoid;
+
+}
+
+}
+
+/* ==========================================================
+   MODULE 3
+   ENTERPRISE LETTERHEAD
+========================================================== */
+
+/* ----------------------------------------------------------
+   CONTAINER
+---------------------------------------------------------- */
+
+.enterprise-letterhead{
+
+    display:flex;
+    flex-direction:column;
+
+    width:100%;
+
+    margin-bottom:10px;
+
+    page-break-inside:avoid;
+    break-inside:avoid;
+
+}
+
+/* ----------------------------------------------------------
+   HEADER
+---------------------------------------------------------- */
+
+.eh-header{
+
+    display:grid;
+
+    grid-template-columns:70px 5px 1fr;
+
+    align-items:center;
+
+    column-gap:14px;
+
+}
+
+/* ----------------------------------------------------------
+   LOGO
+---------------------------------------------------------- */
+
+.eh-logo-wrapper{
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+}
+
+.eh-logo{
+
+    width:65px;
+    height:65px;
+
+    object-fit:contain;
+
+}
+
+/* ----------------------------------------------------------
+   BRAND STRIP
+---------------------------------------------------------- */
+
+.eh-identity{
+
+    width:5px;
+    height:65px;
+
+    display:flex;
+    flex-direction:column;
+
+    overflow:hidden;
+
+    border-radius:999px;
+
+}
+
+.id-blue{
+
+    flex:6;
+    background:#005B96;
+
+}
+
+.id-red{
+
+    flex:1;
+    background:#E31B23;
+
+}
+
+.id-green{
+
+    flex:3;
+    background:#8DC63F;
+
+}
+
+/* ----------------------------------------------------------
+   BRAND DETAILS
+---------------------------------------------------------- */
+
+.eh-brand{
+
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+
+}
+
+.eh-name{
+
+    margin:0;
+
+    font-size:34px;
+
+    font-weight:900;
+
+    line-height:1;
+
+    letter-spacing:1.5px;
+
+    color:#005B96;
+
+    text-transform:uppercase;
+
+}
+
+.eh-subtitle{
+
+    margin-top:2px;
+
+    font-size:16px;
+
+    font-weight:700;
+
+    color:#374151;
+
+}
+
+.eh-company-line{
+
+    width:240px;
+
+    height:1px;
+
+    margin:4px 0;
+
+    background:#d9dee6;
+
+}
+
+.eh-registration{
+
+    font-size:10px;
+
+    font-weight:700;
+
+    color:#64748B;
+
+}
+
+.eh-trust{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    margin-top:4px;
+
+    font-size:11px;
+
+    font-weight:700;
+
+}
+
+.trust-blue{
+
+    color:#005B96;
+
+}
+
+.trust-red{
+
+    color:#E31B23;
+
+}
+
+.trust-green{
+
+    color:#2FA93B;
+
+}
+
+.trust-dot{
+
+    color:#94A3B8;
+
+    font-size:8px;
+
+}
+
+/* ----------------------------------------------------------
+   SEPARATOR
+---------------------------------------------------------- */
+
+.header-separator{
+
+    margin-top:8px;
+
+}
+
+.separator-top,
+.separator-bottom{
+
+    height:1px;
+
+    background:#d9dee6;
+
+}
+
+.separator-ribbon{
+
+    display:flex;
+
+    height:4px;
+
+}
+
+.divider-blue{
+
+    flex:4;
+
+    background:#005B96;
+
+}
+
+.divider-red{
+
+    flex:2;
+
+    background:#E31B23;
+
+}
+
+.divider-green{
+
+    flex:4;
+
+    background:#8DC63F;
+
+}
+
+.separator-tagline{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    min-height:20px;
+
+    padding:3px 12px;
+
+    background:#F8FBFE;
+
+    border-left:4px solid #005B96;
+
+    border-right:4px solid #8DC63F;
+
+    border-top:1px solid #D9DEE6;
+
+    border-bottom:1px solid #D9DEE6;
+
+    font-size:10px;
+
+    font-style:italic;
+
+    font-weight:700;
+
+    color:#005B96;
+
+    text-align:center;
+
+}
+
+/* ----------------------------------------------------------
+   PRINT
+---------------------------------------------------------- */
+
+@media print{
+
+.enterprise-letterhead{
+
+    margin-bottom:8px;
+
+}
+
+.eh-name{
+
+    font-size:32px;
+
+}
+
+.eh-subtitle{
+
+    font-size:15px;
+
+}
+
+}
+
+/* ==========================================================
+   MODULE 4
+   PATIENT INFORMATION
+========================================================== */
+
+/* ----------------------------------------------------------
+   CONTAINER
+---------------------------------------------------------- */
+
+.patient-info-container{
+
+    margin:8px 0 12px;
+
+    border:1px solid #d8e2ea;
+
+    border-radius:4px;
+
+    overflow:hidden;
+
+    background:#ffffff;
+
+    page-break-inside:avoid;
+    break-inside:avoid;
+
+}
+
+/* ----------------------------------------------------------
+   TITLE
+---------------------------------------------------------- */
+
+.patient-info-title{
+
+    padding:7px 12px;
+
+    background:#8DC63F;
+
+    color:#ffffff;
+
+    font-size:12px;
+
+    font-weight:700;
+
+    letter-spacing:.6px;
+
+    text-transform:uppercase;
+
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+
+}
+
+/* ----------------------------------------------------------
+   TABLE
+---------------------------------------------------------- */
+
+.patient-info-table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    table-layout:fixed;
+
+    font-size:11px;
+
+}
+
+.patient-info-table tr{
+
+    border-bottom:1px solid #edf2f7;
+
+}
+
+.patient-info-table tr:last-child{
+
+    border-bottom:none;
+
+}
+
+.patient-info-table td{
+
+    width:50%;
+
+    padding:7px 10px;
+
+    vertical-align:top;
+
+    line-height:1.35;
+
+}
+
+.patient-info-table td:first-child{
+
+    border-right:1px solid #edf2f7;
+
+}
+
+/* ----------------------------------------------------------
+   LABELS
+---------------------------------------------------------- */
+
+.patient-info-table strong{
+
+    display:inline-block;
+
+    min-width:90px;
+
+    color:#64748b;
+
+    font-size:10px;
+
+    font-weight:700;
+
+    text-transform:uppercase;
+
+}
+
+/* ----------------------------------------------------------
+   VALUES
+---------------------------------------------------------- */
+
+.patient-info-table td{
+
+    color:#1f2937;
+
+    font-weight:500;
+
+}
+
+.patient-highlight{
+
+    font-weight:700;
+
+    text-transform:uppercase;
+
+    letter-spacing:.2px;
+
+}
+
+/* ----------------------------------------------------------
+   CLINICAL HISTORY
+---------------------------------------------------------- */
+
+.patient-info-table tr:last-child td{
+
+    background:#fafcfd;
+
+    padding-top:8px;
+
+    padding-bottom:8px;
+
+    border-right:none;
+
+}
+
+.patient-info-table tr:last-child strong{
+
+    min-width:90px;
+
+    vertical-align:top;
+
+}
+
+/* ----------------------------------------------------------
+   SCREEN ONLY
+---------------------------------------------------------- */
+
+@media screen{
+
+.patient-info-table tr:hover{
+
+    background:#f8fafc;
+
+}
+
+}
+
+/* ----------------------------------------------------------
+   PRINT
+---------------------------------------------------------- */
+
+@media print{
+
+.patient-info-container{
+
+    margin:8px 0 10px;
+
+}
+
+}
+
+/* ==========================================================
+   MODULE 5
+   REPORT HEADINGS & RESULT TABLE
+========================================================== */
+
+/* ----------------------------------------------------------
+   REPORT HEADING
+---------------------------------------------------------- */
+
+.report-heading{
+
+    margin:10px 0 12px;
+
+    text-align:center;
+
+}
+
+.department-title{
+
+    margin:0;
+
+    font-size:14px;
+
+    font-weight:800;
+
+    letter-spacing:1px;
+
+    color:#005B96;
+
+    text-transform:uppercase;
+
+}
+
+/* ----------------------------------------------------------
+   TEST TITLE
+---------------------------------------------------------- */
+
+.test-title{
+
+    margin:6px 0 12px;
+
+    padding-bottom:6px;
+
+    text-align:center;
+
+    font-size:20px;
+
+    font-weight:700;
+
+    color:#1F2937;
+
+    text-transform:uppercase;
+
+    letter-spacing:.4px;
+
+    border-bottom:1px solid #d9dee6;
+
+}
+
+/* ----------------------------------------------------------
+   SECTION TITLE
+---------------------------------------------------------- */
+
+.section-title{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    margin:12px 0 8px;
+
+}
+
+.section-title-dot{
+
+    width:8px;
+
+    height:8px;
+
+    border-radius:50%;
+
+    background:#005B96;
+
+    flex-shrink:0;
+
+}
+
+.section-title-text{
+
+    font-size:12px;
+
+    font-weight:800;
+
+    text-transform:uppercase;
+
+    letter-spacing:.6px;
+
+    color:#1E3A8A;
+
+}
+
+.section-title-line{
+
+    flex:1;
+
+    height:1px;
+
+    background:#d9dee6;
+
+}
+
+/* ----------------------------------------------------------
+   RESULT TABLE
+---------------------------------------------------------- */
+
+.result-table{
+
+    width:100%;
+
+    margin-top:8px;
+
+    border-collapse:collapse;
+
+    table-layout:fixed;
+
+    font-size:11px;
+
+}
+
+.result-table th{
+
+    padding:7px 8px;
+
+    background:#f3f5f7;
+
+    border:1px solid #cfd8e3;
+
+    color:#1f2937;
+
+    font-size:10px;
+
+    font-weight:700;
+
+    text-transform:uppercase;
+
+    letter-spacing:.4px;
+
+    text-align:left;
+
+    -webkit-print-color-adjust:exact;
+
+    print-color-adjust:exact;
+
+}
+
+.result-table td{
+
+    padding:7px 8px;
+
+    border:1px solid #dde5ed;
+
+    vertical-align:middle;
+
+    line-height:1.3;
+
+    word-break:break-word;
+
+}
+
+.result-table tbody tr:nth-child(even){
+
+    background:#fafbfc;
+
+}
+
+/* ----------------------------------------------------------
+   COLUMN ALIGNMENT
+---------------------------------------------------------- */
+
+.result-table td:first-child{
+
+    font-weight:600;
+
+}
+
+.result-table td:nth-child(2),
+.result-table td:nth-child(3),
+.result-table td:nth-child(5){
+
+    text-align:center;
+
+}
+
+.result-table td:nth-child(2){
+
+    font-size:12px;
+
+    font-weight:700;
+
+}
+
+.result-table td:nth-child(4){
+
+    color:#555;
+
+}
+
+/* ----------------------------------------------------------
+   PRINT SAFETY
+---------------------------------------------------------- */
+
+.result-table tr{
+
+    page-break-inside:avoid;
+
+}
+
+.result-table thead{
+
+    display:table-header-group;
+
+}
+
+/* ----------------------------------------------------------
+   RESULT FLAGS
+---------------------------------------------------------- */
+
+.flag-high{
+
+    color:#d32f2f;
+
+    font-weight:700;
+
+}
+
+.flag-low{
+
+    color:#f57c00;
+
+    font-weight:700;
+
+}
+
+.flag-critical{
+
+    color:#b71c1c;
+
+    font-weight:700;
+
+}
+
+.flag-normal{
+
+    color:#111;
+
+    font-weight:400;
+
+}
+
+.result-row-normal,
+.result-row-normal td{
+
+    color:#111;
+
+}
+
+/* ----------------------------------------------------------
+   PRINT
+---------------------------------------------------------- */
+
+@media print{
+
+.result-table{
+
+    font-size:10.5px;
+
+}
+
+.result-table th{
+
+    padding:6px 7px;
+
+}
+
+.result-table td{
+
+    padding:6px 7px;
+
+}
+
+}
+
+/* ==========================================================
+   MODULE 6
+   INTERPRETATION
+========================================================== */
+
+/* ----------------------------------------------------------
+   SECTION
+---------------------------------------------------------- */
+
+.interpretation-section{
+
+    margin:12px 0;
+
+    page-break-inside:avoid;
+    break-inside:avoid;
+
+}
+
+/* ----------------------------------------------------------
+   HEADER
+---------------------------------------------------------- */
+
+.interpretation-header{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:6px;
+
+    padding:6px 10px;
+
+    background:#8DC63F;
+
+    color:#ffffff;
+
+    font-size:11px;
+
+    font-weight:700;
+
+    text-transform:uppercase;
+
+    letter-spacing:.5px;
+
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+
+}
+
+.interpretation-dot{
+
+    width:7px;
+    height:7px;
+
+    border-radius:50%;
+
+    background:#ffffff;
+
+    flex-shrink:0;
+
+}
+
+/* ----------------------------------------------------------
+   CONTAINER
+---------------------------------------------------------- */
+
+.interpretation-container{
+
+    border:1px solid #d9e2ea;
+
+    border-top:none;
+
+    background:#ffffff;
+
+}
+
+/* ----------------------------------------------------------
+   BLOCK
+---------------------------------------------------------- */
+
+.interpretation-block{
+
+    padding:8px 10px;
+
+    border-bottom:1px solid #edf2f7;
+
+}
+
+.interpretation-block:last-child{
+
+    border-bottom:none;
+
+}
+
+/* ----------------------------------------------------------
+   TITLE
+---------------------------------------------------------- */
+
+.interpretation-block-title{
+
+    margin-bottom:4px;
+
+    font-size:10px;
+
+    font-weight:700;
+
+    text-transform:uppercase;
+
+    letter-spacing:.4px;
+
+    color:#005B96;
+
+}
+
+/* ----------------------------------------------------------
+   BODY
+---------------------------------------------------------- */
+
+.interpretation-block-body{
+
+    font-size:10.5px;
+
+    line-height:1.45;
+
+    color:#374151;
+
+    text-align:justify;
+
+    white-space:pre-line;
+
+}
+
+.interpretation-block-body strong{
+
+    color:#111827;
+
+    font-weight:700;
+
+}
+
+/* ----------------------------------------------------------
+   PRINT
+---------------------------------------------------------- */
+
+@media print{
+
+.interpretation-section,
+.interpretation-container,
+.interpretation-block{
+
+    page-break-inside:avoid;
+    break-inside:avoid;
+
+}
+
+}
+
+/* ==========================================================
+   MODULE 7
+   SIGNATURE & VERIFICATION
+========================================================== */
+
+/* ----------------------------------------------------------
+   SIGNATURE SECTION
+---------------------------------------------------------- */
+
+.signature-section{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:28px;
+
+    margin:14px 0 12px;
+
+    page-break-inside:avoid;
+    break-inside:avoid;
+
+}
+
+/* ----------------------------------------------------------
+   CARD
+---------------------------------------------------------- */
+
+.signature-card{
+
+    text-align:center;
+
+}
+
+/* ----------------------------------------------------------
+   SIGNATURE IMAGE
+---------------------------------------------------------- */
+
+.signature-image{
+
+    height:52px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:flex-end;
+
+    margin-bottom:2px;
+
+}
+
+.signature-image img{
+
+    max-height:48px;
+
+    max-width:150px;
+
+    object-fit:contain;
+
+}
+
+.signature-placeholder{
+
+    font-size:9px;
+
+    color:#94A3B8;
+
+    font-style:italic;
+
+}
+
+/* ----------------------------------------------------------
+   SIGNATURE LINE
+---------------------------------------------------------- */
+
+.signature-line{
+
+    width:150px;
+
+    margin:0 auto 4px;
+
+    border-top:1px solid #111827;
+
+}
+
+/* ----------------------------------------------------------
+   NAME
+---------------------------------------------------------- */
+
+.signature-name{
+
+    font-size:11px;
+
+    font-weight:700;
+
+    color:#111827;
+
+    margin-bottom:2px;
+
+}
+
+/* ----------------------------------------------------------
+   TITLE
+---------------------------------------------------------- */
+
+.signature-title{
+
+    font-size:10px;
+
+    font-weight:600;
+
+    color:#64748B;
+
+    text-transform:uppercase;
+
+    letter-spacing:.4px;
+
+}
+
+/* ==========================================================
+   VERIFICATION
+========================================================== */
+
+.verification-section{
+
+    margin-top:10px;
+
+    padding:10px 12px;
+
+    border:1px solid #d9e2ea;
+
+    border-radius:4px;
+
+    display:grid;
+
+    grid-template-columns:65px 1fr;
+
+    gap:12px;
+
+    align-items:center;
+
+    page-break-inside:avoid;
+    break-inside:avoid;
+
+}
+
+/* ----------------------------------------------------------
+   QR
+---------------------------------------------------------- */
+
+.verification-qr{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+}
+
+.verification-qr img{
+
+    width:58px;
+
+    height:58px;
+
+}
+
+/* ----------------------------------------------------------
+   DETAILS
+---------------------------------------------------------- */
+
+.verification-details{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:5px;
+
+}
+
+.verification-row{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    gap:16px;
+
+    font-size:10px;
+
+}
+
+.verification-label{
+
+    font-weight:700;
+
+    color:#475569;
+
+}
+
+.verification-value{
+
+    color:#111827;
+
+}
+
+.verification-status{
+
+    color:#15803d;
+
+    font-weight:700;
+
+}
+
+/* ----------------------------------------------------------
+   NOTE
+---------------------------------------------------------- */
+
+.verification-note{
+
+    grid-column:1/-1;
+
+    margin-top:6px;
+
+    padding-top:6px;
+
+    border-top:1px dashed #d1d5db;
+
+    font-size:9px;
+
+    text-align:center;
+
+    color:#64748B;
+
+}
+
+/* ----------------------------------------------------------
+   PRINT
+---------------------------------------------------------- */
+
+@media print{
+
+.signature-section,
+.signature-card,
+.verification-section{
+
+    page-break-inside:avoid;
+    break-inside:avoid;
+
+}
+
+}
+
+/* ==========================================================
+   MODULE 8
+   ENTERPRISE FOOTER
+========================================================== */
+
+/* ----------------------------------------------------------
+   FOOTER
+---------------------------------------------------------- */
+
+.enterprise-footer{
+
+    margin-top:14px;
+
+    border-top:1px solid #d9e2ea;
+
+    page-break-inside:avoid;
+    break-inside:avoid;
+
+    font-size:9px;
+
+    color:#475569;
+
+}
+
+/* ----------------------------------------------------------
+   BRAND RIBBON
+---------------------------------------------------------- */
+
+.footer-ribbon{
+
+    display:flex;
+
+    width:100%;
+
+    height:3px;
+
+}
+
+.footer-blue{
+
+    flex:4;
+
+    background:#005B96;
+
+}
+
+.footer-red{
+
+    flex:2;
+
+    background:#E31B23;
+
+}
+
+.footer-green{
+
+    flex:4;
+
+    background:#8DC63F;
+
+}
+
+/* ----------------------------------------------------------
+   INFORMATION PANEL
+---------------------------------------------------------- */
+
+.footer-panel{
+
+    display:grid;
+
+    grid-template-columns:1fr 1.2fr 1fr;
+
+    gap:12px;
+
+    padding:6px 4px;
+
+}
+
+.footer-column{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.footer-column h4{
+
+    margin:0 0 3px;
+
+    padding-bottom:2px;
+
+    border-bottom:1px solid #8DC63F;
+
+    font-size:9px;
+
+    font-weight:700;
+
+    text-transform:uppercase;
+
+    letter-spacing:.3px;
+
+    color:#374151;
+
+}
+
+.footer-column p{
+
+    margin:0 0 2px;
+
+    line-height:1.3;
+
+}
+
+.footer-column strong{
+
+    color:#111827;
+
+}
+
+.footer-column ul{
+
+    margin:0;
+
+    padding-left:12px;
+
+}
+
+.footer-column li{
+
+    margin:0 0 2px;
+
+    line-height:1.3;
+
+}
+
+/* ----------------------------------------------------------
+   COPYRIGHT
+---------------------------------------------------------- */
+
+.footer-copyright{
+
+    padding:5px;
+
+    border-top:1px solid #e5e7eb;
+
+    text-align:center;
+
+    font-size:8px;
+
+    color:#64748B;
+
+}
+
+/* ----------------------------------------------------------
+   PRINT
+---------------------------------------------------------- */
+
+@media print{
+
+.enterprise-footer{
+
+    margin-top:10px;
+
+}
+
+.footer-panel{
+
+    gap:10px;
+
+    padding:5px 3px;
+
+}
+
+}
+

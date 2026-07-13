@@ -1,0 +1,129 @@
+/* ==========================================
+   PAGE
+========================================== */
+
+.ultrasound-analytics {
+
+  padding: 30px;
+
+  min-height: 100vh;
+
+  background: #f8fafc;
+
+}
+
+/* ==========================================
+   HEADER
+========================================== */
+
+.analytics-header {
+
+  margin-bottom: 30px;
+
+}
+
+.analytics-header h1 {
+
+  margin: 0;
+
+  font-size: 34px;
+
+  font-weight: 800;
+
+  color: #0f172a;
+
+}
+
+.analytics-header p {
+
+  margin-top: 8px;
+
+  color: #64748b;
+
+}
+
+/* ==========================================
+   GRID
+========================================== */
+
+.analytics-grid {
+
+  display: grid;
+
+  grid-template-columns:
+
+    1fr 1fr;
+
+  gap: 24px;
+
+  margin: 24px 0;
+
+}
+
+/* ==========================================
+   CARD
+========================================== */
+
+.analytics-card {
+
+  background: white;
+
+  padding: 28px;
+
+  border-radius: 24px;
+
+  border: 1px solid #e2e8f0;
+
+  box-shadow:
+
+    0 10px 30px
+
+    rgba(15,23,42,.05);
+
+}
+
+.analytics-card h2 {
+
+  margin-top: 0;
+
+  margin-bottom: 20px;
+
+  color: #0f172a;
+
+  font-size: 20px;
+
+  font-weight: 800;
+
+}
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width:900px) {
+
+  .analytics-grid {
+
+    grid-template-columns:
+
+      1fr;
+
+  }
+
+}
+
+@media (max-width:768px) {
+
+  .ultrasound-analytics {
+
+    padding: 16px;
+
+  }
+
+  .analytics-header h1 {
+
+    font-size: 28px;
+
+  }
+
+}

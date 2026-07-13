@@ -1,0 +1,200 @@
+/* PRINT PAGE */
+
+.print-page {
+  width: 210mm;
+
+  min-height: 297mm;
+
+  margin: auto;
+
+  background: white;
+
+  padding: 30px;
+
+  color: #000;
+
+  font-family:
+    "Times New Roman",
+    serif;
+}
+
+/* HEADER */
+
+.print-header {
+  text-align: center;
+
+  border-bottom:
+    3px solid #000;
+
+  padding-bottom: 15px;
+
+  margin-bottom: 25px;
+}
+
+.print-header h1 {
+  font-size: 32px;
+
+  margin-bottom: 8px;
+
+  font-weight: bold;
+}
+
+.print-header p {
+  margin: 3px 0;
+
+  font-size: 15px;
+}
+
+/* TITLE */
+
+.report-title {
+  text-align: center;
+
+  font-size: 24px;
+
+  font-weight: bold;
+
+  margin-bottom: 25px;
+
+  text-transform: uppercase;
+
+  letter-spacing: 2px;
+}
+
+/* PATIENT */
+
+.patient-section {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, 1fr);
+
+  gap: 15px;
+
+  margin-bottom: 30px;
+
+  font-size: 15px;
+}
+
+.patient-section div {
+  padding: 6px 0;
+}
+
+/* TABLE */
+
+.print-table {
+  width: 100%;
+
+  border-collapse: collapse;
+
+  margin-top: 10px;
+
+  margin-bottom: 30px;
+}
+
+.print-table th,
+.print-table td {
+  border: 1px solid #000;
+
+  padding: 12px;
+
+  text-align: left;
+
+  font-size: 15px;
+}
+
+.print-table th {
+  background: #f2f2f2;
+
+  font-weight: bold;
+}
+
+/* FLAGS */
+
+.high {
+  color: red;
+
+  font-weight: bold;
+}
+
+.low {
+  color: blue;
+
+  font-weight: bold;
+}
+
+.normal {
+  color: green;
+
+  font-weight: bold;
+}
+
+/* COMMENT */
+
+.comment-box {
+  border: 1px solid #000;
+
+  padding: 15px;
+
+  min-height: 90px;
+
+  margin-bottom: 45px;
+}
+
+.comment-box strong {
+  display: block;
+
+  margin-bottom: 10px;
+}
+
+/* SIGNATURE */
+
+.signature-section {
+  display: flex;
+
+  justify-content: space-between;
+
+  margin-top: 70px;
+
+  text-align: center;
+
+  font-size: 15px;
+}
+
+/* FOOTER */
+
+.footer-note {
+  margin-top: 80px;
+
+  text-align: center;
+
+  font-size: 13px;
+
+  border-top:
+    1px solid #000;
+
+  padding-top: 10px;
+}
+
+/* PRINT */
+
+@media print {
+  body {
+    background: white;
+  }
+
+  .sidebar,
+  .save-btn,
+  .print-btn,
+  .logout-btn {
+    display: none !important;
+  }
+
+  .print-page {
+    width: 100%;
+
+    margin: 0;
+
+    padding: 10px;
+  }
+}

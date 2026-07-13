@@ -1,0 +1,165 @@
+.staff-page {
+  min-height: 100vh;
+  background: #f1f5f9;
+  padding: 30px;
+}
+
+/* =========================
+   HEADER
+========================= */
+
+.staff-header {
+  margin-bottom: 30px;
+}
+
+.staff-header h1 {
+  font-size: 34px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+/* =========================
+   CARD
+========================= */
+
+.staff-card {
+  background: white;
+  border-radius: 24px;
+  padding: 30px;
+  margin-bottom: 30px;
+
+  box-shadow: 0 15px 40px
+    rgba(15, 23, 42, 0.05);
+}
+
+/* =========================
+   FORM
+========================= */
+
+.staff-form {
+  display: grid;
+
+  grid-template-columns: repeat(
+    auto-fit,
+    minmax(220px, 1fr)
+  );
+
+  gap: 18px;
+}
+
+.staff-form input,
+.staff-form select {
+  width: 100%;
+
+  padding: 15px 16px;
+
+  border-radius: 16px;
+
+  border: 1px solid #dbeafe;
+
+  background: #f8fafc;
+
+  outline: none;
+
+  transition: 0.3s ease;
+}
+
+.staff-form input:focus,
+.staff-form select:focus {
+  border-color: #2563eb;
+  background: white;
+}
+
+.staff-form button {
+  border: none;
+
+  background: linear-gradient(
+    135deg,
+    #2563eb,
+    #1d4ed8
+  );
+
+  color: white;
+
+  padding: 15px;
+
+  border-radius: 16px;
+
+  cursor: pointer;
+
+  font-weight: 700;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+
+  transition: 0.3s ease;
+}
+
+.staff-form button:hover {
+  transform: translateY(-2px);
+}
+
+/* =========================
+   STAFF LIST
+========================= */
+
+.staff-list {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.staff-item {
+  background: white;
+
+  border-radius: 20px;
+
+  padding: 22px;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  box-shadow: 0 10px 30px
+    rgba(15, 23, 42, 0.04);
+}
+
+.staff-item h3 {
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+
+.staff-item p {
+  color: #64748b;
+}
+
+.staff-item strong {
+  background: #eff6ff;
+  color: #1d4ed8;
+
+  padding: 8px 14px;
+
+  border-radius: 12px;
+
+  font-size: 13px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (
+  max-width: 768px
+) {
+  .staff-page {
+    padding: 15px;
+  }
+
+  .staff-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+}

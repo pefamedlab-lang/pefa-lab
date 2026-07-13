@@ -1,0 +1,109 @@
+.page{
+  padding:20px;
+}
+
+.staff-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+}
+
+.staff-header h1{
+  margin:0;
+}
+
+.staff-header p{
+  color:#6b7280;
+  margin-top:4px;
+}
+
+.stats-grid{
+  display:grid;
+  grid-template-columns:
+    repeat(auto-fit,minmax(220px,1fr));
+  gap:15px;
+  margin-bottom:20px;
+}
+
+.stat-card{
+  background:#fff;
+  padding:20px;
+  border-radius:14px;
+  box-shadow:
+    0 4px 15px rgba(0,0,0,.06);
+}
+
+.stat-card h3{
+  margin:0;
+  font-size:14px;
+  color:#6b7280;
+}
+
+.stat-card p{
+  margin-top:10px;
+  font-size:28px;
+  font-weight:700;
+}
+
+.staff-table{
+  width:100%;
+  border-collapse:collapse;
+  background:#fff;
+  border-radius:14px;
+  overflow:hidden;
+}
+
+.staff-table th{
+  background:#f3f4f6;
+  text-align:left;
+  padding:12px;
+}
+
+.staff-table td{
+  padding:12px;
+  border-top:1px solid #e5e7eb;
+}
+
+.staff-table tr:hover{
+  background:#f9fafb;
+}
+
+.search-box{
+  margin-bottom:20px;
+}
+
+.search-box input{
+  width:100%;
+  padding:12px;
+  border:1px solid #d1d5db;
+  border-radius:10px;
+}
+
+.action-btn{
+  border:none;
+  padding:8px 12px;
+  border-radius:8px;
+  cursor:pointer;
+  margin-right:6px;
+}
+
+.edit-btn{
+  background:#0ea5e9;
+  color:white;
+}
+
+.delete-btn{
+  background:#ef4444;
+  color:white;
+}
+
+.create-btn{
+  border:none;
+  padding:12px 18px;
+  border-radius:10px;
+  cursor:pointer;
+  background:#10b981;
+  color:white;
+  font-weight:600;
+}

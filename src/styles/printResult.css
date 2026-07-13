@@ -1,0 +1,123 @@
+.print-container {
+  width: 100%;
+  padding: 30px;
+  background: white;
+  color: black;
+  font-family: Arial,
+    sans-serif;
+}
+
+.print-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 2px solid #1e3a8a;
+  padding-bottom: 20px;
+  margin-bottom: 25px;
+}
+
+.print-logo-section {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.print-logo {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+}
+
+.print-logo-section h1 {
+  font-size: 24px;
+  color: #1e3a8a;
+  margin-bottom: 5px;
+}
+
+.report-title {
+  background: #1e3a8a;
+  color: white;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+
+.patient-info-grid {
+  display: grid;
+  grid-template-columns: repeat(
+    2,
+    1fr
+  );
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.patient-info-grid div {
+  display: flex;
+  gap: 10px;
+}
+
+.print-test-section {
+  margin-bottom: 30px;
+}
+
+.test-heading {
+  background: #eff6ff;
+  color: #1e3a8a;
+  padding: 10px 15px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.print-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.print-table th {
+  background: #1e3a8a;
+  color: white;
+  padding: 12px;
+  font-size: 14px;
+}
+
+.print-table td {
+  border: 1px solid #dbeafe;
+  padding: 10px;
+  font-size: 14px;
+}
+
+.flag.high {
+  color: red;
+  font-weight: 700;
+}
+
+.flag.low {
+  color: orange;
+  font-weight: 700;
+}
+
+.signature-section {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 60px;
+}
+
+.signature-box {
+  width: 250px;
+  text-align: center;
+}
+
+.signature-line {
+  border-top: 1px solid black;
+  margin-bottom: 8px;
+}
+
+.print-footer {
+  margin-top: 40px;
+  text-align: center;
+  font-size: 12px;
+  border-top: 1px solid #dbeafe;
+  padding-top: 20px;
+}

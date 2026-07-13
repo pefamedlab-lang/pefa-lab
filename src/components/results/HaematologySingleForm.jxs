@@ -1,0 +1,629 @@
+import { useState, useEffect } from "react";
+
+export default function HaematologySingleForm({
+
+  test = {},
+
+  patient = {},
+
+  resultData,
+
+  setResultData,
+
+}) {
+
+  const testName = (
+
+    test.test_name ||
+
+    ""
+
+  ).toUpperCase();
+
+  const TEST_CONFIG = {
+
+    PCV: {
+
+      unit: "%",
+
+      male: "40 - 54",
+
+      female: "36 - 48",
+
+      child: "32 - 44",
+
+    },
+
+    HEMOGLOBIN: {
+
+      unit: "g/dL",
+
+      male: "13 - 18",
+
+      female: "12 - 16",
+
+      child: "11 - 14",
+
+    },
+
+    HAEMOGLOBIN: {
+
+      unit: "g/dL",
+
+      male: "13 - 18",
+
+      female: "12 - 16",
+
+      child: "11 - 14",
+
+    },
+
+    WBC: {
+
+      unit: "×10⁹/L",
+
+      male: "4 - 11",
+
+      female: "4 - 11",
+
+      child: "5 - 15",
+
+    },
+
+    "TOTAL WBC": {
+
+      unit: "×10⁹/L",
+
+      male: "4 - 11",
+
+      female: "4 - 11",
+
+      child: "5 - 15",
+
+    },
+
+    "PLATELET COUNT": {
+
+      unit: "×10⁹/L",
+
+      male: "150 - 450",
+
+      female: "150 - 450",
+
+      child: "150 - 450",
+
+    },
+
+    PLATELETS: {
+
+      unit: "×10⁹/L",
+
+      male: "150 - 450",
+
+      female: "150 - 450",
+
+      child: "150 - 450",
+
+    },
+
+    ESR: {
+
+      unit: "mm/hr",
+
+      male: "0 - 15",
+
+      female: "0 - 20",
+
+      child: "0 - 10",
+
+    },
+
+    "RETICULOCYTE COUNT": {
+
+      unit: "%",
+
+      male: "0.5 - 2.5",
+
+      female: "0.5 - 2.5",
+
+      child: "0.5 - 2.5",
+
+    },
+
+  };
+
+  const config =
+
+    TEST_CONFIG[testName] ||
+
+    {
+
+      unit: "",
+
+      male: "",
+
+      female: "",
+
+      child: "",
+
+    };
+
+  const getReferenceRange = () => {
+
+    const age =
+
+      Number(
+
+        patient?.age || 0
+
+      );
+
+    const sex = (
+
+      patient?.sex ||
+
+      ""
+
+    ).toLowerCase();
+
+    if (age < 18) {
+
+      return config.child;
+
+    }
+
+    return sex === "female"
+
+      ? config.female
+
+      : config.male;
+
+  };
+
+  const [
+
+    form,
+
+    setForm,
+
+  ] = useState({
+
+    parameter: testName,
+
+    result: "",
+
+    unit: config.unit,
+
+    reference_range:
+
+      getReferenceRange(),
+
+    flag: "Normal",
+
+    interpretation: "",
+
+    impression: "",
+
+    remark: "",
+
+  });
+
+  useEffect(() => {
+
+    setForm((prev) => ({
+
+      ...prev,
+
+      parameter: testName,
+
+      unit: config.unit,
+
+      reference_range:
+
+        getReferenceRange(),
+
+    }));
+
+  }, [
+
+    testName,
+
+    patient?.sex,
+
+    patient?.age,
+
+  ]);
+
+  const determineFlag = (
+
+    value,
+
+    range
+
+  ) => {
+
+    const numericValue =
+
+      Number(value);
+
+    if (
+
+      isNaN(
+
+        numericValue
+
+      )
+
+    ) {
+
+      return "Normal";
+
+    }
+
+    const matches =
+
+      range?.match(
+
+        /\d+(\.\d+)?/g
+
+      );
+
+    if (
+
+      !matches ||
+
+      matches.length < 2
+
+    ) {
+
+      return "Normal";
+
+    }
+
+    const low =
+
+      Number(matches[0]);
+
+    const high =
+
+      Number(matches[1]);
+
+    if (
+
+      numericValue < low
+
+    ) {
+
+      return "Low";
+
+    }
+
+    if (
+
+      numericValue > high
+
+    ) {
+
+      return "High";
+
+    }
+
+    return "Normal";
+
+  };
+
+  const generateComment = (
+
+    flag
+
+  ) => {
+
+    if (
+
+      flag === "High"
+
+    ) {
+
+      return {
+
+        interpretation:
+
+          `${testName} is elevated.`,
+
+        impression:
+
+          "Clinical correlation is advised.",
+
+      };
+
+    }
+
+    if (
+
+      flag === "Low"
+
+    ) {
+
+      return {
+
+        interpretation:
+
+          `${testName} is reduced.`,
+
+        impression:
+
+          "Further evaluation may be required.",
+
+      };
+
+    }
+
+    return {
+
+      interpretation:
+
+        `${testName} is within normal limits.`,
+
+      impression:
+
+        "No significant abnormality detected.",
+
+    };
+
+  };
+
+  const updateResult = (
+
+    value
+
+  ) => {
+
+    const flag =
+
+      determineFlag(
+
+        value,
+
+        form.reference_range
+
+      );
+
+    const comments =
+
+      generateComment(
+
+        flag
+
+      );
+
+    const updated = {
+
+      ...form,
+
+      result: value,
+
+      flag,
+
+      interpretation:
+
+        comments.interpretation,
+
+      impression:
+
+        comments.impression,
+
+    };
+
+    setForm(
+
+      updated
+
+    );
+
+    setResultData(
+
+      updated
+
+    );
+
+  };
+
+  return (
+
+    <div>
+
+      <h3>
+
+        Haematology Result Entry
+
+      </h3>
+
+      <table className="result-table">
+
+        <thead>
+
+          <tr>
+
+            <th>
+
+              Parameter
+
+            </th>
+
+            <th>
+
+              Result
+
+            </th>
+
+            <th>
+
+              Unit
+
+            </th>
+
+            <th>
+
+              Reference Range
+
+            </th>
+
+            <th>
+
+              Flag
+
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          <tr>
+
+            <td>
+
+              {form.parameter}
+
+            </td>
+
+            <td>
+
+              <input
+
+                value={
+
+                  form.result
+
+                }
+
+                onChange={(e) =>
+
+                  updateResult(
+
+                    e.target.value
+
+                  )
+
+                }
+
+              />
+
+            </td>
+
+            <td>
+
+              {form.unit}
+
+            </td>
+
+            <td>
+
+              {
+
+                form.reference_range
+
+              }
+
+            </td>
+
+            <td>
+
+              <span
+
+                className={`flag-${
+
+                  form.flag.toLowerCase()
+
+                }`}
+
+              >
+
+                {form.flag}
+
+              </span>
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+      <h4>
+
+        Interpretation
+
+      </h4>
+
+      <textarea
+
+        readOnly
+
+        value={
+
+          form.interpretation
+
+        }
+
+      />
+
+      <h4>
+
+        Impression
+
+      </h4>
+
+      <textarea
+
+        readOnly
+
+        value={
+
+          form.impression
+
+        }
+
+      />
+
+      <h4>
+
+        Scientist Remark
+
+      </h4>
+
+      <textarea
+
+        value={
+
+          form.remark
+
+        }
+
+        onChange={(e) => {
+
+          const updated = {
+
+            ...form,
+
+            remark:
+
+              e.target.value,
+
+          };
+
+          setForm(updated);
+
+          setResultData(updated);
+
+        }}
+
+      />
+
+    </div>
+
+  );
+
+}
