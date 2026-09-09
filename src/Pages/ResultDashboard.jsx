@@ -1,34 +1,579 @@
 import { useState } from "react";
+import { FileText } from "lucide-react";
+
+import SearchPanel from "../components/SearchPanel";
+import PatientCard from "../components/PatientCard";
+import RegisteredTestsTable from "../components/RegisteredTestsTable";
+import ResultEntryModal from "../components/ResultEntryModal";
 
 import {
-  logActivity
-} from "../utils/logActivity";
-
-import ResultTemplateRenderer
-from "../components/results/ResultTemplateRenderer";
+  searchPatient as loadPatient,
+} from "../services/patientService";
 
 import {
-  routeReports,
-} from "../utils/reportRouter";
+  enrichRegisteredTests,
+  isPanelTest,
+} from "../services/testService";
 
 import {
-  Search,
-  FileText,
-} from "lucide-react";
+  getPatientResults,
+} from "../services/resultService";
 
 import {
-  supabase,
-} from "../supabase";
-
-import {
-  logAudit,
-} from "../utils/auditLogger";
+  saveSingleResult,
+  saveGroupedResults,
+} from "../services/resultEntryService";
 
 import "../styles/resultDashboard.css";
 
+
+/* ==========================================================
+   RESULT DASHBOARD
+   ----------------------------------------------------------
+   IDENTITY CONTRACT
+
+   This component MUST NOT invent test identities.
+
+   The identity hierarchy is:
+
+   registered_test_id
+      = registered/purchased test/order-item identity
+
+   master_test_id
+      = master_tests identity for the selected test
+
+   test_id
+      = actual child/individual test identity ONLY when
+        explicitly supplied by the source object
+
+   panel_master_test_id
+      = master_tests identity of the parent panel
+
+   panel_id
+      = explicit panel identity when supplied
+
+   panel_name
+      = explicit panel name when supplied
+
+   IMPORTANT:
+
+   NEVER:
+
+      master_test_id -> test_id
+
+   NEVER:
+
+      parameters.length -> is_panel
+
+   NEVER infer a panel from a test/parameter name.
+
+   The dashboard preserves identity supplied by
+   patientService/testService and passes it unchanged to
+   resultEntryService.
+========================================================== */
+
+
+/* ==========================================================
+   HELPERS
+========================================================== */
+
+function normalizeText(value) {
+  return String(value ?? "").trim();
+}
+
+
+/* ==========================================================
+   FIRST NON-EMPTY VALUE
+========================================================== */
+
+function firstValue(...values) {
+  for (const value of values) {
+    if (
+      value !== null &&
+      value !== undefined &&
+      String(value).trim() !== ""
+    ) {
+      return value;
+    }
+  }
+
+  return null;
+}
+
+
+/* ==========================================================
+   EXPLICIT BOOLEAN
+   ----------------------------------------------------------
+   Only accepts an actual explicit panel declaration.
+
+   We intentionally do NOT infer panel status from:
+     - parameter count
+     - test name
+     - master_test_id
+     - child collection
+========================================================== */
+
+function isExplicitTrue(value) {
+  return (
+    value === true ||
+    value === 1 ||
+    value === "1" ||
+    (
+      typeof value === "string" &&
+      value.trim().toLowerCase() === "true"
+    )
+  );
+}
+
+
+/* ==========================================================
+   BUILD STABLE TEST IDENTITY
+   ----------------------------------------------------------
+   CRITICAL IDENTITY PRESERVATION LAYER.
+
+   This function normalizes field names but does NOT invent
+   identities.
+
+   In particular:
+
+      test_id is ONLY taken from test_id/testId/child_test_id.
+
+      master_test_id is NEVER used as test_id.
+
+   This distinction is essential because:
+
+      registered_test_id
+      master_test_id
+      test_id
+      panel_master_test_id
+      panel_id
+
+   represent different identities.
+========================================================== */
+
+
+
+function buildStableTestIdentity(
+  test = {}
+) {
+  if (
+    !test ||
+    typeof test !== "object"
+  ) {
+    return test;
+  }
+
+  /* ======================================================
+     REGISTERED TEST ID
+  ====================================================== */
+
+  const registeredTestId =
+    firstValue(
+      test.registered_test_id,
+      test.registeredTestId,
+
+      test.registration_test_id,
+      test.registrationTestId,
+
+      test.service_order_item_id,
+      test.serviceOrderItemId,
+
+      test.id
+    );
+
+
+  /* ======================================================
+     MASTER TEST ID
+
+     IMPORTANT:
+     This is the master_tests ID.
+
+     NEVER use this value as test_id.
+  ====================================================== */
+
+  const masterTestId =
+    firstValue(
+      test.master_test_id,
+      test.masterTestId,
+
+      test.master_test?.id,
+      test.masterTest?.id
+    );
+
+
+  /* ======================================================
+     ACTUAL TEST ID
+
+     IMPORTANT:
+     test_id MUST come from an explicit test_id.
+
+     NEVER:
+       test_id = master_test_id
+  ====================================================== */
+
+  const testId =
+    firstValue(
+      test.test_id,
+      test.testId,
+
+      test.child_test_id,
+      test.childTestId
+    );
+
+
+  /* ======================================================
+     PANEL ID
+  ====================================================== */
+
+  const panelId =
+    firstValue(
+      test.panel_id,
+      test.panelId,
+
+      test.parent_panel_id,
+      test.parentPanelId
+    );
+
+
+  /* ======================================================
+     PANEL NAME
+  ====================================================== */
+
+  const panelName =
+    firstValue(
+      test.panel_name,
+      test.panelName,
+
+      test.parent_panel_name,
+      test.parentPanelName
+    );
+
+
+  /* ======================================================
+     TEST NAME
+  ====================================================== */
+
+  const testName =
+    firstValue(
+      test.test_name,
+      test.testName,
+      test.name
+    );
+
+
+  /* ======================================================
+     TEST TYPE
+  ====================================================== */
+
+  const testType =
+    firstValue(
+      test.test_type,
+      test.testType
+    );
+
+
+  /* ======================================================
+     PANEL DETECTION
+  ====================================================== */
+
+  const explicitPanel =
+    test.is_panel === true ||
+    test.isPanel === true;
+
+
+  const panelByType =
+    [
+      "panel",
+      "panel test",
+      "group",
+      "profile",
+    ].includes(
+      String(
+        testType ?? ""
+      )
+        .trim()
+        .toLowerCase()
+    );
+
+
+  const panelByIdentity =
+    panelId !== null &&
+    panelId !== undefined &&
+    String(
+      panelId
+    ).trim() !== "";
+
+
+  const parameters =
+    Array.isArray(
+      test.parameters
+    )
+      ? test.parameters
+      : [];
+
+
+  const isPanel =
+    explicitPanel ||
+    panelByType ||
+    panelByIdentity ||
+    parameters.length > 0;
+
+
+  /* ======================================================
+     RETURN NORMALIZED TEST
+  ====================================================== */
+
+  return {
+    ...test,
+
+
+    /* ====================================================
+       REGISTERED TEST IDENTITY
+    ==================================================== */
+
+    registered_test_id:
+      registeredTestId,
+
+    registeredTestId:
+      registeredTestId,
+
+
+    /* ====================================================
+       MASTER TEST IDENTITY
+    ==================================================== */
+
+    master_test_id:
+      masterTestId ?? null,
+
+    masterTestId:
+      masterTestId ?? null,
+
+
+    /* ====================================================
+       ACTUAL TEST IDENTITY
+
+       NEVER FALL BACK TO master_test_id
+    ==================================================== */
+
+    test_id:
+      testId ?? null,
+
+    testId:
+      testId ?? null,
+
+
+    /* ====================================================
+       TEST NAME
+    ==================================================== */
+
+    test_name:
+      testName ?? "",
+
+    testName:
+      testName ?? "",
+
+
+    /* ====================================================
+       TEST TYPE
+    ==================================================== */
+
+    test_type:
+      testType ?? "",
+
+    testType:
+      testType ?? "",
+
+
+    /* ====================================================
+       PANEL IDENTITY
+    ==================================================== */
+
+    panel_id:
+      panelId ?? null,
+
+    panelId:
+      panelId ?? null,
+
+    parent_panel_id:
+      panelId ?? null,
+
+    parentPanelId:
+      panelId ?? null,
+
+    panel_name:
+      panelName ?? "",
+
+    panelName:
+      panelName ?? "",
+
+
+    /* ====================================================
+       PANEL STATUS
+    ==================================================== */
+
+    is_panel:
+      isPanel,
+
+    isPanel:
+      isPanel,
+
+
+    /* ====================================================
+       CHILD COLLECTIONS
+    ==================================================== */
+
+    parameters,
+
+    panelTests:
+      Array.isArray(
+        test.panelTests
+      )
+        ? test.panelTests
+        : parameters,
+
+    panel_tests:
+      Array.isArray(
+        test.panel_tests
+      )
+        ? test.panel_tests
+        : parameters,
+
+    groupedTests:
+      Array.isArray(
+        test.groupedTests
+      )
+        ? test.groupedTests
+        : parameters,
+
+    grouped_tests:
+      Array.isArray(
+        test.grouped_tests
+      )
+        ? test.grouped_tests
+        : parameters,
+  };
+}
+
+
+/* ==========================================================
+   NORMALIZE ALL REGISTERED TESTS
+========================================================== */
+
+function normalizeDashboardTests(
+  tests = [],
+  labNumber = ""
+) {
+  if (!Array.isArray(tests)) {
+    return [];
+  }
+
+  return tests.map(
+    (test) => {
+
+      const normalized =
+        buildStableTestIdentity(
+          test
+        );
+
+
+      const resolvedLabNumber =
+        firstValue(
+          normalized?.lab_number,
+          normalized?.labNumber,
+          labNumber
+        ) || "";
+
+
+      return {
+        ...normalized,
+
+        lab_number:
+          resolvedLabNumber,
+
+        labNumber:
+          resolvedLabNumber,
+      };
+    }
+  );
+}
+
+
+/* ==========================================================
+   RESULT DATA VALIDATION
+========================================================== */
+
+function hasResultData(value) {
+
+  if (
+    value === null ||
+    value === undefined
+  ) {
+    return false;
+  }
+
+
+  if (
+    typeof value === "string"
+  ) {
+    return value.trim() !== "";
+  }
+
+
+  if (
+    typeof value === "number"
+  ) {
+    return true;
+  }
+
+
+  if (
+    typeof value === "boolean"
+  ) {
+    return true;
+  }
+
+
+  if (
+    Array.isArray(value)
+  ) {
+    return value.some(
+      (item) =>
+        hasResultData(
+          item
+        )
+    );
+  }
+
+
+  if (
+    typeof value === "object"
+  ) {
+    return Object.values(
+      value
+    ).some(
+      (item) =>
+        hasResultData(
+          item
+        )
+    );
+  }
+
+
+  return false;
+}
+
+
+/* ==========================================================
+   RESULT DASHBOARD
+========================================================== */
+
 export default function ResultDashboard() {
 
-const [
+  /* ========================================================
+     STATE
+  ======================================================== */
+
+  const [
     labNumber,
     setLabNumber,
   ] = useState("");
@@ -39,1554 +584,1373 @@ const [
   ] = useState(false);
 
   const [
+    saving,
+    setSaving,
+  ] = useState(false);
+
+  const [
     patient,
     setPatient,
   ] = useState(null);
 
   const [
-    tests,
-    setTests,
+    registeredTests,
+    setRegisteredTests,
   ] = useState([]);
 
-const [
-  existingResults,
-  setExistingResults,
-] = useState([]);
+  const [
+    existingResults,
+    setExistingResults,
+  ] = useState([]);
 
   const [
-    reportInfo,
-    setReportInfo,
+    selectedTest,
+    setSelectedTest,
   ] = useState(null);
 
-const [
-  selectedTest,
-  setSelectedTest,
-] = useState(null);
+  const [
+    resultData,
+    setResultData,
+  ] = useState({});
 
-const [
-  resultData,
-  setResultData,
-] = useState({});
 
-const [
-  saving,
-  setSaving,
-] = useState(false);
+  /* ========================================================
+     CURRENT USER
+  ======================================================== */
 
-  const formatDateTime =
-    (value) => {
+  const getCurrentUser = () => {
 
-      if (!value)
-        return "Pending";
+    try {
 
-      return new Date(
-        value
-      ).toLocaleString();
-    };
-
-const user = JSON.parse(
-  localStorage.getItem(
-    "pefa_user"
-  ) || "{}"
-);
-
-  const searchPatient =
-    async () => {
-
-      if (!labNumber) {
-
-        alert(
-          "Enter Lab Number"
+      const storedUser =
+        localStorage.getItem(
+          "pefa_user"
         );
 
-        return;
+
+      if (!storedUser) {
+        return {};
       }
 
-      try {
 
-        setLoading(true);
-
-        setPatient(null);
-        setTests([]);
-        setReportInfo(null);
-
-        const {
-          data:
-            registration,
-          error:
-            registrationError,
-        } = await supabase
-
-          .from(
-            "registrations"
-          )
-
-          .select("*")
-
-          .eq(
-            "lab_number",
-            labNumber
-          )
-
-          .single();
-
-        if (
-          registrationError
-        ) {
-
-          alert(
-            "Patient not found"
-          );
-
-          setLoading(false);
-
-          return;
-        }
-
-        setPatient(
-          registration
+      const parsedUser =
+        JSON.parse(
+          storedUser
         );
 
-       const {
-  data:
-    patientResults,
-} = await supabase
 
-  .from(
-    "patient_results"
-  )
-
-  .select("*")
-
-  .eq(
-    "lab_number",
-    labNumber
-  );
-
-setExistingResults(
-  patientResults || []
-);
-
-setReportInfo(
-  patientResults?.[0] || null
-);
-
-        setReportInfo(
-          resultData
-        );
-
-        let parsedTests =
-          [];
-
-        try {
-
-          parsedTests =
-            typeof registration.tests ===
-            "string"
-
-              ? JSON.parse(
-                  registration.tests
-                )
-
-              : registration.tests ||
-                [];
-
-        } catch {
-
-          parsedTests =
-            [];
-        }
-
-        const testNames =
-          parsedTests.map(
-            (item) =>
-              item.test_name
-          );
-
-        if (
-          testNames.length ===
-          0
-        ) {
-
-          setLoading(false);
-
-          return;
-        }
-
-        const {
-          data:
-            masterTests,
-        } = await supabase
-
-          .from(
-            "master_tests"
-          )
-
-          .select(
-  `
-  test_name,
-  department,
-  result_category,
-  template_type,
-  unit,
-  male_range,
-  female_range,
-  child_range,
-  elderly_range
-`
-)
-
-          .in(
-            "test_name",
-            testNames
-          );
-
-        setTests(
-          masterTests || []
-        );
-
-        setLoading(false);
-
-      } catch (
-        error
+      if (
+        parsedUser &&
+        typeof parsedUser ===
+          "object"
       ) {
-
-        console.error(
-          error
-        );
-
-        alert(
-          "Error loading patient"
-        );
-
-        setLoading(false);
+        return parsedUser;
       }
-    };
 
-const hasResult =
-(
-  testName
-) => {
 
-  return existingResults.some(
+      return {};
 
-    result =>
+    } catch (error) {
 
-      result.test_type ===
-      testName
+      console.error(
+        "[ResultDashboard] Unable to read current user:",
+        error
+      );
 
-  );
+      return {};
+    }
+  };
 
-};
 
-const groupedTests =
+  /* ========================================================
+     RESET DASHBOARD
+  ======================================================== */
 
-  routeReports(
+  const resetDashboard = () => {
 
-    tests || []
+    setPatient(null);
 
-  );
+    setRegisteredTests([]);
 
-const saveResult =
-  async () => {
+    setExistingResults([]);
 
-    if (
-      !selectedTest
-    ) {
+    setSelectedTest(null);
+
+    setResultData({});
+  };
+
+
+  /* ========================================================
+     SEARCH PATIENT
+  ======================================================== */
+
+  const searchPatient = async () => {
+
+    const searchValue =
+      normalizeText(
+        labNumber
+      );
+
+
+    if (!searchValue) {
 
       alert(
-        "Select a test"
+        "Enter Lab Number."
       );
 
       return;
     }
 
-console.log(
-  JSON.stringify(
-    resultData,
-    null,
-    2
-  )
-);
-  if (
 
-  Object.keys(
-    resultData
-  ).length === 0
+    if (loading) {
+      return;
+    }
 
-) {
-
-  alert(
-    "Enter Result"
-  );
-
-  return;
-}
 
     try {
 
-      setSaving(
-        true
-      );
+      setLoading(true);
 
-console.log(
-  "PATIENT:",
-  patient
-);
-
-const {
-
-  data: existingResult,
-
-} = await supabase
-
-  .from(
-    "patient_results"
-  )
-
-  .select("*")
-
-  .eq(
-    "verification_id",
-
-    `${patient.lab_number}-${selectedTest.test_name}`
-      .replace(/\s+/g, "")
-
-  )
-
-  .maybeSingle();
-
-if (
-  existingResult
-) {
-
-  const modify =
-    window.confirm(
-
-      "Result already exists.\n\nDo you want to modify it?"
-
-    );
-
-  if (!modify)
-    return;
-
-}
-
-let amendmentReason =
-  "";
-
-if (
-  existingResult
-) {
-
-  amendmentReason =
-    prompt(
-      "Reason for amendment:"
-    ) || "";
-
-}
+      resetDashboard();
 
 
-      const payload = {
+      /* ====================================================
+         LOAD PATIENT
+      ==================================================== */
 
-        lab_number:
-          patient.lab_number,
-
-        patient_name:
-          patient.full_name,
-
-        sex:
-          patient.sex,
-
-        age:
-          patient.age,
-
-department:
-  selectedTest.department,
-
-        test_type:
-          selectedTest.test_name,
-
-template_type:
-  selectedTest.template_type,
-
-verification_id:
-  `${patient.lab_number}-${selectedTest.test_name}`
-    .replace(/\s+/g, ""),
-
-        result:
-          resultData,
-
-        reported_at:
-          new Date()
-            .toISOString(),
-
-        release_status:
-          "Pending",
-
-        authorization_status:
-          "Pending",
-
-entered_by:
-  user?.full_name ||
-  user?.name ||
-  "Unknown",
-
-      };
+      const response =
+        await loadPatient(
+          searchValue
+        );
 
 
-
- let error;
-
-if (
-  existingResult
-) {
-
-  const updateResponse =
-    await supabase
-
-      .from(
-        "patient_results"
-      )
-
-     .update({
-
-  ...payload,
-
-  amended: true,
-
-  amended_by:
-    user?.full_name ||
-    user?.name ||
-    "Unknown",
-
-  amended_at:
-    new Date()
-      .toISOString(),
-
-  amendment_reason:
-    amendmentReason,
-
-})
-
-      .eq(
-        "id",
-        existingResult.id
-      );
-
-  error =
-    updateResponse.error;
-
-} else {
-
-  const insertResponse =
-    await supabase
-
-      .from(
-        "patient_results"
-      )
-
-      .insert(
-        payload
-      );
-
-  error =
-    insertResponse.error;
-
-}     
-
-console.log(payload);
-
-      if (error) {
+      if (!response) {
 
         alert(
-          error.message
+          "Unable to load patient."
         );
 
         return;
-
-await logAudit({
-
-  action:
-    "SAVE RESULT",
-
-  module:
-    "Result Entry",
-
-  description:
-    `${patient.lab_number} - ${selectedTest.test_name}`,
-
-});
       }
 
-      alert(
-        "Result Saved Successfully"
+
+      const {
+        patient: registration,
+        tests,
+        error,
+      } = response;
+
+
+      if (error) {
+        throw error;
+      }
+
+
+      if (!registration) {
+
+        alert(
+          "Patient not found."
+        );
+
+        return;
+      }
+
+
+      /* ====================================================
+         PATIENT
+      ==================================================== */
+
+      setPatient(
+        registration
       );
 
-setPatient(
-  null
-);
 
-setSelectedTest(
-  null
-);
+      /* ====================================================
+         PATIENT LAB NUMBER
+      ==================================================== */
 
-setResultData(
-  {}
-);
+      const patientLabNumber =
+        normalizeText(
+          registration?.lab_number ??
+          registration?.labNumber ??
+          searchValue
+        );
 
-await searchPatient();
 
-await logActivity(
+      if (!patientLabNumber) {
 
-  "Result Saved",
+        throw new Error(
+          "Patient Lab Number could not be determined."
+        );
+      }
 
-  patient.lab_number
 
-);
+      /* ====================================================
+         REGISTERED TESTS
+      ==================================================== */
 
-setResultData({});
+      const safeTests =
+        Array.isArray(tests)
+          ? tests
+          : [];
 
-    } catch (
-      error
-    ) {
+
+      let enrichedTests = [];
+
+
+      if (
+        safeTests.length > 0
+      ) {
+
+        enrichedTests =
+          await enrichRegisteredTests(
+            safeTests
+          );
+      }
+
+
+      const safeEnrichedTests =
+        Array.isArray(
+          enrichedTests
+        )
+          ? enrichedTests
+          : [];
+
+
+      /* ====================================================
+         CRITICAL IDENTITY NORMALIZATION
+         ----------------------------------------------------
+         No identity is invented here.
+      ==================================================== */
+
+      const normalizedTests =
+        normalizeDashboardTests(
+          safeEnrichedTests,
+          patientLabNumber
+        );
+
+
+      setRegisteredTests(
+        normalizedTests
+      );
+
+
+      /* ====================================================
+         EXISTING RESULTS
+      ==================================================== */
+
+      const {
+        data: results,
+        error: resultsError,
+      } =
+        await getPatientResults(
+          patientLabNumber
+        );
+
+
+      if (resultsError) {
+
+        console.error(
+          "[ResultDashboard] Unable to load existing results:",
+          resultsError
+        );
+      }
+
+
+      const safeResults =
+        Array.isArray(results)
+          ? results
+          : [];
+
+
+      setExistingResults(
+        safeResults
+      );
+
+
+      /* ====================================================
+         DEBUG — REGISTERED TEST IDENTITY
+      ==================================================== */
+
+      console.log(
+        "================================================"
+      );
+
+      console.log(
+        "[ResultDashboard] PATIENT LOADED"
+      );
+
+      console.log({
+        labNumber:
+          patientLabNumber,
+
+        patient:
+          registration,
+
+        registeredTestCount:
+          normalizedTests.length,
+
+        existingResultCount:
+          safeResults.length,
+      });
+
+
+      console.log(
+        "[ResultDashboard] REGISTERED TEST IDENTITY"
+      );
+
+
+      console.table(
+        normalizedTests.map(
+          (test) => ({
+
+            registered_test_id:
+              test?.registered_test_id,
+
+            id:
+              test?.id,
+
+            master_test_id:
+              test?.master_test_id,
+
+            test_id:
+              test?.test_id,
+
+            panel_master_test_id:
+              test?.panel_master_test_id,
+
+            test_name:
+              test?.test_name,
+
+            test_type:
+              test?.test_type,
+
+            is_panel:
+              test?.is_panel,
+
+            panel_id:
+              test?.panel_id,
+
+            panel_name:
+              test?.panel_name,
+
+            parameterCount:
+              Array.isArray(
+                test?.parameters
+              )
+                ? test.parameters.length
+                : 0,
+          })
+        )
+      );
+
+
+      console.log(
+        "[ResultDashboard] EXISTING RESULTS:"
+      );
+
+      console.log(
+        safeResults
+      );
+
+
+      console.log(
+        "================================================"
+      );
+
+
+    } catch (error) {
 
       console.error(
+        "===================================="
+      );
+
+      console.error(
+        "[ResultDashboard] SEARCH ERROR:",
         error
       );
 
+      console.error(
+        "Message:",
+        error?.message
+      );
+
+      console.error(
+        "Code:",
+        error?.code
+      );
+
+      console.error(
+        "Details:",
+        error?.details
+      );
+
+      console.error(
+        "Hint:",
+        error?.hint
+      );
+
+      console.error(
+        "===================================="
+      );
+
+
       alert(
-        "Save Failed"
+        error?.message ||
+        "Unable to load patient."
       );
 
     } finally {
 
-      setSaving(
-        false
-      );
+      setLoading(false);
     }
   };
 
 
+  /* ========================================================
+     SELECT TEST
+  ======================================================== */
 
+  const handleTestSelection = (
+    test
+  ) => {
+
+    if (!test) {
+      return;
+    }
+
+
+    /*
+     * Normalize once more at the point of selection.
+     *
+     * This is safe because buildStableTestIdentity()
+     * preserves identities rather than inventing them.
+     */
+
+    const stableTest =
+      buildStableTestIdentity(
+        test
+      );
+
+
+    console.log(
+      "===================================="
+    );
+
+    console.log(
+      "[ResultDashboard] TEST SELECTED"
+    );
+
+
+    console.log({
+      registered_test_id:
+        stableTest?.registered_test_id,
+
+      registeredId:
+        stableTest?.id,
+
+      master_test_id:
+        stableTest?.master_test_id,
+
+      test_id:
+        stableTest?.test_id,
+
+      panel_master_test_id:
+        stableTest?.panel_master_test_id,
+
+      test_name:
+        stableTest?.test_name,
+
+      test_type:
+        stableTest?.test_type,
+
+      is_panel:
+        stableTest?.is_panel,
+
+      panel_id:
+        stableTest?.panel_id,
+
+      panel_name:
+        stableTest?.panel_name,
+
+      parameterCount:
+        Array.isArray(
+          stableTest?.parameters
+        )
+          ? stableTest.parameters.length
+          : 0,
+    });
+
+
+    console.log(
+      "[ResultDashboard] COMPLETE SELECTED TEST:",
+      stableTest
+    );
+
+
+    console.log(
+      "===================================="
+    );
+
+
+    setSelectedTest(
+      stableTest
+    );
+
+    setResultData({});
+  };
+
+
+  /* ========================================================
+     SAVE PATIENT RESULT
+  ======================================================== */
+
+  const savePatientResult =
+    async () => {
+
+      if (saving) {
+        return;
+      }
+
+
+      /* ====================================================
+         VALIDATE PATIENT
+      ==================================================== */
+
+      if (!patient) {
+
+        alert(
+          "Patient information is missing."
+        );
+
+        return;
+      }
+
+
+      /* ====================================================
+         VALIDATE SELECTED TEST
+      ==================================================== */
+
+      if (!selectedTest) {
+
+        alert(
+          "No test selected."
+        );
+
+        return;
+      }
+
+
+      /* ====================================================
+         VALIDATE RESULT
+      ==================================================== */
+
+      if (
+        !hasResultData(
+          resultData
+        )
+      ) {
+
+        alert(
+          "Please enter a result."
+        );
+
+        return;
+      }
+
+
+      try {
+
+        setSaving(true);
+
+
+        const user =
+          getCurrentUser();
+
+
+        /* ==================================================
+           REBUILD TEST IDENTITY
+           --------------------------------------------------
+           This is normalization ONLY.
+
+           It cannot create:
+
+              test_id = master_test_id
+           ================================================== */
+
+        const stableSelectedTest =
+          buildStableTestIdentity(
+            selectedTest
+          );
+
+
+        /* ==================================================
+           DETERMINE PANEL
+           --------------------------------------------------
+           isPanelTest() remains the authoritative testService
+           classification function.
+
+           We do NOT recreate panel logic here.
+           ================================================== */
+
+        const panel =
+          isPanelTest(
+            stableSelectedTest
+          );
+
+
+        /* ==================================================
+           FINAL PATIENT LAB NUMBER
+           ================================================== */
+
+        const patientLabNumber =
+          normalizeText(
+            patient?.lab_number ??
+            patient?.labNumber ??
+            labNumber ??
+            ""
+          );
+
+
+        if (!patientLabNumber) {
+
+          throw new Error(
+            "Patient Lab Number is missing."
+          );
+        }
+
+
+        /* ==================================================
+           FINAL SAVE IDENTITY
+           --------------------------------------------------
+           IMPORTANT:
+
+           No fallback from master_test_id to test_id.
+           ================================================== */
+
+        const registeredTestId =
+          firstValue(
+            stableSelectedTest?.registered_test_id,
+            stableSelectedTest?.registeredTestId,
+
+            stableSelectedTest?.registration_test_id,
+            stableSelectedTest?.registrationTestId,
+
+            stableSelectedTest?.service_order_item_id,
+            stableSelectedTest?.serviceOrderItemId,
+
+            stableSelectedTest?.id
+          );
+
+
+        const masterTestId =
+          firstValue(
+            stableSelectedTest?.master_test_id,
+            stableSelectedTest?.masterTestId,
+
+            stableSelectedTest?.master_test?.id,
+            stableSelectedTest?.masterTest?.id
+          );
+
+
+        const testId =
+          firstValue(
+            stableSelectedTest?.test_id,
+            stableSelectedTest?.testId,
+
+            stableSelectedTest?.child_test_id,
+            stableSelectedTest?.childTestId
+          );
+
+
+        const panelMasterTestId =
+          firstValue(
+            stableSelectedTest?.panel_master_test_id,
+            stableSelectedTest?.panelMasterTestId,
+
+            stableSelectedTest?.parent_panel_master_test_id,
+            stableSelectedTest?.parentPanelMasterTestId
+          );
+
+
+        const panelId =
+          firstValue(
+            stableSelectedTest?.panel_id,
+            stableSelectedTest?.panelId,
+
+            stableSelectedTest?.parent_panel_id,
+            stableSelectedTest?.parentPanelId
+          );
+
+
+        const panelName =
+          firstValue(
+            stableSelectedTest?.panel_name,
+            stableSelectedTest?.panelName,
+
+            stableSelectedTest?.parent_panel_name,
+            stableSelectedTest?.parentPanelName
+          );
+
+
+        const testName =
+          firstValue(
+            stableSelectedTest?.test_name,
+            stableSelectedTest?.testName,
+
+            stableSelectedTest?.name
+          ) || "";
+
+
+        const testType =
+          firstValue(
+            stableSelectedTest?.test_type,
+            stableSelectedTest?.testType
+          ) || "";
+
+
+        /* ==================================================
+           BUILD FINAL SAVE OBJECT
+           ================================================== */
+
+      const saveTest = {
+  ...stableSelectedTest,
+
+
+  /* ======================================================
+     PATIENT LAB NUMBER
+  ====================================================== */
+
+  lab_number:
+    patientLabNumber,
+
+  labNumber:
+    patientLabNumber,
+
+
+  /* ======================================================
+     REGISTERED TEST ID
+
+     This is the registered/order-item identity.
+
+     It is NOT master_test_id.
+  ====================================================== */
+
+  registered_test_id:
+    firstValue(
+      stableSelectedTest?.registered_test_id,
+      stableSelectedTest?.registeredTestId,
+
+      stableSelectedTest?.registration_test_id,
+      stableSelectedTest?.registrationTestId,
+
+      stableSelectedTest?.service_order_item_id,
+      stableSelectedTest?.serviceOrderItemId,
+
+      stableSelectedTest?.id
+    ),
+
+  registeredTestId:
+    firstValue(
+      stableSelectedTest?.registeredTestId,
+      stableSelectedTest?.registered_test_id,
+
+      stableSelectedTest?.registrationTestId,
+      stableSelectedTest?.registration_test_id,
+
+      stableSelectedTest?.serviceOrderItemId,
+      stableSelectedTest?.service_order_item_id,
+
+      stableSelectedTest?.id
+    ),
+
+
+  /* ======================================================
+     MASTER TEST ID
+
+     Preserve ONLY the actual master_tests identity.
+  ====================================================== */
+
+  master_test_id:
+    firstValue(
+      stableSelectedTest?.master_test_id,
+      stableSelectedTest?.masterTestId,
+
+      stableSelectedTest?.master_test?.id,
+      stableSelectedTest?.masterTest?.id
+    ) ?? null,
+
+  masterTestId:
+    firstValue(
+      stableSelectedTest?.masterTestId,
+      stableSelectedTest?.master_test_id,
+
+      stableSelectedTest?.masterTest?.id,
+      stableSelectedTest?.master_test?.id
+    ) ?? null,
+
+
+  /* ======================================================
+     ACTUAL TEST ID
+
+     CRITICAL:
+
+     NEVER use master_test_id as fallback.
+
+     test_id must be explicitly supplied by testService.
+  ====================================================== */
+
+  test_id:
+    firstValue(
+      stableSelectedTest?.test_id,
+      stableSelectedTest?.testId,
+
+      stableSelectedTest?.child_test_id,
+      stableSelectedTest?.childTestId
+    ) ?? null,
+
+  testId:
+    firstValue(
+      stableSelectedTest?.testId,
+      stableSelectedTest?.test_id,
+
+      stableSelectedTest?.childTestId,
+      stableSelectedTest?.child_test_id
+    ) ?? null,
+
+
+  /* ======================================================
+     TEST NAME
+  ====================================================== */
+
+  test_name:
+    firstValue(
+      stableSelectedTest?.test_name,
+      stableSelectedTest?.testName,
+      stableSelectedTest?.name
+    ) || "",
+
+  testName:
+    firstValue(
+      stableSelectedTest?.testName,
+      stableSelectedTest?.test_name,
+      stableSelectedTest?.name
+    ) || "",
+
+
+  /* ======================================================
+     PANEL ID
+  ====================================================== */
+
+  panel_id:
+    firstValue(
+      stableSelectedTest?.panel_id,
+      stableSelectedTest?.panelId,
+
+      stableSelectedTest?.parent_panel_id,
+      stableSelectedTest?.parentPanelId
+    ) ?? null,
+
+  panelId:
+    firstValue(
+      stableSelectedTest?.panelId,
+      stableSelectedTest?.panel_id,
+
+      stableSelectedTest?.parentPanelId,
+      stableSelectedTest?.parent_panel_id
+    ) ?? null,
+
+  parent_panel_id:
+    firstValue(
+      stableSelectedTest?.parent_panel_id,
+      stableSelectedTest?.panel_id,
+
+      stableSelectedTest?.parentPanelId,
+      stableSelectedTest?.panelId
+    ) ?? null,
+
+  parentPanelId:
+    firstValue(
+      stableSelectedTest?.parentPanelId,
+      stableSelectedTest?.parent_panel_id,
+
+      stableSelectedTest?.panelId,
+      stableSelectedTest?.panel_id
+    ) ?? null,
+
+
+  /* ======================================================
+     PANEL NAME
+  ====================================================== */
+
+  panel_name:
+    firstValue(
+      stableSelectedTest?.panel_name,
+      stableSelectedTest?.panelName,
+
+      stableSelectedTest?.parent_panel_name,
+      stableSelectedTest?.parentPanelName
+    ) || "",
+
+  panelName:
+    firstValue(
+      stableSelectedTest?.panelName,
+      stableSelectedTest?.panel_name,
+
+      stableSelectedTest?.parentPanelName,
+      stableSelectedTest?.parent_panel_name
+    ) || "",
+
+
+  /* ======================================================
+     PANEL STATUS
+  ====================================================== */
+
+  is_panel:
+    panel,
+
+  isPanel:
+    panel,
+};
+
+
+   
+
+
+        /* ==================================================
+           CRITICAL SAVE DEBUG
+           ================================================== */
+
+        console.log(
+          "================================================"
+        );
+
+        console.log(
+          "[ResultDashboard] FINAL SAVE IDENTITY"
+        );
+
+
+        console.table([
+          {
+            lab_number:
+              patientLabNumber,
+
+            registered_test_id:
+              saveTest?.registered_test_id,
+
+            registered_id:
+              saveTest?.id,
+
+            master_test_id:
+              saveTest?.master_test_id,
+
+            test_id:
+              saveTest?.test_id,
+
+            panel_master_test_id:
+              saveTest?.panel_master_test_id,
+
+            test_name:
+              saveTest?.test_name,
+
+            test_type:
+              saveTest?.test_type,
+
+            is_panel:
+              saveTest?.is_panel,
+
+            panel_id:
+              saveTest?.panel_id,
+
+            panel_name:
+              saveTest?.panel_name,
+          },
+        ]);
+
+
+        console.log(
+          "[ResultDashboard] RESULT DATA:",
+          resultData
+        );
+
+
+        console.log(
+          "================================================"
+        );
+
+
+        /* ==================================================
+           PANEL / GROUPED RESULT
+           ================================================== */
+
+        if (panel) {
+
+          await saveGroupedResults({
+            patient,
+
+            selectedTest:
+              saveTest,
+
+            resultData,
+
+            user,
+          });
+
+        }
+
+
+        /* ==================================================
+           SINGLE RESULT
+           ================================================== */
+
+        else {
+
+          await saveSingleResult({
+            patient,
+
+            selectedTest:
+              saveTest,
+
+            resultData,
+
+            user,
+          });
+        }
+
+
+        /* ==================================================
+           SUCCESS
+           ================================================== */
+
+        alert(
+          "Result saved successfully."
+        );
+
+
+        setSelectedTest(null);
+
+        setResultData({});
+
+
+        /* ==================================================
+           REFRESH RESULTS
+           ================================================== */
+
+        const {
+          data:
+            refreshedResults,
+          error:
+            refreshError,
+        } =
+          await getPatientResults(
+            patientLabNumber
+          );
+
+
+        if (refreshError) {
+
+          console.error(
+            "[ResultDashboard] Unable to refresh patient results:",
+            refreshError
+          );
+
+          return;
+        }
+
+
+        const safeRefreshedResults =
+          Array.isArray(
+            refreshedResults
+          )
+            ? refreshedResults
+            : [];
+
+
+        setExistingResults(
+          safeRefreshedResults
+        );
+
+
+        /* ==================================================
+           SAVED RESULT IDENTITY DEBUG
+           ================================================== */
+
+        console.log(
+          "================================================"
+        );
+
+        console.log(
+          "[ResultDashboard] SAVED RESULT IDENTITY"
+        );
+
+
+        console.table(
+          safeRefreshedResults.map(
+            (row) => ({
+
+              id:
+                row?.id,
+
+              registered_test_id:
+                row?.registered_test_id,
+
+              master_test_id:
+                row?.master_test_id,
+
+              test_id:
+                row?.test_id,
+
+              panel_master_test_id:
+                row?.panel_master_test_id,
+
+              test_name:
+                row?.test_name,
+
+              test_type:
+                row?.test_type,
+
+              panel_id:
+                row?.panel_id,
+
+              panel_name:
+                row?.panel_name,
+
+              is_panel:
+                row?.is_panel,
+
+              department:
+                row?.department,
+            })
+          )
+        );
+
+
+        console.log(
+          "================================================"
+        );
+
+
+      } catch (error) {
+
+        if (
+          error?.message ===
+          "cancelled"
+        ) {
+          return;
+        }
+
+
+        console.error(
+          "===================================="
+        );
+
+        console.error(
+          "[ResultDashboard] RESULT SAVE ERROR:",
+          error
+        );
+
+        console.error(
+          "Message:",
+          error?.message
+        );
+
+        console.error(
+          "Code:",
+          error?.code
+        );
+
+        console.error(
+          "Details:",
+          error?.details
+        );
+
+        console.error(
+          "Hint:",
+          error?.hint
+        );
+
+        console.error(
+          "Selected Test:",
+          selectedTest
+        );
+
+        console.error(
+          "Result Data:",
+          resultData
+        );
+
+        console.error(
+          "===================================="
+        );
+
+
+        alert(
+          error?.message ||
+          "Unable to save result."
+        );
+
+      } finally {
+
+        setSaving(false);
+      }
+    };
+
+
+  /* ========================================================
+     CLOSE RESULT MODAL
+  ======================================================== */
+
+  const closeResultModal = () => {
+
+    if (saving) {
+      return;
+    }
+
+    setSelectedTest(null);
+
+    setResultData({});
+  };
+
+
+  /* ========================================================
+     RENDER
+  ======================================================== */
 
   return (
-
     <div className="page">
 
-      {/* HEADER */}
+      {/* ==================================================
+          HEADER
+      ================================================== */}
 
-      <div
-        className="dashboard-header"
-      >
+      <div className="dashboard-header">
 
         <h1>
           Result Dashboard
         </h1>
 
         <p>
-          Enterprise Result
-          Processing Portal
+          Enterprise Result Processing Portal
         </p>
 
       </div>
 
-      {/* SEARCH */}
 
-      <div
-        className="dashboard-card"
-      >
+      {/* ==================================================
+          SEARCH PANEL
+      ================================================== */}
 
-        <div
-          className="search-row"
-        >
+      <SearchPanel
+        labNumber={
+          labNumber
+        }
 
-          <input
-            type="text"
-            placeholder="Enter Lab Number"
-            value={
-              labNumber
-            }
-            onChange={(e) =>
-              setLabNumber(
-                e.target.value
-              )
-            }
-          />
+        setLabNumber={
+          setLabNumber
+        }
 
-          <button
-            onClick={
-              searchPatient
-            }
-          >
+        onSearch={
+          searchPatient
+        }
 
-            <Search
-              size={18}
-            />
+        loading={
+          loading
+        }
+      />
 
-            Search
 
-          </button>
+      {/* ==================================================
+          PATIENT CARD
+      ================================================== */}
 
-        </div>
+      <PatientCard
+        patient={
+          patient
+        }
+      />
 
-      </div>
 
-      {/* LOADING */}
-
-      {loading && (
-
-        <div
-          className="dashboard-card"
-        >
-
-          Loading...
-
-        </div>
-
-      )}
-
-      {/* PATIENT INFO */}
+      {/* ==================================================
+          REGISTERED TESTS
+      ================================================== */}
 
       {patient && (
+        <RegisteredTestsTable
+          tests={
+            registeredTests
+          }
 
-        <div
-          className="dashboard-card"
-        >
+          existingResults={
+            existingResults
+          }
 
-          <h2>
-            Patient Information
-          </h2>
-
-          <div
-            className="patient-grid"
-          >
-
-            <div className="info-card">
-
-  <strong>
-    Lab Number
-  </strong>
-
-  <p>
-    {patient.lab_number}
-  </p>
-
-</div>
-
-            <div>
-              <strong>
-                Patient Name:
-              </strong>
-
-              <p>
-                {
-                  patient.full_name
-                }
-              </p>
-            </div>
-
-            <div>
-              <strong>
-                Age:
-              </strong>
-
-              <p>
-                {
-                  patient.age
-                }
-              </p>
-            </div>
-
-            <div>
-              <strong>
-                Sex:
-              </strong>
-
-              <p>
-                {
-                  patient.sex
-                }
-              </p>
-            </div>
-
-            <div>
-              <strong>
-                Phone:
-              </strong>
-
-              <p>
-                {
-                  patient.phone
-                }
-              </p>
-            </div>
-
-            <div>
-              <strong>
-                Hospital:
-              </strong>
-
-              <p>
-                {
-                  patient
-                    .hospital_clinic ||
-                  "Private"
-                }
-              </p>
-            </div>
-
-            <div>
-              <strong>
-                Doctor:
-              </strong>
-
-              <p>
-                {
-                  patient
-                    .referring_doctor ||
-                  "Private"
-                }
-              </p>
-            </div>
-
-            <div>
-              <strong>
-                Access Code:
-              </strong>
-
-              <p>
-                {
-                  patient
-                    .access_code
-                }
-              </p>
-            </div>
-
-            <div>
-              <strong>
-                Entry Date/Time:
-              </strong>
-
-              <p>
-                {formatDateTime(
-                  patient.created_at
-                )}
-              </p>
-            </div>
-
-            <div>
-              <strong>
-                Report Date/Time:
-              </strong>
-
-              <p>
-                {formatDateTime(
-                  reportInfo?.reported_at
-                )}
-              </p>
-            </div>
-
-          <div className="clinical-history">
-
-              <strong>
-                Clinical
-                History:
-              </strong>
-
-              <p>
-                {
-                  patient
-                    .clinical_history
-                }
-              </p>
-
-            </div>
-
-          </div>
-
-        </div>
-
+          onSelect={
+            handleTestSelection
+          }
+        />
       )}
 
 
-   {/* TESTS */}
-
-{tests.length > 0 && (
-
-  <div className="dashboard-card">
-
-    <h2>
-
-      Registered Tests
-
-    </h2>
-
-    <table className="result-table">
-
-      <thead>
-
-        <tr>
-
-          <th>
-
-            Test Name
-
-          </th>
-
-          <th>
-
-            Department
-
-          </th>
-
-          <th>
-
-            Result Category
-
-          </th>
-
-          <th>
-
-            Template Type
-
-          </th>
-
-          <th>
-
-            Status
-
-          </th>
-
-          <th>
-
-            Action
-
-          </th>
-
-        </tr>
-
-      </thead>
-
-      <tbody>
-
-        {/* PANELS */}
-
-        {groupedTests.panels.map(
-
-          (test, index) => (
-
-            <tr key={`panel-${index}`}>
-
-              <td>
-
-                {test.test_name}
-
-              </td>
-
-              <td>
-
-                {test.department}
-
-              </td>
-
-              <td>
-
-                {test.result_category}
-
-              </td>
-
-              <td>
-
-                {test.template_type}
-
-              </td>
-
-              <td>
-
-                {hasResult(
-                  test.test_name
-                )
-
-                  ? "Reported"
-
-                  : "Pending"}
-
-              </td>
-
-              <td>
-
-                <button
-
-                  className="action-btn"
-
-                  onClick={() =>
-
-                    setSelectedTest(
-                      test
-                    )
-
-                  }
-
-                >
-
-                  Enter Result
-
-                </button>
-
-              </td>
-
-            </tr>
-
-          )
-
-        )}
-
-        {/* QUALITATIVE */}
-
-        {groupedTests.qualitativeSingles.length > 0 && (
-
-          <tr>
-
-            <td>
-
-              Qualitative Single Results
-
-            </td>
-
-            <td>
-
-              Multiple
-
-            </td>
-
-            <td>
-
-              Qualitative
-
-            </td>
-
-            <td>
-
-              qualitative_group
-
-            </td>
-
-            <td>
-
-              {
-
-                groupedTests
-                  .qualitativeSingles
-                  .length
-
-              }
-
-              {" "}
-              Tests
-
-            </td>
-
-            <td>
-
-              <button
-
-                className="action-btn"
-
-                onClick={() =>
-
-                  setSelectedTest({
-
-                    test_name:
-
-                      "Qualitative Single Results",
-
-                    department:
-
-                      "Multiple",
-
-                    result_category:
-
-                      "Qualitative",
-
-                    template_type:
-
-                      "qualitative_group",
-
-                    tests:
-
-                      groupedTests
-                        .qualitativeSingles,
-
-                  })
-
-                }
-
-              >
-
-                Enter Result
-
-              </button>
-
-            </td>
-
-          </tr>
-
-        )}
-
-        {/* HAEMATOLOGY */}
-
-        {groupedTests.haematologySingles.length > 0 && (
-
-          <tr>
-
-            <td>
-
-              Haematology Single Results
-
-            </td>
-
-            <td>
-
-              Haematology
-
-            </td>
-
-            <td>
-
-              Quantitative
-
-            </td>
-
-            <td>
-
-              haematology_group
-
-            </td>
-
-            <td>
-
-              {
-
-                groupedTests
-                  .haematologySingles
-                  .length
-
-              }
-
-              {" "}
-              Tests
-
-            </td>
-
-            <td>
-
-              <button
-
-                className="action-btn"
-
-                onClick={() =>
-
-                  setSelectedTest({
-
-                    test_name:
-
-                      "Haematology Single Results",
-
-                    department:
-
-                      "Haematology",
-
-                    result_category:
-
-                      "Quantitative",
-
-                    template_type:
-
-                      "haematology_group",
-
-                    tests:
-
-                      groupedTests
-                        .haematologySingles,
-
-                  })
-
-                }
-
-              >
-
-                Enter Result
-
-              </button>
-
-            </td>
-
-          </tr>
-
-        )}
-
-        {/* CHEMISTRY */}
-
-        {groupedTests.chemistrySingles.length > 0 && (
-
-          <tr>
-
-            <td>
-
-              Chemistry Single Results
-
-            </td>
-
-            <td>
-
-              Chemistry
-
-            </td>
-
-            <td>
-
-              Quantitative
-
-            </td>
-
-            <td>
-
-              chemistry_group
-
-            </td>
-
-            <td>
-
-              {
-
-                groupedTests
-                  .chemistrySingles
-                  .length
-
-              }
-
-              {" "}
-              Tests
-
-            </td>
-
-            <td>
-
-              <button
-
-                className="action-btn"
-
-                onClick={() =>
-
-                  setSelectedTest({
-
-                    test_name:
-
-                      "Chemistry Single Results",
-
-                    department:
-
-                      "Chemistry",
-
-                    result_category:
-
-                      "Quantitative",
-
-                    template_type:
-
-                      "chemistry_group",
-
-                    tests:
-
-                      groupedTests
-                        .chemistrySingles,
-
-                  })
-
-                }
-
-              >
-
-                Enter Result
-
-              </button>
-
-            </td>
-
-          </tr>
-
-        )}
-
-        {/* ENDOCRINOLOGY */}
-
-        {groupedTests.endocrinologySingles.length > 0 && (
-
-          <tr>
-
-            <td>
-
-              Endocrinology Single Results
-
-            </td>
-
-            <td>
-
-              Endocrinology
-
-            </td>
-
-            <td>
-
-              Quantitative
-
-            </td>
-
-            <td>
-
-              endocrinology_group
-
-            </td>
-
-            <td>
-
-              {
-
-                groupedTests
-                  .endocrinologySingles
-                  .length
-
-              }
-
-              {" "}
-              Tests
-
-            </td>
-
-            <td>
-
-              <button
-
-                className="action-btn"
-
-                onClick={() =>
-
-                  setSelectedTest({
-
-                    test_name:
-
-                      "Endocrinology Single Results",
-
-                    department:
-
-                      "Endocrinology",
-
-                    result_category:
-
-                      "Quantitative",
-
-                    template_type:
-
-                      "endocrinology_group",
-
-                    tests:
-
-                      groupedTests
-                        .endocrinologySingles,
-
-                  })
-
-                }
-
-              >
-
-                Enter Result
-
-              </button>
-
-            </td>
-
-          </tr>
-
-        )}
-
-        {/* SPECIAL */}
-
-        {groupedTests.specialTests.length > 0 && (
-
-          <tr>
-
-            <td>
-
-              Special Laboratory Tests
-
-            </td>
-
-            <td>
-
-              Multiple Departments
-
-            </td>
-
-            <td>
-
-              Special
-
-            </td>
-
-            <td>
-
-              special_group
-
-            </td>
-
-            <td>
-
-              {
-
-                groupedTests
-                  .specialTests
-                  .length
-
-              }
-
-              {" "}
-              Tests
-
-            </td>
-
-            <td>
-
-              <button
-
-                className="action-btn"
-
-                onClick={() =>
-
-                  setSelectedTest({
-
-                    test_name:
-
-                      "Special Laboratory Tests",
-
-                    department:
-
-                      "Multiple Departments",
-
-                    result_category:
-
-                      "Special",
-
-                    template_type:
-
-                      "special_group",
-
-                    tests:
-
-                      groupedTests
-                        .specialTests,
-
-                  })
-
-                }
-
-              >
-
-                Enter Result
-
-              </button>
-
-            </td>
-
-          </tr>
-
-        )}
-
-      </tbody>
-
-    </table>
-
-  </div>
-
-)}
-
-{/* =========================
-    RESULT ENTRY MODAL
-========================= */}
-
-{selectedTest && (
-
-  <div
-    className="result-modal-overlay"
-    onClick={() => {
-
-      setSelectedTest(null);
-
-      setResultData({});
-
-    }}
-  >
-
-    <div
-      className="result-modal"
-      onClick={(e) =>
-        e.stopPropagation()
-      }
-    >
-
-      <button
-        className="modal-close-btn"
-        onClick={() => {
-
-          setSelectedTest(null);
-
-          setResultData({});
-
-        }}
-      >
-
-        ×
-
-      </button>
-
-      <h2>
-
-        Result Entry
-
-      </h2>
-
-      <div className="result-modal-info">
-
-        <div>
-
-          <strong>
-
-            Test Name:
-
-          </strong>
-
-          <p>
-
-            {selectedTest.test_name}
-
-          </p>
-
-        </div>
-
-        <div>
-
-          <strong>
-
-            Department:
-
-          </strong>
-
-          <p>
-
-            {selectedTest.department || "-"}
-
-          </p>
-
-        </div>
-
-        <div>
-
-          <strong>
-
-            Result Category:
-
-          </strong>
-
-          <p>
-
-            {selectedTest.result_category || "-"}
-
-          </p>
-
-        </div>
-
-        <div>
-
-          <strong>
-
-            Template Type:
-
-          </strong>
-
-          <p>
-
-            {selectedTest.template_type || "-"}
-
-          </p>
-
-        </div>
-
-      </div>
-
-      <div className="result-entry-container">
-
-        <ResultTemplateRenderer
-          test={selectedTest}
-          patient={patient}
-          resultData={resultData}
-          setResultData={setResultData}
-        />
-
-      </div>
-
-      <div className="result-modal-actions">
-
-        <button
-          className="save-btn"
-          onClick={saveResult}
-          disabled={saving}
-        >
-
-          {
-
-            saving
-
-              ? "Saving..."
-
-              : "Save Result"
-
+      {/* ==================================================
+          RESULT ENTRY MODAL
+      ================================================== */}
+
+      {selectedTest && (
+        <ResultEntryModal
+          patient={
+            patient
           }
 
-        </button>
+          selectedTest={
+            selectedTest
+          }
 
-      </div>
+          resultData={
+            resultData
+          }
+
+          setResultData={
+            setResultData
+          }
+
+          saving={
+            saving
+          }
+
+          onClose={
+            closeResultModal
+          }
+
+          onSave={
+            savePatientResult
+          }
+        />
+      )}
+
+
+      {/* ==================================================
+          INITIAL EMPTY STATE
+          ================================================== */}
+
+      {!loading &&
+        !patient && (
+
+          <div
+            className="dashboard-card empty-state"
+          >
+
+            <FileText
+              size={40}
+            />
+
+            <p>
+              Search for a patient using
+              the Lab Number.
+            </p>
+
+          </div>
+        )}
 
     </div>
-
-  </div>
-
-)}
-
-{/* =========================
-    EMPTY STATE
-========================= */}
-
-{!loading && !patient && (
-
-  <div className="dashboard-card empty-state">
-
-    <FileText
-      size={40}
-    />
-
-    <p>
-
-      Search a patient using
-      Lab Number
-
-    </p>
-
-  </div>
-
-)}
-
-</div>
-
-);
-
+  );
 }

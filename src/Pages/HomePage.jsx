@@ -1,8 +1,6 @@
 import "../styles/homepage.css";
 
-import {
-  Link,
-} from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import {
   Microscope,
@@ -18,9 +16,17 @@ import {
   Brain,
   Stethoscope,
   HeartHandshake,
+  Search,
+  Target,
+  Eye,
+  Users,
+  TestTube,
+  Dna,
+CheckCircle2,
   Building2,
-  Ambulance,
-  CheckCircle2,
+  MessageCircle,
+  FileText,
+  UserRound,
 } from "lucide-react";
 
 import HomeNavbar from "../components/HomeNavbar";
@@ -29,613 +35,594 @@ export default function HomePage() {
   const services = [
     {
       title: "Hematology",
-      icon: (
-        <Activity size={20} />
-      ),
+      icon: <TestTube size={22} />,
       color: "blue",
     },
-
     {
-      title:
-        "Clinical Chemistry",
-      icon: (
-        <FlaskConical size={20} />
-      ),
+      title: "Clinical Chemistry",
+      icon: <FlaskConical size={22} />,
       color: "green",
     },
-
     {
-      title:
-        "Microbiology",
-      icon: (
-        <Microscope size={20} />
-      ),
+      title: "Microbiology",
+      icon: <Microscope size={22} />,
       color: "red",
     },
-
-    {
-      title:
-        "Hormonal Assay",
-      icon: (
-        <Brain size={20} />
-      ),
-      color: "blue",
-    },
-
-    {
-      title:
-        "Tumor Markers",
-      icon: (
-        <ShieldCheck size={20} />
-      ),
-      color: "green",
-    },
-
     {
       title: "Serology",
-      icon: (
-        <HeartPulse size={20} />
-      ),
-      color: "red",
-    },
-
-    {
-      title:
-        "Blood Banking",
-      icon: (
-        <Droplets size={20} />
-      ),
+      icon: <ShieldCheck size={22} />,
       color: "blue",
     },
-
     {
-      title:
-        "Ultrasound Scan",
-      icon: (
-        <ScanLine size={20} />
-      ),
+      title: "Hormonal Assay",
+      icon: <Dna size={22} />,
       color: "green",
     },
-
-
     {
-      title: "ECG",
-      icon: (
-        <HeartPulse size={20} />      ),
+      title: "Parasitology",
+      icon: <Microscope size={22} />,
       color: "red",
     },
-
     {
-      title:
-        "Wellness Screening",
-      icon: (
-        <Stethoscope size={20} />
-      ),
+      title: "Blood Banking",
+      icon: <Droplets size={22} />,
       color: "blue",
     },
-
     {
-      title:
-        "Health Packages",
-      icon: (
-        <HeartHandshake size={20} />
-      ),
+      title: "Ultrasound Scan",
+      icon: <ScanLine size={22} />,
       color: "green",
     },
-
     {
-      title:
-        "Medical Outreach",
-      icon: (
-        <Ambulance size={20} />
-      ),
+      title: "Wellness Package",
+      icon: <HeartPulse size={22} />,
       color: "red",
     },
-
     {
-      title:
-        "Medical Research",
-      icon: (
-        <Building2 size={20} />
-      ),
+      title: "Research Services",
+      icon: <Search size={22} />,
       color: "blue",
     },
   ];
 
   return (
-    <div
-      className="homepage"
-      id="home"
-    >
-      {/* NAVBAR */}
+    <div className="homepage" id="home">
+
+      {/* =====================================================
+          NAVBAR
+      ===================================================== */}
 
       <HomeNavbar />
 
-      {/* HERO */}
+   {/* =====================================================
+    HERO
+===================================================== */}
 
-      <section className="hero">
-        <div className="overlay" />
+<section className="hero">
 
-        <div className="hero-container">
-          {/* TITLE */}
+  {/* Laboratory background */}
+  <div className="hero-background" />
 
-          <div className="hero-title">
-            <h1 className="main-title">
-              PEFA MEDICAL
-              DIAGNOSTIC
-            </h1>
+  {/* Soft readability overlay */}
+  <div className="hero-overlay" />
 
-            <h2 className="services-title">
-              SERVICES
-            </h2>
+  {/* Right-side microscope */}
+  <div className="hero-microscope-wrapper">
 
-            <img
-              src="/microscope.png"
-              alt="Microscope"
-              className="microscope"
-            />
+    <img
+      src="/microscope.png"
+      alt="Laboratory microscope"
+      className="hero-microscope"
+    />
 
-            <div className="title-line" />
-          </div>
+  </div>
 
-          {/* SUBTITLE */}
+  <div className="hero-container">
 
-          <p className="subtitle">
-            Leading the way in
-            medical excellence
-            through timely,
-            accurate,
-            affordable and
-            precision testing.
-          </p>
+    {/* =================================================
+        MAIN TITLE
+    ================================================= */}
 
-          {/* BUTTONS */}
+    <div className="hero-title">
 
-          <div className="button-group">
-            {/* DASHBOARD */}
+      <h1>
+        PEFA MEDICAL{" "}
+        <span>DIAGNOSTIC</span>
+      </h1>
 
-           <Link
-  to="/login"
-  className="home-link"
->
-  <button className="green-btn">
-    Staff Login
-  </button>
-</Link>
+      <h2>
+        SERVICES
+      </h2>
 
-            {/* RESULT CHECKER */}
+      <div className="hero-title-line" />
 
-         <Link
-  to="/patient-results"
-  className="home-link"
->
-  <button className="red-btn">
-    Check Result
-  </button>
-</Link>
+    </div>
 
-            {/* WHATSAPP */}
 
-            <a
-              href="https://wa.me/2348086618621"
-              className="home-link"
-            >
-              <button className="whatsapp-btn">
-                WhatsApp
-              </button>
-            </a>
-          </div>
+    {/* =================================================
+        TAGLINE
+    ================================================= */}
 
-          {/* FEATURES */}
+    <p className="hero-subtitle">
+      Leading The Way In Medical Excellence
+      <br />
+      through timely, affordable, accurate and
+      precision testing.
+    </p>
 
-          <div className="features">
-            <div className="feature">
-              <div className="icon blue">
-                <Microscope size={22} />
-              </div>
 
-              <p>
-                Smart
-                Diagnostics
-              </p>
-            </div>
+    {/* =================================================
+        ACTION BUTTONS
+    ================================================= */}
 
-            <div className="feature">
-              <div className="icon green">
-                <FlaskConical size={22} />
-              </div>
+    <div className="hero-actions">
 
-              <p>
-                Advanced
-                Chemistry
-              </p>
-            </div>
+      {/* CHECK RESULT */}
 
-            <div className="feature">
-              <div className="icon red">
-                <Activity size={22} />
-              </div>
+      <Link
+        to="/patient-results"
+        className="hero-action green"
+      >
 
-              <p>
-                Hematology
-                Automation
-              </p>
-            </div>
+        <FileText size={25} />
 
-            <div className="feature">
-              <div className="icon blue">
-                <ShieldCheck size={22} />
-              </div>
+        <span>
+          Check Result
+        </span>
 
-              <p>
-                Enterprise
-                Security
-              </p>
-            </div>
-          </div>
+      </Link>
+
+
+      {/* PATIENT REGISTRATION */}
+
+      <Link
+        to="/registration"
+        className="hero-action red"
+      >
+
+        <UserRound size={25} />
+
+        <span>
+          Patient Registration
+        </span>
+
+      </Link>
+
+
+      {/* WHATSAPP */}
+
+      <a
+        href="https://wa.me/2348086618621"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="hero-action whatsapp"
+      >
+
+        <MessageCircle size={26} />
+
+        <span>
+          Book Via
+          <small>WhatsApp</small>
+        </span>
+
+      </a>
+
+    </div>
+
+
+    {/* =================================================
+        HERO FEATURES
+    ================================================= */}
+
+    <div className="hero-features">
+
+      {/* ACCURATE */}
+
+      <div className="hero-feature">
+
+        <div className="feature-icon blue">
+          <Target size={25} />
         </div>
-      </section>
 
-      {/* ABOUT */}
+        <div>
+          <strong>
+            Accurate
+          </strong>
+
+          <span>
+            Results
+          </span>
+        </div>
+
+      </div>
+
+
+      <div className="feature-divider" />
+
+
+      {/* FAST */}
+
+      <div className="hero-feature">
+
+        <div className="feature-icon green">
+          <Activity size={25} />
+        </div>
+
+        <div>
+          <strong>
+            Fast
+          </strong>
+
+          <span>
+            Turnaround
+          </span>
+        </div>
+
+      </div>
+
+
+      <div className="feature-divider" />
+
+
+      {/* TECHNOLOGY */}
+
+      <div className="hero-feature">
+
+        <div className="feature-icon blue">
+          <Microscope size={25} />
+        </div>
+
+        <div>
+          <strong>
+            Advanced
+          </strong>
+
+          <span>
+            Technology
+          </span>
+        </div>
+
+      </div>
+
+
+      <div className="feature-divider" />
+
+
+      {/* AFFORDABLE */}
+
+      <div className="hero-feature">
+
+        <div className="feature-icon green">
+          <ShieldCheck size={25} />
+        </div>
+
+        <div>
+          <strong>
+            Affordable
+          </strong>
+
+          <span>
+            Services
+          </span>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</section>
+
+      {/* =====================================================
+          ABOUT / MISSION / VISION
+      ===================================================== */}
 
       <section
         className="about-section"
         id="about"
       >
-        <div className="about-smart-card">
-          {/* LEFT */}
 
-          <div className="about-left">
-            <div className="about-badge">
-              About PEFA
+        <div className="information-grid">
+
+          {/* ABOUT */}
+
+          <div className="information-card about-card">
+
+            <div className="information-heading">
+
+              <div className="information-icon blue">
+                <Users size={25} />
+              </div>
+
+              <div>
+                <h2>ABOUT US</h2>
+                <div className="heading-line blue-line" />
+              </div>
+
             </div>
 
-            <h2>
-              Trusted
-              Diagnostic
-              Excellence
-            </h2>
-
-            <div className="small-line" />
-
             <p>
-              Welcome to PEFA
-              Medical
-              Diagnostic
-              Services — a
-              trusted center
-              for quality
-              medical
-              laboratory and
-              diagnostic
-              services
-              committed to
-              improving
-              healthcare
-              through
-              accurate,
-              timely and
-              reliable
-              results.
+              PEFA Medical Diagnostic Services is a
+              modern and patient-focused diagnostic
+              center committed to delivering timely,
+              affordable, accurate and precision-based
+              laboratory and diagnostic services using
+              professional expertise, advanced medical
+              technology and internationally accepted
+              laboratory practices.
             </p>
 
-            <p>
-              Located in
-              Mowe, PEFA
-              Medical
-              Diagnostic
-              Services was
-              established
-              with a vision
-              to provide
-              accessible and
-              professional
-              diagnostic
-              healthcare
-              services to
-              individuals,
-              families,
-              hospitals,
-              clinics and
-              corporate
-              organizations.
-            </p>
-
-            <p>
-              We combine
-              modern
-              laboratory
-              practices with
-              patient-centered
-              care to support
-              early
-              detection,
-              disease
-              prevention and
-              effective
-              treatment
-              monitoring.
-            </p>
           </div>
 
-          {/* RIGHT */}
-
-          <div className="about-right">
-            <div className="about-highlight">
-              <CheckCircle2 size={18} />
-
-              Accurate &
-              Reliable
-              Results
-            </div>
-
-            <div className="about-highlight">
-              <CheckCircle2 size={18} />
-
-              Professional
-              Healthcare Team
-            </div>
-
-            <div className="about-highlight">
-              <CheckCircle2 size={18} />
-
-              Modern
-              Diagnostic
-              Equipment
-            </div>
-
-            <div className="about-highlight">
-              <CheckCircle2 size={18} />
-
-              Affordable
-              Healthcare
-              Packages
-            </div>
-
-            <div className="about-highlight">
-              <CheckCircle2 size={18} />
-
-              Confidential &
-              Timely
-              Reporting
-            </div>
-          </div>
-        </div>
-
-        {/* MISSION & VISION */}
-
-        <div className="mission-vision-grid">
           {/* MISSION */}
 
-          <div className="info-card mission-card">
-            <div className="info-card-header">
+          <div className="information-card mission-card">
 
-  <div className="info-icon green">
-    <ShieldCheck size={20} />
-  </div>
+            <div className="information-heading">
 
-  <h2>
-    Mission
-  </h2>
+              <div className="information-icon green">
+                <Target size={25} />
+              </div>
 
-</div>
+              <div>
+                <h2>OUR MISSION</h2>
+                <div className="heading-line green-line" />
+              </div>
 
-            <div className="small-line" />
+            </div>
 
             <p>
-              To provide
-              reliable,
-              affordable and
-              advanced
-              diagnostic
-              services powered
-              by technology,
-              professionalism
-              and international
-              laboratory
-              standards.
+              To provide timely, affordable, accurate
+              and reliable diagnostic services using
+              modern laboratory technology and
+              professional expertise.
             </p>
+
           </div>
 
           {/* VISION */}
 
-          <div className="info-card vision-card">
-            <div className="info-icon red">
-              <Activity size={20} />
+          <div className="information-card vision-card">
+
+            <div className="information-heading">
+
+              <div className="information-icon red">
+                <Eye size={25} />
+              </div>
+
+              <div>
+                <h2>OUR VISION</h2>
+                <div className="heading-line red-line" />
+              </div>
+
             </div>
 
-            <h2>
-              Vision
-            </h2>
-
-            <div className="small-line" />
-
             <p>
-              To become one
-              of the leading
-              private
-              healthcare
-              providers in
-              Nigeria through
-              timely,
-              high-quality and
-              affordable
-              diagnostic
-              services.
+              To become one of the leading private
+              healthcare providers in Nigeria through
+              quality, precision and patient-focused
+              diagnostic services.
             </p>
+
           </div>
+
         </div>
+
       </section>
 
-      {/* SERVICES */}
+      {/* =====================================================
+          SERVICES
+      ===================================================== */}
 
       <section
         className="services-section"
         id="services"
       >
-        <div className="section-header">
-          <div className="line" />
 
-          <h2>
-            Our Services
-          </h2>
+        <div className="section-heading">
 
-          <div className="line" />
+          <div className="section-line" />
+
+          <h2>OUR SERVICES</h2>
+
+          <div className="section-line" />
+
         </div>
 
         <div className="services-grid">
-          {services.map(
-            (
-              service,
-              index
-            ) => (
-              <div
-                key={index}
-                className="service-card"
-              >
-                <div
-                  className={`service-icon ${service.color}`}
-                >
-                  {
-                    service.icon
-                  }
-                </div>
 
-                <h3>
-                  {
-                    service.title
-                  }
-                </h3>
+          {services.map((service, index) => (
+            <div
+              key={`${service.title}-${index}`}
+              className="service-card"
+            >
+
+              <div
+                className={`service-icon ${service.color}`}
+              >
+                {service.icon}
               </div>
-            )
-          )}
+
+              <h3>
+                {service.title}
+              </h3>
+
+            </div>
+          ))}
+
         </div>
+
       </section>
 
-      {/* CONTACT */}
+      {/* =====================================================
+          CONTACT
+      ===================================================== */}
 
       <section
         className="contact-section"
         id="contact"
       >
-        <div className="smart-contact-card">
-          {/* ADDRESS */}
 
-          <div className="address-wrapper">
-            <div className="branch-box">
-              <h4>
-                Branch 1
-              </h4>
+        <div className="contact-inner">
 
-              <p>
-                5, Olorombo
-                Street,
-                Imedu-Nla,
-                Mowe,
-                Ogun State
-              </p>
-            </div>
+          <div className="section-heading contact-heading">
 
-            <div className="head-office-box">
-              <MapPin size={18} />
+            <div className="section-line" />
 
-              <h3>
-                Head Office
-              </h3>
+            <h2>CONTACT INFORMATION</h2>
 
-              <p>
-                32,
-                Ogunru-Ori,
-                Pakuro Road,
-                Mowe,
-                Ogun State
-              </p>
-            </div>
+            <div className="section-line" />
 
-            <div className="branch-box">
-              <h4>
-                Branch 2
-              </h4>
-
-              <p>
-                Iya-Ijebu
-                Junction,
-                Vital Foam,
-                Orimerunmu,
-                Ogun State
-              </p>
-            </div>
           </div>
 
-          {/* CONTACT INFO */}
+          <div className="contact-grid">
 
-          <div className="mini-contact-grid">
-            <div className="mini-contact-item">
-              <Phone size={16} />
+            {/* ADDRESS */}
 
-              <span>
-                08086618621
-                <br />
-                09052853701
-              </span>
+            <div className="contact-card">
+
+              <div className="contact-icon green">
+                <MapPin size={25} />
+              </div>
+
+              <div>
+
+                <h3>HEAD OFFICE</h3>
+
+                <p>
+                  32, Ogunru-Ori,
+                  <br />
+                  Pakuro Road,
+                  <br />
+                  beside Olaren Filling Station,
+                  <br />
+                  Mowe, Ogun State, Nigeria.
+                </p>
+
+              </div>
+
             </div>
 
-            <div className="mini-contact-item">
-              <Mail size={16} />
+            {/* PHONE */}
 
-              <span>
-                pefa.medlab@gmail.com
-              </span>
+            <div className="contact-card">
+
+              <div className="contact-icon red">
+                <Phone size={25} />
+              </div>
+
+              <div>
+
+                <h3>PHONE NUMBERS</h3>
+
+                <p>
+                  08086618621
+                  <br />
+                  09052853701
+                </p>
+
+              </div>
+
             </div>
 
-            <div className="mini-contact-item">
-              <Phone size={16} />
+            {/* WHATSAPP */}
 
-              <span>
-                WhatsApp:
-                08086618621 /
-                08088336440
-              </span>
+            <div className="contact-card">
+
+              <div className="contact-icon green">
+                <MessageCircle size={25} />
+              </div>
+
+              <div>
+
+                <h3>WHATSAPP</h3>
+
+                <p>
+                  08086618621
+                  <br />
+                  08088336440
+                </p>
+
+                <a
+                  href="https://wa.me/2348086618621"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="contact-whatsapp"
+                >
+                  <MessageCircle size={15} />
+                  Chat on WhatsApp
+                </a>
+
+              </div>
+
             </div>
+
+            {/* EMAIL */}
+
+            <div className="contact-card">
+
+              <div className="contact-icon blue">
+                <Mail size={25} />
+              </div>
+
+              <div>
+
+                <h3>EMAIL</h3>
+
+                <p>
+                  pefa.medlab@gmail.com
+                </p>
+
+              </div>
+
+            </div>
+
           </div>
+
         </div>
+
       </section>
 
-      {/* FOOTER */}
+      {/* =====================================================
+          FOOTER
+      ===================================================== */}
 
       <footer className="footer">
-        <div className="footer-content">
+
+        <div className="footer-left">
+
           <img
             src="/logo.png"
-            alt="Logo"
+            alt="PEFA Medical Diagnostic Services"
             className="footer-logo"
           />
 
-          <div className="footer-text">
+          <div>
+
             <h2>
-              PEFA MEDICAL
-              DIAGNOSTIC
+              PEFA MEDICAL{" "}
+              <span>DIAGNOSTIC</span>{" "}
               SERVICES
             </h2>
 
             <p>
-              Enterprise
-              Laboratory
-              Information
-              System
+              Leading The Way In Medical Excellence
             </p>
 
-            <span className="copyright">
-              © 2026 PEFA
-              Medical
-              Diagnostic
-              Services.
-              All rights
-              reserved.
-            </span>
           </div>
+
         </div>
+
+        <div className="footer-right">
+
+          © 2026 PEFA Medical Diagnostic Services.
+          All Rights Reserved.
+
+        </div>
+
       </footer>
+
     </div>
   );
 }

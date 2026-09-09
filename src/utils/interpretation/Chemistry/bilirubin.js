@@ -51,6 +51,12 @@ export default function interpretBilirubin(
   let recommendation = "";
 
   /* ======================================================
+     ABNORMALITY FLAG
+  ====================================================== */
+
+  let abnormal = false;
+
+  /* ======================================================
      ADULT
   ====================================================== */
 
@@ -67,6 +73,8 @@ export default function interpretBilirubin(
 
       else {
 
+        abnormal = true;
+
         interpretation +=
           "Hyperbilirubinaemia is present.\n\n";
 
@@ -82,6 +90,8 @@ export default function interpretBilirubin(
 
     ) {
 
+      abnormal = true;
+
       interpretation +=
         "Predominantly conjugated hyperbilirubinaemia is present, suggesting hepatocellular dysfunction or biliary obstruction.\n\n";
 
@@ -95,13 +105,21 @@ export default function interpretBilirubin(
 
     ) {
 
+      abnormal = true;
+
       interpretation +=
         "Predominantly unconjugated hyperbilirubinaemia is present, which may occur in haemolysis, Gilbert syndrome or ineffective erythropoiesis.\n\n";
 
     }
 
+    /* ======================================================
+       CLINICAL PATTERNS
+    ====================================================== */
+
     if (
 
+      total !== null &&
+      direct !== null &&
       total > 21 &&
       direct > (0.2 * total)
 
@@ -117,6 +135,7 @@ export default function interpretBilirubin(
 
     else if (
 
+      total !== null &&
       total > 21
 
     ) {
@@ -129,13 +148,23 @@ export default function interpretBilirubin(
 
     }
 
-    else {
+    else if (!abnormal) {
 
       impression =
-        "Bilirubin profile is within normal laboratory limits.";
+        "Bilirubin profile is within acceptable laboratory limits.";
 
       recommendation =
         "Routine clinical correlation.";
+
+    }
+
+    else {
+
+      impression =
+        "Abnormal bilirubin profile detected.";
+
+      recommendation =
+        "Interpret alongside the patient's clinical findings and correlate with liver function tests, haemolysis profile and imaging where indicated.";
 
     }
 
@@ -147,68 +176,80 @@ export default function interpretBilirubin(
 
   else {
 
-    if (total < 5) {
+    if (total !== null) {
 
-      interpretation +=
-        "Serum bilirubin concentration is within acceptable limits for a neonate.\n\n";
+      if (total < 5) {
 
-      impression =
-        "No significant neonatal hyperbilirubinaemia.";
+        interpretation +=
+          "Serum bilirubin concentration is within acceptable limits for a neonate.\n\n";
 
-      recommendation =
-        "Routine neonatal observation.";
+        impression =
+          "No significant neonatal hyperbilirubinaemia.";
 
-    }
+        recommendation =
+          "Routine neonatal observation.";
 
-    else if (total < 12) {
+      }
 
-      interpretation +=
-        "Mild neonatal hyperbilirubinaemia is present. This may represent physiological neonatal jaundice depending on the infant's postnatal age.\n\n";
+      else if (total < 12) {
 
-      impression =
-        "Mild neonatal jaundice.";
+        abnormal = true;
 
-      recommendation =
-        "Clinical monitoring and repeat bilirubin assessment where indicated.";
+        interpretation +=
+          "Mild neonatal hyperbilirubinaemia is present. This may represent physiological neonatal jaundice depending on the infant's postnatal age.\n\n";
 
-    }
+        impression =
+          "Mild neonatal jaundice.";
 
-    else if (total < 20) {
+        recommendation =
+          "Clinical monitoring and repeat bilirubin assessment where indicated.";
 
-      interpretation +=
-        "Moderately elevated neonatal bilirubin level. Depending on age in hours and associated risk factors, phototherapy may be indicated.\n\n";
+      }
 
-      impression =
-        "Moderate neonatal hyperbilirubinaemia.";
+      else if (total < 20) {
 
-      recommendation =
-        "Prompt paediatric review with assessment using neonatal bilirubin nomograms.";
+        abnormal = true;
 
-    }
+        interpretation +=
+          "Moderately elevated neonatal bilirubin level. Depending on age in hours and associated risk factors, phototherapy may be indicated.\n\n";
 
-    else if (total < 25) {
+        impression =
+          "Moderate neonatal hyperbilirubinaemia.";
 
-      interpretation +=
-        "Marked neonatal hyperbilirubinaemia with increased risk of bilirubin neurotoxicity if untreated.\n\n";
+        recommendation =
+          "Prompt paediatric review with assessment using neonatal bilirubin nomograms.";
 
-      impression =
-        "Severe neonatal jaundice.";
+      }
 
-      recommendation =
-        "Urgent phototherapy assessment is recommended.";
+      else if (total < 25) {
 
-    }
+        abnormal = true;
 
-    else {
+        interpretation +=
+          "Marked neonatal hyperbilirubinaemia with increased risk of bilirubin neurotoxicity if untreated.\n\n";
 
-      interpretation +=
-        "Critically elevated neonatal bilirubin concentration with a significant risk of acute bilirubin encephalopathy (kernicterus).\n\n";
+        impression =
+          "Severe neonatal jaundice.";
 
-      impression =
-        "Critical neonatal hyperbilirubinaemia.";
+        recommendation =
+          "Urgent phototherapy assessment is recommended.";
 
-      recommendation =
-        "URGENT neonatal management. Immediate specialist review and exchange transfusion should be considered according to established neonatal guidelines.";
+      }
+
+      else {
+
+        abnormal = true;
+
+        interpretation +=
+          "Critically elevated neonatal bilirubin concentration with a significant risk of acute bilirubin encephalopathy (kernicterus).\n\n";
+
+        impression =
+          "Critical neonatal hyperbilirubinaemia.";
+
+        recommendation =
+          "URGENT neonatal management. Immediate specialist review and exchange transfusion should be considered according to established neonatal guidelines.";
+
+      }
 
     }
 
@@ -217,14 +258,13 @@ export default function interpretBilirubin(
       direct !== null &&
       total !== null &&
       (
-
         direct > 2 ||
-
         direct > (0.20 * total)
-
       )
 
     ) {
+
+      abnormal = true;
 
       interpretation +=
         "Conjugated hyperbilirubinaemia is present. This is not consistent with physiological neonatal jaundice and may indicate neonatal cholestasis or hepatobiliary disease.\n\n";
@@ -234,6 +274,26 @@ export default function interpretBilirubin(
 
       recommendation =
         "Further evaluation for neonatal liver disease is recommended.";
+
+    }
+
+    if (!impression && !abnormal) {
+
+      impression =
+        "Neonatal bilirubin profile is within acceptable laboratory limits.";
+
+      recommendation =
+        "Routine neonatal observation.";
+
+    }
+
+    else if (!impression) {
+
+      impression =
+        "Abnormal neonatal bilirubin profile detected.";
+
+      recommendation =
+        "Interpret alongside the infant's age in hours, gestational age and clinical findings. Follow established neonatal jaundice management guidelines.";
 
     }
 

@@ -1,283 +1,104 @@
+/*
+ * PEFA ENTERPRISE LIS
+ * PrintQualitative.jsx
+ *
+ * Dedicated special-result printer.
+ * This component renders the saved payload supplied by the selected
+ * report. It does NOT use PrintRouter, Supabase, grouping, or JSON dumps.
+ */
+
+import React from "react";
+import PEFAFormalReportShell from "./PEFAFormalReportShell";
+import { first, text, readable, fields, resultObject } from "./PrintSpecialUtils";
+
+const KNOWN_FIELDS = ['result', 'interpretation', 'status', 'remarks'];
+
 export default function PrintQualitative({
-
-  results = [],
-
+  report = {},
+  rows,
+  printMode = "full",
+  clinicalHistory,
+  interpretation,
+  resultEnteredBy,
+  authorizedBy,
+  verificationId,
+  verificationStatus,
+  releasedBy,
+  releasedAt,
 }) {
-
-  if (!results.length) {
-
-    return null;
-
-  }
-
-  /* ======================================================
-     BUILD ROWS
-  ====================================================== */
-
-  const rows = [];
-
-  results.forEach((report) => {
-
-    let data =
-
-      report.result ||
-
-      report.result_data ||
-
-      {};
-
-    /* ==================================================
-       JSON SAFETY
-    ================================================== */
-
-    if (typeof data === "string") {
-
-      try {
-
-        data = JSON.parse(data);
-
-      } catch {
-
-        data = {};
-
-      }
-
-    }
-
-    /* ==================================================
-       SINGLE QUALITATIVE RESULT
-    ================================================== */
-
-    if (data.parameter) {
-
-      rows.push({
-
-        test:
-
-          data.parameter ||
-
-          report.test_type ||
-
-          "-",
-
-        result:
-
-          data.result ||
-
-          "Pending",
-
-      });
-
-    }
-
-    /* ==================================================
-       OBJECT FORMAT
-    ================================================== */
-
-    else if (
-
-      data &&
-
-      typeof data === "object" &&
-
-      !Array.isArray(data)
-
-    ) {
-
-      Object.entries(data).forEach(
-
-        ([parameter, value]) => {
-
-          rows.push({
-
-            test:
-
-              report.test_type ||
-
-              parameter,
-
-            result:
-
-              typeof value === "object"
-
-                ? (
-
-                    value.result ||
-
-                    "Pending"
-
-                  )
-
-                : (
-
-                    value ||
-
-                    "Pending"
-
-                  ),
-
-          });
-
-        }
-
-      );
-
-    }
-
-  });
-
-  /* ======================================================
-     RESULT STYLE
-  ====================================================== */
-
-  const getResultClass = (result = "") => {
-
-    const value =
-
-      String(result)
-
-        .toLowerCase()
-
-        .trim();
-
-    if (
-
-      value.includes("positive") ||
-
-      value === "positive"
-
-    ) {
-
-      return "flag-high";
-
-    }
-
-    if (
-
-      value.includes("negative") ||
-
-      value === "negative"
-
-    ) {
-
-      return "flag-normal";
-
-    }
-
-    if (
-
-      value.includes("reactive")
-
-    ) {
-
-      return "flag-high";
-
-    }
-
-    if (
-
-      value.includes("non reactive")
-
-    ) {
-
-      return "flag-normal";
-
-    }
-
-    if (
-
-      value.includes("detected")
-
-    ) {
-
-      return "flag-high";
-
-    }
-
-    if (
-
-      value.includes("not detected")
-
-    ) {
-
-      return "flag-normal";
-
-    }
-
-    return "result-value";
-
-  };
-
-  /* ======================================================
-     REPORT
-  ====================================================== */
-
-  return (
-
-    <div className="qualitative-report">
-
-      <table className="premium-table">
-
-        <thead>
-
-          <tr>
-
-            <th>
-
-              Test
-
-            </th>
-
-            <th>
-
-              Result
-
-            </th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          {rows.map((row, index) => (
-
-            <tr key={index}>
-
-              <td>
-
-                {row.test}
-
-              </td>
-
-              <td>
-
-                <span
-
-                  className={getResultClass(
-
-                    row.result
-
-                  )}
-
-                >
-
-                  {row.result}
-
-                </span>
-
-              </td>
-
-            </tr>
-
-          ))}
-
-        </tbody>
-
-      </table>
-
-    </div>
-
+  const source = Array.isArray(rows)
+    ? rows
+    : (Array.isArray(report.items) ? report.items : [report]);
+
+  const row = source[0] || report;
+  const payload = resultObject(row);
+
+  const entries = Object.entries(payload).filter(([key, value]) =>
+    !["id","created_at","updated_at","status","result_type"].includes(key) &&
+    (typeof value !== "object" || value === null)
   );
 
+  const direct = fields(row, [
+    "id","created_at","updated_at","lab_number","labNumber",
+    "patient_id","patientId","test_id","master_test_id",
+    "result","result_value","result_numeric","value",
+    "result_data","resultData","result_flag","flag",
+    "reference_range","referenceRange","unit"
+  ]);
+
+  const displayed = entries.length
+    ? entries.map(([key, value]) => ({ name: key.replace(/[_-]+/g, " "), value: readable(value) }))
+    : direct.filter((x) => !["Department","Test Name"].includes(x.name));
+
+  return (
+    <PEFAFormalReportShell
+      report={report}
+      title={first(titleFallback(), report.test_name, report.testName, "QUALITATIVE TEST")}
+      department={first(report.department, "Clinical Laboratory")}
+      printMode={printMode}
+      clinicalHistory={clinicalHistory || first(report.clinical_history, report.clinicalHistory)}
+      interpretation={interpretation || first(report.interpretation, report.interpretation_text)}
+      resultEnteredBy={resultEnteredBy || first(report.result_entered_by, report.entered_by)}
+      authorizedBy={authorizedBy || first(report.authorized_by, report.authorizedBy)}
+      verificationId={verificationId || first(report.verification_id, report.verificationId)}
+      verificationStatus={verificationStatus || first(report.status)}
+      releasedBy={releasedBy || first(report.released_by, report.releasedBy)}
+      releasedAt={releasedAt || first(report.released_at, report.releasedAt)}
+    >
+      <table className="pefa-special-table">
+        <thead><tr><th>Examination / Parameter</th><th>Result</th></tr></thead>
+        <tbody>
+          {displayed.map((item, index) => (
+            <tr key={`${item.name}-${index}`}>
+              <td><b>{text(item.name)}</b></td>
+              <td>{text(item.value)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <style>{`
+        .pefa-special-table {
+          width:100%;
+          border-collapse:collapse;
+          font-size:9.5pt;
+        }
+        .pefa-special-table th,
+        .pefa-special-table td {
+          border:1px solid #222;
+          padding:2.5mm;
+          text-align:left;
+          vertical-align:top;
+        }
+        .pefa-special-table th {
+          font-size:8pt;
+          text-transform:uppercase;
+        }
+      `}</style>
+    </PEFAFormalReportShell>
+  );
+
+  function titleFallback() {
+    return "QUALITATIVE TEST";
+  }
 }

@@ -34,6 +34,26 @@ export default function PrintHaematologyAnalyzer({
 
       {};
 
+/* ======================================================
+   DEPARTMENT / TEST TITLE
+====================================================== */
+
+const department =
+    results[0]?.department_name ||
+    results[0]?.department ||
+    "Haematology";
+
+const showTestTitle = results.length === 1;
+
+const testTitle = showTestTitle
+    ? (
+        results[0]?.test_name ||
+        getFullTestName(
+            results[0]?.test_type || ""
+        )
+      )
+    : null;
+
     /* ==================================================
        JSON SAFETY
     ================================================== */
@@ -228,140 +248,140 @@ export default function PrintHaematologyAnalyzer({
 
   };
 
-  /* ======================================================
-     REPORT
-  ====================================================== */
-
-  return (
+return (
 
     <div className="haematology-analyzer-report">
 
-      <table className="premium-result-table">
+        {/* ==========================================
+            DEPARTMENT
+        ========================================== */}
 
-        <thead>
+        <div
+            className="department-title"
+            style={{
+                fontSize: "15px",
+                fontWeight: "700",
+                textAlign: "center",
+                textTransform: "uppercase",
+                letterSpacing: ".6px",
+                padding: "8px",
+                marginBottom: "8px",
+                background: "#eef4ff",
+                border: "2px solid #2f5597",
+                color: "#1d3557",
+            }}
+        >
+            {department}
+        </div>
 
-          <tr>
+        {/* ==========================================
+            TEST TITLE
+        ========================================== */}
 
-            <th>
+        {showTestTitle && testTitle && (
 
-              Parameter
-
-            </th>
-
-            <th>
-
-              Result
-
-            </th>
-
-            <th>
-
-              Unit
-
-            </th>
-
-            <th>
-
-              Reference Range
-
-            </th>
-
-            <th>
-
-              Flag
-
-            </th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          {rows.map((row, index) => (
-
-            <tr
-
-              key={index}
-
-              className={`result-row-${(
-
-                row.flag ||
-
-                "normal"
-
-              )
-
-                .toLowerCase()
-
-                .replace(/\s+/g, "-")}`}
-
+            <div
+                className="test-title"
+                style={{
+                    fontSize: "13px",
+                    fontWeight: "700",
+                    textAlign: "center",
+                    textTransform: "uppercase",
+                    padding: "7px",
+                    marginBottom: "12px",
+                    background: "#f8f9fa",
+                    border: "1px solid #bfc8d4",
+                    color: "#2c3e50",
+                }}
             >
+                {testTitle}
+            </div>
 
-              <td>
+        )}
 
-                {row.parameter}
+        <table
+            className="premium-result-table"
+            style={{
+                width: "100%",
+                borderCollapse: "collapse",
+                tableLayout: "fixed",
+                border: "2px solid #6c757d",
+                fontSize: "10px",
+            }}
+        >
 
-              </td>
+            <thead>
 
-              <td>
+                <tr>
 
-                <span
+                    <th>Parameter</th>
 
-                  className={getResultClass(
+                    <th>Result</th>
 
-                    row.flag
+                    <th>Unit</th>
 
-                  )}
+                    <th>Reference Range</th>
 
-                >
+                    <th>Flag</th>
 
-                  {row.result}
+                </tr>
 
-                </span>
+            </thead>
 
-              </td>
+            <tbody>
 
-              <td>
+                {rows.map((row, index) => (
 
-                {row.unit}
+                    <tr
+                        key={index}
+                        className={`result-row-${(
+                            row.flag ||
+                            "normal"
+                        )
+                            .toLowerCase()
+                            .replace(/\s+/g, "-")}`}
+                    >
 
-              </td>
+                        <td>{row.parameter}</td>
 
-              <td>
+                        <td>
 
-                {row.reference}
+                            <span
+                                className={getResultClass(
+                                    row.flag
+                                )}
+                            >
+                                {row.result}
+                            </span>
 
-              </td>
+                        </td>
 
-              <td>
+                        <td>{row.unit}</td>
 
-                <span
+                        <td>{row.reference}</td>
 
-                  className={getFlagClass(
+                        <td>
 
-                    row.flag
+                            <span
+                                className={getFlagClass(
+                                    row.flag
+                                )}
+                            >
+                                {row.flag}
+                            </span>
 
-                  )}
+                        </td>
 
-                >
+                    </tr>
 
-                  {row.flag}
+                ))}
 
-                </span>
+            </tbody>
 
-              </td>
-
-            </tr>
-
-          ))}
-
-        </tbody>
-
-      </table>
+        </table>
 
     </div>
 
-  );
+);
 
 }

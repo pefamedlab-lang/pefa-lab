@@ -1,251 +1,248 @@
+import { useEffect } from "react";
+
+import TextAreaField from "../fields/TextAreaField";
+
+import {
+  generatePelvicReport,
+} from "../../../utils/ultrasound/reportGenerators";
+
+import {
+  generatePelvicImpression,
+  generatePelvicRecommendation,
+} from "../../../utils/ultrasound/impressionGenerator";
+
 export default function PelvicScanForm({
-
   data = {},
-
   onChange,
-
 }) {
 
-  const setValue = (
-
-    key,
-
-    value
-
-  ) => {
-
-    onChange(
-
-      key,
-
-      value
-
-    );
-
+  const setValue = (key, value) => {
+    onChange(key, value);
   };
+
+  /* ==========================================
+      AUTO GENERATE REPORT & IMPRESSION
+  ========================================== */
+
+  useEffect(() => {
+
+    const report =
+      generatePelvicReport(data);
+
+    const impression =
+      generatePelvicImpression(data);
+
+    const recommendation =
+      generatePelvicRecommendation(data);
+
+    // Report
+    if (report !== (data.report_text || "")) {
+      onChange("report_text", report);
+    }
+
+    // Impression
+    if (
+      JSON.stringify(impression) !==
+      JSON.stringify(data.impression || [])
+    ) {
+      onChange(
+        "impression",
+        impression
+      );
+    }
+
+    // Recommendation
+    if (
+      JSON.stringify(recommendation) !==
+      JSON.stringify(data.recommendation || [])
+    ) {
+      onChange(
+        "recommendation",
+        recommendation
+      );
+    }
+
+  }, [data, onChange]);
 
   return (
 
     <div className="scan-form-grid">
 
-      {/* =====================
+      {/* ======================================
           UTERUS
-      ===================== */}
+      ====================================== */}
 
-      <h3>
+      <section className="scan-section">
 
-        Uterus
+        <h2>Uterus</h2>
 
-      </h3>
+        <TextAreaField
+          label="Uterus"
+          rows={3}
+          value={data.uterus || ""}
+          onChange={(value) =>
+            setValue(
+              "uterus",
+              value
+            )
+          }
+        />
 
-      <textarea
-        rows={3}
-        placeholder="Size, position and echotexture..."
-        value={data.uterus || ""}
-        onChange={(e)=>
-          setValue(
-            "uterus",
-            e.target.value
-          )
-        }
-      />
+        <TextAreaField
+          label="Endometrium"
+          rows={2}
+          value={data.endometrium || ""}
+          onChange={(value) =>
+            setValue(
+              "endometrium",
+              value
+            )
+          }
+        />
 
-      {/* =====================
-          ENDOMETRIUM
-      ===================== */}
+        <TextAreaField
+          label="Cervix"
+          rows={2}
+          value={data.cervix || ""}
+          onChange={(value) =>
+            setValue(
+              "cervix",
+              value
+            )
+          }
+        />
 
-      <h3>
+      </section>
 
-        Endometrium
+      {/* ======================================
+          OVARIES
+      ====================================== */}
 
-      </h3>
+      <section className="scan-section">
 
-      <textarea
-        rows={2}
-        placeholder="Endometrial findings..."
-        value={data.endometrium || ""}
-        onChange={(e)=>
-          setValue(
-            "endometrium",
-            e.target.value
-          )
-        }
-      />
+        <h2>Ovaries</h2>
 
-      {/* =====================
-          RIGHT OVARY
-      ===================== */}
+        <TextAreaField
+          label="Right Ovary"
+          rows={2}
+          value={data.rightOvary || ""}
+          onChange={(value) =>
+            setValue(
+              "rightOvary",
+              value
+            )
+          }
+        />
 
-      <h3>
+        <TextAreaField
+          label="Left Ovary"
+          rows={2}
+          value={data.leftOvary || ""}
+          onChange={(value) =>
+            setValue(
+              "leftOvary",
+              value
+            )
+          }
+        />
 
-        Right Ovary
+      </section>
 
-      </h3>
+      {/* ======================================
+          ADNEXAL STRUCTURES
+      ====================================== */}
 
-      <textarea
-        rows={2}
-        placeholder="Right ovary findings..."
-        value={data.rightOvary || ""}
-        onChange={(e)=>
-          setValue(
-            "rightOvary",
-            e.target.value
-          )
-        }
-      />
+      <section className="scan-section">
 
-      {/* =====================
-          LEFT OVARY
-      ===================== */}
+        <h2>Adnexal Structures</h2>
 
-      <h3>
+        <TextAreaField
+          label="Adnexae"
+          rows={2}
+          value={data.adnexae || ""}
+          onChange={(value) =>
+            setValue(
+              "adnexae",
+              value
+            )
+          }
+        />
 
-        Left Ovary
+        <TextAreaField
+          label="Pouch of Douglas"
+          rows={2}
+          value={data.pouchOfDouglas || ""}
+          onChange={(value) =>
+            setValue(
+              "pouchOfDouglas",
+              value
+            )
+          }
+        />
 
-      </h3>
+      </section>
 
-      <textarea
-        rows={2}
-        placeholder="Left ovary findings..."
-        value={data.leftOvary || ""}
-        onChange={(e)=>
-          setValue(
-            "leftOvary",
-            e.target.value
-          )
-        }
-      />
-
-      {/* =====================
-          CERVIX
-      ===================== */}
-
-      <h3>
-
-        Cervix
-
-      </h3>
-
-      <textarea
-        rows={2}
-        placeholder="Cervical findings..."
-        value={data.cervix || ""}
-        onChange={(e)=>
-          setValue(
-            "cervix",
-            e.target.value
-          )
-        }
-      />
-
-      {/* =====================
-          POUCH OF DOUGLAS
-      ===================== */}
-
-      <h3>
-
-        Pouch of Douglas
-
-      </h3>
-
-      <textarea
-        rows={2}
-        placeholder="Fluid collection or other findings..."
-        value={data.pouchOfDouglas || ""}
-        onChange={(e)=>
-          setValue(
-            "pouchOfDouglas",
-            e.target.value
-          )
-        }
-      />
-
-      {/* =====================
+      {/* ======================================
           URINARY BLADDER
-      ===================== */}
+      ====================================== */}
 
-      <h3>
+      <section className="scan-section">
 
-        Urinary Bladder
+        <h2>Urinary Bladder</h2>
 
-      </h3>
+        <TextAreaField
+          label="Urinary Bladder"
+          rows={2}
+          value={data.bladder || ""}
+          onChange={(value) =>
+            setValue(
+              "bladder",
+              value
+            )
+          }
+        />
 
-      <textarea
-        rows={2}
-        placeholder="Bladder findings..."
-        value={data.bladder || ""}
-        onChange={(e)=>
-          setValue(
-            "bladder",
-            e.target.value
-          )
-        }
+      </section>
+
+      {/* ======================================
+          GENERATED FINDINGS
+      ====================================== */}
+
+      <TextAreaField
+        label="Generated Findings"
+        rows={18}
+        value={data.report_text || ""}
+        readOnly
       />
 
-      {/* =====================
-          ADNEXAE
-      ===================== */}
-
-      <h3>
-
-        Adnexae
-
-      </h3>
-
-      <textarea
-        rows={2}
-        placeholder="Adnexal findings..."
-        value={data.adnexae || ""}
-        onChange={(e)=>
-          setValue(
-            "adnexae",
-            e.target.value
-          )
-        }
-      />
-
-      {/* =====================
+      {/* ======================================
           IMPRESSION
-      ===================== */}
+      ====================================== */}
 
-      <h3>
-
-        Impression
-
-      </h3>
-
-      <textarea
-        rows={4}
-        placeholder="Impression..."
-        value={data.impression || ""}
-        onChange={(e)=>
-          setValue(
-            "impression",
-            e.target.value
-          )
+      <TextAreaField
+        label="Impression"
+        rows={6}
+        value={
+          Array.isArray(data.impression)
+            ? data.impression.join("\n")
+            : data.impression || ""
         }
+        readOnly
       />
 
-      {/* =====================
+      {/* ======================================
           RECOMMENDATION
-      ===================== */}
+      ====================================== */}
 
-      <h3>
-
-        Recommendation
-
-      </h3>
-
-      <textarea
-        rows={4}
-        placeholder="Recommendation..."
-        value={data.recommendation || ""}
-        onChange={(e)=>
-          setValue(
-            "recommendation",
-            e.target.value
-          )
+      <TextAreaField
+        label="Recommendation"
+        rows={5}
+        value={
+          Array.isArray(data.recommendation)
+            ? data.recommendation.join("\n")
+            : data.recommendation || ""
         }
+        readOnly
       />
 
     </div>

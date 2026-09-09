@@ -1,445 +1,371 @@
 import {
-  getFullTestName,
+    getFullTestName,
 } from "../../utils/fullTestName";
 
 export default function PrintEndocrinologySingle({
-
-  results = [],
-
+    results = [],
 }) {
 
-  /* ======================================================
-     NO RESULT
-  ====================================================== */
+    /* ======================================================
+       NO RESULT
+    ====================================================== */
 
-  if (!results.length) {
+    if (!results.length) {
+        return null;
+    }
 
-    return null;
+    const report = results[0];
 
-  }
+    let data =
+        report.result ||
+        report.result_data ||
+        {};
 
-  const report = results[0];
+    /* ======================================================
+       JSON SAFETY
+    ====================================================== */
 
-  let data =
+    if (typeof data === "string") {
 
-    report.result ||
+        try {
 
-    report.result_data ||
+            data = JSON.parse(data);
 
-    {};
+        } catch {
 
-  /* ======================================================
-     JSON SAFETY
-  ====================================================== */
+            data = {};
 
-  if (typeof data === "string") {
-
-    try {
-
-      data = JSON.parse(data);
+        }
 
     }
 
-    catch {
+    /* ======================================================
+       INLINE STYLES
+    ====================================================== */
+
+    const departmentStyle = {
+        textAlign: "center",
+        fontSize: "16px",
+        fontWeight: "700",
+        color: "#003366",
+        textTransform: "uppercase",
+        letterSpacing: "1px",
+        marginBottom: "6px",
+    };
+
+    const testTitleStyle = {
+        textAlign: "center",
+        fontSize: "14px",
+        fontWeight: "700",
+        color: "#0f4c81",
+        background: "#eef5fb",
+        border: "1px solid #c9d9ea",
+        borderRadius: "4px",
+        padding: "8px",
+        marginBottom: "16px",
+        textTransform: "uppercase",
+        letterSpacing: "0.5px",
+    };
+
+    const commentTitleStyle = {
+        fontSize: "13px",
+        fontWeight: "700",
+        color: "#003366",
+        marginBottom: "4px",
+    };
+
+    const commentTextStyle = {
+        fontSize: "12px",
+        lineHeight: 1.6,
+        margin: 0,
+        whiteSpace: "pre-wrap",
+        textAlign: "justify",
+    };
+
+    /* ======================================================
+       FLAG HELPERS
+    ====================================================== */
+
+    const getRowClass = (flag = "") => {
+
+        const value =
+            String(flag)
+                .toLowerCase()
+                .trim();
+
+        if (
+            value === "high" ||
+            value === "h"
+        ) {
+            return "result-row-high";
+        }
+
+        if (
+            value === "low" ||
+            value === "l"
+        ) {
+            return "result-row-low";
+        }
+
+        if (
+            value === "critical" ||
+            value === "c"
+        ) {
+            return "result-row-critical";
+        }
+
+        return "result-row-normal";
+
+    };
+
+    const getResultClass = (flag = "") => {
+
+        const value =
+            String(flag)
+                .toLowerCase()
+                .trim();
+
+        if (
+            value === "high" ||
+            value === "h"
+        ) {
+            return "result-high";
+        }
+
+        if (
+            value === "low" ||
+            value === "l"
+        ) {
+            return "result-low";
+        }
+
+        if (
+            value === "critical" ||
+            value === "c"
+        ) {
+            return "result-critical";
+        }
+
+        return "result-value";
+
+    };
+
+    const getFlagClass = (flag = "") => {
 
-      data = {};
+        const value =
+            String(flag)
+                .toLowerCase()
+                .trim();
 
-    }
+        if (
+            value === "high" ||
+            value === "h"
+        ) {
+            return "flag-high";
+        }
 
-  }
+        if (
+            value === "low" ||
+            value === "l"
+        ) {
+            return "flag-low";
+        }
 
-  /* ======================================================
-     FLAG HELPERS
-  ====================================================== */
+        if (
+            value === "critical" ||
+            value === "c"
+        ) {
+            return "flag-critical";
+        }
 
-  const getRowClass = (flag = "") => {
+        return "flag-normal";
 
-    const value =
+    };
 
-      String(flag)
+    /* ======================================================
+       DISPLAY NAME
+    ====================================================== */
+
+    const parameter =
+        getFullTestName(
+            data.parameter ||
+            report.test_type ||
+            report.test_name ||
+            "-"
+        );
+
+    /* ======================================================
+       REPORT
+    ====================================================== */
+
+    return (
 
-        .toLowerCase()
+        <div className="endocrinology-report">
 
-        .trim();
+            {/* ==========================================
+                DEPARTMENT
+            ========================================== */}
 
-    if (
+            <div style={departmentStyle}>
+                {report.department_name ||
+                    report.department ||
+                    "ENDOCRINOLOGY"}
+            </div>
 
-      value === "high" ||
+            {/* ==========================================
+                TEST TITLE
+            ========================================== */}
 
-      value === "h"
+            <div style={testTitleStyle}>
+                {report.test_name ||
+                    report.test_type ||
+                    parameter}
+            </div>
 
-    ) {
+            <table className="premium-table">
 
-      return "result-row-high";
+                <thead>
 
-    }
+                    <tr>
 
-    if (
+                        <th>
+                            Parameter
+                        </th>
 
-      value === "low" ||
+                        <th>
+                            Result
+                        </th>
 
-      value === "l"
+                        <th>
+                            Unit
+                        </th>
 
-    ) {
+                        <th>
+                            Reference Range
+                        </th>
 
-      return "result-row-low";
+                        <th>
+                            Flag
+                        </th>
 
-    }
+                    </tr>
 
-    if (
+                </thead>
 
-      value === "critical" ||
+                <tbody>
 
-      value === "c"
+                    <tr
+                        className={getRowClass(
+                            data.flag
+                        )}
+                    >
 
-    ) {
+                        <td>
+                            {parameter}
+                        </td>
 
-      return "result-row-critical";
+                        <td>
 
-    }
+                            <span
+                                className={getResultClass(
+                                    data.flag
+                                )}
+                            >
+                                {data.result || "-"}
+                            </span>
 
-    return "result-row-normal";
+                        </td>
 
-  };
+                        <td>
+                            {data.unit || "-"}
+                        </td>
 
-  const getResultClass = (flag = "") => {
+                        <td>
+                            {data.reference_range ||
+                                data.referenceRange ||
+                                "-"}
+                        </td>
 
-    const value =
+                        <td>
 
-      String(flag)
+                            <span
+                                className={getFlagClass(
+                                    data.flag
+                                )}
+                            >
+                                {data.flag || "Normal"}
+                            </span>
 
-        .toLowerCase()
+                        </td>
 
-        .trim();
+                    </tr>
 
-    if (
+                </tbody>
 
-      value === "high" ||
+            </table>
 
-      value === "h"
+            {/* ==========================================
+                INTERPRETATION
+            ========================================== */}
 
-    ) {
+            {data.interpretation && (
 
-      return "result-high";
+                <div className="report-comment">
 
-    }
+                    <h4 style={commentTitleStyle}>
+                        Interpretation
+                    </h4>
 
-    if (
+                    <p style={commentTextStyle}>
+                        {data.interpretation}
+                    </p>
 
-      value === "low" ||
-
-      value === "l"
-
-    ) {
-
-      return "result-low";
-
-    }
-
-    if (
-
-      value === "critical" ||
-
-      value === "c"
-
-    ) {
-
-      return "result-critical";
-
-    }
-
-    return "result-value";
-
-  };
-
-  const getFlagClass = (flag = "") => {
-
-    const value =
-
-      String(flag)
-
-        .toLowerCase()
-
-        .trim();
-
-    if (
-
-      value === "high" ||
-
-      value === "h"
-
-    ) {
-
-      return "flag-high";
-
-    }
-
-    if (
-
-      value === "low" ||
-
-      value === "l"
-
-    ) {
-
-      return "flag-low";
-
-    }
-
-    if (
-
-      value === "critical" ||
-
-      value === "c"
-
-    ) {
-
-      return "flag-critical";
-
-    }
-
-    return "flag-normal";
-
-  };
-
-  /* ======================================================
-     DISPLAY NAME
-  ====================================================== */
-
-  const parameter =
-
-    getFullTestName(
-
-      data.parameter ||
-
-      report.test_type ||
-
-      report.test_name ||
-
-      "-"
-
-    );
-
-  /* ======================================================
-     REPORT
-  ====================================================== */
-
-  return (
-
-    <div className="endocrinology-report">
-
-      <table className="premium-table">
-
-        <thead>
-
-          <tr>
-
-            <th>
-
-              Parameter
-
-            </th>
-
-            <th>
-
-              Result
-
-            </th>
-
-            <th>
-
-              Unit
-
-            </th>
-
-            <th>
-
-              Reference Range
-
-            </th>
-
-            <th>
-
-              Flag
-
-            </th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          <tr
-
-            className={getRowClass(
-
-              data.flag
+                </div>
 
             )}
 
-          >
+            {/* ==========================================
+                IMPRESSION
+            ========================================== */}
 
-            <td>
+            {data.impression && (
 
-              {parameter}
+                <div className="report-comment">
 
-            </td>
+                    <h4 style={commentTitleStyle}>
+                        Impression
+                    </h4>
 
-            <td>
+                    <p style={commentTextStyle}>
+                        {data.impression}
+                    </p>
 
-              <span
+                </div>
 
-                className={getResultClass(
+            )}
 
-                  data.flag
+            {/* ==========================================
+                SCIENTIST REMARK
+            ========================================== */}
 
-                )}
+            {data.remark && (
 
-              >
+                <div className="report-comment">
 
-                {
+                    <h4 style={commentTitleStyle}>
+                        Scientist Remark
+                    </h4>
 
-                  data.result ||
+                    <p style={commentTextStyle}>
+                        {data.remark}
+                    </p>
 
-                  "-"
+                </div>
 
-                }
-
-              </span>
-
-            </td>
-
-            <td>
-
-              {
-
-                data.unit ||
-
-                "-"
-
-              }
-
-            </td>
-
-            <td>
-
-              {
-
-                data.reference_range ||
-
-                data.referenceRange ||
-
-                "-"
-
-              }
-
-            </td>
-
-            <td>
-
-              <span
-
-                className={getFlagClass(
-
-                  data.flag
-
-                )}
-
-              >
-
-                {
-
-                  data.flag ||
-
-                  "Normal"
-
-                }
-
-              </span>
-
-            </td>
-
-          </tr>
-
-        </tbody>
-
-      </table>
-
-      {/* ==================================================
-          INTERPRETATION
-      ================================================== */}
-
-      {data.interpretation && (
-
-        <div className="report-comment">
-
-          <h4>
-
-            Interpretation
-
-          </h4>
-
-          <p>
-
-            {data.interpretation}
-
-          </p>
+            )}
 
         </div>
 
-      )}
-
-      {/* ==================================================
-          IMPRESSION
-      ================================================== */}
-
-      {data.impression && (
-
-        <div className="report-comment">
-
-          <h4>
-
-            Impression
-
-          </h4>
-
-          <p>
-
-            {data.impression}
-
-          </p>
-
-        </div>
-
-      )}
-
-      {/* ==================================================
-          SCIENTIST REMARK
-      ================================================== */}
-
-      {data.remark && (
-
-        <div className="report-comment">
-
-          <h4>
-
-            Scientist Remark
-
-          </h4>
-
-          <p>
-
-            {data.remark}
-
-          </p>
-
-        </div>
-
-      )}
-
-    </div>
-
-  );
+    );
 
 }

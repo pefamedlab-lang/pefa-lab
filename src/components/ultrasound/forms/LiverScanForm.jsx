@@ -1,296 +1,304 @@
+import { useEffect } from "react";
+
+import TextAreaField from "../fields/TextAreaField";
+
+import {
+  generateLiverReport,
+} from "../../../utils/ultrasound/reportGenerators";
+
+import {
+  generateLiverImpression,
+  generateLiverRecommendation,
+} from "../../../utils/ultrasound/impressionGenerator";
+
 export default function LiverScanForm({
-
   data = {},
-
   onChange,
-
 }) {
 
-  const setValue = (
-
-    key,
-
-    value
-
-  ) => {
-
-    onChange(
-
-      key,
-
-      value
-
-    );
-
+  const setValue = (key, value) => {
+    onChange(key, value);
   };
+
+  /* ==========================================
+      AUTO GENERATE REPORT & IMPRESSION
+  ========================================== */
+
+  useEffect(() => {
+
+    const report =
+      generateLiverReport(data);
+
+    const impression =
+      generateLiverImpression(data);
+
+    const recommendation =
+      generateLiverRecommendation(data);
+
+    if (report !== (data.report_text || "")) {
+      onChange("report_text", report);
+    }
+
+    if (
+      JSON.stringify(impression) !==
+      JSON.stringify(data.impression || [])
+    ) {
+      onChange("impression", impression);
+    }
+
+    if (
+      JSON.stringify(recommendation) !==
+      JSON.stringify(data.recommendation || [])
+    ) {
+      onChange(
+        "recommendation",
+        recommendation
+      );
+    }
+
+  }, [data, onChange]);
 
   return (
 
     <div className="scan-form-grid">
 
-      {/* =====================
-          LIVER SIZE
-      ===================== */}
+      {/* ======================================
+          LIVER
+      ====================================== */}
 
-      <h3>
+      <section className="scan-section">
 
-        Liver Size
+        <h2>Liver</h2>
 
-      </h3>
+        <TextAreaField
+          label="Liver Size"
+          rows={2}
+          value={data.liverSize || ""}
+          onChange={(value) =>
+            setValue("liverSize", value)
+          }
+        />
 
-      <textarea
-        rows={2}
-        placeholder="Liver size..."
-        value={data.liverSize || ""}
-        onChange={(e)=>
-          setValue(
-            "liverSize",
-            e.target.value
-          )
-        }
-      />
+        <TextAreaField
+          label="Liver Echotexture"
+          rows={2}
+          value={data.liverEchotexture || ""}
+          onChange={(value) =>
+            setValue(
+              "liverEchotexture",
+              value
+            )
+          }
+        />
 
-      {/* =====================
-          LIVER ECHOTEXTURE
-      ===================== */}
+        <TextAreaField
+          label="Liver Margins"
+          rows={2}
+          value={data.liverMargins || ""}
+          onChange={(value) =>
+            setValue(
+              "liverMargins",
+              value
+            )
+          }
+        />
 
-      <h3>
+        <TextAreaField
+          label="Focal Lesions"
+          rows={3}
+          value={data.focalLesions || ""}
+          onChange={(value) =>
+            setValue(
+              "focalLesions",
+              value
+            )
+          }
+        />
 
-        Liver Echotexture
+      </section>
 
-      </h3>
+      {/* ======================================
+          BILIARY SYSTEM
+      ====================================== */}
 
-      <textarea
-        rows={2}
-        placeholder="Liver echotexture..."
-        value={data.liverEchotexture || ""}
-        onChange={(e)=>
-          setValue(
-            "liverEchotexture",
-            e.target.value
-          )
-        }
-      />
+      <section className="scan-section">
 
-      {/* =====================
-          LIVER MARGINS
-      ===================== */}
+        <h2>Biliary System</h2>
 
-      <h3>
+        <TextAreaField
+          label="Intrahepatic Bile Ducts"
+          rows={2}
+          value={data.intrahepaticBileDucts || ""}
+          onChange={(value) =>
+            setValue(
+              "intrahepaticBileDucts",
+              value
+            )
+          }
+        />
 
-        Liver Margins
+        <TextAreaField
+          label="Gall Bladder"
+          rows={3}
+          value={data.gallBladder || ""}
+          onChange={(value) =>
+            setValue(
+              "gallBladder",
+              value
+            )
+          }
+        />
 
-      </h3>
+        <TextAreaField
+          label="Common Bile Duct"
+          rows={2}
+          value={data.commonBileDuct || ""}
+          onChange={(value) =>
+            setValue(
+              "commonBileDuct",
+              value
+            )
+          }
+        />
 
-      <textarea
-        rows={2}
-        placeholder="Liver margins..."
-        value={data.liverMargins || ""}
-        onChange={(e)=>
-          setValue(
-            "liverMargins",
-            e.target.value
-          )
-        }
-      />
+      </section>
 
-      {/* =====================
-          FOCAL LESIONS
-      ===================== */}
+      {/* ======================================
+          VASCULAR STRUCTURES
+      ====================================== */}
 
-      <h3>
+      <section className="scan-section">
 
-        Focal Lesions
+        <h2>Vascular Structures</h2>
 
-      </h3>
+        <TextAreaField
+          label="Portal Vein"
+          rows={2}
+          value={data.portalVein || ""}
+          onChange={(value) =>
+            setValue(
+              "portalVein",
+              value
+            )
+          }
+        />
 
-      <textarea
-        rows={3}
-        placeholder="Focal liver lesions..."
-        value={data.focalLesions || ""}
-        onChange={(e)=>
-          setValue(
-            "focalLesions",
-            e.target.value
-          )
-        }
-      />
+        <TextAreaField
+          label="Hepatic Veins"
+          rows={2}
+          value={data.hepaticVeins || ""}
+          onChange={(value) =>
+            setValue(
+              "hepaticVeins",
+              value
+            )
+          }
+        />
 
-      {/* =====================
-          INTRAHEPATIC BILE DUCTS
-      ===================== */}
+      </section>
 
-      <h3>
+      {/* ======================================
+          ASSOCIATED FINDINGS
+      ====================================== */}
 
-        Intrahepatic Bile Ducts
+      <section className="scan-section">
 
-      </h3>
+        <h2>Associated Findings</h2>
 
-      <textarea
-        rows={2}
-        placeholder="Intrahepatic bile ducts..."
-        value={data.intrahepaticBileDucts || ""}
-        onChange={(e)=>
-          setValue(
-            "intrahepaticBileDucts",
-            e.target.value
-          )
-        }
-      />
+        <TextAreaField
+          label="Ascites"
+          rows={2}
+          value={data.ascites || ""}
+          onChange={(value) =>
+            setValue(
+              "ascites",
+              value
+            )
+          }
+        />
 
-      {/* =====================
-          PORTAL VEIN
-      ===================== */}
+      </section>
 
-      <h3>
+      {/* ======================================
+          ADDITIONAL FINDINGS
+      ====================================== */}
 
-        Portal Vein
+      <section className="scan-section">
 
-      </h3>
+        <h2>Additional Findings</h2>
 
-      <textarea
-        rows={2}
-        placeholder="Portal vein findings..."
-        value={data.portalVein || ""}
-        onChange={(e)=>
-          setValue(
-            "portalVein",
-            e.target.value
-          )
-        }
-      />
+        <TextAreaField
+          label="Additional Findings"
+          rows={4}
+          value={data.additional_findings || ""}
+          onChange={(value) =>
+            setValue(
+              "additional_findings",
+              value
+            )
+          }
+        />
 
-      {/* =====================
-          HEPATIC VEINS
-      ===================== */}
+      </section>
 
-      <h3>
+      {/* ======================================
+          GENERATED FINDINGS
+      ====================================== */}
 
-        Hepatic Veins
+      <section className="scan-section">
 
-      </h3>
+        <h2>Generated Findings</h2>
 
-      <textarea
-        rows={2}
-        placeholder="Hepatic veins..."
-        value={data.hepaticVeins || ""}
-        onChange={(e)=>
-          setValue(
-            "hepaticVeins",
-            e.target.value
-          )
-        }
-      />
+        <TextAreaField
+          label="Generated Report"
+          rows={18}
+          value={data.report_text || ""}
+          readOnly
+        />
 
-      {/* =====================
-          GALL BLADDER
-      ===================== */}
+      </section>
 
-      <h3>
-
-        Gall Bladder
-
-      </h3>
-
-      <textarea
-        rows={3}
-        placeholder="Gall bladder findings..."
-        value={data.gallBladder || ""}
-        onChange={(e)=>
-          setValue(
-            "gallBladder",
-            e.target.value
-          )
-        }
-      />
-
-      {/* =====================
-          COMMON BILE DUCT
-      ===================== */}
-
-      <h3>
-
-        Common Bile Duct
-
-      </h3>
-
-      <textarea
-        rows={2}
-        placeholder="Common bile duct findings..."
-        value={data.commonBileDuct || ""}
-        onChange={(e)=>
-          setValue(
-            "commonBileDuct",
-            e.target.value
-          )
-        }
-      />
-
-      {/* =====================
-          ASCITES
-      ===================== */}
-
-      <h3>
-
-        Ascites
-
-      </h3>
-
-      <textarea
-        rows={2}
-        placeholder="Ascites findings..."
-        value={data.ascites || ""}
-        onChange={(e)=>
-          setValue(
-            "ascites",
-            e.target.value
-          )
-        }
-      />
-
-      {/* =====================
+      {/* ======================================
           IMPRESSION
-      ===================== */}
+      ====================================== */}
 
-      <h3>
+      <section className="scan-section">
 
-        Impression
+        <h2>Impression</h2>
 
-      </h3>
+        <TextAreaField
+          label="Impression"
+          rows={6}
+          value={
+            Array.isArray(data.impression)
+              ? data.impression.join("\n")
+              : data.impression || ""
+          }
+          readOnly
+        />
 
-      <textarea
-        rows={4}
-        placeholder="Impression..."
-        value={data.impression || ""}
-        onChange={(e)=>
-          setValue(
-            "impression",
-            e.target.value
-          )
-        }
-      />
+      </section>
 
-      {/* =====================
+      {/* ======================================
           RECOMMENDATION
-      ===================== */}
+      ====================================== */}
 
-      <h3>
+      <section className="scan-section">
 
-        Recommendation
+        <h2>Recommendation</h2>
 
-      </h3>
+        <TextAreaField
+          label="Recommendation"
+          rows={5}
+          value={
+            Array.isArray(data.recommendation)
+              ? data.recommendation.join("\n")
+              : data.recommendation || ""
+          }
+          readOnly
+        />
 
-      <textarea
-        rows={4}
-        placeholder="Recommendation..."
-        value={data.recommendation || ""}
-        onChange={(e)=>
-          setValue(
-            "recommendation",
-            e.target.value
-          )
-        }
-      />
+      </section>
 
     </div>
 

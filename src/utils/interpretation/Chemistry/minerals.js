@@ -76,12 +76,20 @@ export default function interpretMinerals(
   let recommendation = "";
 
   /* ======================================================
+     ABNORMALITY FLAG
+  ====================================================== */
+
+  let abnormal = false;
+
+  /* ======================================================
      TOTAL CALCIUM
   ====================================================== */
 
   if (calcium !== null) {
 
     if (calcium < 2.10) {
+
+      abnormal = true;
 
       interpretation +=
         "Total serum calcium is below the reference interval, suggesting hypocalcaemia.\n\n";
@@ -96,6 +104,8 @@ export default function interpretMinerals(
     }
 
     else {
+
+      abnormal = true;
 
       interpretation +=
         "Total serum calcium is elevated, indicating hypercalcaemia.\n\n";
@@ -112,6 +122,8 @@ export default function interpretMinerals(
 
     if (ionized < 1.12) {
 
+      abnormal = true;
+
       interpretation +=
         "Ionized calcium is reduced, confirming biologically significant hypocalcaemia.\n\n";
 
@@ -125,6 +137,8 @@ export default function interpretMinerals(
     }
 
     else {
+
+      abnormal = true;
 
       interpretation +=
         "Ionized calcium is elevated.\n\n";
@@ -141,6 +155,8 @@ export default function interpretMinerals(
 
     if (corrected < 2.10) {
 
+      abnormal = true;
+
       interpretation +=
         "Corrected calcium remains low after albumin adjustment.\n\n";
 
@@ -154,6 +170,8 @@ export default function interpretMinerals(
     }
 
     else {
+
+      abnormal = true;
 
       interpretation +=
         "Corrected calcium is elevated.\n\n";
@@ -170,6 +188,8 @@ export default function interpretMinerals(
 
     if (magnesium < 0.70) {
 
+      abnormal = true;
+
       interpretation +=
         "Serum magnesium is below the reference interval (hypomagnesaemia).\n\n";
 
@@ -183,6 +203,8 @@ export default function interpretMinerals(
     }
 
     else {
+
+      abnormal = true;
 
       interpretation +=
         "Serum magnesium is elevated (hypermagnesaemia).\n\n";
@@ -199,6 +221,8 @@ export default function interpretMinerals(
 
     if (phosphorus < 0.80) {
 
+      abnormal = true;
+
       interpretation +=
         "Serum phosphate is reduced (hypophosphataemia).\n\n";
 
@@ -212,6 +236,8 @@ export default function interpretMinerals(
     }
 
     else {
+
+      abnormal = true;
 
       interpretation +=
         "Serum phosphate is elevated (hyperphosphataemia).\n\n";
@@ -227,6 +253,7 @@ export default function interpretMinerals(
   if (
 
     egfr !== null &&
+    phosphorus !== null &&
     egfr < 60 &&
     phosphorus > 1.50
 
@@ -251,6 +278,9 @@ export default function interpretMinerals(
     impression =
       "Confirmed hypocalcaemia.";
 
+    recommendation =
+      "Interpret alongside renal function, parathyroid hormone, vitamin D status and the patient's clinical presentation.";
+
   }
 
   else if (
@@ -262,6 +292,9 @@ export default function interpretMinerals(
 
     impression =
       "Hypercalcaemia.";
+
+    recommendation =
+      "Interpret alongside renal function, parathyroid hormone, vitamin D status and the patient's clinical presentation.";
 
   }
 
@@ -275,6 +308,9 @@ export default function interpretMinerals(
     impression =
       "Hypomagnesaemia.";
 
+    recommendation =
+      "Interpret alongside renal function, parathyroid hormone, vitamin D status and the patient's clinical presentation.";
+
   }
 
   else if (
@@ -287,25 +323,15 @@ export default function interpretMinerals(
     impression =
       "Hyperphosphataemia.";
 
+    recommendation =
+      "Interpret alongside renal function, parathyroid hormone, vitamin D status and the patient's clinical presentation.";
+
   }
 
-  else {
+  else if (!abnormal) {
 
     impression =
       "Mineral profile is within acceptable laboratory limits.";
-
-  }
-
-  /* ======================================================
-     RECOMMENDATION
-  ====================================================== */
-
-  if (
-
-    impression ===
-    "Mineral profile is within acceptable laboratory limits."
-
-  ) {
 
     recommendation =
       "Routine clinical correlation.";
@@ -313,6 +339,9 @@ export default function interpretMinerals(
   }
 
   else {
+
+    impression =
+      "Abnormal mineral profile detected.";
 
     recommendation =
       "Interpret alongside renal function, parathyroid hormone, vitamin D status and the patient's clinical presentation.";

@@ -1,580 +1,370 @@
-import PrintRouter
-from "../components/printing/PrintRouter";
-
+import { useEffect, useMemo, useState } from "react";
+import { Search, ShieldCheck, Download, Printer } from "lucide-react";
+import { supabase } from "../supabase";
+import PrintEngine from "../utils/PrintEngine";
+import { SavedReportPreview, buildReports } from "./laboratory/LaboratoryResultDashboard";
 import "../styles/patientResultPortal.css";
 
-import PrintEngine
-from "../utils/PrintEngine";
+const PORTAL_PRINT_MODE = "full";
 
-import groupResultRecords
-from "../utils/groupResultRecords";
+const text = (value) => {
+  if (value === null || value === undefined) return "";
+  return String(value).trim();
+};
 
-import filterPatientResults
-from "../utils/filterPatientResults";
+const normalize = (value) =>
+  text(value).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 
+const parseObject = (value) => {
+  if (!value) return null;
+  if (typeof value === "object") return value;
+  if (typeof value !== "string") return null;
+  try {
+    const parsed = JSON.parse(value);
+    return parsed && typeof parsed === "object" ? parsed : null;
+  } catch {
+    return null;
+  }
+};
 
-import {
-  useState,
-} from "react";
+const getSavedObject = (row) => {
+  if (!row || typeof row !== "object") return {};
 
-import {
-  Search,
-  ShieldCheck,
-  Download,
-  Printer,
-} from "lucide-react";
+  const candidates = [row.result, row.result_data, row.resultData, row.payload, row.data];
+  for (const candidate of candidates) {
+    const parsed = parseObject(candidate);
+    if (parsed) {
+      const nested = parseObject(parsed.result);
+      return nested ? { ...parsed, ...nested } : parsed;
+    }
+  }
 
-import {
-  supabase,
-} from "../supabase";
+  return row;
+};
 
+const isCoombsRow = (row) => {
+  const source = getSavedObject(row);
+  const name = normalize(
+    row?.test_type ||
+      row?.test_name ||
+      row?.testName ||
+      row?.short_name ||
+      row?.shortName ||
+      source?.testName ||
+      source?.test_name ||
+      ""
+  );
+
+  return (
+    name.includes("direct coombs") ||
+    name.includes("indirect coombs") ||
+    name === "dat" ||
+    name === "iat" ||
+    normalize(source?.testType) === "dat" ||
+    normalize(source?.testType) === "iat"
+  );
+};
+
+const getCoombsMode = (row) => {
+  const source = getSavedObject(row);
+  const explicit = normalize(source?.testType || row?.test_type || row?.testType);
+  const name = normalize(
+    row?.test_name || row?.testName || source?.testName || source?.test_name || ""
+  );
+
+  if (explicit === "iat" || name.includes("indirect coombs") || name === "iat") return "IAT";
+  if (explicit === "dat" || name.includes("direct coombs") || name === "dat") return "DAT";
+  return "";
+};
+
+function PatientReport({ selectedResult, staffDirectory = [] }) {
+  return (
+    <SavedReportPreview
+      report={selectedResult}
+      printMode={PORTAL_PRINT_MODE}
+      staffDirectory={staffDirectory}
+    />
+  );
+}
 
 export default function PatientResultPortal() {
+  const [loading, setLoading] = useState(false);
+  const [results, setResults] = useState([]);
+  const [patient, setPatient] = useState(null);
+  const [selectedResult, setSelectedResult] = useState(null);
+  const [staffDirectory, setStaffDirectory] = useState([]);
+  const [form, setForm] = useState({ labNumber: "", accessCode: "" });
 
-  /* =====================================================
-     STATES
-  ===================================================== */
+  const handleChange = (e) => {
+    setForm((current) => ({ ...current, [e.target.name]: e.target.value }));
+  };
 
-  const [
-    loading,
-    setLoading,
-  ] = useState(false);
+  /* ==========================================================
+     LOAD THE SAME STAFF SIGNATURE DIRECTORY USED BY THE
+     LABORATORY RESULT DASHBOARD.
+     The shared PEFAReportShell resolves entered/authorized staff
+     identities against this directory to display signature_url.
+     ========================================================== */
+  useEffect(() => {
+    let active = true;
 
-  const [
-  results,
-  setResults,
-] = useState([]);
-
-  const [
-    patient,
-    setPatient,
-  ] = useState(null);
-
-  const [
-    form,
-    setForm,
-  ] = useState({
-
-    labNumber: "",
-
-    accessCode: "",
-
-    dob: "",
-  });
-
-  /* =====================================================
-     HANDLE CHANGE
-  ===================================================== */
-
-  const handleChange =
-    (e) => {
-
-      setForm({
-
-        ...form,
-
-        [e.target.name]:
-          e.target.value,
-      });
-    };
-
-  /* =====================================================
-     SEARCH RESULT
-  ===================================================== */
-
-  const searchResult =
-    async () => {
-
+    const loadStaffDirectory = async () => {
       try {
+        const { data, error } = await supabase
+          .from("staff_users")
+          .select("id, auth_user_id, username, full_name, role, signature_url, status")
+          .eq("status", "Active")
+          .order("full_name", { ascending: true });
 
-        setLoading(true);
+        if (!active) return;
 
-
-
-        /* =====================================================
-           VERIFY PATIENT
-        ===================================================== */
-
-        const {
-
-          data: registration,
-
-          error:
-            registrationError,
-
-        } = await supabase
-
-          .from(
-            "registrations"
-          )
-
-          .select("*")
-
-          .eq(
-            "lab_number",
-            form.labNumber
-          )
-
-          .eq(
-            "access_code",
-            form.accessCode
-          )
-
-          .eq(
-            "dob",
-            form.dob
-          )
-
-          .single();
-
-        /* =====================================================
-           INVALID
-        ===================================================== */
-
-        if (
-
-          registrationError ||
-
-          !registration
-
-        ) {
-
-          alert(
-            "Invalid Credentials"
-          );
-
+        if (error) {
+          console.warn("[PEFA PATIENT PORTAL] Staff signature directory could not be loaded:", error);
+          setStaffDirectory([]);
           return;
         }
 
-        /* =====================================================
-           FETCH RESULT
-        ===================================================== */
-
-      const {
-  data: patientResults,
-  error: resultError,
-} = await supabase
-
-  .from("patient_results")
-
-  .select("*")
-
-  .eq(
-    "lab_number",
-    form.labNumber
-  );
-
-        /* =====================================================
-           NO RESULT
-        ===================================================== */
-
-
-
-if (
-
-  resultError ||
-
-  !patientResults ||
-
-  patientResults.length === 0
-
-) {
-
-          alert(
-            "Result not yet released"
-          );
-
-          return;
-        }
-
-        /* =====================================================
-           SUCCESS
-        ===================================================== */
-
-        setPatient(
-          registration
-        );
-
-     setResults(
-  patientResults
-);
-
-const groupedResults =
-
-  groupResultRecords(
-    patientResults
-  );
-
-const firstReleasedIndex =
-
-  groupedResults.findIndex(
-
-    r =>
-
-      r.release_status ===
-      "Released"
-
-  );
-
-setSelectedResult(
-  firstReleasedIndex >= 0
-    ? firstReleasedIndex
-    : 0
-);
-
+        setStaffDirectory(Array.isArray(data) ? data : []);
       } catch (error) {
-
-        console.log(
-          error
-        );
-
-      } finally {
-
-        setLoading(false);
+        if (!active) return;
+        console.warn("[PEFA PATIENT PORTAL] Staff directory load failed:", error);
+        setStaffDirectory([]);
       }
     };
 
+    loadStaffDirectory();
 
+    return () => {
+      active = false;
+    };
+  }, []);
 
-const [
-  selectedResult,
-  setSelectedResult,
-] = useState(null);
+  const searchResult = async () => {
+    if (loading) return;
 
-const groupedResults =
-  groupResultRecords(results);
+    try {
+      setLoading(true);
+
+      const labNumber = form.labNumber.trim();
+      const accessCode = form.accessCode.trim();
+
+      if (!labNumber || !accessCode) {
+        alert("Please enter your Lab Number and Access Code.");
+        return;
+      }
+
+      const { data: registration, error: registrationError } = await supabase
+        .from("registrations")
+        .select("*")
+        .eq("lab_number", labNumber)
+        .eq("access_code", accessCode)
+        .single();
+
+      if (registrationError || !registration) {
+        alert("Invalid Lab Number or Access Code.");
+        return;
+      }
+
+      const { data: patientResults, error: resultError } = await supabase
+        .from("laboratory_results")
+        .select("*")
+        .eq("lab_number", labNumber)
+        .ilike("release_status", "released")
+        .order("created_at", { ascending: false });
+
+      if (resultError || !patientResults?.length) {
+        alert("Result not yet released.");
+        return;
+      }
+
+      /*
+       * The Enterprise LIS now stores laboratory result workflow data in
+       * laboratory_results. Do not depend on the legacy patient_results
+       * table. The release check is case-insensitive because older rows may
+       * contain Released/released variations.
+       */
+      const releasedResults = patientResults.filter(
+        (row) => normalize(row?.release_status) === "released"
+      );
+
+      if (!releasedResults.length) {
+        alert("Result not yet released.");
+        return;
+      }
+
+      const mergedResults = releasedResults.map((result) => ({
+        ...registration,
+        ...result,
+      }));
+
+      const reports = buildReports(mergedResults).map((report) => ({
+        ...report,
+        // buildReports() is the shared Result Dashboard report builder.
+        // The builder intentionally derives report metadata from its rows,
+        // so preserve the released state at report level for the Patient Portal.
+        release_status: report.items?.every(
+          (row) => normalize(row?.release_status) === "released"
+        )
+          ? "Released"
+          : "",
+      }));
+
+      setPatient(registration);
+      setResults(mergedResults);
+      setSelectedResult(reports[0] || null);
+    } catch (error) {
+      console.error("Result search error:", error);
+      alert("Unable to retrieve your result. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const groupedResults = useMemo(
+    () =>
+      buildReports(results).map((report) => ({
+        ...report,
+        release_status: report.items?.every(
+          (row) => normalize(row?.release_status) === "released"
+        )
+          ? "Released"
+          : "",
+      })),
+    [results]
+  );
+
+  // IMPORTANT: selectedResult is a Dashboard report object, not a raw
+  // laboratory_results row. Never test release_status on the raw report
+  // object without preserving it from its report items.
+  const selectedIsReleased =
+    normalize(selectedResult?.release_status) === "released" ||
+    (selectedResult?.items?.length > 0 &&
+      selectedResult.items.every(
+        (row) => normalize(row?.release_status) === "released"
+      ));
+
+  const safeFilePart = (value, fallback) =>
+    text(value).replace(/[^a-z0-9]+/gi, "_").replace(/^_+|_+$/g, "").slice(0, 80) || fallback;
+
+  const handleDownload = async () => {
+    if (!selectedIsReleased) return;
+
+    const lab = safeFilePart(selectedResult?.lab_number || form.labNumber, "PEFA-Laboratory");
+    const name = safeFilePart(patient?.full_name, "Patient");
+    const test = safeFilePart(
+      selectedResult?.title || selectedResult?.test_type || selectedResult?.department || "Laboratory_Result",
+      "Result"
+    );
+
+    await PrintEngine.download("portal-report", `${lab}_${name}_${test}.pdf`);
+  };
+
+  const handlePrint = () => {
+    if (!selectedIsReleased) return;
+    PrintEngine.print("portal-report", "PEFA Medical Report");
+  };
 
   return (
-
     <div className="patient-result-page">
-
-      {/* =====================================================
-          HEADER
-      ===================================================== */}
-
       <div className="patient-result-header">
-
-        <ShieldCheck
-          size={42}
-        />
-
-        <h1>
-          Patient Result Portal
-        </h1>
-
-        <p>
-          Secure Online Result Verification
-        </p>
-
+        <ShieldCheck size={42} />
+        <h1>Patient Result Portal</h1>
+        <p>Secure Online Result Verification</p>
       </div>
 
-      {/* =====================================================
-          SEARCH CARD
-      ===================================================== */}
-
       <div className="patient-result-card">
-
         <div className="search-grid">
-
-          {/* LAB NUMBER */}
-
           <div className="form-group">
-
-            <label>
-              Lab Number
-            </label>
-
+            <label htmlFor="labNumber">Lab Number</label>
             <input
+              id="labNumber"
               type="text"
               name="labNumber"
               placeholder="PMDS/26/001"
-              value={
-                form.labNumber
-              }
-              onChange={
-                handleChange
-              }
+              value={form.labNumber}
+              onChange={handleChange}
+              autoComplete="off"
+              onKeyDown={(e) => e.key === "Enter" && searchResult()}
             />
-
           </div>
 
-          {/* ACCESS CODE */}
-
           <div className="form-group">
-
-            <label>
-              Access Code
-            </label>
-
+            <label htmlFor="accessCode">Access Code</label>
             <input
+              id="accessCode"
               type="text"
               name="accessCode"
               placeholder="PEFA-XXXX"
-              value={
-                form.accessCode
-              }
-              onChange={
-                handleChange
-              }
+              value={form.accessCode}
+              onChange={handleChange}
+              autoComplete="off"
+              onKeyDown={(e) => e.key === "Enter" && searchResult()}
             />
-
           </div>
-
-          {/* DOB */}
-
-          <div className="form-group">
-
-            <label>
-              Date of Birth
-            </label>
-
-            <input
-              type="date"
-              name="dob"
-              value={
-                form.dob
-              }
-              onChange={
-                handleChange
-              }
-            />
-
-          </div>
-
         </div>
 
-        {/* BUTTON */}
-
-       <button
-  className="search-btn"
-  onClick={searchResult}
-  disabled={loading}
->
-
-  <Search size={18} />
-
-  {
-    loading
-      ? "Searching..."
-      : "View Result"
-  }
-
-</button>
-
+        <button type="button" className="search-btn" onClick={searchResult} disabled={loading}>
+          <Search size={18} />
+          {loading ? "Searching..." : "View Result"}
+        </button>
       </div>
 
-<div className="patient-portal-home">
+      <div className="patient-portal-home">
+        <div className="welcome-card">
+          <h2>
+            Welcome back,
+            <span className="patient-name">{patient?.full_name}</span>
+          </h2>
+          <p>
+            Access your laboratory reports securely through the PEFA Medical Diagnostic Services
+            Patient Portal. All released results can be viewed, downloaded, and printed instantly.
+          </p>
+        </div>
 
-  <div className="welcome-card">
-
-    <h2>
-
-  Welcome back,
-  <span className="patient-name">
-
-    {patient?.full_name}
-
-  </span>
-
-</h2>
-
-<p>
-
-  Access your laboratory reports securely
-  through the PEFA Medical Diagnostic
-  Services Patient Portal.
-
-  All released results can be viewed,
-  downloaded, and printed instantly.
-
-</p>
-
-  </div>
-
- <div className="report-selector-wrapper">
-
-  <h3>
-
-    Available Laboratory Reports
-
-  </h3>
-
-  <div className="report-selector">
-
-    {groupResultRecords(results).map(
-
-  (test, index) => (
-
-    <button
-
-      key={index}
-
-      className={`report-chip ${
-  selectedResult === index
-    ? "active"
-    : ""
-}`}
-
-      onClick={() =>
-        setSelectedResult(index)
-      }
-
-    >
-
-      {
-
-        test.release_status ===
-        "Released"
-
-          ? "✓ "
-
-          : "⏳ "
-
-      }
-
-      {test.test_type}
-
-    </button>
-
-  )
-
-)}
-
-  </div>
-
-</div>
-
-</div>
-
-{/* ==========================================
-   REPORT DISPLAY
-========================================== */}
-
-{selectedResult !== null && (
-
-groupedResults[selectedResult]?.release_status ===
-  "Released"
-
-    ? (
-
-      <div
-  id="print-root"
-  className="report-print-container"
->
-
-  <PrintRouter
-    department={
-      filterPatientResults(
-        results,
-        groupedResults[selectedResult]
-      )[0]?.department
-    }
-
-    results={
-      filterPatientResults(
-        results,
-        groupedResults[selectedResult]
-      )
-    }
-
-    patient={patient}
-
-    printMode="portal"
-  />
-
-</div>
-
-    )
-
-    : (
-
-      <div className="pending-release-card">
-
-        <h3>
-
-          Result Not Yet Released
-
-        </h3>
-
-        <p>
-
-          This result has not yet been
-          released by the laboratory.
-
-        </p>
-
+        {groupedResults.length > 0 && (
+          <div className="report-selector-wrapper">
+            <h3>Available Laboratory Reports</h3>
+            <div className="report-selector">
+              {groupedResults.map((report, index) => (
+                <button
+                  type="button"
+                  key={`${report.test_type || report.title || "report"}-${index}`}
+                  className={`report-chip ${selectedResult === report ? "active" : ""}`}
+                  onClick={() => setSelectedResult(report)}
+                >
+                  {normalize(report?.release_status) === "released" ? "✓ " : "⏳ "}
+                  {report.title || report.test_type || `${report.department || "Laboratory"} Result`}
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
-    )
+      {selectedResult && selectedIsReleased ? (
+        <div id="portal-report" className="report-print-container">
+          <PatientReport
+            selectedResult={selectedResult}
+            staffDirectory={staffDirectory}
+          />
+        </div>
+      ) : selectedResult ? (
+        <div className="pending-release-card">
+          <h3>Result Not Yet Released</h3>
+          <p>This result has not yet been released by the laboratory.</p>
+        </div>
+      ) : null}
 
-)}
-
-{/* ==========================================
-   REPORT ACTIONS
-========================================== */}
-
-{selectedResult !== null && (
-
-  <div className="report-actions">
-
-    {/* DOWNLOAD PDF */}
-
-   <button
-  className="report-action-btn download-btn"
-  onClick={() =>
-
-   PrintEngine.download(
-
-  "print-root",
-
-  `${
-    groupedResults[selectedResult]
-      ?.test_type || "Report"
-  }.pdf`
-
-)
-
-  }
->
-
-  <Download size={18} />
-
-  Download PDF
-
-</button>
-
- {/* PRINT REPORT */}
-
-
-<button
-  className="report-action-btn print-btn"
-  onClick={() =>
-
-   PrintEngine.print(
-
-  "print-root",
-
-  "PEFA Medical Report"
-
-)
-
-  }
->
-
-  <Printer size={18} />
-
-  Print Report
-
-</button>
-
-
-    
-
-  </div>
-
-)}
-
-
+      {selectedIsReleased && (
+        <div className="report-actions">
+          <button type="button" className="report-action-btn download-btn" onClick={handleDownload}>
+            <Download size={18} /> Download PDF
+          </button>
+          <button type="button" className="report-action-btn print-btn" onClick={handlePrint}>
+            <Printer size={18} /> Print Report
+          </button>
+        </div>
+      )}
     </div>
   );
 }

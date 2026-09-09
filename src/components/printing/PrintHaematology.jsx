@@ -1,695 +1,623 @@
-
-import {
-
-  getFullTestName,
-
-} from "../../utils/fullTestName";
-
-import DepartmentTitle from "./DepartmentTitle";
-import TestTitle from "./TestTitle";
+import React from "react";
+import getReportTitle from "../../utils/printing/getReportTitle";
+import { getFullTestName } from "../../utils/fullTestName";
+import interpretHaematology from "../../utils/interpretation/Haematology";
 
 export default function PrintHaematology({
-
-  results = [],
-
+    results = [],
 }) {
 
-  if (!results.length) {
+    /* ======================================================
+       NO RESULT
+    ====================================================== */
 
-    return null;
+    if (!results?.length) {
+        return null;
+    }
 
-  }
+    const firstReport = results[0] || {};
 
-  return (
-
-    <div className="haematology-report">
-
-      {/* ==========================
-    REPORT HEADER
-========================== */}
-
-<DepartmentTitle
-  title="HAEMATOLOGY REPORT"
-/>
-
-<TestTitle
-  title={
-
-    getFullTestName(
-
-      results[0]?.test_type ||
-
-      results[0]?.test_name ||
-
-      "FBC"
-
-    )
-
-  }
-  department="haematology"
-/>
-
-      {results.map((test, index) => {
-
-        let data =
-
-  test.result_data ||
-
-  test.result ||
-
-  {};
-
-if (
-
-  typeof data === "string"
-
-) {
-
-  try {
-
-    data = JSON.parse(data);
-
-  } catch {
-
-    data = {};
-
-  }
-
-}
-
-const rows = Object.entries(data);
-
-const getCBCInterpretation = () => {
-
-  const getFlag = (name) =>
-    rows.find(([p]) => p === name)?.[1]?.flag;
-
-  const getResult = (name) =>
-    Number(
-      rows.find(([p]) => p === name)?.[1]?.result
+    const reportTitle = getReportTitle(
+        firstReport,
+        results
     );
 
-  const diagnosis = [];
-  const impression = [];
+    /* ======================================================
+       HELPERS
+    ====================================================== */
 
-  /* =========================
-     ERYTHROCYTE SERIES
-  ========================= */
+    const parseData = (data) => {
 
-  const hb = getResult("Hemoglobin");
+        if (!data) return {};
 
-  const anaemia =
-    getFlag("Hemoglobin") === "Low" ||
-    getFlag("PCV") === "Low" ||
-    getFlag("RBC") === "Low";
+        if (typeof data === "string") {
 
-  const microcytic =
-    getFlag("MCV") === "Low";
+            try {
+                return JSON.parse(data);
+            } catch {
+                return {};
+            }
 
-  const macrocytic =
-    getFlag("MCV") === "High";
+        }
 
-  const hypochromic =
-    getFlag("MCH") === "Low" ||
-    getFlag("MCHC") === "Low";
+        return data;
 
-  const hyperchromic =
-    getFlag("MCHC") === "High";
-
-  let severity = "";
-
-  if (!isNaN(hb)) {
-    if (hb < 7) severity = "Severe";
-    else if (hb < 10) severity = "Moderate";
-    else if (hb < 13) severity = "Mild";
-  }
-
-  if (
-    anaemia &&
-    microcytic &&
-    hypochromic
-  ) {
-
-    diagnosis.push(
-      `${severity} microcytic hypochromic anaemia suggestive of iron deficiency anaemia`
-    );
-
-    impression.push(
-      "Iron deficiency anaemia"
-    );
-  }
-
-  else if (
-    anaemia &&
-    macrocytic
-  ) {
-
-    diagnosis.push(
-      `${severity} macrocytic anaemia. Consider Vitamin B12/Folate deficiency`
-    );
-
-    impression.push(
-      "Macrocytic anaemia"
-    );
-  }
-
-  else if (
-    anaemia
-  ) {
-
-    diagnosis.push(
-      `${severity} normocytic anaemia`
-    );
-
-    impression.push(
-      "Normocytic anaemia"
-    );
-  }
-
-  if (hyperchromic) {
-
-    diagnosis.push(
-      "Hyperchromia present"
-    );
-  }
-
-  if (
-    getFlag("Hemoglobin") === "High" ||
-    getFlag("PCV") === "High"
-  ) {
-
-    diagnosis.push(
-      "Erythrocytosis/polycythaemia pattern"
-    );
-
-    impression.push(
-      "Polycythaemia"
-    );
-  }
-
-  /* =========================
-     LEUCOCYTE SERIES
-  ========================= */
-
-  const wbc = getResult("WBC");
-
-  let infectionSeverity = "";
-
-  if (!isNaN(wbc)) {
-    if (wbc >= 30)
-      infectionSeverity = "Marked";
-    else if (wbc >= 20)
-      infectionSeverity = "Moderate";
-    else if (wbc > 11)
-      infectionSeverity = "Mild";
-  }
-
-  if (
-    getFlag("WBC") === "High" &&
-    getFlag("Neutrophils") === "High"
-  ) {
-
-    diagnosis.push(
-      `${infectionSeverity} neutrophilic leukocytosis suggestive of bacterial infection`
-    );
-
-    impression.push(
-      "Bacterial infection"
-    );
-  }
-
-  if (
-    getFlag("WBC") === "High" &&
-    getFlag("Lymphocytes") === "High"
-  ) {
-
-    diagnosis.push(
-      "Lymphocytic leukocytosis suggestive of viral infection"
-    );
-
-    impression.push(
-      "Possible viral infection"
-    );
-  }
-
-  if (
-    getFlag("WBC") === "Low"
-  ) {
-
-    diagnosis.push(
-      "Leukopenia present"
-    );
-
-    impression.push(
-      "Leukopenia"
-    );
-  }
-
-  if (
-    getFlag("Neutrophils") === "Low"
-  ) {
-
-    diagnosis.push(
-      "Neutropenia present"
-    );
-  }
-
-  if (
-    getFlag("Lymphocytes") === "Low"
-  ) {
-
-    diagnosis.push(
-      "Lymphopenia present"
-    );
-  }
-
-  if (
-    getFlag("Monocytes") === "High"
-  ) {
-
-    diagnosis.push(
-      "Monocytosis present"
-    );
-  }
-
-  if (
-    getFlag("Eosinophils") === "High"
-  ) {
-
-    diagnosis.push(
-      "Eosinophilia suggestive of allergic disorder or parasitic infestation"
-    );
-
-    impression.push(
-      "Allergic/parasitic condition"
-    );
-  }
-
-  if (
-    getFlag("Basophils") === "High"
-  ) {
-
-    diagnosis.push(
-      "Basophilia present"
-    );
-  }
-
-  /* =========================
-     PLATELET SERIES
-  ========================= */
-
-  if (
-    getFlag("Platelets") === "Low"
-  ) {
-
-    diagnosis.push(
-      "Thrombocytopenia present"
-    );
-
-    impression.push(
-      "Thrombocytopenia"
-    );
-  }
-
-  if (
-    getFlag("Platelets") === "High"
-  ) {
-
-    diagnosis.push(
-      "Reactive thrombocytosis present"
-    );
-
-    impression.push(
-      "Thrombocytosis"
-    );
-  }
-
-  /* =========================
-     CYTOPENIA CHECK
-  ========================= */
-
-  const lowCount = [
-    anaemia,
-    getFlag("WBC") === "Low",
-    getFlag("Platelets") === "Low",
-  ].filter(Boolean).length;
-
-  if (lowCount === 2) {
-
-    diagnosis.push(
-      "Bicytopenia detected"
-    );
-
-    impression.push(
-      "Bicytopenia"
-    );
-  }
-
-  if (lowCount === 3) {
-
-    diagnosis.push(
-      "Pancytopenia detected. Consider bone marrow suppression or infiltrative disorders"
-    );
-
-    impression.push(
-      "Pancytopenia"
-    );
-  }
-
-  /* =========================
-     NORMAL REPORT
-  ========================= */
-
-  if (
-    diagnosis.length === 0
-  ) {
-
-    return {
-      interpretation:
-        "Full blood count parameters are within normal limits.",
-      impression:
-        "No significant abnormality detected.",
     };
-  }
 
-  return {
-    interpretation:
-      diagnosis.join(". ") + ".",
-    impression:
-      [...new Set(impression)].join(
-        " with "
-      ) + ".",
-  };
+    const getFlagClass = (flag = "") => {
+
+        const value = String(flag)
+            .toLowerCase()
+            .trim();
+
+        if (value === "high" || value === "h") {
+            return "flag-high";
+        }
+
+        if (value === "low" || value === "l") {
+            return "flag-low";
+        }
+
+        if (value === "critical" || value === "c") {
+            return "flag-critical";
+        }
+
+        return "flag-normal";
+
+    };
+
+const commentStyles = {
+    container: {
+        width: "100%",
+        marginTop: "10px",
+        border: "1px solid #d1d5db",
+        borderCollapse: "collapse",
+        fontSize: "11px",
+    },
+
+    row: {
+        display: "flex",
+        borderBottom: "1px solid #e5e7eb",
+        minHeight: "28px",
+    },
+
+    lastRow: {
+        display: "flex",
+        minHeight: "28px",
+    },
+
+    title: {
+        width: "120px",
+        minWidth: "120px",
+        padding: "6px 8px",
+        fontWeight: 700,
+        background: "#f8fafc",
+        borderRight: "1px solid #e5e7eb",
+    },
+
+    value: {
+        flex: 1,
+        padding: "6px 8px",
+        lineHeight: 1.35,
+        whiteSpace: "normal",
+        wordBreak: "break-word",
+    },
 };
-        return (
+    /* ======================================================
+       CBC GROUPS
+    ====================================================== */
 
-          <div
-
-            key={index}
-
-            className="haem-section"
-
-          >
-
-         
-
-            <table className="premium-table">
-
-            <thead>
-
-  <tr>
-
-    <th>Parameter</th>
-
-    <th>Result</th>
-
-    <th>Unit</th>
-
-    <th>Reference Range</th>
-
-    <th>Flag</th>
-
-  </tr>
-
-</thead>
-
-            <tbody>
-
-  {/* ERYTHROCYTE SERIES */}
-
-  <tr>
-
-    <td
-      colSpan="5"
-      className="series-header"
-    >
-
-      ERYTHROCYTE SERIES
-
-    </td>
-
-  </tr>
-
-  {rows
-    .filter(([p]) =>
-      [
-        "RBC",
-        "Hemoglobin",
+    const parameterGroups = {
+    "Erythrocyte Series": [
         "PCV",
+        "Hemoglobin",
+        "Haemoglobin",
+        "RBC",
         "MCV",
         "MCH",
         "MCHC",
-      ].includes(p)
-    )
-    .map(([parameter, item]) => (
+    ],
 
-      <tr key={parameter}>
-
-        <td>{parameter}</td>
-
-        <td
-          className={
-            item?.flag === "High"
-              ? "result-high"
-              : item?.flag === "Low"
-              ? "result-low"
-              : "result-normal"
-          }
-        >
-          {item?.result}
-        </td>
-
-        <td>{item?.unit}</td>
-
-        <td>{item?.reference_range}</td>
-
-        <td>
-
-          <span
-            className={
-              item?.flag === "High"
-                ? "flag-high"
-                : item?.flag === "Low"
-                ? "flag-low"
-                : "flag-normal"
-            }
-          >
-
-            {item?.flag}
-
-          </span>
-
-        </td>
-
-      </tr>
-
-    ))}
-
-
-  {/* LEUCOCYTE SERIES */}
-
-  <tr>
-
-    <td
-      colSpan="5"
-      className="series-header"
-    >
-
-      LEUCOCYTE SERIES
-
-    </td>
-
-  </tr>
-
-  {rows
-    .filter(([p]) =>
-      [
+    "Leucocyte Series": [
         "WBC",
         "Neutrophils",
         "Lymphocytes",
         "Monocytes",
         "Eosinophils",
         "Basophils",
-      ].includes(p)
-    )
-    .map(([parameter, item]) => (
+    ],
 
-      <tr key={parameter}>
-
-        <td>{parameter}</td>
-
-        <td
-          className={
-            item?.flag === "High"
-              ? "result-high"
-              : item?.flag === "Low"
-              ? "result-low"
-              : "result-normal"
-          }
-        >
-          {item?.result}
-        </td>
-
-        <td>{item?.unit}</td>
-
-        <td>{item?.reference_range}</td>
-
-        <td>
-
-          <span
-            className={
-              item?.flag === "High"
-                ? "flag-high"
-                : item?.flag === "Low"
-                ? "flag-low"
-                : "flag-normal"
-            }
-          >
-
-            {item?.flag}
-
-          </span>
-
-        </td>
-
-      </tr>
-
-    ))}
-
-  {/* PLATELET SERIES */}
-
-  <tr>
-
-    <td
-      colSpan="5"
-      className="series-header"
-    >
-
-      PLATELET SERIES
-
-    </td>
-
-  </tr>
-
-  {rows
-    .filter(([p]) =>
-      [
+    "Platelet Series": [
         "Platelets",
-      ].includes(p)
-    )
-    .map(([parameter, item]) => (
+    ],
+};
 
-      <tr key={parameter}>
+    /* ======================================================
+       BUILD ROWS
+    ====================================================== */
 
-        <td>{parameter}</td>
+    const rows = [];
 
-        <td
-          className={
-            item?.flag === "High"
-              ? "result-high"
-              : item?.flag === "Low"
-              ? "result-low"
-              : "result-normal"
-          }
-        >
-          {item?.result}
-        </td>
+    results.forEach((report) => {
 
-        <td>{item?.unit}</td>
-
-        <td>{item?.reference_range}</td>
-
-        <td>
-
-          <span
-            className={
-              item?.flag === "High"
-                ? "flag-high"
-                : item?.flag === "Low"
-                ? "flag-low"
-                : "flag-normal"
-            }
-          >
-
-            {item?.flag}
-
-          </span>
-
-        </td>
-
-      </tr>
-
-    ))}
-
-</tbody>
-
-           </table>
-
-{/* ==========================
-    HAEMATOLOGY COMMENT
-========================== */}
-
-<div className="laboratory-comment">
-
-  {(() => {
-
-    const report =
-      getCBCInterpretation();
-
-    return (
-
-      <>
-
-        <div className="comment-line">
-
-          <span className="comment-label">
-
-            Interpretation:
-
-          </span>
-
-          <span className="comment-value">
-
-            {report.interpretation}
-
-          </span>
-
-        </div>
-
-        <div className="comment-line">
-
-          <span className="comment-label">
-
-            Impression:
-
-          </span>
-
-          <span className="comment-value">
-
-            {report.impression}
-
-          </span>
-
-        </div>
-
-      </>
-
-    );
-
-  })()}
-
-
-    
- 
-</div>
-
-</div>
-
+        const data = parseData(
+            report.result ||
+            report.result_data
         );
 
-      })}
+        /* ===========================
+           SINGLE TEST
+        =========================== */
+
+        if (data?.parameter) {
+
+            rows.push({
+
+                parameter:
+                    data.parameter ||
+                    report.test_type ||
+                    "-",
+
+                result:
+                    data.result ?? "-",
+
+                unit:
+                    data.unit || "-",
+
+                referenceRange:
+                    data.reference_range ||
+                    data.referenceRange ||
+                    "-",
+
+                flag:
+                    data.flag || "Normal",
+
+            });
+
+        }
+
+        /* ===========================
+           PANEL OBJECT
+        =========================== */
+
+        else if (
+            data &&
+            typeof data === "object" &&
+            !Array.isArray(data)
+        ) {
+
+            Object.entries(data).forEach(
+                ([parameter, value]) => {
+
+                    if (
+                        value &&
+                        typeof value === "object" &&
+                        "result" in value
+                    ) {
+
+                        rows.push({
+
+                            parameter,
+
+                            result:
+                                value.result ?? "-",
+
+                            unit:
+                                value.unit || "-",
+
+                            referenceRange:
+                                value.reference_range ||
+                                value.referenceRange ||
+                                "-",
+
+                            flag:
+                                value.flag || "Normal",
+
+                        });
+
+                    }
+
+                }
+            );
+
+        }
+
+        /* ===========================
+           ARRAY FORMAT
+        =========================== */
+
+        else if (Array.isArray(data)) {
+
+            data.forEach((item) => {
+
+                rows.push({
+
+                    parameter:
+                        item.parameter ||
+                        item.name ||
+                        "-",
+
+                    result:
+                        item.result ?? "-",
+
+                    unit:
+                        item.unit || "-",
+
+                    referenceRange:
+                        item.reference_range ||
+                        item.referenceRange ||
+                        "-",
+
+                    flag:
+                        item.flag || "Normal",
+
+                });
+
+            });
+
+        }
+
+    });
+
+  /* ======================================================
+   EMPTY TABLE
+====================================================== */
+
+if (!rows.length) {
+    return (
+        <div className="haematology-report">
+
+            <table className="print-result-table">
+
+                <thead>
+
+                    <tr className="report-title-row">
+                        <th colSpan={5}>
+
+                            <div className="table-department-title">
+                                HAEMATOLOGY
+                            </div>
+
+                            {reportTitle.showTestTitle && (
+                                <div className="table-test-title">
+                                    {getFullTestName(reportTitle.title)}
+                                </div>
+                            )}
+
+                        </th>
+                    </tr>
+
+                    <tr>
+    <th style={{ width: "38%" }}>Parameter</th>
+    <th style={{ width: "15%" }}>Result</th>
+    <th style={{ width: "13%" }}>Unit</th>
+    <th style={{ width: "24%" }}>Reference Range</th>
+    <th style={{ width: "10%" }}>Flag</th>
+</tr>
+
+                </thead>
+
+                <tbody>
+
+                    <tr>
+                        <td
+                            colSpan={5}
+                            style={{
+                                textAlign: "center",
+                                padding: "20px",
+                            }}
+                        >
+                            No Result Available
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+    );
+}
+
+/* ======================================================
+   INTERPRETATION
+====================================================== */
+
+const parsedResults = {};
+
+rows.forEach((row) => {
+    parsedResults[row.parameter] = {
+        result: row.result,
+        unit: row.unit,
+        reference_range: row.referenceRange,
+        flag: row.flag,
+    };
+});
+
+const interpretation =
+    interpretHaematology(firstReport, parsedResults) || {};
+
+const remarks = results
+    .map((report) => {
+
+        const data = parseData(
+            report.result || report.result_data
+        );
+
+        return (
+            report.remark ||
+            data.remark ||
+            data["Scientist Remark"] ||
+            null
+        );
+
+    })
+    .filter(Boolean);
+
+
+
+/* ======================================================
+   REPORT
+====================================================== */
+
+return (
+
+    <div className="haematology-report">
+
+        <table className="print-result-table">
+
+            <thead>
+
+                <tr className="report-title-row">
+
+                    <th colSpan={5}>
+
+                        <div className="table-department-title">
+                            HAEMATOLOGY
+                        </div>
+
+                        {reportTitle.showTestTitle && (
+                            <div className="table-test-title">
+                                {getFullTestName(reportTitle.title)}
+                            </div>
+                        )}
+
+                    </th>
+
+                </tr>
+
+                <tr>
+
+                    <th>Parameter</th>
+                    <th>Result</th>
+                    <th>Unit</th>
+                    <th>Reference Range</th>
+                    <th>Flag</th>
+
+                </tr>
+
+            </thead>
+
+<tbody>
+  {Object.entries(parameterGroups).map(
+    ([section, parameters]) => {
+      const sectionRows = rows.filter((row) =>
+        parameters.includes(row.parameter)
+      );
+
+      if (sectionRows.length === 0) {
+        return null;
+      }
+
+      return (
+        <React.Fragment key={section}>
+          {/* ==========================================
+              SECTION HEADER
+          ========================================== */}
+
+          <tr className="section-header">
+            <td
+              colSpan={5}
+              style={{
+                fontWeight: 700,
+                background: "#f3f4f6",
+                textTransform: "uppercase",
+                letterSpacing: "0.5px",
+              }}
+            >
+              {section}
+            </td>
+          </tr>
+
+          {/* ==========================================
+              SECTION RESULTS
+          ========================================== */}
+
+          {sectionRows.map((row, index) => {
+            const flag =
+              row?.flag || "Normal";
+
+            const rowKey =
+              `${section}-${row?.parameter || "parameter"}-${index}`;
+
+            return (
+              <tr
+                key={rowKey}
+                className={`result-row-${String(flag)
+                  .toLowerCase()
+                  .replace(/\s+/g, "-")}`}
+              >
+                {/* PARAMETER */}
+                <td>
+                  <div
+                    className="cell-wrap"
+                    style={{
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    {row?.parameter || "-"}
+                  </div>
+                </td>
+
+                {/* RESULT */}
+                <td className={getFlagClass(flag)}>
+                  <div className="cell-wrap">
+                    {row?.result ?? "-"}
+                  </div>
+                </td>
+
+                {/* UNIT */}
+                <td>
+                  <div className="cell-wrap">
+                    {row?.unit || "-"}
+                  </div>
+                </td>
+
+                {/* REFERENCE RANGE */}
+                <td>
+                  <div className="cell-wrap">
+                    {row?.referenceRange || "-"}
+                  </div>
+                </td>
+
+                {/* FLAG */}
+                <td>
+                  <div className="cell-wrap">
+                    <span
+                      className={getFlagClass(flag)}
+                    >
+                      {flag}
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
+        </React.Fragment>
+      );
+    }
+  )}
+</tbody>
+
+        </table>
+
+      {/* ==========================================
+    REPORT COMMENTS
+========================================== */}
+
+{(
+    interpretation?.interpretation ||
+    interpretation?.impression ||
+    interpretation?.comment ||
+    interpretation?.recommendation ||
+    remarks?.length > 0
+) && (
+
+    <div
+        style={{
+            ...commentStyles.container,
+            marginTop: "6px",
+            fontSize: "10px",
+        }}
+    >
+
+        {[
+            {
+                title: "Interpretation",
+                value: interpretation?.interpretation,
+            },
+            {
+                title: "Impression",
+                value: interpretation?.impression,
+            },
+            {
+                title: "Comment",
+                value: interpretation?.comment,
+            },
+            {
+                title: "Recommendation",
+                value: interpretation?.recommendation,
+            },
+        ]
+            .filter(item => item.value)
+            .map((item) => (
+
+                <div
+                    key={item.title}
+                    style={{
+                        ...commentStyles.row,
+                        minHeight: "22px",
+                    }}
+                >
+
+                    <div
+                        style={{
+                            ...commentStyles.title,
+                            padding: "4px 6px",
+                        }}
+                    >
+                        {item.title}
+                    </div>
+
+                    <div
+                        style={{
+                            ...commentStyles.value,
+                            padding: "4px 6px",
+                            lineHeight: 1.2,
+                        }}
+                    >
+                        {item.value}
+                    </div>
+
+                </div>
+
+            ))}
+
+        {remarks.length > 0 && (
+
+            <div
+                style={{
+                    ...commentStyles.lastRow,
+                    minHeight: "22px",
+                }}
+            >
+
+                <div
+                    style={{
+                        ...commentStyles.title,
+                        padding: "4px 6px",
+                    }}
+                >
+                    Scientist Remark
+                </div>
+
+                <div
+                    style={{
+                        ...commentStyles.value,
+                        padding: "4px 6px",
+                        lineHeight: 1.2,
+                    }}
+                >
+
+                    {remarks.map((remark, index) => (
+
+                        <div key={index}>
+                            {remark}
+                        </div>
+
+                    ))}
+
+                </div>
+
+            </div>
+
+        )}
+
     </div>
 
-  );
+)}
 
+</div>
+
+);
 }

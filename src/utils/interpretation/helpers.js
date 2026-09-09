@@ -1,331 +1,150 @@
-/* ==========================================================
-   EMPTY INTERPRETATION
-========================================================== */
-
 export function defaultInterpretation() {
 
-  return {
-
-    interpretation: "",
-
-    impression: "",
-
-    comment: "",
-
-    recommendation: "",
-
-  };
-
-}
-
-/* ==========================================================
-   CREATE OBJECT
-========================================================== */
-
-export function createInterpretation({
-
-  interpretation = "",
-
-  impression = "",
-
-  comment = "",
-
-  recommendation = "",
-
-} = {}) {
-
-  return {
+  return createInterpretation({
 
     interpretation:
-
-      interpretation?.trim() || "",
+      "Interpretation is not available for this test.",
 
     impression:
-
-      impression?.trim() || "",
-
-    comment:
-
-      comment?.trim() || "",
+      "No automated interpretation.",
 
     recommendation:
-
-      recommendation?.trim() || "",
-
-  };
-
-}
-
-/* ==========================================================
-   BUILD RESULT MAP
-========================================================== */
-
-export function buildResultMap(
-
-  results = []
-
-) {
-
-  const map = {};
-
-  results.forEach(item => {
-
-    const key = (
-
-      item.parameter ||
-
-      item.test_parameter ||
-
-      item.name ||
-
-      item.label ||
-
-      ""
-
-    ).trim();
-
-    if (!key) return;
-
-    map[key] = item;
+      "Interpret together with the patient's clinical findings.",
 
   });
 
-  return map;
-
 }
 
 /* ==========================================================
-   NUMERIC RESULT
+   INTERPRETATION HELPERS
 ========================================================== */
 
-export function getNumericResult(
+/**
+ * Safely converts a laboratory result to a numeric value.
+ *
+ * @param {Object} resultMap
+ * @param {string} analyte
+ * @returns {number|null}
+ */
+export function getNumericResult(resultMap = {}, analyte) {
+  const item = resultMap?.[analyte];
 
-  resultMap,
+  if (!item) return null;
 
-  parameter
+  const value =
+    item.value ??
+    item.result ??
+    item.numeric_result ??
+    item.numericValue;
 
-) {
-
-  const row = resultMap?.[parameter];
-
-  if (!row) {
-
+  if (value === null || value === undefined || value === "") {
     return null;
-
   }
 
-  const raw =
+  const number = Number(value);
 
-    row.result ??
+  return Number.isFinite(number) ? number : null;
+}
 
-    row.value ??
+/**
+ * Returns the raw textual result.
+ *
+ * @param {Object} resultMap
+ * @param {string} analyte
+ * @returns {string|null}
+ */
+export function getTextResult(resultMap = {}, analyte) {
+  const item = resultMap?.[analyte];
 
-    row.numeric_result ??
+  if (!item) return null;
 
-    "";
+  const value =
+    item.result ??
+    item.value ??
+    item.text ??
+    item.display;
 
-  if (
-
-    raw === null ||
-
-    raw === undefined ||
-
-    raw === ""
-
-  ) {
-
+  if (value === undefined || value === null) {
     return null;
-
   }
 
-  const number = parseFloat(
+  return String(value).trim();
+}
 
-    String(raw)
+/**
+ * Determines whether a value exists.
+ *
+ * @param {*} value
+ * @returns {boolean}
+ */
+export function hasValue(value) {
+  return value !== null &&
+         value !== undefined &&
+         value !== "";
+}
 
-      .replace(/,/g, "")
-
-      .replace(/[^\d.-]/g, "")
-
+/**
+ * Checks if a numeric value lies within a reference interval.
+ *
+ * @param {number|null} value
+ * @param {number} low
+ * @param {number} high
+ * @returns {boolean}
+ */
+export function isWithinRange(value, low, high) {
+  return (
+    value !== null &&
+    value >= low &&
+    value <= high
   );
-
-  return Number.isFinite(number)
-
-    ? number
-
-    : null;
-
 }
 
-/* ==========================================================
-   TEXT RESULT
-========================================================== */
-
-export function getTextResult(
-
-  resultMap,
-
-  parameter
-
-) {
-
-  const row = resultMap?.[parameter];
-
-  if (!row) {
-
-    return "";
-
-  }
-
-  return String(
-
-    row.result ??
-
-    row.value ??
-
-    ""
-
-  ).trim();
-
+/**
+ * Standardizes interpretation output.
+ *
+ * @param {Object} data
+ * @returns {Object}
+ */
+export function createInterpretation({
+  interpretation = "",
+  impression = "",
+  recommendation = "",
+} = {}) {
+  return {
+    interpretation: interpretation.trim(),
+    impression: impression.trim(),
+    recommendation: recommendation.trim(),
+  };
 }
 
-/* ==========================================================
-   REFERENCE RANGE CHECK
-========================================================== */
+/**
+ * Checks whether the reporting scientist has supplied
+ * a manual interpretation.
+ *
+ * @param {Object} report
+ * @returns {Object|null}
+ */
+export function getScientistOverride(report = {}) {
+  const interpretation =
+    report.interpretation?.trim();
 
-export function isBelow(
+  const impression =
+    report.impression?.trim();
 
-  value,
-
-  lower
-
-) {
+  const recommendation =
+    report.recommendation?.trim();
 
   if (
-
-    value === null ||
-
-    lower === null ||
-
-    lower === undefined
-
+    interpretation ||
+    impression ||
+    recommendation
   ) {
-
-    return false;
-
+    return createInterpretation({
+      interpretation,
+      impression,
+      recommendation,
+    });
   }
 
-  return value < lower;
-
-}
-
-export function isAbove(
-
-  value,
-
-  upper
-
-) {
-
-  if (
-
-    value === null ||
-
-    upper === null ||
-
-    upper === undefined
-
-  ) {
-
-    return false;
-
-  }
-
-  return value > upper;
-
-}
-
-export function isWithin(
-
-  value,
-
-  lower,
-
-  upper
-
-) {
-
-  if (
-
-    value === null ||
-
-    lower === null ||
-
-    upper === null ||
-
-    lower === undefined ||
-
-    upper === undefined
-
-  ) {
-
-    return false;
-
-  }
-
-  return (
-
-    value >= lower &&
-
-    value <= upper
-
-  );
-
-}
-
-/* ==========================================================
-   POSITIVE / NEGATIVE HELPERS
-========================================================== */
-
-export function isPositive(
-
-  value = ""
-
-) {
-
-  const text =
-
-    value.toLowerCase();
-
-  return (
-
-    text.includes("positive") ||
-
-    text.includes("reactive") ||
-
-    text.includes("detected")
-
-  );
-
-}
-
-export function isNegative(
-
-  value = ""
-
-) {
-
-  const text =
-
-    value.toLowerCase();
-
-  return (
-
-    text.includes("negative") ||
-
-    text.includes("non-reactive") ||
-
-    text.includes("not detected")
-
-  );
-
+  return null;
 }

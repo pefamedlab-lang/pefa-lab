@@ -1,66 +1,165 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function SFAForm({
-
   resultData,
-
   setResultData,
-
 }) {
 
-  const [
+  /* ======================================
+      FORM STATE
+  ====================================== */
 
-    form,
+  const [form, setForm] = useState({
 
-    setForm,
+    /* ==========================
+       SPECIMEN INFORMATION
+    ========================== */
 
-  ] = useState({
+    collectionDate: "",
+    receivedDate: "",
+    processedDate: "",
+    examinedDate: "",
+
+    patientAge: "",
+
+    abstinenceDays: "",
+
+    collectionMethod: "",
+
+    sampleComplete: "",
+
+    containerType: "",
+
+    /* ==========================
+       PHYSICAL EXAMINATION
+    ========================== */
+
+    volume: "",
 
     colour: "",
 
-    consistency: "",
+    appearance: "",
 
-    mucus: "",
+    ph: "",
 
-    blood: "",
+    viscosity: "",
+
+    liquefactionTime: "",
+
+    fructose: "",
+
+    /* ==========================
+       SPERM ANALYSIS
+    ========================== */
+
+    spermCount: "",
+
+    totalSpermNumber: "",
+
+    totalMotility: "",
+
+    progressiveMotility: "",
+
+    nonProgressiveMotility: "",
+
+    immotile: "",
+
+    vitality: "",
+
+    normalMorphology: "",
+
+    gradeA: "",
+
+    gradeB: "",
+
+    gradeC: "",
+
+    gradeD: "",
+
+    headDefects: "",
+
+    midpieceDefects: "",
+
+    tailDefects: "",
+
+    /* ==========================
+       MICROSCOPY
+    ========================== */
 
     pusCells: "",
 
-    rbcs: "",
+    wbc: "",
 
-    ova: "",
+    rbc: "",
 
-    cysts: "",
+    epithelialCells: "",
 
-    trophozoites: "",
-
-    helminths: "",
-
-    fatGlobules: "",
-
-    reducingSubstance: "",
-
-    occultBlood: "",
+    roundCells: "",
 
     yeastCells: "",
 
-    parasites: "",
+    agglutination: "",
+
+    aggregation: "",
+
+    debris: "",
 
     others: "",
 
-    comment: "",
+    /* ==========================
+       FINAL REPORT
+    ========================== */
 
     impression: "",
 
+    scientistRemark: "",
+
   });
 
-  const updateField = (
+  /* ======================================
+      LOAD SAVED DATA
+  ====================================== */
 
-    field,
+  useEffect(() => {
 
-    value
+    if (
+      resultData &&
+      Object.keys(resultData).length
+    ) {
 
-  ) => {
+      setForm(prev => ({
+        ...prev,
+        ...resultData,
+      }));
+
+    }
+
+  }, [resultData]);
+
+/* ======================================
+    DEFAULT DATE/TIME
+====================================== */
+
+useEffect(() => {
+
+  const now = new Date()
+    .toISOString()
+    .slice(0, 16);
+
+  setForm(prev => ({
+    ...prev,
+    receivedDate: prev.receivedDate || now,
+    processedDate: prev.processedDate || now,
+    examinedDate: prev.examinedDate || now,
+  }));
+
+}, []);
+
+  /* ======================================
+      UPDATE FIELD
+  ====================================== */
+
+  const updateField = (field, value) => {
 
     const updated = {
 
@@ -70,647 +169,874 @@ export default function SFAForm({
 
     };
 
-    const autoReport =
+    setForm(updated);
 
-      generateComment(
-
-        updated
-
-      );
-
-    updated.comment =
-
-      autoReport.comment;
-
-    updated.impression =
-
-      autoReport.impression;
-
-    setForm(
-
-      updated
-
-    );
-
-    setResultData(
-
-      updated
-
-    );
+    setResultData(updated);
 
   };
 
-  const generateComment = (
+  /* ======================================
+      SAFE NUMBER
+  ====================================== */
 
-    data
+  const num = (value) => {
 
-  ) => {
+    const n = parseFloat(value);
 
-    const parasites = [];
-
-    if (
-
-      data.ova !== "" &&
-
-      data.ova !== "Nil"
-
-    ) {
-
-      parasites.push(
-
-        data.ova
-
-      );
-
-    }
-
-    if (
-
-      data.cysts !== "" &&
-
-      data.cysts !== "Nil"
-
-    ) {
-
-      parasites.push(
-
-        data.cysts
-
-      );
-
-    }
-
-    if (
-
-      data.trophozoites !== "" &&
-
-      data.trophozoites !== "Nil"
-
-    ) {
-
-      parasites.push(
-
-        data.trophozoites
-
-      );
-
-    }
-
-    if (
-
-      data.helminths !== "" &&
-
-      data.helminths !== "Nil"
-
-    ) {
-
-      parasites.push(
-
-        data.helminths
-
-      );
-
-    }
-
-    if (
-
-      parasites.length > 0
-
-    ) {
-
-      return {
-
-        comment:
-
-          `Parasitic elements detected: ${parasites.join(", ")}.`,
-
-        impression:
-
-          "Intestinal parasitic infestation present.",
-
-      };
-
-    }
-
-    if (
-
-      data.occultBlood ===
-
-      "Positive"
-
-    ) {
-
-      return {
-
-        comment:
-
-          "Occult blood detected in stool.",
-
-        impression:
-
-          "Further gastrointestinal evaluation is recommended.",
-
-      };
-
-    }
-
-    if (
-
-      data.reducingSubstance ===
-
-      "Positive"
-
-    ) {
-
-      return {
-
-        comment:
-
-          "Reducing substances detected.",
-
-        impression:
-
-          "Possible carbohydrate malabsorption syndrome.",
-
-      };
-
-    }
-
-    return {
-
-      comment:
-
-        "No significant abnormality detected.",
-
-      impression:
-
-        "Stool analysis findings are within normal limits.",
-
-    };
+    return isNaN(n) ? null : n;
 
   };
+
+  /* ======================================
+      NORMAL / ABNORMAL CSS
+  ====================================== */
+
+  const getInputClass = (field) => {
+
+    switch (field) {
+
+      case "volume":
+        return num(form.volume) !== null &&
+          num(form.volume) < 1.4
+          ? "abnormal"
+          : "";
+
+      case "ph":
+        return num(form.ph) !== null &&
+          num(form.ph) < 7.2
+          ? "abnormal"
+          : "";
+
+      case "spermCount":
+        return num(form.spermCount) !== null &&
+          num(form.spermCount) < 16
+          ? "abnormal"
+          : "";
+
+      case "totalSpermNumber":
+        return num(form.totalSpermNumber) !== null &&
+          num(form.totalSpermNumber) < 39
+          ? "abnormal"
+          : "";
+
+      case "totalMotility":
+        return num(form.totalMotility) !== null &&
+          num(form.totalMotility) < 42
+          ? "abnormal"
+          : "";
+
+      case "progressiveMotility":
+        return num(form.progressiveMotility) !== null &&
+          num(form.progressiveMotility) < 30
+          ? "abnormal"
+          : "";
+
+      case "normalMorphology":
+        return num(form.normalMorphology) !== null &&
+          num(form.normalMorphology) < 4
+          ? "abnormal"
+          : "";
+
+      case "vitality":
+        return num(form.vitality) !== null &&
+          num(form.vitality) < 54
+          ? "abnormal"
+          : "";
+
+      case "wbc":
+        return num(form.wbc) !== null &&
+          num(form.wbc) > 1
+          ? "abnormal"
+          : "";
+
+      default:
+        return "";
+
+    }
+
+  };
+
+  /* ======================================
+      VALIDATION
+  ====================================== */
+
+  const motilityTotal =
+
+    (num(form.progressiveMotility) || 0) +
+
+    (num(form.nonProgressiveMotility) || 0) +
+
+    (num(form.immotile) || 0);
+
+  const gradeTotal =
+
+    (num(form.gradeA) || 0) +
+
+    (num(form.gradeB) || 0) +
+
+    (num(form.gradeC) || 0) +
+
+    (num(form.gradeD) || 0);
+
+  /* ======================================
+      AUTO IMPRESSION
+  ====================================== */
+
+  useEffect(() => {
+
+    const findings = [];
+
+    const count = num(form.spermCount);
+
+    const total = num(form.totalSpermNumber);
+
+    const prog = num(form.progressiveMotility);
+
+    const morph = num(form.normalMorphology);
+
+    const vitality = num(form.vitality);
+
+    const volume = num(form.volume);
+
+    if (volume !== null && volume < 1.4) {
+
+      findings.push("Hypospermia");
+
+    }
+
+    if (count === 0) {
+
+      findings.push("Azoospermia");
+
+    }
+
+    else {
+
+      if (count !== null && count < 16)
+
+        findings.push("Oligozoospermia");
+
+      if (total !== null && total < 39)
+
+        findings.push("Low Total Sperm Number");
+
+      if (prog !== null && prog < 30)
+
+        findings.push("Asthenozoospermia");
+
+      if (morph !== null && morph < 4)
+
+        findings.push("Teratozoospermia");
+
+      if (vitality !== null && vitality < 54)
+
+        findings.push("Necrozoospermia");
+
+    }
+
+    if (
+
+      count !== null &&
+      count > 0 &&
+      count < 16 &&
+      prog !== null &&
+      prog < 30 &&
+      morph !== null &&
+      morph < 4
+
+    ) {
+
+      findings.length = 0;
+
+      findings.push(
+
+        "Oligoasthenoteratozoospermia (OAT Syndrome)"
+
+      );
+
+    }
+
+    if (findings.length === 0) {
+
+      findings.push("Normozoospermia");
+
+    }
+
+    const report = findings.join(", ");
+
+    if (report !== form.impression) {
+
+      setForm(prev => ({
+
+        ...prev,
+
+        impression: report,
+
+      }));
+
+      setResultData(prev => ({
+
+        ...prev,
+
+        impression: report,
+
+      }));
+
+    }
+
+  }, [
+
+    form.volume,
+
+    form.spermCount,
+
+    form.totalSpermNumber,
+
+    form.progressiveMotility,
+
+    form.normalMorphology,
+
+    form.vitality,
+
+  ]);
+
+  /* ======================================
+      AUTO SCIENTIST REMARK
+  ====================================== */
+
+  useEffect(() => {
+
+    const remarks = [];
+
+    if (num(form.volume) < 1.4)
+      remarks.push("Low semen volume.");
+
+    if (num(form.ph) < 7.2)
+      remarks.push("Acidic semen.");
+
+    if (num(form.liquefactionTime) > 60)
+      remarks.push("Delayed liquefaction.");
+
+    if (form.viscosity === "Increased")
+      remarks.push("Hyperviscosity noted.");
+
+    if (
+      form.agglutination &&
+      form.agglutination !== "Absent"
+    )
+      remarks.push("Sperm agglutination present.");
+
+    if (num(form.wbc) > 1)
+      remarks.push(
+        "Leukocytospermia present."
+      );
+
+    if (form.fructose === "Absent")
+      remarks.push(
+        "Absent seminal fructose."
+      );
+
+    const report = remarks.join(" ");
+
+    if (report !== form.scientistRemark) {
+
+      setForm(prev => ({
+
+        ...prev,
+
+        scientistRemark: report,
+
+      }));
+
+      setResultData(prev => ({
+
+        ...prev,
+
+        scientistRemark: report,
+
+      }));
+
+    }
+
+  }, [
+
+    form.volume,
+
+    form.ph,
+
+    form.liquefactionTime,
+
+    form.viscosity,
+
+    form.agglutination,
+
+    form.wbc,
+
+    form.fructose,
+
+  ]);
+
+  /* ======================================
+      RENDER INPUT ROW
+  ====================================== */
+
+  const renderInputRows = (rows) =>
+
+    rows.map(([label, key]) => (
+
+      <tr key={key}>
+
+        <td>{label}</td>
+
+        <td>
+
+          <input
+  type={
+    [
+      "collectionDate",
+      "receivedDate",
+      "processedDate",
+      "examinedDate",
+    ].includes(key)
+      ? "datetime-local"
+      : "text"
+  }
+  className={getInputClass(key)}
+  value={form[key]}
+  onChange={(e) =>
+    updateField(
+      key,
+      e.target.value
+    )
+  }
+/>
+
+        </td>
+
+      </tr>
+
+    ));
+
+  /* ======================================
+      RENDER SELECT ROW
+  ====================================== */
+
+  const renderSelectRows = (rows) =>
+
+    rows.map(([label, key, options]) => (
+
+      <tr key={key}>
+
+        <td>{label}</td>
+
+        <td>
+
+          <select
+            value={form[key]}
+            onChange={(e) =>
+              updateField(
+                key,
+                e.target.value
+              )
+            }
+          >
+
+            <option value="">
+              Select
+            </option>
+
+            {options.map(option => (
+
+              <option
+                key={option}
+                value={option}
+              >
+                {option}
+              </option>
+
+            ))}
+
+          </select>
+
+        </td>
+
+      </tr>
+
+    ));
+
+  /* ======================================
+      JSX CONTINUES IN PART 2
+  ====================================== */
 
   return (
 
-    <div>
+<div className="sfa-form">
+
+  <h3>Seminal Fluid Analysis (SFA)</h3>
+
+  {/* ======================================
+      SPECIMEN INFORMATION
+  ====================================== */}
+
+  <h4>Specimen Information</h4>
+
+  <table className="result-table">
+    <tbody>
+
+      {renderInputRows([
+        ["Collection Date / Time", "collectionDate"],
+        ["Received Date / Time", "receivedDate"],
+        ["Processed Date / Time", "processedDate"],
+        ["Examined Date / Time", "examinedDate"],
+        ["Patient Age (Years)", "patientAge"],
+        ["Days of Abstinence", "abstinenceDays"],
+        ["Container Type", "containerType"],
+      ])}
+
+      {renderSelectRows([
+        [
+          "Method of Collection",
+          "collectionMethod",
+          [
+            "Masturbation",
+            "Coitus Interruptus",
+            "Special Condom",
+            "Other",
+          ],
+        ],
+
+        [
+          "Sample Complete",
+          "sampleComplete",
+          [
+            "Yes",
+            "No",
+          ],
+        ],
+      ])}
+
+    </tbody>
+  </table>
+
+  {/* ======================================
+      PHYSICAL EXAMINATION
+  ====================================== */}
+
+  <h4>Physical Examination</h4>
+
+  <table className="result-table">
+
+    <tbody>
+
+      {renderInputRows([
+        ["Volume (mL)", "volume"],
+        ["pH", "ph"],
+        ["Liquefaction Time (Minutes)", "liquefactionTime"],
+      ])}
+
+      {renderSelectRows([
+
+        [
+          "Colour",
+          "colour",
+          [
+            "Grey Opalescent",
+            "Grey White",
+            "Whitish",
+            "Yellowish",
+            "Brownish",
+            "Reddish",
+          ],
+        ],
+
+        [
+          "Appearance",
+          "appearance",
+          [
+            "Normal",
+            "Turbid",
+            "Clear",
+            "Blood Stained",
+          ],
+        ],
+
+        [
+          "Viscosity",
+          "viscosity",
+          [
+            "Normal",
+            "Increased",
+            "Highly Increased",
+            "Decreased",
+          ],
+        ],
+
+        [
+          "Fructose",
+          "fructose",
+          [
+            "Present",
+            "Absent",
+          ],
+        ],
 
-      <h3>
+      ])}
 
-        Stool Analysis (SFA)
+    </tbody>
 
-      </h3>
+  </table>
 
-      {/* ======================
-          MACROSCOPY
-      ====================== */}
+  {/* ======================================
+      SPERM ANALYSIS
+  ====================================== */}
 
-      <h4>
+  <h4>Sperm Analysis</h4>
 
-        Macroscopy
+  <table className="result-table">
 
-      </h4>
+    <tbody>
+
+      {renderInputRows([
 
-      <table className="result-table">
+        [
+          "Sperm Concentration (million/mL)",
+          "spermCount",
+        ],
 
-        <tbody>
+        [
+          "Total Sperm Number (million/ejaculate)",
+          "totalSpermNumber",
+        ],
 
-          <tr>
+        [
+          "Total Motility (%)",
+          "totalMotility",
+        ],
+
+        [
+          "Progressive Motility (%)",
+          "progressiveMotility",
+        ],
+
+        [
+          "Non-Progressive Motility (%)",
+          "nonProgressiveMotility",
+        ],
+
+        [
+          "Immotile (%)",
+          "immotile",
+        ],
+
+        [
+          "Vitality (%)",
+          "vitality",
+        ],
 
-            <td>
+        [
+          "Normal Morphology (%)",
+          "normalMorphology",
+        ],
 
-              Colour
+      ])}
+
+    </tbody>
 
-            </td>
+  </table>
+
+  {/* ======================================
+      MOTILITY VALIDATION
+  ====================================== */}
 
-            <td>
+  <div
+    className={
+      motilityTotal === 100
+        ? "validation-success"
+        : "validation-error"
+    }
+  >
+    <strong>
+      Motility Total:
+    </strong>{" "}
+    {motilityTotal}%{" "}
+    {motilityTotal === 100
+      ? "✓"
+      : "(Should equal 100%)"}
+  </div>
 
-              <select
+  {/* ======================================
+      SPERM GRADING
+  ====================================== */}
 
-                value={
+  <h4>Sperm Motility Grade (Optional)</h4>
 
-                  form.colour
+  <table className="result-table">
 
-                }
+    <tbody>
 
-                onChange={(e)=>
+      {renderInputRows([
 
-                  updateField(
+        [
+          "Grade A (%)",
+          "gradeA",
+        ],
+
+        [
+          "Grade B (%)",
+          "gradeB",
+        ],
+
+        [
+          "Grade C (%)",
+          "gradeC",
+        ],
+
+        [
+          "Grade D (%)",
+          "gradeD",
+        ],
+
+      ])}
 
-                    "colour",
+    </tbody>
+
+  </table>
+
+  <div
+    className={
+      gradeTotal === 100
+        ? "validation-success"
+        : "validation-error"
+    }
+  >
+    <strong>
+      Grade Total:
+    </strong>{" "}
+    {gradeTotal}%{" "}
+    {gradeTotal === 100
+      ? "✓"
+      : "(Should equal 100%)"}
+  </div>
+
+  {/* ======================================
+      MORPHOLOGY DEFECTS
+  ====================================== */}
+
+  <h4>Morphology Defects</h4>
+
+  <table className="result-table">
+
+    <tbody>
+
+      {renderInputRows([
+
+        [
+          "Head Defects (%)",
+          "headDefects",
+        ],
+
+        [
+          "Midpiece Defects (%)",
+          "midpieceDefects",
+        ],
+
+        [
+          "Tail Defects (%)",
+          "tailDefects",
+        ],
+
+      ])}
+
+    </tbody>
+
+  </table>
 
-                    e.target.value
+  {/* ======================================
+      MICROSCOPY
+      (Continues in Part 3)
+  ====================================== */}
 
-                  )
+  <h4>Microscopy</h4>
 
-                }
+  <table className="result-table">
 
-              >
+    <tbody>
 
-                <option value="">
+      {renderInputRows([
+        ["Pus Cells (/HPF)", "pusCells"],
+        ["WBC (×10⁶/mL)", "wbc"],
+        ["Red Blood Cells", "rbc"],
+        ["Epithelial Cells", "epithelialCells"],
+        ["Round Cells", "roundCells"],
+        ["Yeast Cells", "yeastCells"],
+        ["Aggregation", "aggregation"],
+        ["Debris", "debris"],
+        ["Others", "others"],
+      ])}
 
-                  Select
+      {renderSelectRows([
+        [
+          "Agglutination",
+          "agglutination",
+          [
+            "Absent",
+            "Mild",
+            "Moderate",
+            "Marked",
+          ],
+        ],
+      ])}
 
-                </option>
+    </tbody>
 
-                <option>
+  </table>
 
-                  Brown
+  {/* ======================================
+      IMPRESSION
+  ====================================== */}
 
-                </option>
+  <h4>Laboratory Impression</h4>
 
-                <option>
+  <textarea
+    className="comment-box"
+    rows={4}
+    value={form.impression}
+    onChange={(e) =>
+      updateField(
+        "impression",
+        e.target.value
+      )
+    }
+    placeholder="Automatically generated (editable)"
+  />
 
-                  Yellow
+  {/* ======================================
+      SCIENTIST REMARK
+  ====================================== */}
 
-                </option>
+  <h4>Scientist Remark</h4>
 
-                <option>
+  <textarea
+    className="comment-box"
+    rows={4}
+    value={form.scientistRemark}
+    onChange={(e) =>
+      updateField(
+        "scientistRemark",
+        e.target.value
+      )
+    }
+    placeholder="Automatically generated (editable)"
+  />
 
-                  Green
+  {/* ======================================
+      WHO 2021 REFERENCE VALUES
+  ====================================== */}
 
-                </option>
+  <h4>WHO 2021 Lower Reference Values</h4>
 
-                <option>
+  <table className="reference-table">
 
-                  Black
+    <thead>
 
-                </option>
+      <tr>
 
-                <option>
+        <th>Parameter</th>
 
-                  Pale
+        <th>Reference</th>
 
-                </option>
+      </tr>
 
-                <option>
+    </thead>
 
-                  Red
+    <tbody>
 
-                </option>
+      <tr>
 
-              </select>
+        <td>Volume</td>
 
-            </td>
+        <td>≥ 1.4 mL</td>
 
-          </tr>
+      </tr>
 
-          <tr>
+      <tr>
 
-            <td>
+        <td>Sperm Concentration</td>
 
-              Consistency
+        <td>≥ 16 million/mL</td>
 
-            </td>
+      </tr>
 
-            <td>
+      <tr>
 
-              <select
+        <td>Total Sperm Number</td>
 
-                value={
+        <td>≥ 39 million</td>
 
-                  form.consistency
+      </tr>
 
-                }
+      <tr>
 
-                onChange={(e)=>
+        <td>Total Motility</td>
 
-                  updateField(
+        <td>≥ 42%</td>
 
-                    "consistency",
+      </tr>
 
-                    e.target.value
+      <tr>
 
-                  )
+        <td>Progressive Motility</td>
 
-                }
+        <td>≥ 30%</td>
 
-              >
+      </tr>
 
-                <option value="">
+      <tr>
 
-                  Select
+        <td>Vitality</td>
 
-                </option>
+        <td>≥ 54%</td>
 
-                <option>
+      </tr>
 
-                  Formed
+      <tr>
 
-                </option>
+        <td>Normal Morphology</td>
 
-                <option>
+        <td>≥ 4%</td>
 
-                  Semi-Formed
+      </tr>
 
-                </option>
+      <tr>
 
-                <option>
+        <td>pH</td>
 
-                  Loose
+        <td>≥ 7.2</td>
 
-                </option>
+      </tr>
 
-                <option>
+      <tr>
 
-                  Watery
+        <td>Leukocytes</td>
 
-                </option>
+        <td>&lt; 1 × 10⁶/mL</td>
 
-              </select>
+      </tr>
 
-            </td>
+      <tr>
 
-          </tr>
+        <td>Liquefaction</td>
 
-          <tr>
+        <td>Within 60 minutes</td>
 
-            <td>
+      </tr>
 
-              Mucus
+    </tbody>
 
-            </td>
+  </table>
 
-            <td>
+</div>
 
-              <select
-
-                value={
-
-                  form.mucus
-
-                }
-
-                onChange={(e)=>
-
-                  updateField(
-
-                    "mucus",
-
-                    e.target.value
-
-                  )
-
-                }
-
-              >
-
-                <option value="">
-
-                  Select
-
-                </option>
-
-                <option>
-
-                  Absent
-
-                </option>
-
-                <option>
-
-                  Present
-
-                </option>
-
-              </select>
-
-            </td>
-
-          </tr>
-
-          <tr>
-
-            <td>
-
-              Blood
-
-            </td>
-
-            <td>
-
-              <select
-
-                value={
-
-                  form.blood
-
-                }
-
-                onChange={(e)=>
-
-                  updateField(
-
-                    "blood",
-
-                    e.target.value
-
-                  )
-
-                }
-
-              >
-
-                <option value="">
-
-                  Select
-
-                </option>
-
-                <option>
-
-                  Absent
-
-                </option>
-
-                <option>
-
-                  Present
-
-                </option>
-
-              </select>
-
-            </td>
-
-          </tr>
-
-        </tbody>
-
-      </table>
-
-      {/* ======================
-          MICROSCOPY
-      ====================== */}
-
-      <h4>
-
-        Microscopy
-
-      </h4>
-
-      <table className="result-table">
-
-        <thead>
-
-          <tr>
-
-            <th>
-
-              Parameter
-
-            </th>
-
-            <th>
-
-              Result
-
-            </th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          {[
-            ["Pus Cells", "pusCells"],
-            ["RBC", "rbcs"],
-            ["Ova", "ova"],
-            ["Cysts", "cysts"],
-            ["Trophozoites", "trophozoites"],
-            ["Helminths", "helminths"],
-            ["Fat Globules", "fatGlobules"],
-            ["Reducing Substance", "reducingSubstance"],
-            ["Occult Blood", "occultBlood"],
-            ["Yeast Cells", "yeastCells"],
-            ["Parasites", "parasites"],
-
-          ].map(
-
-            ([label, key]) => (
-
-              <tr key={key}>
-
-                <td>
-
-                  {label}
-
-                </td>
-
-                <td>
-
-                  <input
-
-                    value={
-
-                      form[key]
-
-                    }
-
-                    onChange={(e)=>
-
-                      updateField(
-
-                        key,
-
-                        e.target.value
-
-                      )
-
-                    }
-
-                  />
-
-                </td>
-
-              </tr>
-
-            )
-
-          )}
-
-        </tbody>
-
-      </table>
-
-      {/* ======================
-          OTHERS
-      ====================== */}
-
-      <h4>
-
-        Others
-
-      </h4>
-
-      <textarea
-
-        value={
-
-          form.others
-
-        }
-
-        onChange={(e)=>
-
-          updateField(
-
-            "others",
-
-            e.target.value
-
-          )
-
-        }
-
-      />
-
-      {/* ======================
-          COMMENT
-      ====================== */}
-
-      <h4>
-
-        Laboratory Comment
-
-      </h4>
-
-      <textarea
-
-        className="comment-box"
-
-        value={
-
-          form.comment
-
-        }
-
-        readOnly
-
-      />
-
-      <h4>
-
-        Impression
-
-      </h4>
-
-      <textarea
-
-        className="comment-box"
-
-        value={
-
-          form.impression
-
-        }
-
-        readOnly
-
-      />
-
-    </div>
-
-  );
+);
 
 }

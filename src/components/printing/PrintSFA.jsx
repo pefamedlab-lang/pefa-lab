@@ -1,347 +1,104 @@
+/*
+ * PEFA ENTERPRISE LIS
+ * PrintSFA.jsx
+ *
+ * Dedicated special-result printer.
+ * This component renders the saved payload supplied by the selected
+ * report. It does NOT use PrintRouter, Supabase, grouping, or JSON dumps.
+ */
+
+import React from "react";
+import PEFAFormalReportShell from "./PEFAFormalReportShell";
+import { first, text, readable, fields, resultObject } from "./PrintSpecialUtils";
+
+const KNOWN_FIELDS = ['volume', 'colour', 'appearance', 'viscosity', 'ph', 'liquefaction', 'sperm_count', 'motility', 'progressive', 'non_progressive', 'morphology', 'pus_cells', 'rbc', 'epithelial_cells'];
+
 export default function PrintSFA({
-
-  results = [],
-
+  report = {},
+  rows,
+  printMode = "full",
+  clinicalHistory,
+  interpretation,
+  resultEnteredBy,
+  authorizedBy,
+  verificationId,
+  verificationStatus,
+  releasedBy,
+  releasedAt,
 }) {
-
-  /* ======================================================
-     NO RESULT
-  ====================================================== */
-
-  if (!results.length) {
-
-    return null;
-
-  }
-
-  const report = results[0];
-
-  let data =
-
-    report.result ||
-
-    report.result_data ||
-
-    {};
-
-  /* ======================================================
-     JSON SAFETY
-  ====================================================== */
-
-  if (typeof data === "string") {
-
-    try {
-
-      data = JSON.parse(data);
-
-    }
-
-    catch {
-
-      data = {};
-
-    }
-
-  }
-
-  /* ======================================================
-     SPECIMEN INFORMATION
-  ====================================================== */
-
-  const specimenInfo = [
-
-    ["Collection Date/Time", data.collectionDate],
-
-    ["Received Date/Time", data.receivedDate],
-
-    ["Processed Date/Time", data.processedDate],
-
-    ["Days of Abstinence", data.abstinenceDays],
-
-    ["Collection Method", data.collectionMethod],
-
-  ];
-
-  /* ======================================================
-     PHYSICAL EXAMINATION
-  ====================================================== */
-
-  const physical = [
-
-    ["Volume (mL)", data.volume],
-
-    ["Colour", data.colour],
-
-    ["Appearance", data.appearance],
-
-    ["pH", data.ph],
-
-    ["Viscosity", data.viscosity],
-
-    ["Liquefaction Time", data.liquefactionTime],
-
-  ];
-
-  /* ======================================================
-     SPERM ANALYSIS
-  ====================================================== */
-
-  const spermAnalysis = [
-
-    ["Sperm Count", data.spermCount],
-
-    ["Total Motility", data.totalMotility],
-
-    ["Progressive Motility", data.progressiveMotility],
-
-    ["Non-Progressive Motility", data.nonProgressiveMotility],
-
-    ["Immotile", data.immotile],
-
-    ["Normal Morphology", data.normalMorphology],
-
-    ["Vitality", data.vitality],
-
-  ];
-
-  /* ======================================================
-     MICROSCOPY
-  ====================================================== */
-
-  const microscopy = [
-
-    ["Pus Cells", data.pusCells],
-
-    ["Red Blood Cells", data.rbc],
-
-    ["Epithelial Cells", data.epithelialCells],
-
-    ["Yeast Cells", data.yeastCells],
-
-    ["Others", data.others],
-
-  ];
-
-  /* ======================================================
-     FOUR COLUMN TABLE
-  ====================================================== */
-
-  const renderFourColumnTable = (rows = []) => {
-
-    const cleaned = rows.filter(
-
-      ([, value]) =>
-
-        value !== undefined &&
-
-        value !== null &&
-
-        value !== ""
-
-    );
-
-    if (!cleaned.length) {
-
-      return null;
-
-    }
-
-    const paired = [];
-
-    for (
-
-      let i = 0;
-
-      i < cleaned.length;
-
-      i += 2
-
-    ) {
-
-      paired.push([
-
-        cleaned[i],
-
-        cleaned[i + 1] || ["", ""],
-
-      ]);
-
-    }
-
-    return (
-
-      <table className="premium-table compact-four-table">
-
-        <tbody>
-
-          {paired.map(([left, right], index) => (
-
-            <tr key={index}>
-
-              <td className="label-cell">
-
-                {left[0]}
-
-              </td>
-
-              <td>
-
-                {left[1] || "-"}
-
-              </td>
-
-              <td className="label-cell">
-
-                {right[0]}
-
-              </td>
-
-              <td>
-
-                {right[1] || ""}
-
-              </td>
-
-            </tr>
-
-          ))}
-
-        </tbody>
-
-      </table>
-
-    );
-
-  };
-
-  /* ======================================================
-     REPORT
-  ====================================================== */
-
-  return (
-
-    <div className="sfa-report">
-
-      {/* ==========================================
-          SPECIMEN INFORMATION
-      ========================================== */}
-
-      <div className="sub-test-title">
-
-        Specimen Information
-
-      </div>
-
-      {renderFourColumnTable(
-
-        specimenInfo
-
-      )}
-
-      {/* ==========================================
-          PHYSICAL EXAMINATION
-      ========================================== */}
-
-      <div className="sub-test-title">
-
-        Physical Examination
-
-      </div>
-
-      {renderFourColumnTable(
-
-        physical
-
-      )}
-
-      {/* ==========================================
-          SPERM ANALYSIS
-      ========================================== */}
-
-      <div className="sub-test-title">
-
-        Sperm Analysis
-
-      </div>
-
-      {renderFourColumnTable(
-
-        spermAnalysis
-
-      )}
-
-      {/* ==========================================
-          MICROSCOPY
-      ========================================== */}
-
-      <div className="sub-test-title">
-
-        Microscopy
-
-      </div>
-
-      {renderFourColumnTable(
-
-        microscopy
-
-      )}
-
-      {/* ==========================================
-          IMPRESSION
-      ========================================== */}
-
-      {data.impression && (
-
-        <div className="report-comment">
-
-          <h4>
-
-            Impression
-
-          </h4>
-
-          <p>
-
-            {data.impression}
-
-          </p>
-
-        </div>
-
-      )}
-
-      {/* ==========================================
-          SCIENTIST REMARK
-      ========================================== */}
-
-      {(data.scientistRemark || data.remark) && (
-
-        <div className="report-comment">
-
-          <h4>
-
-            Scientist Remark
-
-          </h4>
-
-          <p>
-
-            {
-
-              data.scientistRemark ||
-
-              data.remark
-
-            }
-
-          </p>
-
-        </div>
-
-      )}
-
-    </div>
-
+  const source = Array.isArray(rows)
+    ? rows
+    : (Array.isArray(report.items) ? report.items : [report]);
+
+  const row = source[0] || report;
+  const payload = resultObject(row);
+
+  const entries = Object.entries(payload).filter(([key, value]) =>
+    !["id","created_at","updated_at","status","result_type"].includes(key) &&
+    (typeof value !== "object" || value === null)
   );
 
+  const direct = fields(row, [
+    "id","created_at","updated_at","lab_number","labNumber",
+    "patient_id","patientId","test_id","master_test_id",
+    "result","result_value","result_numeric","value",
+    "result_data","resultData","result_flag","flag",
+    "reference_range","referenceRange","unit"
+  ]);
+
+  const displayed = entries.length
+    ? entries.map(([key, value]) => ({ name: key.replace(/[_-]+/g, " "), value: readable(value) }))
+    : direct.filter((x) => !["Department","Test Name"].includes(x.name));
+
+  return (
+    <PEFAFormalReportShell
+      report={report}
+      title={first(titleFallback(), report.test_name, report.testName, "SEMEN FLUID ANALYSIS")}
+      department={first(report.department, "Medical Laboratory Science")}
+      printMode={printMode}
+      clinicalHistory={clinicalHistory || first(report.clinical_history, report.clinicalHistory)}
+      interpretation={interpretation || first(report.interpretation, report.interpretation_text)}
+      resultEnteredBy={resultEnteredBy || first(report.result_entered_by, report.entered_by)}
+      authorizedBy={authorizedBy || first(report.authorized_by, report.authorizedBy)}
+      verificationId={verificationId || first(report.verification_id, report.verificationId)}
+      verificationStatus={verificationStatus || first(report.status)}
+      releasedBy={releasedBy || first(report.released_by, report.releasedBy)}
+      releasedAt={releasedAt || first(report.released_at, report.releasedAt)}
+    >
+      <table className="pefa-special-table">
+        <thead><tr><th>Examination / Parameter</th><th>Result</th></tr></thead>
+        <tbody>
+          {displayed.map((item, index) => (
+            <tr key={`${item.name}-${index}`}>
+              <td><b>{text(item.name)}</b></td>
+              <td>{text(item.value)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <style>{`
+        .pefa-special-table {
+          width:100%;
+          border-collapse:collapse;
+          font-size:9.5pt;
+        }
+        .pefa-special-table th,
+        .pefa-special-table td {
+          border:1px solid #222;
+          padding:2.5mm;
+          text-align:left;
+          vertical-align:top;
+        }
+        .pefa-special-table th {
+          font-size:8pt;
+          text-transform:uppercase;
+        }
+      `}</style>
+    </PEFAFormalReportShell>
+  );
+
+  function titleFallback() {
+    return "SEMEN FLUID ANALYSIS";
+  }
 }

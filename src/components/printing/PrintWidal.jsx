@@ -1,433 +1,104 @@
+/*
+ * PEFA ENTERPRISE LIS
+ * PrintWidal.jsx
+ *
+ * Dedicated special-result printer.
+ * This component renders the saved payload supplied by the selected
+ * report. It does NOT use PrintRouter, Supabase, grouping, or JSON dumps.
+ */
+
+import React from "react";
+import PEFAFormalReportShell from "./PEFAFormalReportShell";
+import { first, text, readable, fields, resultObject } from "./PrintSpecialUtils";
+
+const KNOWN_FIELDS = ['salmonella_typhi_o', 'salmonella_typhi_h', 'salmonella_paratyphi_a_h', 'salmonella_paratyphi_b_h', 'interpretation', 'remarks'];
+
 export default function PrintWidal({
-
-  results = [],
-
+  report = {},
+  rows,
+  printMode = "full",
+  clinicalHistory,
+  interpretation,
+  resultEnteredBy,
+  authorizedBy,
+  verificationId,
+  verificationStatus,
+  releasedBy,
+  releasedAt,
 }) {
-
-  /* ======================================================
-     NO RESULT
-  ====================================================== */
-
-  if (!results.length) {
-
-    return null;
-
-  }
-
-  const report = results[0];
-
-  let data =
-
-    report.result ||
-
-    report.result_data ||
-
-    {};
-
-  /* ======================================================
-     JSON SAFETY
-  ====================================================== */
-
-  if (typeof data === "string") {
-
-    try {
-
-      data = JSON.parse(data);
-
-    }
-
-    catch {
-
-      data = {};
-
-    }
-
-  }
-
-  /* ======================================================
-     RESULT STYLE
-  ====================================================== */
-
-  const getResultClass = (value = "") => {
-
-    const result =
-
-      String(value)
-
-        .toLowerCase()
-
-        .trim();
-
-    if (
-
-      result.includes("positive") ||
-
-      result.includes("reactive") ||
-
-      result.includes("detected")
-
-    ) {
-
-      return "flag-high";
-
-    }
-
-    if (
-
-      result.includes("negative") ||
-
-      result.includes("non reactive") ||
-
-      result.includes("not detected")
-
-    ) {
-
-      return "flag-normal";
-
-    }
-
-    return "result-value";
-
-  };
-
-  /* ======================================================
-     MALARIA PARASITE
-  ====================================================== */
-
-  const mpRDT =
-
-    data.mpRDT ||
-
-    data.malariaRDT ||
-
-    "";
-
-  const mpMicroscopy =
-
-    data.mpMicroscopy ||
-
-    data.malariaMicroscopy ||
-
-    "";
-
-  const showMP =
-
-    mpRDT ||
-
-    mpMicroscopy;
-
-  /* ======================================================
-     REPORT
-  ====================================================== */
-
-  return (
-
-    <div className="widal-report">
-
-      {/* ==========================================
-          WIDAL TABLE
-      ========================================== */}
-
-      <table className="premium-table widal-table">
-
-        <thead>
-
-          <tr>
-
-            <th>
-
-              Salmonella Species
-
-            </th>
-
-            <th>
-
-              O Antigen
-
-            </th>
-
-            <th>
-
-              H Antigen
-
-            </th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          <tr>
-
-            <td>
-
-              S. Typhi
-
-            </td>
-
-            <td>
-
-              {data.typhiO || "-"}
-
-            </td>
-
-            <td>
-
-              {data.typhiH || "-"}
-
-            </td>
-
-          </tr>
-
-          <tr>
-
-            <td>
-
-              S. Paratyphi A
-
-            </td>
-
-            <td>
-
-              {data.paraAO || "-"}
-
-            </td>
-
-            <td>
-
-              {data.paraAH || "-"}
-
-            </td>
-
-          </tr>
-
-          <tr>
-
-            <td>
-
-              S. Paratyphi B
-
-            </td>
-
-            <td>
-
-              {data.paraBO || "-"}
-
-            </td>
-
-            <td>
-
-              {data.paraBH || "-"}
-
-            </td>
-
-          </tr>
-
-          <tr>
-
-            <td>
-
-              S. Paratyphi C
-
-            </td>
-
-            <td>
-
-              {data.paraCO || "-"}
-
-            </td>
-
-            <td>
-
-              {data.paraCH || "-"}
-
-            </td>
-
-          </tr>
-
-        </tbody>
-
-      </table>
-
-      {/* ==========================================
-          WIDAL NOTE
-      ========================================== */}
-
-      <div className="widal-note">
-
-        Significant titre values should be interpreted
-        in conjunction with the patient's clinical
-        findings and previous baseline titres.
-
-      </div>
-
-      {/* ==========================================
-          MALARIA PARASITE
-      ========================================== */}
-
-      {showMP && (
-
-        <>
-
-          <div className="sub-test-title">
-
-            Malaria Parasite Test
-
-          </div>
-
-          <table className="premium-table mp-table">
-
-            <tbody>
-
-              {mpRDT && (
-
-                <tr>
-
-                  <td>
-
-                    MP RDT
-
-                  </td>
-
-                  <td>
-
-                    <span
-
-                      className={getResultClass(
-
-                        mpRDT
-
-                      )}
-
-                    >
-
-                      {mpRDT}
-
-                    </span>
-
-                  </td>
-
-                </tr>
-
-              )}
-
-              {mpMicroscopy && (
-
-                <tr>
-
-                  <td>
-
-                    MP Microscopy
-
-                  </td>
-
-                  <td>
-
-                    <span
-
-                      className={getResultClass(
-
-                        mpMicroscopy
-
-                      )}
-
-                    >
-
-                      {mpMicroscopy}
-
-                    </span>
-
-                  </td>
-
-                </tr>
-
-              )}
-
-            </tbody>
-
-          </table>
-
-        </>
-
-      )}
-
-      {/* ==========================================
-          INTERPRETATION
-      ========================================== */}
-
-      {data.interpretation && (
-
-        <div className="report-comment">
-
-          <h4>
-
-            Interpretation
-
-          </h4>
-
-          <p>
-
-            {data.interpretation}
-
-          </p>
-
-        </div>
-
-      )}
-
-      {/* ==========================================
-          IMPRESSION
-      ========================================== */}
-
-      {data.impression && (
-
-        <div className="report-comment">
-
-          <h4>
-
-            Impression
-
-          </h4>
-
-          <p>
-
-            {data.impression}
-
-          </p>
-
-        </div>
-
-      )}
-
-      {/* ==========================================
-          SCIENTIST REMARK
-      ========================================== */}
-
-      {(data.scientistRemark || data.remark) && (
-
-        <div className="report-comment">
-
-          <h4>
-
-            Scientist Remark
-
-          </h4>
-
-          <p>
-
-            {data.scientistRemark ||
-
-             data.remark}
-
-          </p>
-
-        </div>
-
-      )}
-
-    </div>
-
+  const source = Array.isArray(rows)
+    ? rows
+    : (Array.isArray(report.items) ? report.items : [report]);
+
+  const row = source[0] || report;
+  const payload = resultObject(row);
+
+  const entries = Object.entries(payload).filter(([key, value]) =>
+    !["id","created_at","updated_at","status","result_type"].includes(key) &&
+    (typeof value !== "object" || value === null)
   );
 
+  const direct = fields(row, [
+    "id","created_at","updated_at","lab_number","labNumber",
+    "patient_id","patientId","test_id","master_test_id",
+    "result","result_value","result_numeric","value",
+    "result_data","resultData","result_flag","flag",
+    "reference_range","referenceRange","unit"
+  ]);
+
+  const displayed = entries.length
+    ? entries.map(([key, value]) => ({ name: key.replace(/[_-]+/g, " "), value: readable(value) }))
+    : direct.filter((x) => !["Department","Test Name"].includes(x.name));
+
+  return (
+    <PEFAFormalReportShell
+      report={report}
+      title={first(titleFallback(), report.test_name, report.testName, "WIDAL TEST")}
+      department={first(report.department, "Microbiology / Serology")}
+      printMode={printMode}
+      clinicalHistory={clinicalHistory || first(report.clinical_history, report.clinicalHistory)}
+      interpretation={interpretation || first(report.interpretation, report.interpretation_text)}
+      resultEnteredBy={resultEnteredBy || first(report.result_entered_by, report.entered_by)}
+      authorizedBy={authorizedBy || first(report.authorized_by, report.authorizedBy)}
+      verificationId={verificationId || first(report.verification_id, report.verificationId)}
+      verificationStatus={verificationStatus || first(report.status)}
+      releasedBy={releasedBy || first(report.released_by, report.releasedBy)}
+      releasedAt={releasedAt || first(report.released_at, report.releasedAt)}
+    >
+      <table className="pefa-special-table">
+        <thead><tr><th>Examination / Parameter</th><th>Result</th></tr></thead>
+        <tbody>
+          {displayed.map((item, index) => (
+            <tr key={`${item.name}-${index}`}>
+              <td><b>{text(item.name)}</b></td>
+              <td>{text(item.value)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <style>{`
+        .pefa-special-table {
+          width:100%;
+          border-collapse:collapse;
+          font-size:9.5pt;
+        }
+        .pefa-special-table th,
+        .pefa-special-table td {
+          border:1px solid #222;
+          padding:2.5mm;
+          text-align:left;
+          vertical-align:top;
+        }
+        .pefa-special-table th {
+          font-size:8pt;
+          text-transform:uppercase;
+        }
+      `}</style>
+    </PEFAFormalReportShell>
+  );
+
+  function titleFallback() {
+    return "WIDAL TEST";
+  }
 }

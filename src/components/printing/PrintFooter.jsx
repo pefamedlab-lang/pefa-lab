@@ -4,7 +4,6 @@ export default function PrintFooter() {
   const {
     contact = {},
     branches = [],
-    services = [],
   } = companyProfile;
 
   const {
@@ -15,99 +14,114 @@ export default function PrintFooter() {
   } = contact;
 
   return (
-    <footer className="enterprise-footer">
-      {/* ======================================================
-          INFORMATION PANEL
-      ====================================================== */}
+    <div className="print-footer">
 
-      <div className="footer-panel">
+      <footer className="enterprise-footer">
 
-        {/* ==================================================
-            SERVICES
-        ================================================== */}
+        {/* =====================================================
+            INFORMATION PANEL
+        ===================================================== */}
 
-        <div className="footer-column">
+        <div className="footer-panel">
 
-          <h4>Our Services</h4>
+          {/* =================================================
+              LOCATIONS
+          ================================================= */}
 
-          <ul>
-            {services.map((service) => (
-              <li key={service}>
-                {service}
-              </li>
+          <div className="footer-column footer-address">
+
+            <div className="footer-title">
+
+              <span>Locations</span>
+
+              <div className="footer-title-line" />
+
+            </div>
+
+            {address && (
+              <p>
+                <strong>Head Office:</strong>{" "}
+                {address}
+              </p>
+            )}
+
+            {branches.map((branch) => (
+              <p key={branch.id}>
+                <strong>{branch.name}:</strong>{" "}
+                {Array.isArray(branch.address)
+                  ? branch.address.join(", ")
+                  : branch.address}
+              </p>
             ))}
-          </ul>
+
+          </div>
+
+          {/* =================================================
+              TELEPHONE
+          ================================================= */}
+
+          <div className="footer-column footer-phone">
+
+            <div className="footer-title">
+
+              <span>Telephone</span>
+
+              <div className="footer-title-line" />
+
+            </div>
+
+            {phones.length ? (
+              phones.map((phone) => (
+                <p key={phone}>{phone}</p>
+              ))
+            ) : (
+              <p>N/A</p>
+            )}
+
+          </div>
+
+          {/* =================================================
+              ONLINE
+          ================================================= */}
+
+          <div className="footer-column footer-contact">
+
+            <div className="footer-title">
+
+              <span>Online</span>
+
+              <div className="footer-title-line" />
+
+            </div>
+
+            {email && (
+              <p>{email}</p>
+            )}
+
+            {website && (
+              <p>{website}</p>
+            )}
+
+          </div>
 
         </div>
 
-        {/* ==================================================
-            LOCATIONS
-        ================================================== */}
+        {/* =====================================================
+            BRAND RIBBON
+        ===================================================== */}
 
-        <div className="footer-column">
+        <div className="footer-ribbon">
 
-          <h4>Locations</h4>
+          <span className="footer-blue" />
 
-          {address && (
-            <p>
-              <strong>Head Office:</strong>
-              <br />
-              {address}
-            </p>
-          )}
+          <span className="footer-red" />
 
-          {branches.map((branch) => (
-            <p key={branch.id}>
-              <strong>{branch.name}:</strong>
-              <br />
-              {Array.isArray(branch.address)
-                ? branch.address.join(", ")
-                : branch.address}
-            </p>
-          ))}
+          <span className="footer-green" />
 
         </div>
 
-        {/* ==================================================
-            CONTACT
-        ================================================== */}
+      </footer>
 
-        <div className="footer-column">
-
-          <h4>Contact</h4>
-
-          {phones.map((number) => (
-            <p key={number}>
-              {number}
-            </p>
-          ))}
-
-          {email && (
-            <p>{email}</p>
-          )}
-
-          {website && (
-            <p>{website}</p>
-          )}
-
-        </div>
-
-      </div>
-
-      {/* ======================================================
-          BRAND RIBBON
-      ====================================================== */}
-
-      <div className="footer-ribbon">
-
-        <span className="footer-blue" />
-
-        <span className="footer-red" />
-
-        <span className="footer-green" />
-
-      </div>
-
-    </footer>
+    </div>
   );
 }

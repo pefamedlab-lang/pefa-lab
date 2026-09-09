@@ -1,1404 +1,1534 @@
-import "../styles/registrationPortal.css";
+/* ==========================================================
+   PEFA LAB
+   REGISTRATION PORTAL
+   ----------------------------------------------------------
+   PATH:
+   src/pages/RegistrationPortal.jsx
+
+   PURPOSE:
+   - Register Laboratory / Ultrasound patients
+   - Generate registration numbers only on save
+   - Create Laboratory Result records immediately after
+     successful laboratory registration
+   - Create service order and service order items
+   - Redirect to Payment Portal
+
+   LABORATORY FLOW:
+
+   Registration
+        ↓
+   registrations
+        ↓
+   laboratory_results
+        ↓
+   LaboratoryResultEntry.jsx
+        ↓
+   Entered
+        ↓
+   LaboratoryResultDashboard.jsx
+        ↓
+   Verify → Authorize → Release
+
+   IMPORTANT:
+   - Fresh implementation
+   - Uses ../../services/laboratory/laboratoryResultService
+   - No old ResultDashboard
+   - No old ResultEntry
+   - No old testService
+   - No old resultService
+   ========================================================== */
+
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Save, Loader2 } from "lucide-react";
+
+import { supabase } from "../supabase";
+
+import PatientInformation from "../components/Registration/PatientInformation";
+import LaboratoryRegistrationPortal from "../components/Registration/LaboratoryRegistrationPortal";
+import UltrasoundRegistrationPortal from "../components/Registration/UltrasoundRegistrationPortal";
 
 import {
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+  createLaboratoryResultsFromRegistration,
+} from "../services/laboratory/laboratoryResultService";
 
-import {
-  useNavigate,
-} from "react-router-dom";
+import "../styles/registration.css";
 
-import {
-  Search,
-  UserPlus,
-  FlaskConical,
-  Phone,
-  Calendar,
-  User,
-  MapPin,
-  ClipboardList,
-} from "lucide-react";
+const calculateAgeFromDob = (dob) => {
+  if (!dob) return "";
 
-import {
-  supabase,
-} from "../supabase";
+  const birthDate = new Date(`${dob}T00:00:00`);
+  if (Number.isNaN(birthDate.getTime())) return "";
 
-import {
-  logActivity,
-} from "../utils/logActivity";
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
 
-export default function RegistrationPortal() {
+  const monthDifference = today.getMonth() - birthDate.getMonth();
 
-  /* =====================================================
-     NAVIGATION
-  ===================================================== */
-
-  const navigate =
-    useNavigate();
-
-  /* =====================================================
-     STATES
-  ===================================================== */
-
-  const [
-    loading,
-    setLoading,
-  ] = useState(false);
-
-  const [
-    referrals,
-    setReferrals,
-  ] = useState([]);
-
-  const [
-    masterTests,
-    setMasterTests,
-  ] = useState([]);
-
-  const [
-    searchTerm,
-    setSearchTerm,
-  ] = useState("");
-
-  const [
-    selectedTests,
-    setSelectedTests,
-  ] = useState([]);
-
-  const [form, setForm] =
-useState({
-
-  full_name: "",
-
-  sex: "",
-
-  age: "",
-
-  dob: "",
-
-  phone: "",
-
-  address: "",
-
-  branch: "",
-
-  referral_id: "",
-
-  referral_name: "",
-
-  referring_doctor: "",
-
-  clinical_history: "",
-
-  payment_type: "Patient",
-
-});
-
-  /* =====================================================
-     LOAD DATA
-  ===================================================== */
-
- useEffect(() => {
-
-  loadTests();
-
-  loadReferrals();
-
-}, []);
-
-useEffect(() => {
-
-  if (referrals.length > 0) {
-
-    const privateReferral =
-      referrals.find(
-        (r) => r.name === "Private"
-      );
-
-    if (privateReferral) {
-
-      setForm((prev) => ({
-        ...prev,
-        referral_id:
-          privateReferral.id,
-        referral_name:
-          privateReferral.name,
-      }));
-
-    }
-
+  if (
+    monthDifference < 0 ||
+    (monthDifference === 0 &&
+      today.getDate() < birthDate.getDate())
+  ) {
+    age -= 1;
   }
 
-}, [referrals]);
-  
-  /* =====================================================
-     LOAD TESTS
-  ===================================================== */
+  return age >= 0 && age <= 120 ? age : "";
+};
 
-  const loadTests =
+export default function RegistrationPortal() {
+  // ==========================================================
+  // NAVIGATION
+  // ==========================================================
+
+  const navigate = useNavigate();
+
+  // ==========================================================
+  // MODE
+  // ==========================================================
+
+  const [mode, setMode] = useState("Laboratory");
+
+  const [saving, setSaving] = useState(false);
+
+  const [loadingNumbers, setLoadingNumbers] =
+    useState(true);
+
+  // ==========================================================
+  // EMPTY FORM
+  // ==========================================================
+
+  const emptyForm = {
+    patient_id: "",
+
+    patient_name: "",
+    dob: "",
+    age: "",
+    sex: "",
+    branch: "",
+    branch_number: "",
+    phone: "",
+    address: "",
+
+    referral_id: "",
+    referral_name: "",
+    referral_code: "",
+    referral_type: "",
+    referral_contact: "",
+    referral_phone: "",
+    referral_commission_rate: 0,
+
+    referring_doctor: "",
+    clinical_history: "",
+
+    registration_number: "",
+    lab_number: "",
+
+    access_code: "",
+
+    // BILLING
+    total_amount: 0,
+    discount: 0,
+    amount_paid: 0,
+    balance: 0,
+    payment_status: "Pending",
+
+    tests: [],
+
+    // ULTRASOUND
+    scan_number: "",
+    accession_code: "",
+
+    scan_type: "",
+    amount: 0,
+
+    lmp: "",
+  };
+
+  const [form, setForm] = useState(emptyForm);
+
+  const [selectedTests, setSelectedTests] =
+    useState([]);
+
+  // ==========================================================
+  // DOB → AGE
+  // ----------------------------------------------------------
+  // Keep age synchronized in the parent registration state.
+  // This intentionally does NOT depend on the child component's
+  // formatted age value.
+  // ==========================================================
+  useEffect(() => {
+    const dob = String(form.dob ?? form.date_of_birth ?? "").trim();
+
+    if (!dob) {
+      setForm((previous) =>
+        previous.age === ""
+          ? previous
+          : { ...previous, age: "" }
+      );
+      return;
+    }
+
+    const calculatedAge = calculateAgeFromDob(dob);
+
+    setForm((previous) => {
+      const nextAge = calculatedAge === "" ? "" : String(calculatedAge);
+
+      if (
+        previous.dob === dob &&
+        String(previous.age ?? "") === nextAge
+      ) {
+        return previous;
+      }
+
+      return {
+        ...previous,
+        dob,
+        age: nextAge,
+      };
+    });
+  }, [form.dob, form.date_of_birth]);
+
+  // ==========================================================
+  // CALCULATE LABORATORY TOTAL
+  // ==========================================================
+
+  useEffect(() => {
+    const total = selectedTests.reduce(
+      (sum, test) => {
+        const quantity = Number(
+          test.quantity || 1
+        );
+
+        const price = Number(
+          test.price || 0
+        );
+
+        return sum + price * quantity;
+      },
+      0
+    );
+
+    const discount = Number(
+      form.discount || 0
+    );
+
+    const paid = Number(
+      form.amount_paid || 0
+    );
+
+    const calculatedBalance =
+      total - discount - paid;
+
+    let paymentStatus = "Pending";
+
+    if (
+      total > 0 &&
+      calculatedBalance <= 0
+    ) {
+      paymentStatus = "Paid";
+    } else if (paid > 0) {
+      paymentStatus = "Part Payment";
+    }
+
+    setForm((previous) => ({
+      ...previous,
+
+      tests: selectedTests,
+
+      total_amount: total,
+
+      balance:
+        calculatedBalance < 0
+          ? 0
+          : calculatedBalance,
+
+      payment_status: paymentStatus,
+    }));
+  }, [
+    selectedTests,
+    form.discount,
+    form.amount_paid,
+  ]);
+
+  // ==========================================================
+  // PREVIEW AUTO NUMBERS
+  //
+  // IMPORTANT:
+  // This function DOES NOT consume numbers.
+  //
+  // It calls:
+  // peek_registration_numbers()
+  //
+  // NOT:
+  // get_registration_numbers()
+  // ==========================================================
+
+  const loadRegistrationNumbers =
     async () => {
-
       try {
+        setLoadingNumbers(true);
 
         const {
           data,
           error,
-        } = await supabase
-
-          .from(
-            "master_tests"
-          )
-
-          .select(`
-            id,
-            department,
-            panel_name,
-            test_name,
-            test_type,
-            panel_price,
-            single_test_price,
-            active_status
-          `)
-
-          .eq(
-            "active_status",
-            "Active"
-          )
-
-          .order(
-            "test_name",
-            {
-              ascending:true,
-            }
-          );
+        } = await supabase.rpc(
+          "peek_registration_numbers"
+        );
 
         if (error) {
-
-          console.log(
-            error
-          );
-
-          return;
+          throw error;
         }
-
-        setMasterTests(
-          data || []
-        );
-
-      } catch (error) {
 
         console.log(
-          error
-        );
-      }
-    };
-
-const loadReferrals = async () => {
-
-  try {
-
-    const {
-      data,
-      error,
-    } = await supabase
-      .from("referrals")
-      .select("*")
-      .order("name");
-
-    console.log(
-      "Referrals Loaded:",
-      data
-    );
-
-    if (error) {
-      console.log(error);
-      return;
-    }
-
-    setReferrals(data || []);
-
-  } catch (error) {
-
-    console.log(error);
-
-  }
-};
-
-  /* =====================================================
-     AUTO AGE
-  ===================================================== */
-
-  useEffect(() => {
-
-    if (!form.dob)
-      return;
-
-    const birthDate =
-      new Date(
-        form.dob
-      );
-
-    const today =
-      new Date();
-
-    let age =
-      today.getFullYear() -
-
-      birthDate.getFullYear();
-
-    const month =
-      today.getMonth() -
-
-      birthDate.getMonth();
-
-    if (
-
-      month < 0 ||
-
-      (
-        month === 0 &&
-
-        today.getDate() <
-        birthDate.getDate()
-      )
-
-    ) {
-
-      age--;
-    }
-
-    setForm((prev) => ({
-
-      ...prev,
-
-      age:
-        age > 0
-          ? age
-          : "",
-    }));
-
-  }, [
-    form.dob,
-  ]);
-
-  /* =====================================================
-     HANDLE CHANGE
-  ===================================================== */
-
-  const handleChange =
-    (e) => {
-
-      setForm({
-
-        ...form,
-
-        [e.target.name]:
-          e.target.value,
-      });
-    };
-
-  /* =====================================================
-     FILTER TESTS
-  ===================================================== */
-
-  const filteredTests =
-    useMemo(() => {
-
-      return masterTests.filter(
-        (test) =>
-
-          test.test_name
-            ?.toLowerCase()
-            .includes(
-              searchTerm.toLowerCase()
-            ) ||
-
-          test.panel_name
-            ?.toLowerCase()
-            .includes(
-              searchTerm.toLowerCase()
-            )
-      );
-
-    }, [
-      masterTests,
-      searchTerm,
-    ]);
-
-  /* =====================================================
-     GET TEST PRICE
-  ===================================================== */
-
-  const getTestPrice =
-    (test) => {
-
-      return Number(
-
-        test.test_type ===
-        "Panel"
-
-          ? test.panel_price || 0
-
-          : test.single_test_price || 0
-      );
-    };
-
-  /* =====================================================
-     SELECT TEST
-  ===================================================== */
-
-  const selectTest =
-    (test) => {
-
-      const exists =
-        selectedTests.find(
-          (item) =>
-            item.id ===
-            test.id
+          "Preview registration numbers:",
+          data
         );
 
-      if (exists)
-        return;
-
-      setSelectedTests([
-
-        ...selectedTests,
-
-        {
-          ...test,
-
-          selected_price:
-            getTestPrice(
-              test
-            ),
-        },
-      ]);
-
-      setSearchTerm("");
-    };
-
-  /* =====================================================
-     REMOVE TEST
-  ===================================================== */
-
-  const removeTest =
-    (id) => {
-
-      setSelectedTests(
-
-        selectedTests.filter(
-          (item) =>
-            item.id !== id
-        )
-      );
-    };
-
-  /* =====================================================
-     TOTAL
-  ===================================================== */
-
-  const totalAmount =
-    selectedTests.reduce(
-
-      (
-        acc,
-        item
-      ) =>
-
-        acc +
-
-        Number(
-          item.selected_price || 0
-        ),
-
-      0
-    );
-
-  /* =====================================================
-     GENERATE LAB NUMBER
-  ===================================================== */
-
-  const generateLabNumber =
-    async () => {
-
-      const year =
-        new Date()
-          .getFullYear()
-          .toString()
-          .slice(-2);
-
-      const {
-        count,
-      } = await supabase
-
-        .from(
-          "registrations"
-        )
-
-        .select(
-          "*",
-          {
-            count:"exact",
-            head:true,
-          }
-        );
-
-      const serial =
-        String(
-          (count || 0) + 1
-        ).padStart(
-          3,
-          "0"
-        );
-
-      return `PMDS/${year}/${serial}`;
-    };
-
-  /* =====================================================
-     ACCESS CODE
-  ===================================================== */
-
-  const generateAccessCode =
-    () => {
-
-      const chars =
-        "ABCDEFGHJKLMNPQRSTUVWXYZ123456789";
-
-      let code =
-        "PEFA-";
-
-      for (
-        let i = 0;
-        i < 4;
-        i++
-      ) {
-
-        code +=
-          chars.charAt(
-
-            Math.floor(
-              Math.random() *
-              chars.length
-            )
+        if (!data) {
+          throw new Error(
+            "No registration numbers were returned."
           );
-      }
-
-      return code;
-    };
-
-  /* =====================================================
-     REGISTER
-  ===================================================== */
-
-  const handleRegistration =
-    async (
-      e
-    ) => {
-
-      e.preventDefault();
-
-      try {
-
-        setLoading(true);
-
-        if (
-          selectedTests.length === 0
-        ) {
-
-          alert(
-            "Select at least one test"
-          );
-
-          return;
         }
 
-        const labNumber =
-          await generateLabNumber();
+        const numbers = Array.isArray(data)
+          ? data[0]
+          : data;
 
-        const accessCode =
-          generateAccessCode();
+        if (!numbers) {
+          throw new Error(
+            "Registration numbers could not be loaded."
+          );
+        }
 
-console.log(
-  "SELECTED REFERRAL:",
-  form.referral_name
-);
+        setForm((previous) => ({
+          ...previous,
 
-        const payload = {
+          patient_id:
+            numbers.patient_id ??
+            "",
 
-          ...form,
+          registration_number:
+            numbers.registration_number ??
+            "",
 
           lab_number:
-            labNumber,
+            numbers.laboratory_number ??
+            "",
+
+          scan_number:
+            numbers.scan_number ??
+            "",
 
           access_code:
-            accessCode,
+            numbers.access_code ??
+            "",
+        }));
 
-          tests:
-            selectedTests,
+        return numbers;
+      } catch (error) {
+        console.error(
+          "loadRegistrationNumbers:",
+          error
+        );
+
+        alert(
+          error?.message ||
+            "Unable to load registration numbers."
+        );
+
+        return null;
+      } finally {
+        setLoadingNumbers(false);
+      }
+    };
+
+  // ==========================================================
+  // PREVIEW BRANCH NUMBER
+  // ----------------------------------------------------------
+  // Branch numbers are independent counters. Selecting a branch
+  // previews its next number without consuming it.
+  // ==========================================================
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadBranchNumber = async () => {
+      const branch = String(form.branch || "").trim();
+
+      if (!branch) {
+        setForm((previous) => ({
+          ...previous,
+          branch_number: "",
+        }));
+        return;
+      }
+
+      try {
+        const { data, error } = await supabase.rpc(
+          "peek_branch_number",
+          { p_branch: branch }
+        );
+
+        if (error) throw error;
+
+        if (!cancelled) {
+          setForm((previous) => ({
+            ...previous,
+            branch_number: data || "",
+          }));
+        }
+      } catch (error) {
+        console.error("loadBranchNumber:", error);
+
+        if (!cancelled) {
+          setForm((previous) => ({
+            ...previous,
+            branch_number: "",
+          }));
+        }
+      }
+    };
+
+    loadBranchNumber();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [form.branch]);
+
+  // ==========================================================
+  // PAGE LOAD
+  //
+  // IMPORTANT:
+  // ONLY PREVIEW NUMBERS HERE.
+  //
+  // NO NUMBER IS CONSUMED.
+  // ==========================================================
+
+  useEffect(() => {
+    loadRegistrationNumbers();
+  }, []);
+
+  // ==========================================================
+  // SAVE REGISTRATION
+  // ==========================================================
+
+  const handleSaveRegistration =
+    async () => {
+      // ========================================================
+      // PREVENT DOUBLE SUBMISSION
+      // ========================================================
+
+      if (saving) {
+        return;
+      }
+
+      // ========================================================
+      // BASIC VALIDATION
+      // ========================================================
+
+      // ========================================================
+      // DOB / AGE NORMALIZATION
+      // --------------------------------------------------------
+      // PatientInformation writes to `dob`, but we also accept
+      // `date_of_birth` defensively so this save routine remains
+      // compatible with any existing form state.
+      // ========================================================
+
+      const patientDob = String(
+        form.dob ?? form.date_of_birth ?? ""
+      ).trim();
+
+      if (!patientDob) {
+        alert("Date of birth is required.");
+        return;
+      }
+
+      const calculatedAge =
+        calculateAgeFromDob(patientDob);
+
+      if (calculatedAge === null) {
+        alert(
+          "Please enter a valid date of birth. DOB cannot be in the future and must represent an age between 0 and 120 years."
+        );
+        return;
+      }
+
+      // Keep the visible form synchronized, but DO NOT depend on
+      // this asynchronous state update for the database payload.
+      setForm((previous) => ({
+        ...previous,
+        dob: patientDob,
+        age: calculatedAge,
+      }));
+
+      // ========================================================
+      // MANDATORY PATIENT / REFERRAL INFORMATION
+      // ========================================================
+
+      const requiredFields = [
+        [form.patient_name, "Patient name is required."],
+        [form.branch, "Please select a branch."],
+        [patientDob, "Date of birth is required."],
+        [form.sex, "Please select patient sex."],
+        [
+          form.referral_id || form.referral_name,
+          "Please select a referral.",
+        ],
+        [
+          form.referring_doctor,
+          "Referring doctor is required.",
+        ],
+        [
+          form.clinical_history,
+          "Clinical history is required.",
+        ],
+      ];
+
+      const missingField = requiredFields.find(
+        ([value]) =>
+          value === null ||
+          value === undefined ||
+          String(value).trim() === ""
+      );
+
+      if (missingField) {
+        alert(missingField[1]);
+        return;
+      }
+
+      if (calculatedAge === "") {
+        alert("Please enter a valid date of birth.");
+        return;
+      }
+
+      // Keep the visible form synchronized immediately.
+      setForm((previous) => ({
+        ...previous,
+        dob: patientDob,
+        age: String(calculatedAge),
+      }));
+
+      // ========================================================
+      // LAB VALIDATION
+      // ========================================================
+
+      if (
+        (
+          mode === "Laboratory" ||
+          mode === "Both"
+        ) &&
+        selectedTests.length === 0
+      ) {
+        alert(
+          "Please select at least one laboratory test."
+        );
+        return;
+      }
+
+      // ========================================================
+      // ULTRASOUND VALIDATION
+      // ========================================================
+
+      if (
+        (
+          mode === "Ultrasound" ||
+          mode === "Both"
+        ) &&
+        !form.scan_type
+      ) {
+        alert(
+          "Please select an ultrasound scan type."
+        );
+        return;
+      }
+
+      try {
+        setSaving(true);
+
+        // ======================================================
+        // GENERATE / CONSUME NUMBERS
+        //
+        // IMPORTANT:
+        // This is the ONLY frontend call to
+        // get_registration_numbers().
+        // ======================================================
+
+        const {
+          data,
+          error,
+        } = await supabase.rpc(
+          "get_registration_numbers"
+        );
+
+        if (error) {
+          throw error;
+        }
+
+        if (!data) {
+          throw new Error(
+            "Unable to generate registration numbers."
+          );
+        }
+
+        const numbers = Array.isArray(data)
+          ? data[0]
+          : data;
+
+        if (!numbers) {
+          throw new Error(
+            "Registration numbers could not be generated."
+          );
+        }
+
+        console.log(
+          "Assigned registration numbers:",
+          numbers
+        );
+
+        // ======================================================
+        // ASSIGNED NUMBERS
+        // ======================================================
+
+        const registrationNumber =
+          numbers.registration_number;
+
+        const patientId =
+          numbers.patient_id;
+
+        const laboratoryNumber =
+          numbers.laboratory_number;
+
+        const scanNumber =
+          numbers.scan_number;
+
+        const accessCode =
+          numbers.access_code;
+
+        const selectedBranch = String(
+          form.branch || ""
+        ).trim();
+
+        if (!selectedBranch) {
+          throw new Error("Please select a branch.");
+        }
+
+        // Branch number is consumed only during a real save.
+        const {
+          data: generatedBranchNumber,
+          error: branchNumberError,
+        } = await supabase.rpc(
+          "generate_branch_number",
+          { p_branch: selectedBranch }
+        );
+
+        if (branchNumberError) {
+          throw branchNumberError;
+        }
+
+        if (!generatedBranchNumber) {
+          throw new Error(
+            "Unable to generate the branch number."
+          );
+        }
+
+        const branchNumber = generatedBranchNumber;
+
+        if (!registrationNumber) {
+          throw new Error(
+            "Registration number was not generated."
+          );
+        }
+
+        if (!patientId) {
+          throw new Error(
+            "Patient ID was not generated."
+          );
+        }
+
+        // ======================================================
+        // UPDATE DISPLAYED FORM
+        // ======================================================
+
+        setForm((previous) => ({
+          ...previous,
+
+          patient_id:
+            patientId,
+
+          registration_number:
+            registrationNumber,
+
+          lab_number:
+            laboratoryNumber || "",
+
+          branch_number:
+            branchNumber || "",
+
+          scan_number:
+            scanNumber || "",
+
+          access_code:
+            accessCode || "",
+        }));
+
+        // ======================================================
+        // SERVICE ORDER VARIABLES
+        // ======================================================
+
+        let serviceType = "";
+
+        let orderTotal = 0;
+
+        const orderItems = [];
+
+        let createdRegistrationId = null;
+
+        // ======================================================
+        // LABORATORY
+        // ======================================================
+
+        if (
+          mode === "Laboratory" ||
+          mode === "Both"
+        ) {
+          const laboratorySubtotal =
+            selectedTests.reduce(
+              (total, test) => {
+                const quantity =
+                  Number(
+                    test.quantity || 1
+                  );
+
+                const price =
+                  Number(
+                    test.price || 0
+                  );
+
+                return (
+                  total +
+                  price * quantity
+                );
+              },
+              0
+            );
+
+          // ====================================================
+          // LAB REGISTRATION
+          // ====================================================
+
+          const labPayload = {
+            registration_number:
+              registrationNumber,
+
+            patient_id:
+              patientId,
+
+            lab_number:
+              laboratoryNumber || null,
+
+            access_code:
+              accessCode || null,
+
+            full_name:
+              form.patient_name.trim(),
+
+            dob:
+              patientDob,
+
+            age:
+              String(calculatedAge),
+
+            sex:
+              form.sex,
+
+            branch:
+              form.branch.trim(),
+
+            branch_number:
+              branchNumber,
+
+            phone:
+              form.phone || "",
+
+            address:
+              form.address || "",
+
+            clinical_history:
+              form.clinical_history || "",
+
+            referring_doctor:
+              form.referring_doctor || "",
+
+            referral_id:
+              form.referral_id || null,
+
+            referral_name:
+              form.referral_name || "",
+
+            tests:
+              selectedTests,
+
+            total_amount:
+              laboratorySubtotal,
+
+            amount_paid:
+              0,
+
+            balance:
+              laboratorySubtotal,
+
+            discount:
+              0,
+
+            payment_status:
+              "Unpaid",
+
+            registration_status:
+              "Registered",
+
+            sample_status:
+              "Pending",
+
+            status:
+              "Active",
+          };
+
+          const {
+            data:
+              labRegistration,
+            error:
+              labError,
+          } = await supabase
+            .from("registrations")
+            .insert([
+              labPayload,
+            ])
+            .select()
+            .single();
+
+          if (labError) {
+            throw labError;
+          }
+
+          if (!labRegistration?.id) {
+            throw new Error(
+              "Laboratory registration was created but no registration ID was returned."
+            );
+          }
+
+          console.log(
+            "Laboratory registration saved:",
+            labRegistration
+          );
+
+          createdRegistrationId = labRegistration.id;
+
+          // ====================================================
+          // CREATE LABORATORY RESULT WORK QUEUE
+          //
+          // registrations
+          //       ↓
+          // laboratory_results
+          //       ↓
+          // LaboratoryResultEntry.jsx
+          // ====================================================
+
+          const createdLaboratoryResults =
+            await createLaboratoryResultsFromRegistration(
+              labRegistration
+            );
+
+          console.log(
+            "Laboratory result records created:",
+            createdLaboratoryResults
+          );
+
+          // ====================================================
+          // SERVICE TYPE
+          // ====================================================
+
+          serviceType =
+            mode === "Both"
+              ? "Laboratory + Ultrasound"
+              : "Laboratory";
+
+          // ====================================================
+          // ADD LAB TOTAL
+          // ====================================================
+
+          orderTotal +=
+            laboratorySubtotal;
+
+          // ====================================================
+          // ADD LAB ITEMS
+          // ====================================================
+
+          selectedTests.forEach(
+            (test) => {
+              const quantity =
+                Number(
+                  test.quantity || 1
+                );
+
+              const unitPrice =
+                Number(
+                  test.price || 0
+                );
+
+              orderItems.push({
+                service_name:
+                  test.name ||
+                  test.test_name ||
+                  test.test ||
+                  "Laboratory Test",
+
+                service_category:
+                  "Laboratory",
+
+                quantity,
+
+                unit_price:
+                  unitPrice,
+
+                total_price:
+                  unitPrice *
+                  quantity,
+              });
+            }
+          );
+        }
+
+        // ======================================================
+        // ULTRASOUND
+        // ======================================================
+
+        if (
+          mode === "Ultrasound" ||
+          mode === "Both"
+        ) {
+          const ultrasoundAmount =
+            Number(
+              form.amount || 0
+            );
+
+          // ====================================================
+          // ULTRASOUND REGISTRATION
+          // ====================================================
+
+          const ultrasoundPayload = {
+            scan_number:
+              scanNumber || null,
+
+            full_name:
+              form.patient_name.trim(),
+
+            dob:
+              patientDob,
+
+            age:
+              String(calculatedAge),
+
+            sex:
+              form.sex,
+
+            phone:
+              form.phone || "",
+
+            address:
+              form.address || "",
+
+            scan_type:
+              form.scan_type,
+
+            clinical_information:
+              form.clinical_history ||
+              "",
+
+            referring_doctor:
+              form.referring_doctor ||
+              "",
+
+            access_code:
+              accessCode || null,
+
+            amount:
+              ultrasoundAmount,
+
+            total_amount:
+              ultrasoundAmount,
+
+            amount_paid:
+              0,
+
+            balance:
+              ultrasoundAmount,
+
+            discount:
+              0,
+
+            payment_status:
+              "Unpaid",
+
+            payment_method:
+              "",
+
+            status:
+              "Registered",
+
+            priority:
+              "Routine",
+
+            notes:
+              "",
+
+            registered_by:
+              "",
+
+            branch:
+              form.branch.trim(),
+
+            branch_number:
+              branchNumber,
+          };
+
+          const {
+            data:
+              ultrasoundRegistration,
+            error:
+              ultrasoundError,
+          } = await supabase
+            .from(
+              "ultrasound_registrations"
+            )
+            .insert([
+              ultrasoundPayload,
+            ])
+            .select()
+            .single();
+
+          if (ultrasoundError) {
+            throw ultrasoundError;
+          }
+
+          console.log(
+            "Ultrasound registration saved:",
+            ultrasoundRegistration
+          );
+
+          if (!createdRegistrationId) {
+            createdRegistrationId = ultrasoundRegistration.id;
+          }
+
+          // ====================================================
+          // SERVICE TYPE
+          // ====================================================
+
+          serviceType =
+            mode === "Both"
+              ? "Laboratory + Ultrasound"
+              : "Ultrasound";
+
+          // ====================================================
+          // ADD ULTRASOUND TOTAL
+          // ====================================================
+
+          orderTotal +=
+            ultrasoundAmount;
+
+          // ====================================================
+          // ADD ULTRASOUND ITEM
+          // ====================================================
+
+          orderItems.push({
+            service_name:
+              form.scan_type ||
+              "Ultrasound Scan",
+
+            service_category:
+              "Ultrasound",
+
+            quantity:
+              1,
+
+            unit_price:
+              ultrasoundAmount,
+
+            total_price:
+              ultrasoundAmount,
+          });
+        }
+
+        // ======================================================
+        // FINAL SERVICE VALIDATION
+        // ======================================================
+
+        if (
+          orderItems.length === 0
+        ) {
+          throw new Error(
+            "No services were added to this registration."
+          );
+        }
+
+        if (
+          orderTotal < 0
+        ) {
+          throw new Error(
+            "Invalid registration total."
+          );
+        }
+
+        // ======================================================
+        // GENERATE SERVICE ORDER NUMBER
+        // ======================================================
+
+        const {
+          data: orderNumber,
+          error:
+            orderNumberError,
+        } = await supabase.rpc(
+          "next_order_number"
+        );
+
+        if (orderNumberError) {
+          throw orderNumberError;
+        }
+
+        const generatedOrderNumber =
+          Array.isArray(orderNumber)
+            ? orderNumber[0]
+            : orderNumber;
+
+        if (!generatedOrderNumber) {
+          throw new Error(
+            "Unable to generate service order number."
+          );
+        }
+
+        console.log(
+          "Generated service order number:",
+          generatedOrderNumber
+        );
+
+        // ======================================================
+        // SERVICE ORDER PAYLOAD
+        // ======================================================
+
+        const serviceOrderPayload = {
+          order_number:
+            generatedOrderNumber,
+
+          patient_id:
+            patientId,
+
+          patient_name:
+            form.patient_name.trim(),
+
+          branch:
+            form.branch.trim(),
+
+          branch_number:
+            branchNumber,
+
+          lab_number:
+            laboratoryNumber || null,
+
+          referral_id:
+            form.referral_id || null,
+
+          referral_name:
+            form.referral_name?.trim() ||
+            null,
+
+          referring_doctor:
+            form.referring_doctor?.trim() ||
+            null,
+
+          clinical_history:
+            form.clinical_history?.trim() ||
+            null,
+
+          service_type:
+            serviceType,
 
           total_amount:
-            totalAmount,
+            orderTotal,
+
+          amount_paid:
+            0,
+
+          balance:
+            orderTotal,
 
           payment_status:
             "Pending",
+
+          status:
+            "Pending",
         };
 
-const {
-  error,
-} = await supabase
-
-  .from(
-    "registrations"
-  )
-
-  .insert([
-    payload,
-  ]);
-
-if (error) {
-
-  console.log(error);
-
-  alert(error.message);
-
-  return;
-}
-
-/* =====================================
-   CREATE REFERRAL INVOICE
-===================================== */
-
-if (
-  form.referral_name
-) {
-
-  await supabase
-
-    .from(
-      "referral_invoices"
-    )
-
-    .insert([{
-
-      referral_name:
-        form.referral_name,
-
-      patient_name:
-        form.full_name,
-
-      lab_number:
-        labNumber,
-
-      tests:
-        selectedTests
-
-          .map(
-            test =>
-              test.test_name
-          )
-
-          .join(", "),
-
-      total_amount:
-        totalAmount,
-
-      discount_amount: 0,
-
-      final_amount:
-        totalAmount,
-
-      amount_paid: 0,
-
-      balance:
-        totalAmount,
-
-      payment_status:
-        "Outstanding",
-
-      payment_plan:
-        "Monthly",
-
-      invoice_period:
-        new Date()
-          .toISOString()
-          .split("T")[0],
-
-      generated_by:
-        "System",
-
-    }]);
-
-}
-
-/* ===================================
-   CONTINUE EXISTING CODE
-=================================== */
-
-alert(
-  "Registration Successful"
-);
-        if (error) {
-
-          console.log(
-            error
-          );
-
-          alert(
-            error.message
-          );
-
-          return;
-        }
-
-/* =====================================================
-   SAVE LOCAL REGISTRATION
-===================================================== */
-
-const storedPatients =
-
-  JSON.parse(
-    localStorage.getItem(
-      "pefa_registrations"
-    )
-  ) || [];
-
-storedPatients.push({
-
-  full_name:
-    form.full_name,
-
-  gender:
-    form.sex,
-
-  age:
-    form.age,
-
-  dob:
-    form.dob,
-
-  phone:
-    form.phone,
-
-  address:
-    form.address,
-
-  branch:
-    form.branch,
-
-  referral_name:
-   form.referral_name,
-
-  referring_doctor:
-    form.referring_doctor,
-
-  clinical_history:
-    form.clinical_history,
-
-  lab_number:
-    labNumber,
-
-  access_code:
-    accessCode,
-
-  tests:
-    selectedTests,
-
-});
-
-localStorage.setItem(
-
-  "pefa_registrations",
-
-  JSON.stringify(
-    storedPatients
-  )
-);
-
-        await logActivity({
-
-          action:
-            "Registered Patient",
-
-          module:
-            "Registration",
-
-          patientName:
-            form.full_name,
-
-          labNumber:
-            labNumber,
-        });
-
-        alert(
-          "Registration Successful"
+        console.log(
+          "Creating service order:",
+          serviceOrderPayload
         );
 
-localStorage.setItem(
-  "current_invoice",
-  JSON.stringify(
-    payload
-  )
-);
+        // ======================================================
+        // CREATE SERVICE ORDER
+        // ======================================================
 
-       localStorage.setItem(
-  "current_invoice",
-  JSON.stringify(
-    payload
-  )
-);
+        const {
+          data: createdOrder,
+          error:
+            orderError,
+        } = await supabase
+          .from("service_orders")
+          .insert([
+            serviceOrderPayload,
+          ])
+          .select()
+          .single();
 
-navigate(
-  "/payment-portal"
-);
+        if (orderError) {
+          throw orderError;
+        }
 
-      } catch (error) {
+        if (!createdOrder) {
+          throw new Error(
+            "Service order was not created."
+          );
+        }
+
+        if (!createdOrder.id) {
+          throw new Error(
+            "Service order was created but no order ID was returned."
+          );
+        }
 
         console.log(
+          "Service order created:",
+          createdOrder
+        );
+
+        // ======================================================
+        // CREATE SERVICE ORDER ITEMS
+        // ======================================================
+
+        const itemsToInsert =
+          orderItems.map(
+            (item) => ({
+              order_id:
+                createdOrder.id,
+
+              service_name:
+                item.service_name,
+
+              service_category:
+                item.service_category,
+
+              quantity:
+                item.quantity,
+
+              unit_price:
+                item.unit_price,
+
+              total_price:
+                item.total_price,
+            })
+          );
+
+        if (
+          itemsToInsert.length > 0
+        ) {
+          const {
+            data: savedItems,
+            error:
+              itemsError,
+          } = await supabase
+            .from(
+              "service_order_items"
+            )
+            .insert(
+              itemsToInsert
+            )
+            .select();
+
+          if (itemsError) {
+            throw itemsError;
+          }
+
+          console.log(
+            "Service order items created:",
+            savedItems
+          );
+        }
+
+        // ======================================================
+        // VERIFY ORDER ID
+        // ======================================================
+
+        const createdOrderId =
+          createdOrder.id;
+
+        if (!createdOrderId) {
+          throw new Error(
+            "Unable to continue to payment because the service order ID is missing."
+          );
+        }
+
+        // ======================================================
+        // WHATSAPP REGISTRATION NOTIFICATION
+        // ------------------------------------------------------
+        // Notification failure must NOT undo a successful
+        // registration. The Edge Function records the attempt.
+        // ======================================================
+
+        try {
+          const { data: whatsappData, error: whatsappError } =
+            await supabase.functions.invoke(
+              "send-registration-whatsapp",
+              {
+                body: {
+                  registration_id: createdRegistrationId,
+                  patient_name: form.patient_name.trim(),
+                  phone: form.phone || "",
+                  branch: form.branch.trim(),
+                  branch_number: branchNumber,
+                  registration_number: registrationNumber,
+                  lab_number: laboratoryNumber || "",
+                  access_code: accessCode || "",
+                  service_type: serviceType,
+                  tests: selectedTests.map(
+                    (test) =>
+                      test.name ||
+                      test.test_name ||
+                      test.test ||
+                      "Laboratory Test"
+                  ),
+                },
+              }
+            );
+
+          if (whatsappError) {
+            console.warn(
+              "Registration saved, but WhatsApp notification failed:",
+              whatsappError
+            );
+          } else {
+            console.log(
+              "WhatsApp registration notification:",
+              whatsappData
+            );
+          }
+        } catch (whatsappError) {
+          console.warn(
+            "Registration saved, but WhatsApp notification could not be sent:",
+            whatsappError
+          );
+        }
+
+        // ======================================================
+        // SUCCESS
+        // ======================================================
+
+        alert(
+          "Registration saved successfully. Proceeding to payment."
+        );
+
+        // ======================================================
+        // REDIRECT
+        // ======================================================
+
+        navigate(
+          `/payment-portal?order_id=${encodeURIComponent(
+            createdOrderId
+          )}`,
+          {
+            replace: true,
+          }
+        );
+
+      } catch (error) {
+        console.error(
+          "Registration failed:",
           error
         );
 
+        alert(
+          error?.message ||
+            "Unable to save registration."
+        );
       } finally {
-
-        setLoading(false);
+        setSaving(false);
       }
     };
 
+  // ==========================================================
+  // PAGE
+  // ==========================================================
+
   return (
+    <div className="registration-page">
 
-    <div className="dashboard-layout">
+      {/* ======================================================
+          HEADER
+      ====================================================== */}
 
-      <div className="dashboard-content">
+      <div className="registration-header">
+        <div>
+          <h1>
+            Patient Registration
+          </h1>
 
-        {/* =====================================================
-            HEADER
-        ===================================================== */}
-
-        <div className="registration-header">
-
-          <div>
-
-            <h1>
-              Registration Portal
-            </h1>
-
-            <p>
-              Enterprise Laboratory Registration System
-            </p>
-
-          </div>
-
+          <p>
+            Enterprise Laboratory &
+            Ultrasound Registration
+            Portal
+          </p>
         </div>
-
-        {/* =====================================================
-            FORM
-        ===================================================== */}
-
-        <form
-          onSubmit={
-            handleRegistration
-          }
-        >
-
-          {/* =====================================================
-              PATIENT INFORMATION
-          ===================================================== */}
-
-          <div className="registration-card">
-
-            <div className="section-title">
-
-              <UserPlus
-                size={20}
-              />
-
-              <h2>
-                Patient Information
-              </h2>
-
-            </div>
-
-            <div className="registration-grid">
-
-              <div className="form-group">
-
-                <label>
-                  Full Name
-                </label>
-
-                <div className="input-box">
-
-                  <User
-                    size={18}
-                  />
-
-                  <input
-                    type="text"
-                    name="full_name"
-                    value={
-                      form.full_name
-                    }
-                    onChange={
-                      handleChange
-                    }
-                    required
-                  />
-
-                </div>
-
-              </div>
-
-              <div className="form-group">
-
-                <label>
-                  Sex
-                </label>
-
-                <select
-                  name="sex"
-                  value={
-                    form.sex
-                  }
-                  onChange={
-                    handleChange
-                  }
-                  required
-                >
-
-                  <option value="">
-                    Select
-                  </option>
-
-                  <option>
-                    Male
-                  </option>
-
-                  <option>
-                    Female
-                  </option>
-
-                </select>
-
-              </div>
-
-              <div className="form-group">
-
-                <label>
-                  Date of Birth
-                </label>
-
-                <div className="input-box">
-
-                  <Calendar
-                    size={18}
-                  />
-
-                  <input
-                    type="date"
-                    name="dob"
-                    value={
-                      form.dob
-                    }
-                    onChange={
-                      handleChange
-                    }
-                  />
-
-                </div>
-
-              </div>
-
-              <div className="form-group">
-
-                <label>
-                  Age
-                </label>
-
-                <input
-                  type="text"
-                  value={
-                    form.age
-                  }
-                  readOnly
-                />
-
-              </div>
-
-              <div className="form-group">
-
-                <label>
-                  Phone
-                </label>
-
-                <div className="input-box">
-
-                  <Phone
-                    size={18}
-                  />
-
-                  <input
-                    type="text"
-                    name="phone"
-                    value={
-                      form.phone
-                    }
-                    onChange={
-                      handleChange
-                    }
-                    required
-                  />
-
-                </div>
-
-              </div>
-
-              <div className="form-group">
-
-                <label>
-                  Branch
-                </label>
-
-                <select
-                  name="branch"
-                  value={
-                    form.branch
-                  }
-                  onChange={
-                    handleChange
-                  }
-                  required
-                >
-
-                  <option value="">
-                    Select Branch
-                  </option>
-
-                  <option>
-                    Pakuro
-                  </option>
-
-                  <option>
-                    Mowe
-                  </option>
-
-                  <option>
-                    Orimerunmu
-                  </option>
-
-                  <option>
-                    Private
-                  </option>
-
-                </select>
-
-              </div>
-
-              <div className="form-group">
-
-                <label>
-                  Hospital / Clinic
-                </label>
-
-<select
-  name="referral_name"
-  value={form.referral_name}
- onChange={(e) => {
-
-  if (!e.target.value) {
-
-    setForm({
-      ...form,
-      referral_id: "",
-      referral_name: "",
-    });
-
-    return;
-  }
-
-  const referral =
-    JSON.parse(
-      e.target.value
-    );
-
-  setForm({
-    ...form,
-    referral_id:
-      referral.id,
-    referral_name:
-      referral.name,
-  });
-}}
->
-
-<option value="">
-  Select Referral
-</option>
-
-{referrals.map((item) => (
-  <option
-    key={item.id}
-    value={JSON.stringify({
-      id: item.id,
-      name: item.name,
-    })}
-  >
-    {item.name}
-  </option>
-))}
-
-</select>
-
-<p>
-  Selected:
-  {form.referral_name}
-</p>
-
-              </div>
-
-              <div className="form-group">
-
-                <label>
-                  Referring Doctor
-                </label>
-
-                <input
-                  type="text"
-                  name="referring_doctor"
-                  value={
-                    form.referring_doctor
-                  }
-                  onChange={
-                    handleChange
-                  }
-                />
-
-              </div>
-
-              <div className="form-group">
-
-                <label>
-                  Payment Type
-                </label>
-
-                <select
-                  name="payment_type"
-                  value={
-                    form.payment_type
-                  }
-                  onChange={
-                    handleChange
-                  }
-                >
-
-                  <option>
-                    Patient
-                  </option>
-
-                  <option>
-                    Referral
-                  </option>
-
-                  <option>
-                    HMO
-                  </option>
-
-                </select>
-
-              </div>
-
-            </div>
-
-            {/* ADDRESS */}
-
-            <div className="form-group full-width">
-
-              <label>
-                Address
-              </label>
-
-              <div className="input-box">
-
-                <MapPin
-                  size={18}
-                />
-
-                <input
-                  type="text"
-                  name="address"
-                  value={
-                    form.address
-                  }
-                  onChange={
-                    handleChange
-                  }
-                />
-
-              </div>
-
-            </div>
-
-            {/* CLINICAL HISTORY */}
-
-            <div className="form-group full-width">
-
-              <label>
-                Clinical History
-              </label>
-
-              <textarea
-                rows="4"
-                name="clinical_history"
-                value={
-                  form.clinical_history
-                }
-                onChange={
-                  handleChange
-                }
-              />
-
-            </div>
-
-          </div>
-
-          {/* =====================================================
-              TEST SELECTION
-          ===================================================== */}
-
-          <div className="registration-card">
-
-            <div className="section-title">
-
-              <FlaskConical
-                size={20}
-              />
-
-              <h2>
-                Test Selection
-              </h2>
-
-            </div>
-
-            {/* SEARCH */}
-
-            <div className="test-search">
-
-              <Search
-                size={18}
-              />
-
-              <input
-                type="text"
-                placeholder="Search CBC, LFT, EUCR..."
-                value={
-                  searchTerm
-                }
-                onChange={(e) =>
-                  setSearchTerm(
-                    e.target.value
-                  )
-                }
-              />
-
-            </div>
-
-            {/* SEARCH RESULTS */}
-
-            {
-              searchTerm ? (
-
-                filteredTests.length > 0 ? (
-
-                  <div className="test-grid">
-
-                    {
-                      filteredTests.map(
-                        (test) => (
-
-                          <div
-                            key={
-                              test.id
-                            }
-                            className="test-card"
-                            onClick={() =>
-                              selectTest(
-                                test
-                              )
-                            }
-                          >
-
-                            <h4>
-                              {
-                                test.test_name
-                              }
-                            </h4>
-
-                            <p>
-
-                              ₦
-
-                              {
-
-                                getTestPrice(
-                                  test
-                                ).toLocaleString()
-
-                              }
-
-                            </p>
-
-                          </div>
-                        )
-                      )
-                    }
-
-                  </div>
-
-                ) : (
-
-                  <div className="empty-text">
-
-                    No matching
-                    test found
-
-                  </div>
-                )
-
-              ) : (
-
-                <div className="empty-text">
-
-                  Search for a
-                  test to begin
-                  selection
-
-                </div>
+      </div>
+
+      {/* ======================================================
+          REGISTRATION TYPE
+      ====================================================== */}
+
+      <div className="registration-card">
+        <div className="form-group">
+
+          <label>
+            Registration Type
+          </label>
+
+          <select
+            value={mode}
+            onChange={(event) =>
+              setMode(
+                event.target.value
               )
             }
-
-            {/* SELECTED TESTS */}
-
-            <div className="selected-tests">
-
-              <div className="section-title small">
-
-                <ClipboardList
-                  size={18}
-                />
-
-                <h3>
-                  Selected Tests
-                </h3>
-
-              </div>
-
-              {
-                selectedTests.length === 0 ? (
-
-                  <p className="empty-text">
-                    No test selected
-                  </p>
-
-                ) : (
-
-                  selectedTests.map(
-                    (test) => (
-
-                      <div
-                        key={
-                          test.id
-                        }
-                        className="selected-item"
-                      >
-
-                        <span>
-
-                          {
-                            test.test_name
-                          }
-
-                        </span>
-
-                        <div>
-
-                          <strong>
-
-                            ₦
-
-                            {
-
-                              Number(
-                                test.selected_price
-                              ).toLocaleString()
-
-                            }
-
-                          </strong>
-
-                          <button
-                            type="button"
-                            onClick={() =>
-                              removeTest(
-                                test.id
-                              )
-                            }
-                          >
-
-                            ×
-
-                          </button>
-
-                        </div>
-
-                      </div>
-                    )
-                  )
-                )
-              }
-
-              {/* TOTAL */}
-
-              <div className="total-box">
-
-                <span>
-                  Total Amount
-                </span>
-
-                <h2>
-
-                  ₦
-
-                  {
-                    totalAmount.toLocaleString()
-                  }
-
-                </h2>
-
-              </div>
-
-            </div>
-
-          </div>
-
-          {/* =====================================================
-              SUBMIT
-          ===================================================== */}
-
-          <button
-            type="submit"
-            className="registration-btn"
+            disabled={saving}
           >
+            <option value="Laboratory">
+              Laboratory
+            </option>
 
-            {
-              loading
-                ? "Registering..."
-                : "Continue To Payment"
-            }
+            <option value="Ultrasound">
+              Ultrasound
+            </option>
 
-          </button>
+            <option value="Both">
+              Laboratory + Ultrasound
+            </option>
+          </select>
 
-        </form>
+        </div>
+      </div>
 
+      {/* ======================================================
+          LOADING NUMBERS
+      ====================================================== */}
+
+      {loadingNumbers && (
+        <div className="registration-card">
+          <p>
+            Loading registration
+            numbers...
+          </p>
+        </div>
+      )}
+
+      {/* ======================================================
+          PATIENT INFORMATION
+      ====================================================== */}
+
+      <PatientInformation
+        patient={form}
+        setPatient={setForm}
+        mode={mode}
+      />
+
+      {/* ======================================================
+          LABORATORY
+      ====================================================== */}
+
+      {(
+        mode === "Laboratory" ||
+        mode === "Both"
+      ) && (
+        <LaboratoryRegistrationPortal
+          form={form}
+          setForm={setForm}
+          selectedTests={
+            selectedTests
+          }
+          setSelectedTests={
+            setSelectedTests
+          }
+        />
+      )}
+
+      {/* ======================================================
+          ULTRASOUND
+      ====================================================== */}
+
+      {(
+        mode === "Ultrasound" ||
+        mode === "Both"
+      ) && (
+        <UltrasoundRegistrationPortal
+          form={form}
+          setForm={setForm}
+        />
+      )}
+
+      {/* ======================================================
+          SAVE BUTTON
+      ====================================================== */}
+
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "flex-end",
+          marginTop: 30,
+          marginBottom: 40,
+        }}
+      >
+        <button
+          type="button"
+          onClick={
+            handleSaveRegistration
+          }
+          disabled={
+            saving ||
+            loadingNumbers
+          }
+          className="primary-btn"
+          style={{
+            minWidth: 220,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: 8,
+          }}
+        >
+          {saving ? (
+            <>
+              <Loader2
+                size={18}
+                className="spin"
+              />
+
+              Saving...
+            </>
+          ) : (
+            <>
+              <Save size={18} />
+
+              Save Registration
+            </>
+          )}
+        </button>
       </div>
 
     </div>

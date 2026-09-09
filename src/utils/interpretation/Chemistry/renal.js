@@ -1,10 +1,29 @@
 import {
   createInterpretation,
   getNumericResult,
+  getScientistOverride,
 } from "../helpers";
 
 /* ==========================================================
    RENAL FUNCTION INTERPRETATION ENGINE
+
+   Tests Supported
+   ----------------------------------------------------------
+   • Urea
+   • Creatinine
+   • eGFR
+   • Uric Acid
+   • BUN (optional)
+
+   Detects
+   ----------------------------------------------------------
+   • Normal renal function
+   • Reduced renal function
+   • Acute kidney injury (possible)
+   • Chronic kidney disease (possible)
+   • Azotaemia
+   • Hyperuricaemia
+   • Hypouricaemia
 ========================================================== */
 
 export default function interpretRenal(
@@ -14,6 +33,21 @@ export default function interpretRenal(
   resultMap = {}
 
 ) {
+
+  /* ======================================================
+     SCIENTIST OVERRIDE
+  ====================================================== */
+
+  const override =
+    getScientistOverride(report);
+
+  if (override) {
+    return override;
+  }
+
+  /* ======================================================
+     RESULTS
+  ====================================================== */
 
   const urea =
     getNumericResult(
@@ -37,13 +71,33 @@ export default function interpretRenal(
     getNumericResult(
       resultMap,
       "eGFR"
+    ) ??
+    getNumericResult(
+      resultMap,
+      "Estimated GFR"
     );
 
   const uricAcid =
     getNumericResult(
       resultMap,
       "Uric Acid"
+    ) ??
+    getNumericResult(
+      resultMap,
+      "Urate"
     );
+
+  /* ======================================================
+     REFERENCE LIMITS
+
+     (May later be loaded dynamically from the LIS)
+  ====================================================== */
+
+  const UREA_ULN = 7.5;
+  const CREATININE_ULN = 110;
+  const EGFR_LOW = 60;
+  const URIC_ACID_ULN = 420;
+  const URIC_ACID_LOW = 150;
 
   let interpretation = "";
 
@@ -51,265 +105,332 @@ export default function interpretRenal(
 
   let recommendation = "";
 
-  /* ======================================================
-     UREA
-  ====================================================== */
+/* ======================================================
+   DERIVED FLAGS
+====================================================== */
 
-  if (urea !== null) {
+const ureaHigh =
+  urea !== null &&
+  urea > UREA_ULN;
 
-    if (urea < 2.5) {
+const creatinineHigh =
+  creatinine !== null &&
+  creatinine > CREATININE_ULN;
 
-      interpretation +=
-        "Blood urea concentration is below the reference interval.\n\n";
+const egfrLow =
+  egfr !== null &&
+  egfr < EGFR_LOW;
 
-    }
+const uricAcidHigh =
+  uricAcid !== null &&
+  uricAcid > URIC_ACID_ULN;
 
-    else if (urea <= 8.3) {
+const uricAcidLow =
+  uricAcid !== null &&
+  uricAcid < URIC_ACID_LOW;
 
-      interpretation +=
-        "Blood urea concentration is within the reference interval.\n\n";
+/* ======================================================
+   HELPER FUNCTIONS
+====================================================== */
 
-    }
-
-    else {
-
-      interpretation +=
-        "Blood urea concentration is elevated, suggesting reduced renal clearance, dehydration, increased protein catabolism or gastrointestinal bleeding.\n\n";
-
-    }
-
-  }
-
-  /* ======================================================
-     CREATININE
-  ====================================================== */
-
-  if (creatinine !== null) {
-
-    if (creatinine <= 120) {
-
-      interpretation +=
-        "Serum creatinine is within the reference interval.\n\n";
-
-    }
-
-    else if (creatinine <= 180) {
-
-      interpretation +=
-        "Serum creatinine is mildly elevated, suggesting impaired renal function.\n\n";
-
-    }
-
-    else if (creatinine <= 400) {
-
-      interpretation +=
-        "Serum creatinine is moderately elevated, consistent with significant renal impairment.\n\n";
-
-    }
-
-    else {
-
-      interpretation +=
-        "Serum creatinine is markedly elevated, indicating severe renal dysfunction.\n\n";
-
-    }
-
-  }
-
-  /* ======================================================
-     eGFR
-  ====================================================== */
-
-  if (egfr !== null) {
-
-    if (egfr >= 90) {
-
-      interpretation +=
-        "Estimated glomerular filtration rate is preserved.\n\n";
-
-    }
-
-    else if (egfr >= 60) {
-
-      interpretation +=
-        "Estimated glomerular filtration rate suggests mildly reduced kidney function (CKD G2 if persistent).\n\n";
-
-    }
-
-    else if (egfr >= 45) {
-
-      interpretation +=
-        "Estimated glomerular filtration rate is consistent with Stage G3a chronic kidney disease if persistent.\n\n";
-
-    }
-
-    else if (egfr >= 30) {
-
-      interpretation +=
-        "Estimated glomerular filtration rate is consistent with Stage G3b chronic kidney disease.\n\n";
-
-    }
-
-    else if (egfr >= 15) {
-
-      interpretation +=
-        "Estimated glomerular filtration rate indicates severe chronic kidney disease (Stage G4).\n\n";
-
-    }
-
-    else {
-
-      interpretation +=
-        "Estimated glomerular filtration rate indicates kidney failure (Stage G5).\n\n";
-
-    }
-
-  }
-
-  /* ======================================================
-     URIC ACID
-  ====================================================== */
-
-  if (uricAcid !== null) {
-
-    if (uricAcid > 420) {
-
-      interpretation +=
-        "Serum uric acid is elevated (hyperuricaemia), increasing the risk of gout and urate nephropathy.\n\n";
-
-    }
-
-    else {
-
-      interpretation +=
-        "Serum uric acid is within the reference interval.\n\n";
-
-    }
-
-  }
-
-  /* ======================================================
-     BUN
-  ====================================================== */
-
-  if (bun !== null) {
-
-    if (bun > 20) {
-
-      interpretation +=
-        "Blood urea nitrogen is elevated.\n\n";
-
-    }
-
-  }
-
-  /* ======================================================
-     CLINICAL PATTERNS
-  ====================================================== */
+function foldIncrease(
+  value,
+  upperLimit
+) {
 
   if (
-
-    creatinine > 120 &&
-
-    egfr !== null &&
-
-    egfr < 60
-
+    value === null ||
+    upperLimit <= 0
   ) {
+    return null;
+  }
 
-    impression =
-      "Findings are consistent with chronic kidney disease.";
+  return value / upperLimit;
 
-    recommendation =
-      "Correlation with clinical history, urine protein assessment, blood pressure control and serial renal function monitoring is recommended.";
+}
+
+function isHigh(
+  value,
+  upperLimit
+) {
+
+  return (
+    value !== null &&
+    value > upperLimit
+  );
+
+}
+
+function isLow(
+  value,
+  lowerLimit
+) {
+
+  return (
+    value !== null &&
+    value < lowerLimit
+  );
+
+}
+
+const ureaFold =
+  foldIncrease(
+    urea,
+    UREA_ULN
+  );
+
+const creatinineFold =
+  foldIncrease(
+    creatinine,
+    CREATININE_ULN
+  );
+
+/* ======================================================
+   UREA
+====================================================== */
+
+if (urea !== null) {
+
+  if (urea <= UREA_ULN) {
+
+    interpretation +=
+      "Serum urea is within the reference interval.\n\n";
 
   }
 
-  else if (
+  else if (ureaFold < 2) {
 
-    creatinine > 120 &&
-
-    urea > 8.3
-
-  ) {
-
-    impression =
-      "Findings suggest impaired renal function.";
-
-    recommendation =
-      "Clinical correlation and repeat renal profile are recommended.";
-
-  }
-
-  else if (
-
-    urea > 8.3 &&
-
-    creatinine <= 120
-
-  ) {
-
-    impression =
-      "Elevated urea with preserved creatinine may reflect dehydration, increased protein intake or increased protein catabolism.";
-
-    recommendation =
-      "Assess hydration status and correlate clinically.";
+    interpretation +=
+      "Serum urea is mildly elevated. This may occur with dehydration, increased protein intake, gastrointestinal bleeding or early renal impairment.\n\n";
 
   }
 
   else {
 
-    impression =
-      "Renal function is within acceptable laboratory limits.";
-
-    recommendation =
-      "Interpret together with the patient's clinical condition.";
+    interpretation +=
+      "Serum urea is markedly elevated, suggesting significant azotaemia. Correlation with creatinine, eGFR and the patient's clinical status is recommended.\n\n";
 
   }
 
-  /* ======================================================
-     DIABETIC NEPHROPATHY
-  ====================================================== */
+}
 
-  const glucose =
-    getNumericResult(
-      resultMap,
-      "Glucose"
-    );
+/* ======================================================
+   CREATININE
+====================================================== */
 
-  const hba1c =
-    getNumericResult(
-      resultMap,
-      "HbA1c"
-    );
+if (creatinine !== null) {
 
-  if (
+  if (creatinine <= CREATININE_ULN) {
 
-    (glucose >= 7 ||
-
-      hba1c >= 6.5) &&
-
-    creatinine > 120
-
-  ) {
-
-    impression =
-      "Findings suggest diabetes mellitus with associated renal impairment.";
-
-    recommendation =
-      "Assessment of urine albumin-creatinine ratio, eGFR trend and nephrology review is recommended.";
+    interpretation +=
+      "Serum creatinine is within the reference interval.\n\n";
 
   }
 
-  return createInterpretation({
+  else if (creatinineFold < 2) {
 
-    interpretation:
-      interpretation.trim(),
+    interpretation +=
+      "Serum creatinine is mildly elevated, suggesting reduced renal function.\n\n";
 
-    impression,
+  }
 
-    recommendation,
+  else if (creatinineFold < 5) {
 
-  });
+    interpretation +=
+      "Serum creatinine is moderately elevated, indicating significant impairment of renal function.\n\n";
+
+  }
+
+  else {
+
+    interpretation +=
+      "Serum creatinine is markedly elevated, consistent with severe renal impairment.\n\n";
+
+  }
+
+}
+
+/* ======================================================
+   eGFR
+====================================================== */
+
+if (egfr !== null) {
+
+  if (egfr >= 90) {
+
+    interpretation +=
+      "Estimated glomerular filtration rate (eGFR) is within the normal range.\n\n";
+
+  }
+
+  else if (egfr >= 60) {
+
+    interpretation +=
+      "eGFR shows mildly reduced renal function. Interpretation should consider the patient's age and clinical context.\n\n";
+
+  }
+
+  else if (egfr >= 30) {
+
+    interpretation +=
+      "eGFR indicates moderate reduction in kidney function (CKD Stage 3 if persistent for more than three months).\n\n";
+
+  }
+
+  else if (egfr >= 15) {
+
+    interpretation +=
+      "eGFR indicates severe reduction in kidney function (CKD Stage 4 if persistent).\n\n";
+
+  }
+
+  else {
+
+    interpretation +=
+      "eGFR is markedly reduced, consistent with kidney failure (CKD Stage 5 if persistent).\n\n";
+
+  }
+
+}
+
+/* ======================================================
+   URIC ACID
+====================================================== */
+
+if (uricAcid !== null) {
+
+  if (uricAcid < URIC_ACID_LOW) {
+
+    interpretation +=
+      "Serum uric acid is below the reference interval. This may occur in severe liver disease, SIADH, certain medications or inherited metabolic disorders.\n\n";
+
+  }
+
+  else if (uricAcid <= URIC_ACID_ULN) {
+
+    interpretation +=
+      "Serum uric acid is within the reference interval.\n\n";
+
+  }
+
+  else if (uricAcid <= 600) {
+
+    interpretation +=
+      "Serum uric acid is elevated (hyperuricaemia). This may be associated with gout, reduced renal excretion, increased cell turnover or metabolic disorders.\n\n";
+
+  }
+
+  else {
+
+    interpretation +=
+      "Marked hyperuricaemia is present, increasing the risk of gout, uric acid nephrolithiasis and urate nephropathy.\n\n";
+
+  }
+
+}
+
+/* ======================================================
+   RENAL PATTERN RECOGNITION
+====================================================== */
+
+if (
+
+  creatinineHigh &&
+  egfrLow &&
+  ureaHigh
+
+) {
+
+  impression =
+    "Biochemical findings are consistent with impaired renal function.";
+
+  recommendation =
+    "Clinical correlation is recommended. Review hydration status, medication history and consider renal imaging and nephrology referral where appropriate.";
+
+}
+
+else if (
+
+  creatinineHigh &&
+  egfrLow
+
+) {
+
+  impression =
+    "Reduced glomerular filtration with impaired renal function.";
+
+  recommendation =
+    "Repeat renal function tests where appropriate and investigate for acute or chronic kidney disease based on the clinical history.";
+
+}
+
+else if (
+
+  ureaHigh &&
+  !creatinineHigh
+
+) {
+
+  impression =
+    "Isolated elevation of serum urea (azotaemia).";
+
+  recommendation =
+    "Consider dehydration, high protein intake, gastrointestinal bleeding or increased protein catabolism. Clinical correlation is advised.";
+
+}
+
+else if (
+
+  uricAcidHigh &&
+  !creatinineHigh
+
+) {
+
+  impression =
+    "Hyperuricaemia.";
+
+  recommendation =
+    "Interpret together with symptoms of gout, renal stone disease and metabolic risk factors. Lifestyle modification and further evaluation may be indicated.";
+
+}
+
+else if (
+
+  uricAcidLow
+
+) {
+
+  impression =
+    "Hypouricaemia.";
+
+  recommendation =
+    "Interpret in conjunction with the clinical findings and medication history.";
+
+}
+
+else {
+
+  impression =
+    "Renal function tests are within acceptable laboratory limits.";
+
+  recommendation =
+    "Routine clinical correlation.";
+
+}
+
+/* ======================================================
+   RETURN INTERPRETATION
+====================================================== */
+
+return createInterpretation({
+
+  interpretation:
+    interpretation.trim(),
+
+  impression,
+
+  recommendation,
+
+});
 
 }

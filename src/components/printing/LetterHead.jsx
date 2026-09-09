@@ -12,12 +12,13 @@ export default function LetterHead({
     rcNumber,
     trustLine,
     tagline,
+    services = [],
   } = companyProfile;
 
   const trustItems =
     trustLine
       ?.split("•")
-      .map((item) => item.trim()) || [];
+      .map(item => item.trim()) || [];
 
   /* ======================================================
      PRE-PRINTED LETTERHEAD MODE
@@ -28,7 +29,7 @@ export default function LetterHead({
       <div
         className="preprinted-letterhead-space"
         style={{
-          minHeight: "145px",
+          minHeight: "130px",
           width: "100%",
         }}
       />
@@ -36,7 +37,7 @@ export default function LetterHead({
   }
 
   /* ======================================================
-     NORMAL LETTERHEAD
+     LETTERHEAD
   ====================================================== */
 
   return (
@@ -54,19 +55,25 @@ export default function LetterHead({
         {/* LOGO */}
 
         <div className="eh-logo-wrapper">
+
           <img
             src={logo}
             alt={fullName}
             className="eh-logo"
           />
+
         </div>
 
         {/* COLOUR STRIP */}
 
         <div className="eh-identity">
+
           <span className="id-blue" />
+
           <span className="id-red" />
+
           <span className="id-green" />
+
         </div>
 
         {/* COMPANY DETAILS */}
@@ -74,25 +81,34 @@ export default function LetterHead({
         <div className="eh-brand">
 
           <h1 className="eh-name">
+
             {name}
+
           </h1>
 
           <div className="eh-subtitle">
+
             {displayName
-              ? displayName.replace(
-                  `${name} `,
-                  ""
-                )
+              ? displayName.replace(`${name} `, "")
               : "Medical Diagnostic Services"}
+
           </div>
 
           <div className="eh-company-line" />
 
           {rcNumber && (
+
             <div className="eh-registration">
+
               {rcNumber}
+
             </div>
+
           )}
+
+          {/* ==========================================
+              TRUST LINE
+          ========================================== */}
 
           <div className="eh-trust">
 
@@ -114,11 +130,14 @@ export default function LetterHead({
                     {item}
                   </span>
 
-                  {index <
-                    trustItems.length - 1 && (
+                  {index < trustItems.length - 1 && (
+
                     <span className="trust-dot">
+
                       &nbsp;•&nbsp;
+
                     </span>
+
                   )}
 
                 </span>
@@ -128,12 +147,47 @@ export default function LetterHead({
             ) : (
 
               <span className="trust-blue">
+
                 Reliable • Accurate • Trusted
+
               </span>
 
             )}
 
           </div>
+
+          {/* ==========================================
+              SERVICES
+          ========================================== */}
+
+          {services.length > 0 && (
+
+            <div className="eh-services">
+
+              {services.map((service, index) => (
+
+                <span
+                  key={service}
+                  className="eh-service"
+                >
+
+                  {service}
+
+                  {index < services.length - 1 && (
+                    <span className="service-dot">
+
+                      {" • "}
+
+                    </span>
+                  )}
+
+                </span>
+
+              ))}
+
+            </div>
+
+          )}
 
         </div>
 
@@ -148,15 +202,23 @@ export default function LetterHead({
         <div className="separator-top" />
 
         <div className="separator-ribbon">
+
           <span className="divider-blue" />
+
           <span className="divider-red" />
+
           <span className="divider-green" />
+
         </div>
 
         {tagline && (
+
           <div className="separator-tagline">
+
             {tagline}
+
           </div>
+
         )}
 
         <div className="separator-bottom" />

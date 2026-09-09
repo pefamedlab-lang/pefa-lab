@@ -1,0 +1,291 @@
+/* ==========================================================
+   MODULE 05
+   REPORT TITLES & SECTION HEADERS
+   PEFA Medical Diagnostic Services
+========================================================== */
+
+/* ==========================================================
+   REPORT HEADING
+========================================================== */
+
+.report-heading{
+
+    width:100%;
+
+    margin:0;
+
+    padding:0;
+
+    line-height:1;
+
+}
+
+/* ==========================================================
+   DEPARTMENT TITLE
+========================================================== */
+
+.department-title{
+
+    margin:0 0 2px;
+
+    padding:0;
+
+    font-size:13px;
+
+    font-weight:800;
+
+    letter-spacing:1px;
+
+    text-transform:uppercase;
+
+    color:#005B96;
+
+    line-height:1.15;
+
+}
+
+/* ==========================================================
+   TEST TITLE
+========================================================== */
+
+.test-title{
+
+    margin:0;
+
+    padding:0;
+
+    text-align:center;
+
+    line-height:1.1;
+
+    border:none;
+
+}
+
+.test-title .section-title{
+
+    margin:0;
+
+    padding:0;
+
+}
+
+.test-title .section-title-dot{
+
+    display:none;
+
+}
+
+.test-title .section-title-line{
+
+    display:none;
+
+}
+
+.test-title .section-title-text{
+
+    display:block;
+
+    width:100%;
+
+    font-size:17px;
+
+    font-weight:800;
+
+    letter-spacing:.4px;
+
+    text-transform:uppercase;
+
+    color:#1F2937;
+
+    text-align:center;
+
+    line-height:1.1;
+
+    margin:0;
+
+    padding:0;
+
+}
+
+/* ==========================================================
+   SECTION TITLE
+========================================================== */
+
+.section-title{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    margin:6px 0 3px;
+
+    padding:0;
+
+    page-break-after:avoid;
+
+    break-after:avoid;
+
+}
+
+/* ==========================================================
+   COLOURED DOT
+========================================================== */
+
+.section-title-dot{
+
+    width:8px;
+
+    height:8px;
+
+    border-radius:50%;
+
+    flex-shrink:0;
+
+    background:#005B96;
+
+}
+
+/* ==========================================================
+   TITLE TEXT
+========================================================== */
+
+.section-title-text{
+
+    font-size:12px;
+
+    font-weight:800;
+
+    letter-spacing:.5px;
+
+    text-transform:uppercase;
+
+    color:#1E3A8A;
+
+    white-space:nowrap;
+
+    line-height:1.15;
+
+}
+
+/* ==========================================================
+   FILL LINE
+========================================================== */
+
+.section-title-line{
+
+    flex:1;
+
+    height:1px;
+
+    background:#D9DEE6;
+
+}
+
+/* ==========================================================
+   COLOUR VARIANTS
+========================================================== */
+
+.section-title.primary .section-title-dot{
+    background:#005B96;
+}
+
+.section-title.success .section-title-dot{
+    background:#16A34A;
+}
+
+.section-title.warning .section-title-dot{
+    background:#D97706;
+}
+
+.section-title.danger .section-title-dot{
+    background:#DC2626;
+}
+
+/* ==========================================================
+   COMPACT REPORT MODE
+========================================================== */
+
+.report-page.compact .department-title{
+
+    font-size:12px;
+
+}
+
+.report-page.compact .test-title .section-title-text{
+
+    font-size:16px;
+
+}
+
+.report-page.compact .section-title{
+
+    margin:4px 0 2px;
+
+}
+
+.report-page.compact .section-title-text{
+
+    font-size:11px;
+
+}
+
+/* ==========================================================
+   PRINT
+========================================================== */
+
+@media print{
+
+    .report-heading{
+
+        margin:0;
+
+        padding:0;
+
+    }
+
+    .department-title{
+
+        margin:0 0 2px;
+
+        font-size:12px;
+
+    }
+
+    .test-title{
+
+        margin:0;
+
+        padding:0;
+
+    }
+
+    .test-title .section-title{
+
+        margin:0;
+
+        padding:0;
+
+    }
+
+    .test-title .section-title-text{
+
+        font-size:16px;
+
+        line-height:1.05;
+
+    }
+
+    .section-title{
+
+        margin:5px 0 2px;
+
+        page-break-after:avoid;
+
+        break-after:avoid;
+
+    }
+
+}

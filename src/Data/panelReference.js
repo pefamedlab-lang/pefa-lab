@@ -314,7 +314,7 @@ DIABETES / OGTT
 
 HbA1c: {
 unit: "%",
-male:{low:4.0,high:5.6},
+male:{low:4.0,high:6.5},
 female:{low:4.0,high:5.6},
 child:{low:4.0,high:5.6},
 },

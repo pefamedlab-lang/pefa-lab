@@ -1,0 +1,1696 @@
+/* ==========================================================
+   PEFA ENTERPRISE PRINT SYSTEM
+   A4 / LETTERHEAD / REPORT / INVOICE / RECEIPT
+
+   MASTER PRINT STYLESHEET — CLEAN FINAL VERSION
+
+   CORE RULES
+   ----------------------------------------------------------
+   1. NORMAL WEB APPLICATION REMAINS FULLY VISIBLE.
+   2. NORMAL WEB SCROLLING REMAINS ENABLED.
+   3. RESULT RECORDS ARE NOT HIDDEN ON SCREEN.
+   4. PRINT TARGETS REMAIN RENDERED FOR REACT/html2canvas.
+   5. BROWSER PRINT USES EXACT A4 210mm × 297mm.
+   6. PRINT TARGET STARTS AT THE LEFT EDGE OF THE A4 PAGE.
+   7. LETTERHEAD IS EXACTLY ONE A4 PAGE.
+   8. LETTERHEAD FOOTER IS ABSOLUTELY FIXED TO THE BOTTOM
+      OF THAT SINGLE A4 PAGE.
+   9. LETTERHEAD FOOTER IS NOT CSS position:fixed.
+      This prevents the footer from being duplicated on
+      a second page.
+   10. LETTERHEAD OVERFLOW IS CLIPPED DURING PRINT SO THE
+       LETTERHEAD CANNOT CREATE AN UNWANTED SECOND PAGE.
+   11. NORMAL REPORTS / RESULT RECORDS KEEP THEIR NATURAL
+       MULTI-PAGE FLOW.
+========================================================== */
+
+
+/* ==========================================================
+   01. PAGE
+========================================================== */
+
+@page {
+    size: A4 portrait;
+    margin: 0;
+}
+
+
+/* ==========================================================
+   02. GLOBAL BOX MODEL
+========================================================== */
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+}
+
+
+/* ==========================================================
+   03. NORMAL DOCUMENT
+========================================================== */
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+
+    width: 100%;
+    min-width: 0;
+    min-height: 100%;
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: #f3f4f6;
+
+    overflow-x: auto;
+    overflow-y: auto;
+}
+
+
+/* ==========================================================
+   04. ROOT APPLICATION
+========================================================== */
+
+#root {
+    width: 100%;
+    min-width: 0;
+    min-height: 100vh;
+
+    overflow: visible;
+}
+
+
+/* ==========================================================
+   05. STANDARD PRINT ROOTS
+
+   These remain normal rendered elements.
+
+   IMPORTANT:
+   Do NOT hide them on screen.
+========================================================== */
+
+#print-root,
+#portal-report,
+#letterhead-print-root,
+.print-render-target,
+.print-engine {
+    width: 210mm;
+    min-width: 210mm;
+    min-height: 297mm;
+
+    margin: 0 auto;
+
+    background: #ffffff;
+}
+
+
+/* ==========================================================
+   06. PRINT ENGINE
+
+   NORMAL SCREEN:
+   - stays rendered
+   - stays in normal document flow
+   - does not disable application scrolling
+========================================================== */
+
+.print-engine {
+    position: relative;
+
+    width: 210mm;
+    min-width: 210mm;
+    min-height: 297mm;
+
+    margin: 0 auto;
+
+    background: #ffffff;
+
+    overflow: visible;
+}
+
+
+/* ==========================================================
+   07. REPORT PAGE
+========================================================== */
+
+.report-page {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+
+    width: 210mm;
+    min-width: 210mm;
+    min-height: 297mm;
+
+    margin: 0;
+
+    background: #ffffff;
+
+    padding:
+        8mm
+        10mm
+        10mm;
+
+    overflow: visible;
+}
+
+
+/* ==========================================================
+   08. REPORT BODY
+========================================================== */
+
+.report-body {
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+    min-width: 0;
+
+    flex: 1 1 auto;
+
+    margin: 0;
+    padding: 0;
+
+    overflow: visible;
+}
+
+
+/* ==========================================================
+   09. REPORT CONTENT
+========================================================== */
+
+.report-content {
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
+    flex: 0 0 auto;
+
+    margin: 0;
+    padding: 0;
+
+    overflow: visible;
+}
+
+
+.report-content > * {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+}
+
+
+/* ==========================================================
+   10. REPORT TYPES
+========================================================== */
+
+.chemistry-report,
+.haematology-report,
+.microbiology-report,
+.serology-report,
+.immunology-report,
+.histopathology-report,
+.parasitology-report,
+.bloodbank-report,
+.invoice-report,
+.receipt-report {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+
+    margin: 0;
+    padding: 0;
+
+    overflow: visible;
+}
+
+
+/* ==========================================================
+   11. LETTERHEAD DOCUMENT
+
+   SCREEN:
+   Normal flex document.
+
+   PRINT:
+   Exactly one A4 page.
+
+   The footer is positioned relative to this element.
+========================================================== */
+
+.letterhead-document {
+    position: relative;
+
+    display: flex;
+    flex-direction: column;
+
+    width: 210mm;
+    min-width: 210mm;
+    min-height: 297mm;
+
+    margin: 0;
+    padding: 0;
+
+    background: #ffffff;
+
+    overflow: visible;
+}
+
+
+/* ==========================================================
+   12. LETTERHEAD HEADER
+========================================================== */
+
+.letterhead-document__header,
+.letterhead-document__header-space {
+    width: 100%;
+
+    flex: 0 0 auto;
+
+    margin: 0;
+    padding: 0;
+
+    overflow: visible;
+}
+
+
+/* ==========================================================
+   13. LETTERHEAD BODY
+========================================================== */
+
+.letterhead-document__body {
+    display: flex;
+    flex-direction: column;
+
+    width: 100%;
+    min-width: 0;
+
+    flex: 1 1 auto;
+
+    margin: 0;
+    padding: 0;
+
+    overflow: visible;
+}
+
+
+/* ==========================================================
+   14. LETTERHEAD FOOTER — NORMAL SCREEN
+
+   Remains in normal flow on the web.
+========================================================== */
+
+.letterhead-document__footer {
+    position: static;
+
+    width: 100%;
+
+    flex: 0 0 auto;
+
+    margin: 0;
+    padding: 0;
+
+    background: #ffffff;
+
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+
+/* ==========================================================
+   15. TABLES
+========================================================== */
+
+table {
+    width: 100%;
+
+    margin: 0;
+
+    border-collapse: collapse;
+    border-spacing: 0;
+
+    table-layout: fixed;
+}
+
+
+.report-content table,
+.result-table,
+.print-result-table,
+.invoice-table,
+.receipt-table {
+    width: 100%;
+    max-width: 100%;
+
+    margin: 0;
+
+    border-collapse: collapse;
+    border-spacing: 0;
+
+    table-layout: fixed;
+}
+
+
+thead {
+    display: table-header-group;
+}
+
+
+tfoot {
+    display: table-footer-group;
+}
+
+
+tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+
+th,
+td {
+    vertical-align: top;
+
+    white-space: normal;
+
+    word-break: break-word;
+    overflow-wrap: anywhere;
+}
+
+
+/* ==========================================================
+   16. MEDIA
+========================================================== */
+
+img,
+svg,
+canvas {
+    display: block;
+
+    max-width: 100%;
+
+    height: auto;
+}
+
+
+/* ==========================================================
+   17. PRINT COMPONENTS
+========================================================== */
+
+.signature-section,
+.verification-section,
+.enterprise-footer,
+.print-footer,
+.report-footer-space {
+    width: 100%;
+
+    flex-shrink: 0;
+
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+
+/* ==========================================================
+   18. INTERPRETATION
+========================================================== */
+
+.interpretation-section {
+    width: 100%;
+
+    margin-top: 6px;
+
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+
+/* ==========================================================
+   19. PAGE BREAK HELPERS
+========================================================== */
+
+.page-break {
+    page-break-before: always;
+    break-before: page;
+}
+
+
+.page-break-after {
+    page-break-after: always;
+    break-after: page;
+}
+
+
+.avoid-break {
+    page-break-inside: avoid;
+    break-inside: avoid;
+}
+
+
+/* ==========================================================
+   20. PDF MODE
+
+   html2canvas/html2pdf sees the complete rendered document.
+========================================================== */
+
+body.pdf-mode {
+    background: #ffffff;
+}
+
+
+body.pdf-mode .print-engine,
+body.pdf-mode .print-render-target,
+body.pdf-mode #print-root,
+body.pdf-mode #portal-report,
+body.pdf-mode #letterhead-print-root {
+    position: relative;
+
+    width: 210mm;
+    min-width: 210mm;
+    min-height: 297mm;
+
+    margin: 0;
+
+    background: #ffffff;
+
+    opacity: 1;
+
+    overflow: visible;
+
+    box-shadow: none;
+}
+
+
+body.pdf-mode .report-body,
+body.pdf-mode .report-content,
+body.pdf-mode .letterhead-document,
+body.pdf-mode .letterhead-document__body {
+    overflow: visible !important;
+}
+
+
+/* ==========================================================
+   21. SCREEN MODE
+
+   DO NOT:
+   - display:none
+   - visibility:hidden
+   - left:-100000px
+   - position:absolute
+
+   on the actual report engine.
+
+   This keeps normal web result records visible.
+========================================================== */
+
+@media screen {
+
+    html,
+    body {
+        width: 100%;
+        min-width: 0;
+        min-height: 100%;
+
+        overflow-x: auto;
+        overflow-y: auto;
+    }
+
+
+    #root {
+        width: 100%;
+        min-width: 0;
+        min-height: 100vh;
+
+        overflow: visible;
+    }
+
+
+    .print-engine,
+    .print-render-target {
+        pointer-events: none;
+    }
+
+
+    /*
+       Letterhead stays normal on screen.
+    */
+
+    .letterhead-document {
+        position: relative;
+
+        display: flex;
+        flex-direction: column;
+
+        width: 210mm;
+        min-width: 210mm;
+        min-height: 297mm;
+
+        margin: 0 auto;
+
+        overflow: visible;
+    }
+
+
+    .letterhead-document__footer {
+        position: static;
+
+        width: 100%;
+
+        margin: 0;
+    }
+
+}
+
+
+/* ==========================================================
+   22. BROWSER PRINT MODE
+========================================================== */
+
+@media print {
+
+    /* ------------------------------------------------------
+       PRINT PAGE
+    ------------------------------------------------------ */
+
+    html,
+    body {
+        width: 100%;
+
+        min-width: 0;
+        min-height: 100%;
+
+        margin: 0;
+        padding: 0;
+
+        background: #ffffff;
+
+        overflow: visible;
+
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+    }
+
+
+    /* ------------------------------------------------------
+       HIDE NORMAL APPLICATION
+
+       Only activated when JavaScript adds:
+           body.print-mode
+    ------------------------------------------------------ */
+
+    body.print-mode > * {
+        visibility: hidden !important;
+    }
+
+
+    /* ------------------------------------------------------
+       ACTIVE PRINT TARGET
+
+       EXACT A4 POSITION.
+
+       No:
+       - left:50%
+       - transform
+       - margin:auto
+
+       The target begins exactly at the physical
+       left edge of the A4 print page.
+    ------------------------------------------------------ */
+
+    body.print-mode .active-print-target {
+        visibility: visible !important;
+
+        position: absolute !important;
+
+        top: 0 !important;
+        left: 0 !important;
+        right: auto !important;
+
+        display: block !important;
+
+        width: 210mm !important;
+        min-width: 210mm !important;
+
+        min-height: 297mm !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        background: #ffffff !important;
+
+        opacity: 1 !important;
+
+        overflow: visible !important;
+
+        box-shadow: none !important;
+
+        z-index: 999999 !important;
+    }
+
+
+    /* ------------------------------------------------------
+       REVEAL ACTIVE TARGET CONTENT
+    ------------------------------------------------------ */
+
+    body.print-mode
+    .active-print-target * {
+        visibility: visible !important;
+    }
+
+
+    /* ------------------------------------------------------
+       PRINT ROOT VARIANTS
+    ------------------------------------------------------ */
+
+    body.print-mode
+    .active-print-target.print-engine,
+
+    body.print-mode
+    .active-print-target.print-render-target,
+
+    body.print-mode
+    .active-print-target#portal-report,
+
+    body.print-mode
+    .active-print-target#letterhead-print-root,
+
+    body.print-mode
+    .active-print-target#print-root {
+        display: block !important;
+
+        position: absolute !important;
+
+        top: 0 !important;
+        left: 0 !important;
+        right: auto !important;
+
+        width: 210mm !important;
+        min-width: 210mm !important;
+
+        min-height: 297mm !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        background: #ffffff !important;
+
+        opacity: 1 !important;
+
+        overflow: visible !important;
+
+        box-shadow: none !important;
+    }
+
+
+    /* ======================================================
+       NORMAL REPORT PAGE
+    ====================================================== */
+
+    body.print-mode
+    .active-print-target
+    .report-page {
+        display: flex !important;
+
+        flex-direction: column !important;
+
+        width: 210mm !important;
+        min-width: 210mm !important;
+
+        min-height: 297mm !important;
+
+        margin: 0 !important;
+
+        background: #ffffff !important;
+
+        overflow: visible !important;
+    }
+
+
+    /* ======================================================
+       REPORT BODY
+    ====================================================== */
+
+    body.print-mode
+    .active-print-target
+    .report-body {
+        display: flex !important;
+
+        flex-direction: column !important;
+
+        width: 100% !important;
+        min-width: 0 !important;
+
+        flex: 1 1 auto !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        overflow: visible !important;
+    }
+
+
+    /* ======================================================
+       REPORT CONTENT
+    ====================================================== */
+
+    body.print-mode
+    .active-print-target
+    .report-content {
+        display: flex !important;
+
+        flex-direction: column !important;
+
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        overflow: visible !important;
+    }
+
+
+    /* ======================================================
+       LETTERHEAD ROOT
+    ====================================================== */
+
+    body.print-mode
+    .active-print-target
+    #letterhead-print-root {
+        position: absolute !important;
+
+        top: 0 !important;
+        left: 0 !important;
+        right: auto !important;
+
+        display: block !important;
+
+        width: 210mm !important;
+        min-width: 210mm !important;
+
+        height: 297mm !important;
+        min-height: 297mm !important;
+        max-height: 297mm !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        background: #ffffff !important;
+
+        overflow: hidden !important;
+
+        box-shadow: none !important;
+    }
+
+
+    /* ======================================================
+       LETTERHEAD DOCUMENT
+
+       IMPORTANT FIX:
+
+       The letterhead itself is now EXACTLY one physical
+       A4 page.
+
+       It is NOT allowed to grow to a second page.
+
+       overflow:hidden prevents body content from forcing
+       another physical print page.
+
+       The footer is positioned relative to this document,
+       not fixed to the browser page.
+    ====================================================== */
+
+    body.print-mode
+.active-print-target
+.letterhead-document {
+    position: relative !important;
+
+    display: block !important;
+
+    width: 210mm !important;
+    min-width: 210mm !important;
+
+    height: auto !important;
+
+    min-height: 297mm !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: #ffffff !important;
+
+    overflow: visible !important;
+}
+
+
+    /* ======================================================
+       LETTERHEAD HEADER
+    ====================================================== */
+
+    body.print-mode
+    .active-print-target
+    .letterhead-document__header,
+
+    body.print-mode
+    .active-print-target
+    .letterhead-document__header-space {
+        display: block !important;
+
+        width: 100% !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        overflow: visible !important;
+
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+
+    /* ======================================================
+       LETTERHEAD BODY
+
+       Footer reserve:
+
+       25mm is reserved at the bottom so the report body
+       does not run underneath the footer.
+
+       Change ONLY this value if your physical footer is
+       taller or shorter.
+    ====================================================== */
+
+   body.print-mode
+.active-print-target
+.letterhead-document__body {
+    display: block !important;
+
+    width: 100% !important;
+
+    min-width: 0 !important;
+
+    margin: 0 !important;
+
+    padding: 0 0 25mm 0 !important;
+
+    overflow: visible !important;
+}
+
+
+    /* ======================================================
+       LETTERHEAD FOOTER — SINGLE PAGE BOTTOM
+
+       IMPORTANT:
+
+       DO NOT USE position:fixed HERE.
+
+       position:fixed can be repeated by the browser print
+       engine whenever the content spills onto another page.
+
+       position:absolute anchors the footer to the
+       .letterhead-document itself.
+
+       Therefore:
+
+       A4 page
+       ┌──────────────────────────┐
+       │                          │
+       │       LETTERHEAD         │
+       │         BODY             │
+       │                          │
+       │                          │
+       │──────────────────────────│
+       │         FOOTER           │
+       └──────────────────────────┘
+
+       Only ONE footer exists.
+    ====================================================== */
+
+    body.print-mode
+.active-print-target
+.letterhead-document__footer {
+    position: fixed !important;
+
+    left: 0 !important;
+    right: auto !important;
+    bottom: 0 !important;
+
+    width: 210mm !important;
+    max-width: 210mm !important;
+
+    height: auto !important;
+
+    margin: 0 !important;
+    padding: 0 !important;
+
+    background: #ffffff !important;
+
+    display: block !important;
+
+    z-index: 9999 !important;
+
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+}
+
+
+    /* ------------------------------------------------------
+       FOOTER CHILDREN
+    ------------------------------------------------------ */
+
+    body.print-mode
+    .active-print-target
+    .letterhead-document__footer > * {
+        width: 100% !important;
+        max-width: 210mm !important;
+
+        box-sizing: border-box !important;
+
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+    }
+
+
+    /* ======================================================
+       ALTERNATIVE ENTERPRISE FOOTER
+
+       If this footer is INSIDE the letterhead document,
+       use absolute positioning as well.
+
+       This prevents a second footer from being generated.
+    ====================================================== */
+
+body.print-mode
+.active-print-target
+.enterprise-footer.fixed-print-footer {
+    position: static !important;
+
+    width: 100% !important;
+
+    margin: 0 !important;
+
+    background: #ffffff !important;
+
+    z-index: auto !important;
+
+        page-break-before: avoid !important;
+        page-break-after: avoid !important;
+        page-break-inside: avoid !important;
+
+        break-before: avoid !important;
+        break-after: avoid !important;
+        break-inside: avoid !important;
+    }
+
+
+    /* ======================================================
+       IMPORTANT:
+       Remove normal-flow behavior from letterhead footer.
+    ====================================================== */
+
+    body.print-mode
+    .active-print-target
+    .letterhead-document
+    > .letterhead-document__footer {
+        flex: none !important;
+
+        margin-top: 0 !important;
+    }
+
+
+    /* ======================================================
+       REPORT TYPE ROOTS
+    ====================================================== */
+
+    body.print-mode
+    .active-print-target
+    .chemistry-report,
+
+    body.print-mode
+    .active-print-target
+    .haematology-report,
+
+    body.print-mode
+    .active-print-target
+    .microbiology-report,
+
+    body.print-mode
+    .active-print-target
+    .serology-report,
+
+    body.print-mode
+    .active-print-target
+    .immunology-report,
+
+    body.print-mode
+    .active-print-target
+    .histopathology-report,
+
+    body.print-mode
+    .active-print-target
+    .parasitology-report,
+
+    body.print-mode
+    .active-print-target
+    .bloodbank-report,
+
+    body.print-mode
+    .active-print-target
+    .invoice-report,
+
+    body.print-mode
+    .active-print-target
+    .receipt-report {
+        width: 100% !important;
+
+        max-width: 100% !important;
+
+        min-width: 0 !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        overflow: visible !important;
+    }
+
+
+    /* ======================================================
+       TABLES
+    ====================================================== */
+
+    body.print-mode
+    .active-print-target
+    table {
+        width: 100% !important;
+
+        max-width: 100% !important;
+
+        margin: 0 !important;
+
+        border-collapse: collapse !important;
+
+        border-spacing: 0 !important;
+
+        table-layout: fixed !important;
+    }
+
+
+    body.print-mode
+    .active-print-target
+    thead {
+        display: table-header-group !important;
+    }
+
+
+    body.print-mode
+    .active-print-target
+    tfoot {
+        display: table-footer-group !important;
+    }
+
+
+    body.print-mode
+    .active-print-target
+    tr {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+    }
+
+
+    body.print-mode
+    .active-print-target
+    th,
+
+    body.print-mode
+    .active-print-target
+    td {
+        white-space: normal !important;
+
+        word-break: break-word !important;
+
+        overflow-wrap: anywhere !important;
+    }
+
+
+    /* ======================================================
+       MEDIA
+    ====================================================== */
+
+    body.print-mode
+    .active-print-target
+    img,
+
+    body.print-mode
+    .active-print-target
+    svg,
+
+    body.print-mode
+    .active-print-target
+    canvas {
+        display: block !important;
+
+        max-width: 100% !important;
+
+        height: auto;
+    }
+
+
+    /* ======================================================
+       PRINT COMPONENTS
+    ====================================================== */
+
+    body.print-mode
+    .active-print-target
+    .signature-section,
+
+    body.print-mode
+    .active-print-target
+    .verification-section,
+
+    body.print-mode
+    .active-print-target
+    .print-footer,
+
+    body.print-mode
+    .active-print-target
+    .report-footer-space {
+        width: 100% !important;
+
+        flex-shrink: 0 !important;
+
+        page-break-inside: avoid !important;
+
+        break-inside: avoid !important;
+    }
+
+
+    /* ======================================================
+       INTERPRETATION
+    ====================================================== */
+
+    body.print-mode
+    .active-print-target
+    .interpretation-section {
+        page-break-inside: avoid !important;
+
+        break-inside: avoid !important;
+    }
+
+
+    /* ======================================================
+       HIDE APPLICATION CONTROLS
+    ====================================================== */
+
+    .patient-sidebar,
+    .sidebar,
+    .topbar,
+    .navigation,
+    .dashboard-header,
+    .result-toolbar,
+    .report-actions,
+    .letterhead-toolbar,
+    .close-btn,
+    .no-print,
+    button {
+        display: none !important;
+    }
+
+
+    /* ======================================================
+       CLIPPING PROTECTION
+
+       NORMAL REPORTS remain expandable.
+
+       LETTERHEAD remains clipped to exactly one A4 page.
+    ====================================================== */
+
+    body.print-mode
+    .active-print-target
+    .report-body,
+
+    body.print-mode
+    .active-print-target
+    .report-content {
+        overflow: visible !important;
+    }
+
+
+    body.print-mode
+    .active-print-target
+    .letterhead-document {
+        overflow: hidden !important;
+    }
+
+
+    /* ======================================================
+       PAGE BREAKS
+    ====================================================== */
+
+    .page-break {
+        page-break-before: always !important;
+
+        break-before: page !important;
+    }
+
+
+    .page-break-after {
+        page-break-after: always !important;
+
+        break-after: page !important;
+    }
+
+
+    .avoid-break {
+        page-break-inside: avoid !important;
+
+        break-inside: avoid !important;
+    }
+
+}
+
+
+/* ==========================================================
+   23. AFTER PRINT
+
+   JavaScript PrintEngine should remove:
+
+       body.print-mode
+
+   CSS intentionally does not modify normal web layout
+   after printing.
+========================================================== */
+
+/* ==========================================================
+   PEFA COMPATIBILITY PATCH
+   ----------------------------------------------------------
+   IMPORTANT:
+   The current LaboratoryResultDashboard print DOM uses the
+   legacy PEFA class names (.pefa-*), while the clean layout
+   above uses generic report class names (.report-*).
+
+   This bridge makes BOTH structures obey the same A4 geometry.
+   It is intentionally placed LAST so no imported component CSS
+   can reintroduce the one-sided print layout.
+========================================================== */
+
+/* ----------------------------------------------------------
+   NORMAL REPORT GEOMETRY
+---------------------------------------------------------- */
+
+.pefa-print-surface,
+.pefa-print-surface .pefa-report-document,
+.pefa-report-document,
+.pefa-report-body,
+.pefa-router-body,
+.pefa-report-patient,
+.pefa-report-body > *,
+.pefa-router-body > *,
+.pefa-saved-result,
+.pefa-saved-result-table-wrap {
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    max-width: none !important;
+}
+
+.pefa-report-document {
+    width: 210mm !important;
+    max-width: 210mm !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.pefa-report-body,
+.pefa-router-body,
+.pefa-report-patient,
+.pefa-saved-result,
+.pefa-saved-result-table-wrap {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+}
+
+.pefa-router-body > *,
+.pefa-report-body > * {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+}
+
+/* ----------------------------------------------------------
+   LEGACY TABLE STRUCTURE
+---------------------------------------------------------- */
+
+.pefa-router-body table,
+.pefa-report-body table,
+.pefa-saved-result-table,
+.pefa-result-table,
+.pefa-print-result-table {
+    width: 100% !important;
+    min-width: 100% !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    border-collapse: collapse !important;
+    table-layout: fixed !important;
+}
+
+/* ----------------------------------------------------------
+   BROWSER PRINT — PEFA LEGACY DOM
+---------------------------------------------------------- */
+
+@media print {
+
+    /* Never allow the application layout to become the
+       containing width for the physical A4 report. */
+    html,
+    body {
+        width: 100% !important;
+        min-width: 0 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        overflow: visible !important;
+        background: #fff !important;
+    }
+
+    /* ------------------------------------------------------
+       PRINT TARGET
+       Supports both the NEW active-print-target model and
+       the EXISTING pefa-print-surface model.
+    ------------------------------------------------------ */
+
+    body.print-mode .active-print-target,
+    body.pefa-printing-result #pefa-result-print-area,
+    body.pefa-printing-result .pefa-print-surface {
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: auto !important;
+
+        width: 210mm !important;
+        min-width: 210mm !important;
+        max-width: 210mm !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        transform: none !important;
+        translate: none !important;
+
+        display: block !important;
+        box-sizing: border-box !important;
+
+        background: #fff !important;
+        opacity: 1 !important;
+        overflow: visible !important;
+    }
+
+    body.print-mode .active-print-target *,
+    body.pefa-printing-result .pefa-print-surface * {
+        box-sizing: border-box !important;
+    }
+
+    /* ------------------------------------------------------
+       EXISTING PEFA REPORT DOCUMENT
+       This is the critical fix for the screenshot:
+       the complete report body is forced to occupy the same
+       210mm A4 coordinate system as the letterhead.
+    ------------------------------------------------------ */
+
+    body.pefa-printing-result
+    .pefa-print-surface
+    .pefa-report-document,
+
+    body.pefa-printing-result
+    #pefa-result-print-area
+    .pefa-report-document {
+
+        position: relative !important;
+
+        display: block !important;
+
+        width: 210mm !important;
+        min-width: 210mm !important;
+        max-width: 210mm !important;
+
+        margin: 0 !important;
+
+        padding: 4mm 6mm 3mm !important;
+
+        box-sizing: border-box !important;
+
+        transform: none !important;
+        left: auto !important;
+        right: auto !important;
+
+        overflow: visible !important;
+
+        background: #fff !important;
+    }
+
+    /* ------------------------------------------------------
+       REMOVE THE OLD "ONE SIDE" CONSTRAINT
+       ------------------------------------------------------ */
+
+    body.pefa-printing-result
+    .pefa-report-document
+    .pefa-report-body,
+
+    body.pefa-printing-result
+    .pefa-report-document
+    .pefa-router-body,
+
+    body.pefa-printing-result
+    .pefa-report-body,
+
+    body.pefa-printing-result
+    .pefa-router-body {
+
+        display: block !important;
+
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+
+        flex: none !important;
+        align-self: stretch !important;
+        justify-self: stretch !important;
+
+        transform: none !important;
+
+        overflow: visible !important;
+    }
+
+    /* Every immediate report child must use the complete
+       available internal A4 width. */
+    body.pefa-printing-result
+    .pefa-report-body > *,
+
+    body.pefa-printing-result
+    .pefa-router-body > *,
+
+    body.pefa-printing-result
+    .pefa-saved-result,
+
+    body.pefa-printing-result
+    .pefa-saved-result-table-wrap {
+
+        width: 100% !important;
+        min-width: 0 !important;
+        max-width: 100% !important;
+
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+
+        transform: none !important;
+    }
+
+    /* ------------------------------------------------------
+       PATIENT + HEADING + RESULT CONTENT
+    ------------------------------------------------------ */
+
+    body.pefa-printing-result .pefa-report-patient,
+    body.pefa-printing-result .pefa-report-heading,
+    body.pefa-printing-result .pefa-report-body,
+    body.pefa-printing-result .pefa-router-body,
+    body.pefa-printing-result .pefa-saved-result {
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+
+        box-sizing: border-box !important;
+    }
+
+    /* ------------------------------------------------------
+       TABLES — COMPLETE REPORT WIDTH
+    ------------------------------------------------------ */
+
+    body.pefa-printing-result
+    .pefa-router-body table,
+
+    body.pefa-printing-result
+    .pefa-report-body table,
+
+    body.pefa-printing-result
+    .pefa-saved-result-table,
+
+    body.pefa-printing-result
+    .pefa-result-table,
+
+    body.pefa-printing-result
+    .pefa-print-result-table {
+
+        display: table !important;
+
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+
+        margin: 0 !important;
+
+        border-collapse: collapse !important;
+        border-spacing: 0 !important;
+
+        table-layout: fixed !important;
+
+        transform: none !important;
+    }
+
+    body.pefa-printing-result
+    .pefa-router-body
+    table th,
+
+    body.pefa-printing-result
+    .pefa-router-body
+    table td {
+
+        white-space: normal !important;
+        word-break: break-word !important;
+        overflow-wrap: anywhere !important;
+
+        box-sizing: border-box !important;
+    }
+
+    /* ------------------------------------------------------
+       LETTERHEAD
+       Keep full A4 width; do not let it determine a narrower
+       report body.
+    ------------------------------------------------------ */
+
+    body.pefa-printing-result
+    .pefa-report-letterhead {
+
+        width: calc(100% + 12mm) !important;
+        max-width: none !important;
+
+        margin-left: -6mm !important;
+        margin-right: -6mm !important;
+
+        padding: 0 !important;
+
+        box-sizing: border-box !important;
+
+        transform: none !important;
+    }
+
+    /* ------------------------------------------------------
+       PRE-PRINTED LETTERHEAD
+    ------------------------------------------------------ */
+
+    body.pefa-printing-result
+    .pefa-report-document.is-preprinted {
+
+        padding-top: 40mm !important;
+        padding-bottom: 3mm !important;
+    }
+
+    body.pefa-printing-result
+    .pefa-report-document.is-preprinted
+    .pefa-report-letterhead {
+
+        display: none !important;
+    }
+
+    body.pefa-printing-result
+    .pefa-report-document.is-preprinted
+    .pefa-report-patient {
+
+        margin-top: 0 !important;
+    }
+
+    /* ------------------------------------------------------
+       REMOVE SCREEN FLEX/GRID SHRINKING
+    ------------------------------------------------------ */
+
+    body.pefa-printing-result
+    .pefa-print-surface,
+
+    body.pefa-printing-result
+    .pefa-print-surface > *,
+
+    body.pefa-printing-result
+    .pefa-print-surface > div,
+
+    body.pefa-printing-result
+    .pefa-report-document,
+
+    body.pefa-printing-result
+    .pefa-report-body,
+
+    body.pefa-printing-result
+    .pefa-router-body {
+
+        flex: none !important;
+
+        align-self: stretch !important;
+        justify-self: stretch !important;
+
+        min-width: 0 !important;
+
+        transform: none !important;
+    }
+
+    /* ------------------------------------------------------
+       SCREEN-ONLY LEGACY SURFACE
+       The old stylesheet moved this to -100000px.
+       Keep that behavior on screen, but NEVER during print.
+    ------------------------------------------------------ */
+
+    body.pefa-printing-result .pefa-print-surface {
+        left: 0 !important;
+        top: 0 !important;
+    }
+
+    /* ------------------------------------------------------
+       PRINT COLORS / IMAGES
+    ------------------------------------------------------ */
+
+    body.pefa-printing-result
+    .pefa-report-document {
+
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+    }
+}
+
+/* ==========================================================
+   END PEFA COMPATIBILITY PATCH
+========================================================== */

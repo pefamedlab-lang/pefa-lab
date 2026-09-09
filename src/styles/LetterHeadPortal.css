@@ -6,9 +6,13 @@
 
     width:100%;
     min-height:100vh;
+
     padding:24px;
+
     box-sizing:border-box;
+
     background:#f3f5f7;
+
     font-family:Arial,Helvetica,sans-serif;
 
 }
@@ -39,8 +43,11 @@
 .letterhead-info h2{
 
     margin:0;
+
     color:#0b3d91;
+
     font-size:22px;
+
     font-weight:700;
 
 }
@@ -48,18 +55,21 @@
 .letterhead-info p{
 
     margin:8px 0 0;
+
     color:#555;
+
     font-size:14px;
 
 }
 
 /* ======================================================
-   ACTIONS
+   ACTION BUTTONS
 ====================================================== */
 
 .letterhead-actions{
 
     display:flex;
+
     gap:12px;
 
 }
@@ -83,7 +93,15 @@
     font-size:14px;
     font-weight:600;
 
-    transition:.2s;
+    transition:all .25s ease;
+
+}
+
+.letterhead-actions button:hover{
+
+    transform:translateY(-1px);
+
+    opacity:.95;
 
 }
 
@@ -99,12 +117,6 @@
 
 }
 
-.letterhead-actions button:hover{
-
-    opacity:.9;
-
-}
-
 /* ======================================================
    PREVIEW
 ====================================================== */
@@ -112,8 +124,20 @@
 .letterhead-preview{
 
     display:flex;
+
     justify-content:center;
+
     width:100%;
+
+}
+
+/* ======================================================
+   PRINT ROOT
+====================================================== */
+
+#letterhead-print-root{
+
+    width:210mm;
 
 }
 
@@ -124,7 +148,12 @@
 .letterhead-a4{
 
     width:210mm;
+
     min-height:297mm;
+
+    display:flex;
+
+    flex-direction:column;
 
     background:#fff;
 
@@ -132,7 +161,9 @@
 
     box-sizing:border-box;
 
-    box-shadow:0 0 20px rgba(0,0,0,.15);
+    box-shadow:0 8px 25px rgba(0,0,0,.12);
+
+    overflow:hidden;
 
 }
 
@@ -143,16 +174,48 @@
 .letterhead-document{
 
     width:100%;
-    min-height:273mm;
+
+    min-height:calc(297mm - 24mm);
 
     display:flex;
+
+    flex-direction:column;
+
+    flex:1;
+
+}
+
+.letterhead-document__header{
+
+    flex-shrink:0;
+
+}
+
+.letterhead-document__body{
+
+    flex:1;
+
+    display:flex;
+
     flex-direction:column;
 
 }
 
-.letterhead-body{
+.letterhead-document__content{
 
     flex:1;
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+.letterhead-document__footer{
+
+    margin-top:auto;
+
+    flex-shrink:0;
 
 }
 
@@ -163,6 +226,7 @@
 @page{
 
     size:A4 portrait;
+
     margin:0;
 
 }
@@ -173,9 +237,11 @@ html,
 body{
 
     width:210mm;
+
     height:297mm;
 
     margin:0;
+
     padding:0;
 
     background:#fff;
@@ -183,57 +249,53 @@ body{
     overflow:hidden;
 
     -webkit-print-color-adjust:exact;
+
     print-color-adjust:exact;
 
 }
 
-/* Hide entire application */
+/* Hide Portal UI */
 
-body.print-mode *{
+.letterhead-toolbar{
 
-    visibility:hidden !important;
-
-}
-
-/* Show only letterhead */
-
-body.print-mode #letterhead-print-area,
-body.print-mode #letterhead-print-area *{
-
-    visibility:visible !important;
-
-}
-
-#letterhead-print-area{
-
-    position:fixed;
-
-    inset:0;
-
-    width:210mm;
-
-    min-height:297mm;
-
-    margin:0;
-
-    padding:0;
-
-    background:#fff;
+    display:none !important;
 
 }
 
 .letterhead-page{
 
     margin:0;
+
     padding:0;
 
     background:#fff;
 
 }
 
-.letterhead-toolbar{
+/* Only print the letterhead */
 
-    display:none !important;
+body.print-mode *{
+
+    visibility:hidden;
+
+}
+
+body.print-mode #letterhead-print-root,
+body.print-mode #letterhead-print-root *{
+
+    visibility:visible;
+
+}
+
+#letterhead-print-root{
+
+    position:absolute;
+
+    left:0;
+
+    top:0;
+
+    width:210mm;
 
 }
 
@@ -249,19 +311,19 @@ body.print-mode #letterhead-print-area *{
 
     min-height:297mm;
 
-    padding:10mm;
-
     margin:0;
+
+    padding:12mm;
 
     box-shadow:none;
 
-    overflow:hidden;
+    border:none;
 
 }
 
 .letterhead-document{
 
-    min-height:277mm;
+    min-height:calc(297mm - 24mm);
 
 }
 

@@ -1,0 +1,195 @@
+/* ==========================================================
+   PEFA PAYMENT PORTAL — PREMIUM INVOICE DOCUMENT
+   Matches the Referral Invoice visual language.
+   ========================================================== */
+
+.payment-invoice-summary-card{overflow:hidden}
+
+.payment-invoice-summary-head{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+  margin:18px 0;
+}
+.payment-invoice-summary-head>div{
+  padding:13px 15px;
+  border:1px solid #e5eaf1;
+  border-radius:10px;
+  background:#f8fafc;
+}
+.payment-invoice-summary-head span,
+.payment-invoice-financial-row span{
+  display:block;
+  font-size:11px;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  color:#64748b;
+  margin-bottom:5px;
+}
+.payment-invoice-summary-head strong{display:block;color:#172033;font-size:14px}
+
+.payment-invoice-financial-row{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:12px;
+  margin:14px 0;
+}
+.payment-invoice-financial-row>div{
+  border:1px solid #e5eaf1;
+  border-radius:10px;
+  padding:14px 16px;
+  background:#fff;
+}
+.payment-invoice-financial-row strong{font-size:17px;color:#172033}
+.payment-invoice-financial-row .is-pending strong{color:#b45309}
+.payment-invoice-financial-row .is-paid strong{color:#15803d}
+
+.payment-invoice-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.payment-btn-secondary{background:#fff!important;color:#172033!important;border:1px solid #d8dee8!important}
+.payment-invoice-note{margin:14px 0 0;color:#64748b;font-size:12px;line-height:1.6}
+
+/* ==========================================================
+   DOCUMENT VIEWER
+   ========================================================== */
+.payment-document-overlay{
+  position:fixed;
+  inset:0;
+  z-index:9999;
+  background:rgba(15,23,42,.72);
+  backdrop-filter:blur(4px);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+}
+.payment-document-modal{
+  width:min(1180px,96vw);
+  height:min(94vh,1100px);
+  background:#eef2f7;
+  border-radius:16px;
+  overflow:hidden;
+  display:flex;
+  flex-direction:column;
+  box-shadow:0 30px 80px rgba(15,23,42,.3);
+}
+.payment-document-header{
+  min-height:68px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:14px 20px;
+  background:#fff;
+  border-bottom:1px solid #e2e8f0;
+}
+.payment-document-header h2{margin:0;color:#172033;font-size:19px}
+.payment-document-header p{margin:3px 0 0;color:#64748b;font-size:12px}
+.payment-document-close{
+  width:38px;height:38px;border:0;border-radius:9px;background:#f1f5f9;
+  display:grid;place-items:center;cursor:pointer;color:#334155;
+}
+.payment-document-actions{
+  display:flex;gap:9px;flex-wrap:wrap;padding:12px 16px;background:#fff;
+  border-bottom:1px solid #e2e8f0;
+}
+.payment-document-actions button{
+  display:inline-flex;align-items:center;gap:7px;border:1px solid #d7dee8;
+  background:#fff;color:#172033;border-radius:8px;padding:9px 13px;font-weight:700;
+  font-size:12px;cursor:pointer;
+}
+.payment-document-actions button:hover{background:#f8fafc}
+.payment-document-actions button:disabled{opacity:.55;cursor:not-allowed}
+.payment-document-paper{
+  flex:1;
+  overflow:auto;
+  padding:28px;
+  display:flex;
+  justify-content:center;
+  position:relative;
+}
+.payment-document-loading{
+  position:absolute;z-index:3;top:12px;right:18px;background:#fff;border:1px solid #e2e8f0;
+  border-radius:8px;padding:8px 11px;display:flex;align-items:center;gap:7px;font-size:12px;color:#475569;
+  box-shadow:0 6px 20px rgba(15,23,42,.08);
+}
+.payment-print-target{
+  width:794px;
+  min-width:794px;
+  background:#fff;
+  align-self:flex-start;
+  box-shadow:0 8px 35px rgba(15,23,42,.12);
+}
+
+/* ==========================================================
+   INVOICE DOCUMENT
+   ========================================================== */
+.payment-invoice-document{padding:2px 0 12px;color:#172033;font-family:Arial,Helvetica,sans-serif}
+.payment-invoice-title-block{
+  display:flex;align-items:flex-start;justify-content:space-between;gap:20px;
+  padding:18px 20px 15px;border-bottom:2px solid #172033;
+}
+.payment-invoice-title-block h1{margin:0;font-size:25px;letter-spacing:.04em;color:#172033}
+.payment-invoice-title-block p{margin:5px 0 0;color:#64748b;font-size:12px}
+.payment-invoice-status-stamp{
+  border:2px solid #b45309;color:#b45309;padding:8px 12px;border-radius:6px;
+  font-size:11px;font-weight:800;letter-spacing:.08em;white-space:nowrap;
+}
+.payment-invoice-meta-grid{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));border:1px solid #dbe2ea;
+  margin:18px 20px 14px;
+}
+.payment-invoice-meta-grid>div{padding:9px 11px;border-right:1px solid #dbe2ea;border-bottom:1px solid #dbe2ea;min-height:52px}
+.payment-invoice-meta-grid>div:nth-child(4n){border-right:0}
+.payment-invoice-meta-grid>div:nth-last-child(-n+4){border-bottom:0}
+.payment-invoice-meta-grid strong{display:block;font-size:9px;text-transform:uppercase;letter-spacing:.06em;color:#64748b;margin-bottom:4px}
+.payment-invoice-meta-grid span{display:block;font-size:11px;font-weight:700;color:#172033;overflow-wrap:anywhere}
+.payment-invoice-clinical{margin:0 20px 15px;padding:10px 12px;border:1px solid #dbe2ea;border-radius:5px;background:#f8fafc;font-size:11px;line-height:1.5}
+.payment-invoice-clinical strong{display:block;font-size:9px;text-transform:uppercase;color:#64748b;letter-spacing:.06em;margin-bottom:4px}
+.payment-print-section-title{margin:17px 20px 8px;font-size:11px;letter-spacing:.08em;color:#172033;border-bottom:1px solid #cbd5e1;padding-bottom:6px}
+.payment-premium-table{width:calc(100% - 40px);margin:0 20px;border-collapse:collapse;table-layout:fixed;font-size:10px}
+.payment-premium-table th{background:#172033;color:#fff;text-align:left;padding:8px 7px;font-size:9px;letter-spacing:.04em;text-transform:uppercase}
+.payment-premium-table td{border:1px solid #dbe2ea;padding:8px 7px;vertical-align:top;overflow-wrap:anywhere}
+.payment-premium-table tbody tr:nth-child(even) td{background:#f8fafc}
+.payment-premium-table th:first-child,.payment-premium-table td:first-child{width:7%;text-align:center}
+.payment-premium-table th:nth-child(2),.payment-premium-table td:nth-child(2){width:39%}
+.payment-premium-table th:nth-child(3),.payment-premium-table td:nth-child(3){width:22%}
+.payment-premium-table th:nth-child(4),.payment-premium-table td:nth-child(4){width:10%;text-align:center}
+.payment-premium-table th:last-child,.payment-premium-table td:last-child{width:22%;text-align:right}
+.payment-empty-row{text-align:center!important;color:#64748b;padding:18px!important}
+.payment-invoice-financial-summary{margin:0 20px 15px;margin-left:auto;width:56%;min-width:360px;border:1px solid #dbe2ea}
+.payment-invoice-financial-summary>div{display:flex;justify-content:space-between;gap:20px;padding:9px 12px;border-bottom:1px solid #e2e8f0;font-size:11px}
+.payment-invoice-financial-summary>div:last-child{border-bottom:0}
+.payment-invoice-financial-summary span{color:#64748b}
+.payment-invoice-financial-summary strong{color:#172033}
+.payment-invoice-financial-summary .payment-total-payable{background:#f1f5f9;border-top:2px solid #172033;padding:12px}
+.payment-invoice-financial-summary .payment-total-payable span,.payment-invoice-financial-summary .payment-total-payable strong{font-size:13px;font-weight:800;color:#172033}
+.payment-invoice-note-print{margin:12px 20px 4px;padding:10px 12px;border-left:3px solid #94a3b8;background:#f8fafc;color:#64748b;font-size:9px;line-height:1.55}
+
+/* Keep viewer document A4-friendly on smaller screens. */
+@media (max-width:900px){
+  .payment-document-paper{padding:15px}
+  .payment-invoice-summary-head{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .payment-invoice-financial-row{grid-template-columns:1fr}
+}
+@media (max-width:620px){
+  .payment-document-overlay{padding:0}
+  .payment-document-modal{width:100vw;height:100vh;border-radius:0}
+  .payment-document-actions{overflow-x:auto;flex-wrap:nowrap}
+  .payment-document-actions button{white-space:nowrap}
+  .payment-invoice-summary-head{grid-template-columns:1fr}
+}
+
+/* ==========================================================
+   PRINT
+   ========================================================== */
+@media print{
+  body *{visibility:hidden!important}
+  #payment-invoice-print,
+  #payment-invoice-print *{visibility:visible!important}
+  #payment-invoice-print{position:absolute;left:0;top:0;width:210mm!important;min-width:210mm!important;box-shadow:none!important}
+  .payment-document-overlay{position:static;background:#fff;padding:0}
+  .payment-document-modal{width:auto;height:auto;overflow:visible;box-shadow:none;border-radius:0}
+  .payment-document-header,.payment-document-actions,.payment-document-loading{display:none!important}
+  .payment-document-paper{padding:0;overflow:visible}
+  .payment-print-target{width:210mm!important;min-width:210mm!important;box-shadow:none!important}
+  .payment-invoice-document{width:210mm!important}
+}

@@ -1,0 +1,286 @@
+/* ==========================================================
+   MODULE 09
+   REPORT VERIFICATION
+   PEFA Medical Diagnostic Services
+========================================================== */
+
+/* ==========================================================
+   VERIFICATION SECTION
+========================================================== */
+
+.verification-section{
+
+    width:100%;
+
+    display:grid;
+
+    grid-template-columns:60px 220px 1fr;
+
+    gap:14px;
+
+    align-items:center;
+
+    margin:8px 0;
+
+    padding:8px 10px;
+
+    border:1px solid #d9e3ea;
+
+    border-radius:6px;
+
+    background:#ffffff;
+
+    flex-shrink:0;
+
+    page-break-inside:avoid;
+    break-inside:avoid;
+
+}
+
+/* ==========================================================
+   QR CODE
+========================================================== */
+
+.verification-qr{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+}
+
+.verification-qr img,
+.verification-qr canvas{
+
+    width:55px;
+
+    height:55px;
+
+    display:block;
+
+    object-fit:contain;
+
+}
+
+/* ==========================================================
+   DETAILS
+========================================================== */
+
+.verification-details{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:4px;
+
+    min-width:0;
+
+}
+
+/* ==========================================================
+   ROW
+========================================================== */
+
+.verification-row{
+
+    display:grid;
+
+    grid-template-columns:105px 1fr;
+
+    column-gap:8px;
+
+    align-items:center;
+
+}
+
+/* ==========================================================
+   LABEL
+========================================================== */
+
+.verification-label{
+
+    font-size:10px;
+
+    font-weight:700;
+
+    text-transform:uppercase;
+
+    color:#64748b;
+
+    white-space:nowrap;
+
+}
+
+/* ==========================================================
+   VALUE
+========================================================== */
+
+.verification-value{
+
+    font-size:10px;
+
+    color:#111827;
+
+    overflow-wrap:anywhere;
+
+    word-break:break-word;
+
+}
+
+.verification-status{
+
+    font-size:10px;
+
+    font-weight:700;
+
+    color:#15803d;
+
+}
+
+/* ==========================================================
+   AUTHENTICITY NOTICE
+========================================================== */
+
+.verification-note{
+
+    align-self:center;
+
+    font-size:9px;
+
+    line-height:1.45;
+
+    color:#6b7280;
+
+    text-align:left;
+
+}
+
+.verification-note strong{
+
+    color:#374151;
+
+    font-weight:700;
+
+}
+
+/* ==========================================================
+   COMPACT MODE
+========================================================== */
+
+.report-page.compact .verification-section{
+
+    grid-template-columns:55px 200px 1fr;
+
+    gap:12px;
+
+    margin:6px 0;
+
+    padding:7px 8px;
+
+}
+
+.report-page.compact .verification-qr img,
+.report-page.compact .verification-qr canvas{
+
+    width:50px;
+
+    height:50px;
+
+}
+
+.report-page.compact .verification-row{
+
+    grid-template-columns:95px 1fr;
+
+}
+
+.report-page.compact .verification-label,
+.report-page.compact .verification-value,
+.report-page.compact .verification-status{
+
+    font-size:9px;
+
+}
+
+.report-page.compact .verification-note{
+
+    font-size:8px;
+
+    line-height:1.35;
+
+}
+
+/* ==========================================================
+   PRINT
+========================================================== */
+
+@media print{
+
+    .verification-section{
+
+        width:100%;
+
+        display:grid;
+
+        grid-template-columns:55px 205px 1fr;
+
+        gap:12px;
+
+        margin:6px 0;
+
+        padding:7px 8px;
+
+        border:1px solid #d9e3ea;
+
+        border-radius:0;
+
+        background:#ffffff;
+
+        page-break-inside:avoid;
+        break-inside:avoid;
+
+    }
+
+    .verification-qr img,
+    .verification-qr canvas{
+
+        width:50px;
+
+        height:50px;
+
+    }
+
+    .verification-details{
+
+        gap:3px;
+
+    }
+
+    .verification-row{
+
+        grid-template-columns:95px 1fr;
+
+    }
+
+    .verification-label,
+    .verification-value,
+    .verification-status{
+
+        font-size:9px;
+
+    }
+
+    .verification-note{
+
+        font-size:8px;
+
+        line-height:1.35;
+
+        text-align:left;
+
+    }
+
+}

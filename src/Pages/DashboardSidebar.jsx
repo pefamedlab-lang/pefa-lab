@@ -1,4 +1,4 @@
-import {
+ import {
   useState,
   useMemo,
 } from "react";
@@ -155,73 +155,37 @@ export default function DashboardSidebar() {
             "Admin",
           ],
 
-          items: [
+         items: [
 
-            {
-              label:
-                "Result Dashboard",
+ 
+ {
+    label: "Result Entry",
+    path: "/laboratory-result-entry",
+  },
 
-              path:
-                "/result-dashboard",
-            },
+  {
+    label: "Result Dashboard",
+    path: "/result-dashboard",
+  },
 
-            {
-              label:
-                "Result Records",
+ 
 
-              path:
-                "/result-records",
-            },
+  {
+    label: "Specimen Tracking",
+    path: "/specimen-tracking",
+  },
 
-            {
-              label:
-                "Specimen Tracking",
+  {
+    label: "Patient Result Portal",
+    path: "/patient-results",
+  },
 
-              path:
-                "/specimen-tracking",
-            },
+  {
+    label: "Test Control",
+    path: "/test-control",
+  },
 
-            {
-              label:
-                "Patient Result Portal",
-
-              path:
-                "/patient-results",
-            },
-
-            {
-              label:
-                "Test Control",
-
-              path:
-                "/test-control",
-            },
-
-            {
-              label:
-                "Hematology",
-
-              path:
-                "/hematology",
-            },
-
-            {
-              label:
-                "Chemistry",
-
-              path:
-                "/chemistry",
-            },
-
-            {
-              label:
-                "Microbiology",
-
-              path:
-                "/microbiology",
-            },
-
-          ],
+],
 
         },
 
@@ -297,34 +261,28 @@ export default function DashboardSidebar() {
             "Admin",
           ],
 
-          items: [
-
-            {
-              label:
-                "Ultrasound Registration",
-
-              path:
-                "/ultrasound-registration",
-            },
-
-            {
-              label:
-                "Ultrasound Results",
-
-              path:
-                "/ultrasound-results",
-            },
-
-            {
-              label:
-                "Ultrasound Analytics",
-
-              path:
-                "/ultrasound-analytics",
-            },
-
-          ],
-
+items: [
+  {
+    label: "Ultrasound Registration",
+    path: "/ultrasound-registration",
+  },
+  {
+    label: "Ultrasound Results",
+    path: "/ultrasound-results",
+  },
+  {
+    label: "Ultrasound Records",
+    path: "/ultrasound-records",
+  },
+ {
+  label: "Print Reports",
+  path: "/ultrasound-report",
+},
+  {
+    label: "Ultrasound Analytics",
+    path: "/ultrasound-analytics",
+  },
+]
         },
 
         {

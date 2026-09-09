@@ -1,309 +1,104 @@
+/*
+ * PEFA ENTERPRISE LIS
+ * PrintUrinalysis.jsx
+ *
+ * Dedicated special-result printer.
+ * This component renders the saved payload supplied by the selected
+ * report. It does NOT use PrintRouter, Supabase, grouping, or JSON dumps.
+ */
+
+import React from "react";
+import PEFAFormalReportShell from "./PEFAFormalReportShell";
+import { first, text, readable, fields, resultObject } from "./PrintSpecialUtils";
+
+const KNOWN_FIELDS = ['colour', 'color', 'appearance', 'ph', 'specific_gravity', 'protein', 'glucose', 'ketone', 'bilirubin', 'urobilinogen', 'nitrite', 'blood', 'leukocytes', 'pus_cells', 'rbc', 'epithelial_cells', 'casts', 'crystals', 'bacteria'];
+
 export default function PrintUrinalysis({
-
-  results = [],
-
+  report = {},
+  rows,
+  printMode = "full",
+  clinicalHistory,
+  interpretation,
+  resultEnteredBy,
+  authorizedBy,
+  verificationId,
+  verificationStatus,
+  releasedBy,
+  releasedAt,
 }) {
-
-  /* ======================================================
-     NO RESULT
-  ====================================================== */
-
-  if (!results.length) {
-
-    return null;
-
-  }
-
-  const report = results[0];
-
-  let data =
-
-    report.result ||
-
-    report.result_data ||
-
-    {};
-
-  /* ======================================================
-     JSON SAFETY
-  ====================================================== */
-
-  if (typeof data === "string") {
-
-    try {
-
-      data = JSON.parse(data);
-
-    }
-
-    catch {
-
-      data = {};
-
-    }
-
-  }
-
-  /* ======================================================
-     DATA GROUPS
-  ====================================================== */
-
-  const physical = [
-
-    ["Colour", data.colour],
-
-    ["Appearance", data.appearance],
-
-    ["Specific Gravity", data.specificGravity],
-
-    ["pH", data.ph],
-
-  ];
-
-  const chemical = [
-
-    ["Protein", data.protein],
-
-    ["Glucose", data.glucose],
-
-    ["Ketone", data.ketone],
-
-    ["Bilirubin", data.bilirubin],
-
-    ["Urobilinogen", data.urobilinogen],
-
-    ["Blood", data.blood],
-
-    ["Nitrite", data.nitrite],
-
-    ["Leucocytes", data.leucocytes],
-
-  ];
-
-  const microscopy = [
-
-    ["Pus Cells", data.pusCells],
-
-    ["Red Blood Cells", data.rbc],
-
-    ["Epithelial Cells", data.epithelialCells],
-
-    ["Casts", data.casts],
-
-    ["Crystals", data.crystals],
-
-    ["Yeast Cells", data.yeastCells],
-
-    ["Parasites", data.parasites],
-
-    ["Others", data.others],
-
-  ];
-
-  /* ======================================================
-     FOUR COLUMN TABLE
-  ====================================================== */
-
-  const renderFourColumnTable = (rows = []) => {
-
-    const cleaned = rows.filter(
-
-      ([, value]) =>
-
-        value !== undefined &&
-
-        value !== null &&
-
-        value !== ""
-
-    );
-
-    if (!cleaned.length) {
-
-      return null;
-
-    }
-
-    const paired = [];
-
-    for (
-
-      let i = 0;
-
-      i < cleaned.length;
-
-      i += 2
-
-    ) {
-
-      paired.push([
-
-        cleaned[i],
-
-        cleaned[i + 1] || ["", ""],
-
-      ]);
-
-    }
-
-    return (
-
-      <table className="premium-table compact-four-table">
-
-        <tbody>
-
-          {paired.map(([left, right], index) => (
-
-            <tr key={index}>
-
-              <td className="label-cell">
-
-                {left[0]}
-
-              </td>
-
-              <td>
-
-                {left[1] || "-"}
-
-              </td>
-
-              <td className="label-cell">
-
-                {right[0]}
-
-              </td>
-
-              <td>
-
-                {right[1] || ""}
-
-              </td>
-
-            </tr>
-
-          ))}
-
-        </tbody>
-
-      </table>
-
-    );
-
-  };
-
-  /* ======================================================
-     REPORT
-  ====================================================== */
-
-  return (
-
-    <div className="urinalysis-report">
-
-      {/* ==========================================
-          PHYSICAL EXAMINATION
-      ========================================== */}
-
-      <div className="sub-test-title">
-
-        Physical Examination
-
-      </div>
-
-      {renderFourColumnTable(
-
-        physical
-
-      )}
-
-      {/* ==========================================
-          CHEMICAL EXAMINATION
-      ========================================== */}
-
-      <div className="sub-test-title">
-
-        Chemical Examination
-
-      </div>
-
-      {renderFourColumnTable(
-
-        chemical
-
-      )}
-
-      {/* ==========================================
-          MICROSCOPY
-      ========================================== */}
-
-      <div className="sub-test-title">
-
-        Microscopy
-
-      </div>
-
-      {renderFourColumnTable(
-
-        microscopy
-
-      )}
-
-      {/* ==========================================
-          INTERPRETATION
-      ========================================== */}
-
-      {data.interpretation && (
-
-        <div className="report-comment">
-
-          <h4>
-
-            Interpretation
-
-          </h4>
-
-          <p>
-
-            {data.interpretation}
-
-          </p>
-
-        </div>
-
-      )}
-
-      {/* ==========================================
-          SCIENTIST REMARK
-      ========================================== */}
-
-      {(data.scientistRemark || data.remark) && (
-
-        <div className="report-comment">
-
-          <h4>
-
-            Scientist Remark
-
-          </h4>
-
-          <p>
-
-            {
-
-              data.scientistRemark ||
-
-              data.remark
-
-            }
-
-          </p>
-
-        </div>
-
-      )}
-
-    </div>
-
+  const source = Array.isArray(rows)
+    ? rows
+    : (Array.isArray(report.items) ? report.items : [report]);
+
+  const row = source[0] || report;
+  const payload = resultObject(row);
+
+  const entries = Object.entries(payload).filter(([key, value]) =>
+    !["id","created_at","updated_at","status","result_type"].includes(key) &&
+    (typeof value !== "object" || value === null)
   );
 
+  const direct = fields(row, [
+    "id","created_at","updated_at","lab_number","labNumber",
+    "patient_id","patientId","test_id","master_test_id",
+    "result","result_value","result_numeric","value",
+    "result_data","resultData","result_flag","flag",
+    "reference_range","referenceRange","unit"
+  ]);
+
+  const displayed = entries.length
+    ? entries.map(([key, value]) => ({ name: key.replace(/[_-]+/g, " "), value: readable(value) }))
+    : direct.filter((x) => !["Department","Test Name"].includes(x.name));
+
+  return (
+    <PEFAFormalReportShell
+      report={report}
+      title={first(titleFallback(), report.test_name, report.testName, "ROUTINE URINALYSIS")}
+      department={first(report.department, "Clinical Laboratory")}
+      printMode={printMode}
+      clinicalHistory={clinicalHistory || first(report.clinical_history, report.clinicalHistory)}
+      interpretation={interpretation || first(report.interpretation, report.interpretation_text)}
+      resultEnteredBy={resultEnteredBy || first(report.result_entered_by, report.entered_by)}
+      authorizedBy={authorizedBy || first(report.authorized_by, report.authorizedBy)}
+      verificationId={verificationId || first(report.verification_id, report.verificationId)}
+      verificationStatus={verificationStatus || first(report.status)}
+      releasedBy={releasedBy || first(report.released_by, report.releasedBy)}
+      releasedAt={releasedAt || first(report.released_at, report.releasedAt)}
+    >
+      <table className="pefa-special-table">
+        <thead><tr><th>Examination / Parameter</th><th>Result</th></tr></thead>
+        <tbody>
+          {displayed.map((item, index) => (
+            <tr key={`${item.name}-${index}`}>
+              <td><b>{text(item.name)}</b></td>
+              <td>{text(item.value)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <style>{`
+        .pefa-special-table {
+          width:100%;
+          border-collapse:collapse;
+          font-size:9.5pt;
+        }
+        .pefa-special-table th,
+        .pefa-special-table td {
+          border:1px solid #222;
+          padding:2.5mm;
+          text-align:left;
+          vertical-align:top;
+        }
+        .pefa-special-table th {
+          font-size:8pt;
+          text-transform:uppercase;
+        }
+      `}</style>
+    </PEFAFormalReportShell>
+  );
+
+  function titleFallback() {
+    return "ROUTINE URINALYSIS";
+  }
 }

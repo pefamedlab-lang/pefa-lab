@@ -1,156 +1,83 @@
 import { generateInterpretation } from "../../utils/interpretation";
 
 /* ==========================================================
-   BLOCK
+   INTERPRETATION ROW
 ========================================================== */
 
-function ReportBlock({
-
-  title,
-
-  text,
-
-}) {
-
-  if (!text?.trim()) {
-
-    return null;
-
-  }
+function InterpretationRow({ label, value }) {
+  if (!value?.trim()) return null;
 
   return (
+    <div className="interpretation-row">
 
-    <div className="report-block">
+      <span className="interpretation-label">
+        {label}
+      </span>
 
-      <div className="report-block-title">
-
-        {title}
-
-      </div>
-
-      <div className="report-block-body">
-
-        {text.trim()}
-
-      </div>
+      <span className="interpretation-value">
+        {value.trim()}
+      </span>
 
     </div>
-
   );
-
 }
 
 /* ==========================================================
-   COMPONENT
+   INTERPRETATION SECTION
 ========================================================== */
 
 export default function InterpretationSection({
-
   report = {},
-
   results = [],
-
 }) {
 
   const output =
-
-    generateInterpretation(
-
-      report,
-
-      results
-
-    );
+    generateInterpretation(report, results);
 
   if (
-
     !output ||
-
     (
-
       !output.interpretation &&
-
       !output.impression &&
-
       !output.comment &&
-
       !output.recommendation
-
     )
-
   ) {
-
     return null;
-
   }
 
   return (
 
-    <section className="report-interpretation">
+    <section className="interpretation-section">
 
-      {/* ==========================================
-          HEADER
-      ========================================== */}
+      <div className="section-title">
 
-      <div className="report-interpretation-header">
-
-        <span className="report-header-line" />
-
-        <span className="report-header-title">
-
-          INTERPRETATION & CLINICAL COMMENTS
-
-        </span>
-
-        <span className="report-header-line" />
+        Interpretation & Clinical Comments
 
       </div>
 
-      {/* ==========================================
-          CONTENT
-      ========================================== */}
+      <InterpretationRow
+        label="Interpretation"
+        value={output.interpretation}
+      />
 
-      <div className="report-interpretation-body">
+      <InterpretationRow
+        label="Impression"
+        value={output.impression}
+      />
 
-        <ReportBlock
+      <InterpretationRow
+        label="Laboratory Comment"
+        value={
+          output.comment ||
+          report.comment
+        }
+      />
 
-          title="INTERPRETATION"
-
-          text={output.interpretation}
-
-        />
-
-        <ReportBlock
-
-          title="IMPRESSION"
-
-          text={output.impression}
-
-        />
-
-        <ReportBlock
-
-          title="LABORATORY COMMENT"
-
-          text={
-
-            output.comment ||
-
-            report.comment
-
-          }
-
-        />
-
-        <ReportBlock
-
-          title="RECOMMENDATION"
-
-          text={output.recommendation}
-
-        />
-
-      </div>
+      <InterpretationRow
+        label="Recommendation"
+        value={output.recommendation}
+      />
 
     </section>
 

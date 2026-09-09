@@ -1,3 +1,14 @@
+import { useEffect } from "react";
+
+import {
+  generateAbdominalReport,
+} from "../../../utils/ultrasound/reportGenerators";
+
+import {
+  generateAbdominalImpression,
+  generateAbdominalRecommendation,
+} from "../../../utils/ultrasound/impressionGenerator";
+
 export default function AbdominalScanForm({
 
   data = {},

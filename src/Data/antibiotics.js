@@ -1,69 +1,59 @@
-export const antibiotics = [
+const antibiotics = [
 
   // PENICILLINS
-
   "Amoxicillin",
   "Ampicillin",
   "Cloxacillin",
   "Flucloxacillin",
 
-  // BETA-LACTAM / INHIBITOR
-
+  // BETA-LACTAM / BETA-LACTAMASE INHIBITORS
   "Amoxicillin/Clavulanate",
   "Piperacillin/Tazobactam",
 
   // CEPHALOSPORINS
-
+  "Cefepime",
+  "Cefixime",
+  "Cefotaxime",
   "Ceftriaxone",
   "Ceftazidime",
   "Cefuroxime",
-  "Cefixime",
-  "Cefotaxime",
-  "Cefepime",
 
   // AMINOGLYCOSIDES
-
-  "Gentamicin",
   "Amikacin",
+  "Gentamicin",
   "Streptomycin",
 
   // FLUOROQUINOLONES
-
   "Ciprofloxacin",
   "Levofloxacin",
-  "Ofloxacin",
   "Norfloxacin",
+  "Ofloxacin",
 
   // MACROLIDES
-
   "Azithromycin",
-  "Erythromycin",
   "Clarithromycin",
+  "Erythromycin",
 
   // TETRACYCLINES
-
-  "Tetracycline",
   "Doxycycline",
+  "Tetracycline",
 
   // SULFONAMIDES
-
   "Co-trimoxazole",
 
   // NITROFURANS
-
   "Nitrofurantoin",
 
   // CARBAPENEMS
-
-  "Meropenem",
   "Imipenem",
+  "Meropenem",
 
   // GLYCOPEPTIDES
-
   "Vancomycin",
 
   // OXAZOLIDINONES
-
   "Linezolid",
 
 ];
+
+export default antibiotics;

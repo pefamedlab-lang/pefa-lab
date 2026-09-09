@@ -98,29 +98,8 @@ slogan:
 
     {
 
+      
       id: 1,
-
-      code: "HO",
-
-      name: "Head Office",
-
-      address: [
-
-        "32, Ogunru-Ori",
-
-        "Pakuro Road",
-
-        "Mowe",
-
-        "Ogun State",
-
-      ],
-
-    },
-
-    {
-
-      id: 2,
 
       code: "MB",
 
@@ -142,7 +121,7 @@ slogan:
 
     {
 
-      id: 3,
+      id: 2,
 
       code: "OR",
 

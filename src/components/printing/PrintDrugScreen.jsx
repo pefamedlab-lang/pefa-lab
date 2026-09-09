@@ -1,340 +1,347 @@
 export default function PrintDrugScreen({
-
-  results = [],
-
+    results = [],
 }) {
 
-  /* ======================================================
-     NO RESULT
-  ====================================================== */
+    /* ======================================================
+       NO RESULT
+    ====================================================== */
 
-  if (!results.length) {
+    if (!results.length) {
+        return null;
+    }
 
-    return null;
+    const report = results[0];
 
-  }
+    let data =
+        report.result ||
+        report.result_data ||
+        {};
 
-  const report = results[0];
+    /* ======================================================
+       JSON SAFETY
+    ====================================================== */
 
-  let data =
+    if (typeof data === "string") {
 
-    report.result ||
+        try {
 
-    report.result_data ||
+            data = JSON.parse(data);
 
-    {};
+        } catch {
 
-  /* ======================================================
-     JSON SAFETY
-  ====================================================== */
+            data = {};
 
-  if (typeof data === "string") {
-
-    try {
-
-      data = JSON.parse(data);
+        }
 
     }
 
-    catch {
+    /* ======================================================
+       DRUG PANEL
+    ====================================================== */
+
+    const drugs = [
+
+        {
+            label: "Amphetamine",
+            key: "amphetamine",
+        },
+
+        {
+            label: "Methamphetamine",
+            key: "methamphetamine",
+        },
+
+        {
+            label: "Cannabis (THC)",
+            key: "thc",
+        },
+
+        {
+            label: "Cocaine",
+            key: "cocaine",
+        },
+
+        {
+            label: "Opiates",
+            key: "opiates",
+        },
+
+        {
+            label: "Morphine",
+            key: "morphine",
+        },
+
+        {
+            label: "Tramadol",
+            key: "tramadol",
+        },
+
+        {
+            label: "Benzodiazepines",
+            key: "benzodiazepines",
+        },
+
+        {
+            label: "Barbiturates",
+            key: "barbiturates",
+        },
+
+        {
+            label: "Phencyclidine (PCP)",
+            key: "pcp",
+        },
+
+        {
+            label: "MDMA (Ecstasy)",
+            key: "mdma",
+        },
+
+    ];
+
+    /* ======================================================
+       RESULT STYLE
+    ====================================================== */
+
+    const getResultClass = (value = "") => {
+
+        const result =
+            String(value)
+                .toLowerCase()
+                .trim();
+
+        if (
+            result.includes("positive") ||
+            result.includes("reactive") ||
+            result.includes("detected")
+        ) {
+            return "flag-high";
+        }
+
+        if (
+            result.includes("negative") ||
+            result.includes("non reactive") ||
+            result.includes("not detected")
+        ) {
+            return "flag-normal";
+        }
+
+        return "result-value";
+
+    };
+
+    /* ======================================================
+       AVAILABLE DRUGS
+    ====================================================== */
+
+    const availableDrugs = drugs.filter(
+        (drug) => data[drug.key] !== undefined
+    );
+
+    /* ======================================================
+       INLINE STYLES
+    ====================================================== */
+
+    const departmentStyle = {
+        textAlign: "center",
+        fontSize: "16px",
+        fontWeight: "700",
+        color: "#003366",
+        textTransform: "uppercase",
+        letterSpacing: "1px",
+        marginBottom: results.length === 1 ? "6px" : "14px",
+    };
+
+    const testTitleStyle = {
+        textAlign: "center",
+        fontSize: "14px",
+        fontWeight: "700",
+        color: "#0f4c81",
+        background: "#eef5fb",
+        border: "1px solid #c9d9ea",
+        borderRadius: "4px",
+        padding: "8px",
+        marginBottom: "16px",
+        textTransform: "uppercase",
+        letterSpacing: "0.5px",
+    };
 
-      data = {};
+    const commentTitleStyle = {
+        fontSize: "13px",
+        fontWeight: "700",
+        color: "#003366",
+        marginBottom: "4px",
+    };
 
-    }
+    const commentTextStyle = {
+        fontSize: "12px",
+        lineHeight: 1.6,
+        margin: 0,
+        whiteSpace: "pre-wrap",
+        textAlign: "justify",
+    };
 
-  }
+    /* ======================================================
+       REPORT
+    ====================================================== */
 
-  /* ======================================================
-     DRUG PANEL
-  ====================================================== */
+    return (
 
-  const drugs = [
+        <div className="toxicology-report">
 
-    {
-      label: "Amphetamine",
-      key: "amphetamine",
-    },
+            {/* ==========================================
+                DEPARTMENT
+            ========================================== */}
 
-    {
-      label: "Methamphetamine",
-      key: "methamphetamine",
-    },
+            <div style={departmentStyle}>
+                {report.department_name ||
+                    report.department ||
+                    "TOXICOLOGY"}
+            </div>
 
-    {
-      label: "Cannabis (THC)",
-      key: "thc",
-    },
+            {/* ==========================================
+                TEST TITLE (ONLY FOR SINGLE TEST)
+            ========================================== */}
 
-    {
-      label: "Cocaine",
-      key: "cocaine",
-    },
+            {results.length === 1 && (
 
-    {
-      label: "Opiates",
-      key: "opiates",
-    },
+                <div style={testTitleStyle}>
+                    {report.test_name ||
+                        report.test_type ||
+                        "Drug Screening"}
+                </div>
 
-    {
-      label: "Morphine",
-      key: "morphine",
-    },
+            )}
 
-    {
-      label: "Tramadol",
-      key: "tramadol",
-    },
+            <table className="premium-table">
 
-    {
-      label: "Benzodiazepines",
-      key: "benzodiazepines",
-    },
+                <thead>
 
-    {
-      label: "Barbiturates",
-      key: "barbiturates",
-    },
+                    <tr>
 
-    {
-      label: "Phencyclidine (PCP)",
-      key: "pcp",
-    },
+                        <th>
+                            Drug
+                        </th>
 
-    {
-      label: "MDMA (Ecstasy)",
-      key: "mdma",
-    },
+                        <th>
+                            Result
+                        </th>
 
-  ];
+                    </tr>
 
-  /* ======================================================
-     RESULT STYLE
-  ====================================================== */
+                </thead>
 
-  const getResultClass = (value = "") => {
+                <tbody>
 
-    const result =
+                    {availableDrugs.length > 0 ? (
 
-      String(value)
+                        availableDrugs.map((drug) => (
 
-        .toLowerCase()
+                            <tr key={drug.key}>
 
-        .trim();
+                                <td>
+                                    {drug.label}
+                                </td>
 
-    if (
+                                <td>
 
-      result.includes("positive") ||
+                                    <span
+                                        className={getResultClass(
+                                            data[drug.key]
+                                        )}
+                                    >
+                                        {data[drug.key] || "Negative"}
+                                    </span>
 
-      result.includes("reactive") ||
+                                </td>
 
-      result.includes("detected")
+                            </tr>
 
-    ) {
+                        ))
 
-      return "flag-high";
+                    ) : (
 
-    }
+                        <tr>
 
-    if (
+                            <td
+                                colSpan={2}
+                                style={{
+                                    textAlign: "center",
+                                    padding: "20px",
+                                }}
+                            >
+                                No Drug Screening Result Available
+                            </td>
 
-      result.includes("negative") ||
-
-      result.includes("non reactive") ||
-
-      result.includes("not detected")
-
-    ) {
-
-      return "flag-normal";
-
-    }
-
-    return "result-value";
-
-  };
-
-  /* ======================================================
-     AVAILABLE DRUGS
-  ====================================================== */
-
-  const availableDrugs = drugs.filter(
-
-    drug =>
-
-      data[drug.key] !== undefined
-
-  );
-
-  /* ======================================================
-     REPORT
-  ====================================================== */
-
-  return (
-
-    <div className="toxicology-report">
-
-      <table className="premium-table">
-
-        <thead>
-
-          <tr>
-
-            <th>
-
-              Drug
-
-            </th>
-
-            <th>
-
-              Result
-
-            </th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          {availableDrugs.length > 0 ? (
-
-            availableDrugs.map((drug) => (
-
-              <tr key={drug.key}>
-
-                <td>
-
-                  {drug.label}
-
-                </td>
-
-                <td>
-
-                  <span
-
-                    className={getResultClass(
-
-                      data[drug.key]
+                        </tr>
 
                     )}
 
-                  >
+                </tbody>
 
-                    {data[drug.key] || "Negative"}
+            </table>
 
-                  </span>
+            {/* ==========================================
+                COMMENT
+            ========================================== */}
 
-                </td>
+            {data.comment && (
 
-              </tr>
+                <div className="report-comment">
 
-            ))
+                    <h4 style={commentTitleStyle}>
+                        Comment
+                    </h4>
 
-          ) : (
+                    <p style={commentTextStyle}>
+                        {data.comment}
+                    </p>
 
-            <tr>
+                </div>
 
-              <td
+            )}
 
-                colSpan={2}
+            {/* ==========================================
+                IMPRESSION
+            ========================================== */}
 
-                style={{
+            {data.impression && (
 
-                  textAlign: "center",
+                <div className="report-comment">
 
-                  padding: "20px",
+                    <h4 style={commentTitleStyle}>
+                        Impression
+                    </h4>
 
-                }}
+                    <p style={commentTextStyle}>
+                        {data.impression}
+                    </p>
 
-              >
+                </div>
 
-                No Drug Screening Result Available
+            )}
 
-              </td>
+            {/* ==========================================
+                SCIENTIST REMARK
+            ========================================== */}
 
-            </tr>
+            {data.remark && (
 
-          )}
+                <div className="report-comment">
 
-        </tbody>
+                    <h4 style={commentTitleStyle}>
+                        Scientist Remark
+                    </h4>
 
-      </table>
+                    <p style={commentTextStyle}>
+                        {data.remark}
+                    </p>
 
-      {/* ==================================================
-          COMMENT
-      ================================================== */}
+                </div>
 
-      {data.comment && (
-
-        <div className="report-comment">
-
-          <h4>
-
-            Comment
-
-          </h4>
-
-          <p>
-
-            {data.comment}
-
-          </p>
-
-        </div>
-
-      )}
-
-      {/* ==================================================
-          IMPRESSION
-      ================================================== */}
-
-      {data.impression && (
-
-        <div className="report-comment">
-
-          <h4>
-
-            Impression
-
-          </h4>
-
-          <p>
-
-            {data.impression}
-
-          </p>
+            )}
 
         </div>
 
-      )}
-
-      {/* ==================================================
-          SCIENTIST REMARK
-      ================================================== */}
-
-      {data.remark && (
-
-        <div className="report-comment">
-
-          <h4>
-
-            Scientist Remark
-
-          </h4>
-
-          <p>
-
-            {data.remark}
-
-          </p>
-
-        </div>
-
-      )}
-
-    </div>
-
-  );
+    );
 
 }

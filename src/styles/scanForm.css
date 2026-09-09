@@ -1,0 +1,53 @@
+.scan-form {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.scan-section {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid #ddd;
+}
+
+.scan-section h3 {
+    margin-bottom: 20px;
+    color: #005792;
+}
+
+.scan-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px,1fr));
+    gap: 18px;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+}
+
+.field label {
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.field input,
+.field select,
+.field textarea {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+.number-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.number-field span {
+    font-size: 13px;
+    color: #666;
+}

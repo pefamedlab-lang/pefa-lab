@@ -27,17 +27,36 @@ export default function interpretProteins(
       "Albumin"
     );
 
-  const globulin =
+  let globulin =
     getNumericResult(
       resultMap,
       "Globulin"
     );
 
-  const agRatio =
+  if (
+    globulin === null &&
+    totalProtein !== null &&
+    albumin !== null
+  ) {
+    globulin =
+      totalProtein - albumin;
+  }
+
+  let agRatio =
     getNumericResult(
       resultMap,
       "A/G Ratio"
     );
+
+  if (
+    agRatio === null &&
+    albumin !== null &&
+    globulin !== null &&
+    globulin > 0
+  ) {
+    agRatio =
+      albumin / globulin;
+  }
 
   const creatinine =
     getNumericResult(
@@ -51,6 +70,8 @@ export default function interpretProteins(
 
   let recommendation = "";
 
+  let abnormal = false;
+
   /* ======================================================
      TOTAL PROTEIN
   ====================================================== */
@@ -58,6 +79,8 @@ export default function interpretProteins(
   if (totalProtein !== null) {
 
     if (totalProtein < 60) {
+
+      abnormal = true;
 
       interpretation +=
         "Total serum protein is below the reference interval, suggesting hypoproteinaemia.\n\n";
@@ -72,6 +95,8 @@ export default function interpretProteins(
     }
 
     else {
+
+      abnormal = true;
 
       interpretation +=
         "Total serum protein is elevated (hyperproteinaemia).\n\n";
@@ -88,6 +113,8 @@ export default function interpretProteins(
 
     if (albumin < 35) {
 
+      abnormal = true;
+
       interpretation +=
         "Serum albumin is reduced. This may occur in chronic liver disease, nephrotic syndrome, malnutrition, protein-losing enteropathy or systemic inflammation.\n\n";
 
@@ -101,6 +128,8 @@ export default function interpretProteins(
     }
 
     else {
+
+      abnormal = true;
 
       interpretation +=
         "Serum albumin is elevated, usually reflecting dehydration.\n\n";
@@ -117,6 +146,8 @@ export default function interpretProteins(
 
     if (globulin < 20) {
 
+      abnormal = true;
+
       interpretation +=
         "Globulin concentration is reduced.\n\n";
 
@@ -130,6 +161,8 @@ export default function interpretProteins(
     }
 
     else {
+
+      abnormal = true;
 
       interpretation +=
         "Globulin concentration is elevated, suggesting chronic inflammation, autoimmune disease or plasma cell disorders.\n\n";
@@ -146,6 +179,8 @@ export default function interpretProteins(
 
     if (agRatio < 1.0) {
 
+      abnormal = true;
+
       interpretation +=
         "Albumin/Globulin ratio is reduced.\n\n";
 
@@ -160,6 +195,8 @@ export default function interpretProteins(
 
     else {
 
+      abnormal = true;
+
       interpretation +=
         "Albumin/Globulin ratio is elevated.\n\n";
 
@@ -173,10 +210,11 @@ export default function interpretProteins(
 
   if (
 
+    totalProtein !== null &&
+    globulin !== null &&
+    agRatio !== null &&
     totalProtein > 90 &&
-
     globulin > 45 &&
-
     agRatio < 1.0
 
   ) {
@@ -190,13 +228,14 @@ export default function interpretProteins(
   }
 
   /* ======================================================
-     CHRONIC INFLAMMATION
+     CHRONIC INFLAMMATORY PATTERN
   ====================================================== */
 
   else if (
 
+    globulin !== null &&
+    albumin !== null &&
     globulin > 35 &&
-
     albumin < 35
 
   ) {
@@ -215,8 +254,9 @@ export default function interpretProteins(
 
   else if (
 
+    albumin !== null &&
+    creatinine !== null &&
     albumin < 30 &&
-
     creatinine <= 120
 
   ) {
@@ -230,19 +270,20 @@ export default function interpretProteins(
   }
 
   /* ======================================================
-     MALNUTRITION
+     MALNUTRITION / REDUCED SYNTHESIS
   ====================================================== */
 
   else if (
 
+    albumin !== null &&
+    totalProtein !== null &&
     albumin < 35 &&
-
     totalProtein < 60
 
   ) {
 
     impression =
-      "Protein profile is compatible with protein deficiency or impaired hepatic synthesis.";
+      "Protein profile is compatible with protein deficiency or impaired hepatic protein synthesis.";
 
     recommendation =
       "Nutritional assessment and liver function evaluation are advised.";
@@ -255,8 +296,9 @@ export default function interpretProteins(
 
   else if (
 
+    albumin !== null &&
+    totalProtein !== null &&
     albumin > 50 &&
-
     totalProtein > 82
 
   ) {
@@ -270,16 +312,64 @@ export default function interpretProteins(
   }
 
   /* ======================================================
+     ISOLATED HYPOALBUMINAEMIA
+  ====================================================== */
+
+  else if (
+
+    albumin !== null &&
+    albumin < 35
+
+  ) {
+
+    impression =
+      "Hypoalbuminaemia.";
+
+    recommendation =
+      "Assess nutritional status, liver function and renal protein loss.";
+
+  }
+
+  /* ======================================================
+     ISOLATED HYPERGLOBULINAEMIA
+  ====================================================== */
+
+  else if (
+
+    globulin !== null &&
+    globulin > 35
+
+  ) {
+
+    impression =
+      "Hyperglobulinaemia.";
+
+    recommendation =
+      "Consider chronic inflammatory disorders, autoimmune disease or plasma cell disorders where clinically appropriate.";
+
+  }
+
+  /* ======================================================
      NORMAL
   ====================================================== */
 
-  else {
+  else if (!abnormal) {
 
     impression =
       "Protein profile is within acceptable laboratory limits.";
 
     recommendation =
       "Routine clinical correlation.";
+
+  }
+
+  else {
+
+    impression =
+      "Abnormal protein profile detected.";
+
+    recommendation =
+      "Interpret alongside the patient's clinical findings and other biochemical investigations.";
 
   }
 

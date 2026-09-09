@@ -1,401 +1,1226 @@
-/* =====================================================
-   LAYOUT
-===================================================== */
+/* ==========================================================
+   PEFA LAB — REGISTRATION RECORDS
+   Premium archive / view / correction interface
+   ========================================================== */
 
-.dashboard-layout{
-  display:flex;
-  min-height:100vh;
-  background:#f8fafc;
+.registration-records-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 22px;
 }
 
-.dashboard-content{
-  flex:1;
-  padding:28px;
-  overflow-y:auto;
+.registration-page-kicker,
+.registration-table-kicker {
+  display: block;
+  margin-bottom: 6px;
+  color: #0b63ce;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
 }
 
-/* =====================================================
-   HEADER
-===================================================== */
-
-.registration-records-header{
-  margin-bottom:24px;
+.registration-records-header h1 {
+  margin: 0;
+  color: #172033;
+  font-size: clamp(25px, 3vw, 34px);
+  line-height: 1.1;
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
 
-.registration-records-header h1{
-  margin:0;
-  font-size:30px;
-  font-weight:800;
-  color:#0f172a;
+.registration-records-header p {
+  margin: 8px 0 0;
+  color: #68758a;
+  font-size: 14px;
 }
 
-.registration-records-header p{
-  margin-top:6px;
-  color:#64748b;
-  font-size:14px;
+.registration-record-count {
+  min-width: 108px;
+  padding: 13px 17px;
+  border: 1px solid #dce5ef;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 8px 22px rgba(23, 32, 51, 0.06);
+  text-align: center;
 }
 
-/* =====================================================
-   CARD
-===================================================== */
-
-.registration-records-card{
-  background:white;
-
-  border:1px solid #e2e8f0;
-
-  border-radius:22px;
-
-  padding:22px;
-
-  margin-bottom:24px;
-
-  box-shadow:
-    0 4px 14px
-    rgba(15,23,42,0.04);
+.registration-record-count strong {
+  display: block;
+  color: #172033;
+  font-size: 23px;
+  line-height: 1;
 }
 
-/* =====================================================
-   SEARCH
-===================================================== */
-
-.registration-search{
-  height:58px;
-
-  border:1px solid #cbd5e1;
-
-  border-radius:16px;
-
-  padding:0 18px;
-
-  display:flex;
-  align-items:center;
-  gap:14px;
-
-  background:#f8fafc;
+.registration-record-count span {
+  display: block;
+  margin-top: 5px;
+  color: #738096;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
 }
 
-.registration-search svg{
-  color:#64748b;
+/* ==========================================================
+   CARDS
+   ========================================================== */
+
+.registration-records-card {
+  margin-bottom: 18px;
+  border: 1px solid #e0e7f0;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(23, 32, 51, 0.055);
+  overflow: hidden;
 }
 
-.registration-search input{
-  flex:1;
-
-  border:none;
-  outline:none;
-
-  background:transparent;
-
-  font-size:15px;
-
-  color:#0f172a;
+.registration-search-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 13px 15px;
 }
 
-.registration-search input::placeholder{
-  color:#94a3b8;
+.registration-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  gap: 10px;
+  color: #738096;
 }
 
-/* =====================================================
+.registration-search input {
+  width: 100%;
+  min-width: 0;
+  height: 43px;
+  padding: 0 42px 0 0;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #172033;
+  font-size: 13px;
+}
+
+.registration-search input::placeholder {
+  color: #9aa6b7;
+}
+
+.registration-search-clear {
+  position: absolute;
+  right: 7px;
+  top: 50%;
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 8px;
+  background: #edf2f7;
+  color: #526176;
+  cursor: pointer;
+}
+
+.registration-search-clear:hover {
+  background: #e2e9f1;
+  color: #172033;
+}
+
+.registration-action-legend {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  padding-left: 16px;
+  border-left: 1px solid #e5eaf1;
+}
+
+.registration-action-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #65738a;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.registration-action-legend svg {
+  color: #0b63ce;
+}
+
+.registration-action-legend b {
+  color: #172033;
+}
+
+/* ==========================================================
+   TABLE TOOLBAR
+   ========================================================== */
+
+.registration-table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 17px 18px;
+  border-bottom: 1px solid #e7ecf3;
+}
+
+.registration-table-toolbar h2 {
+  margin: 0;
+  color: #172033;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.registration-refresh-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 35px;
+  padding: 0 12px;
+  border: 1px solid #d8e2ed;
+  border-radius: 9px;
+  background: #f8fafc;
+  color: #405067;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.registration-refresh-btn:hover:not(:disabled) {
+  border-color: #b9cbe0;
+  background: #eef5fb;
+  color: #0b63ce;
+}
+
+.registration-refresh-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* ==========================================================
    TABLE
-===================================================== */
+   ========================================================== */
 
-.registration-table{
-  width:100%;
+.registration-table-scroll {
+  width: 100%;
+  overflow-x: auto;
 }
 
-/* =====================================================
-   TABLE HEADER
-===================================================== */
+.registration-table {
+  min-width: 1040px;
+}
 
-.registration-table-header{
-  display:grid;
-
+.registration-table-header,
+.registration-row {
+  display: grid;
   grid-template-columns:
-    1.3fr
-    2fr
-    1fr
-    1fr
-    1fr
-    1fr
-    1.5fr;
-
-  gap:16px;
-
-  padding:16px 18px;
-
-  background:#eff6ff;
-
-  border-radius:16px;
-
-  font-size:13px;
-  font-weight:800;
-
-  color:#1e3a8a;
-
-  text-transform:uppercase;
+    135px
+    minmax(220px, 1.7fr)
+    130px
+    115px
+    125px
+    125px
+    130px;
+  align-items: center;
 }
 
-/* =====================================================
-   ROW
-===================================================== */
-
-.registration-row{
-  display:grid;
-
-  grid-template-columns:
-    1.3fr
-    2fr
-    1fr
-    1fr
-    1fr
-    1fr
-    1.5fr;
-
-  gap:16px;
-
-  align-items:center;
-
-  padding:18px;
-
-  border-bottom:1px solid #e2e8f0;
-
-  transition:0.2s ease;
+.registration-table-header {
+  min-height: 44px;
+  padding: 0 18px;
+  border-bottom: 1px solid #dfe6ef;
+  background: #f6f9fc;
+  color: #69778d;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
 }
 
-.registration-row:last-child{
-  border-bottom:none;
+.registration-row {
+  min-height: 72px;
+  padding: 9px 18px;
+  border-bottom: 1px solid #edf1f5;
+  color: #344156;
+  font-size: 12px;
+  transition:
+    background 0.16s ease,
+    box-shadow 0.16s ease;
 }
 
-.registration-row:hover{
-  background:#f8fbff;
+.registration-row:hover {
+  background: #fbfdff;
+  box-shadow: inset 3px 0 0 #0b63ce;
 }
 
-/* =====================================================
-   LAB NUMBER
-===================================================== */
-
-.lab-id{
-  font-size:14px;
-  font-weight:800;
-  color:#2563eb;
+.registration-row:last-child {
+  border-bottom: 0;
 }
 
-/* =====================================================
-   AMOUNT
-===================================================== */
-
-.amount{
-  font-weight:800;
-  color:#16a34a;
+.registration-row > span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* =====================================================
-   PAYMENT STATUS
-===================================================== */
-
-.payment-status{
-  width:fit-content;
-
-  padding:7px 14px;
-
-  border-radius:999px;
-
-  display:flex;
-  align-items:center;
-  gap:6px;
-
-  font-size:12px;
-  font-weight:700;
+.lab-id {
+  color: #0b63ce;
+  font-weight: 800;
+  letter-spacing: 0.02em;
 }
 
-/* PAID */
-
-.payment-status.Paid{
-  background:#dcfce7;
-  color:#16a34a;
+.patient-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-/* PENDING */
-
-.payment-status.Pending{
-  background:#fef3c7;
-  color:#d97706;
+.patient-cell strong {
+  overflow: hidden;
+  color: #1c2739;
+  font-weight: 750;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* UNPAID */
-
-.payment-status.Unpaid{
-  background:#fee2e2;
-  color:#dc2626;
+.patient-cell small {
+  color: #8390a3;
+  font-size: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* =====================================================
-   ACTIONS
-===================================================== */
-
-.registration-actions{
-  display:flex;
-  align-items:center;
-  gap:10px;
+.amount {
+  color: #172033;
+  font-weight: 800;
 }
 
-/* =====================================================
-   BUTTONS
-===================================================== */
-
-.registration-actions button{
-  width:40px;
-  height:40px;
-
-  border:none;
-
-  border-radius:12px;
-
-  display:flex;
-  align-items:center;
-  justify-content:center;
-
-  cursor:pointer;
-
-  transition:0.2s ease;
+.payment-status {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: 6px;
+  width: max-content;
+  max-width: 112px;
+  padding: 6px 9px;
+  border: 1px solid #dce5ef;
+  border-radius: 999px;
+  background: #f8fafc;
+  color: #5b687d;
+  font-size: 10px;
+  font-weight: 800;
+  white-space: nowrap;
 }
 
-/* VIEW */
-
-.view-btn{
-  background:#dbeafe;
-  color:#2563eb;
+.payment-status.paid {
+  border-color: #c9e8d5;
+  background: #effaf3;
+  color: #24733e;
 }
 
-.view-btn:hover{
-  background:#bfdbfe;
+.payment-status.pending,
+.payment-status.unpaid {
+  border-color: #f0dfb3;
+  background: #fff9ea;
+  color: #8b681e;
 }
 
-/* PAYMENT */
-
-.payment-btn{
-  background:#fef3c7;
-  color:#d97706;
+.payment-status.partial {
+  border-color: #cbdcf3;
+  background: #f1f7ff;
+  color: #1d5e9e;
 }
 
-.payment-btn:hover{
-  background:#fde68a;
+.registration-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
 }
 
-/* INVOICE */
-
-.invoice-btn{
-  background:#dcfce7;
-  color:#16a34a;
+.view-btn,
+.registration-view-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 96px;
+  height: 36px;
+  padding: 0 13px;
+  border: 1px solid #bdd3eb;
+  border-radius: 9px;
+  background: #edf6ff;
+  color: #0759ad;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    background 0.16s ease,
+    border-color 0.16s ease,
+    transform 0.16s ease,
+    box-shadow 0.16s ease;
 }
 
-.invoice-btn:hover{
-  background:#bbf7d0;
+.view-btn:hover:not(:disabled) {
+  border-color: #0b63ce;
+  background: #dceeff;
+  box-shadow: 0 5px 14px rgba(11, 99, 206, 0.12);
+  transform: translateY(-1px);
 }
 
-/* RECEIPT */
-
-.receipt-btn{
-  background:#f3e8ff;
-  color:#9333ea;
+.view-btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
-.receipt-btn:hover{
-  background:#e9d5ff;
+.view-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
-/* =====================================================
+/* ==========================================================
    EMPTY STATE
-===================================================== */
+   ========================================================== */
 
-.empty-state{
-  padding:50px 20px;
-
-  text-align:center;
-
-  font-size:15px;
-
-  color:#64748b;
+.registration-empty-state {
+  display: flex;
+  min-height: 240px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: #7b889b;
+  text-align: center;
 }
 
-/* =====================================================
+.registration-empty-state svg {
+  color: #8da0b6;
+}
+
+.registration-empty-state strong {
+  color: #344156;
+  font-size: 14px;
+}
+
+.registration-empty-state span {
+  color: #8793a5;
+  font-size: 12px;
+}
+
+/* ==========================================================
+   MODAL OVERLAY
+   ========================================================== */
+
+.registration-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  background: rgba(12, 21, 35, 0.66);
+  backdrop-filter: blur(5px);
+  overflow-y: auto;
+}
+
+/* ==========================================================
+   VIEW MODAL
+   ========================================================== */
+
+.registration-view-modal,
+.registration-edit-modal {
+  width: min(1120px, 100%);
+  max-height: calc(100vh - 44px);
+  border: 1px solid #d9e2ed;
+  border-radius: 18px;
+  background: #fff;
+  box-shadow:
+    0 28px 80px rgba(9, 20, 36, 0.28),
+    0 4px 14px rgba(9, 20, 36, 0.1);
+  overflow: hidden;
+}
+
+.registration-edit-modal {
+  width: min(860px, 100%);
+}
+
+.registration-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 19px 22px;
+  border-bottom: 1px solid #e4eaf1;
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #f7faff 100%
+    );
+}
+
+.registration-modal-heading {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 13px;
+}
+
+.registration-modal-icon {
+  display: grid;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 44px;
+  place-items: center;
+  border: 1px solid #bfdbf5;
+  border-radius: 12px;
+  background: #eaf5ff;
+  color: #0b63ce;
+}
+
+.registration-modal-icon.edit {
+  border-color: #d5d8f4;
+  background: #f1f1ff;
+  color: #5149ad;
+}
+
+.registration-modal-kicker {
+  display: block;
+  margin-bottom: 3px;
+  color: #708096;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.registration-modal-heading h2 {
+  margin: 0;
+  color: #172033;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.registration-modal-heading p {
+  margin: 4px 0 0;
+  color: #718096;
+  font-size: 11px;
+}
+
+.registration-modal-heading p strong {
+  color: #0b63ce;
+}
+
+.registration-close-btn {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  place-items: center;
+  border: 1px solid #d9e2ec;
+  border-radius: 9px;
+  background: #fff;
+  color: #68758a;
+  cursor: pointer;
+}
+
+.registration-close-btn:hover:not(:disabled) {
+  border-color: #c4d0df;
+  background: #f3f6fa;
+  color: #172033;
+}
+
+.registration-close-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.registration-modal-body {
+  max-height: calc(100vh - 150px);
+  padding: 20px 22px;
+  overflow-y: auto;
+}
+
+/* ==========================================================
+   ACTION PANEL
+   ========================================================== */
+
+.registration-action-panel {
+  margin-bottom: 20px;
+  padding: 16px;
+  border: 1px solid #dce7f2;
+  border-radius: 14px;
+  background: #f8fbff;
+}
+
+.registration-section-heading {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 13px;
+}
+
+.registration-section-heading > div > span {
+  display: block;
+  margin-bottom: 4px;
+  color: #0b63ce;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.registration-section-heading h3 {
+  margin: 0;
+  color: #172033;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.registration-section-heading p {
+  max-width: 440px;
+  margin: 0;
+  color: #748196;
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: right;
+}
+
+.registration-action-grid {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.record-action {
+  display: flex;
+  min-height: 78px;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border: 1px solid #d9e3ee;
+  border-radius: 11px;
+  background: #fff;
+  color: #172033;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    border-color 0.16s ease,
+    background 0.16s ease;
+}
+
+.record-action:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 9px 20px rgba(23, 32, 51, 0.08);
+}
+
+.record-action > span:last-child {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.record-action strong {
+  font-size: 11px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.record-action small {
+  color: #7a8799;
+  font-size: 9px;
+  line-height: 1.35;
+}
+
+.record-action-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
+  place-items: center;
+  border-radius: 9px;
+}
+
+.record-action-edit .record-action-icon {
+  background: #f0efff;
+  color: #5047ae;
+}
+
+.record-action-payment .record-action-icon {
+  background: #eaf7ef;
+  color: #2b7c46;
+}
+
+.record-action-invoice .record-action-icon {
+  background: #eaf4ff;
+  color: #1763a6;
+}
+
+.record-action-receipt .record-action-icon {
+  background: #fff4e8;
+  color: #a76118;
+}
+
+.record-action-print .record-action-icon {
+  background: #f1f3f6;
+  color: #4e5c70;
+}
+
+.record-action-edit:hover {
+  border-color: #bdb8ed;
+  background: #fbfbff;
+}
+
+.record-action-payment:hover {
+  border-color: #b8dec6;
+  background: #fbfffc;
+}
+
+.record-action-invoice:hover {
+  border-color: #b7d4ee;
+  background: #fbfdff;
+}
+
+.record-action-receipt:hover {
+  border-color: #efd1b0;
+  background: #fffdfa;
+}
+
+.record-action-print:hover {
+  border-color: #cbd3de;
+  background: #fbfcfd;
+}
+
+/* ==========================================================
+   DETAIL SECTIONS
+   ========================================================== */
+
+.registration-detail-section {
+  margin-bottom: 18px;
+  padding: 15px;
+  border: 1px solid #e1e7ef;
+  border-radius: 13px;
+  background: #fff;
+}
+
+.registration-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding-bottom: 9px;
+  border-bottom: 1px solid #edf1f5;
+  color: #27364b;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.registration-section-title svg {
+  color: #0b63ce;
+}
+
+.registration-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.registration-detail-item {
+  min-width: 0;
+  min-height: 62px;
+  padding: 9px 10px;
+  border: 1px solid #e7ecf2;
+  border-radius: 9px;
+  background: #fafbfd;
+}
+
+.registration-detail-item span,
+.registration-financial-grid span {
+  display: block;
+  margin-bottom: 5px;
+  color: #78869a;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.registration-detail-item strong {
+  display: block;
+  overflow-wrap: anywhere;
+  color: #253247;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.registration-detail-wide {
+  grid-column: span 2;
+}
+
+/* ==========================================================
+   FINANCIAL
+   ========================================================== */
+
+.registration-financial-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 9px;
+}
+
+.registration-financial-grid > div {
+  min-height: 75px;
+  padding: 11px;
+  border: 1px solid #e3e9f0;
+  border-radius: 10px;
+  background: #f9fbfd;
+}
+
+.registration-financial-grid strong {
+  color: #172033;
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.balance-due {
+  color: #b25a20 !important;
+}
+
+.balance-clear {
+  color: #267642 !important;
+}
+
+.modal-payment-status {
+  display: inline-flex;
+  align-items: center;
+  width: max-content;
+  padding: 5px 8px;
+  border: 1px solid #dbe4ed;
+  border-radius: 999px;
+  background: #f6f8fa;
+  color: #5b687a;
+  font-size: 10px;
+}
+
+.modal-payment-status.paid {
+  border-color: #c6e5d1;
+  background: #effaf3;
+  color: #24713c;
+}
+
+.modal-payment-status.pending,
+.modal-payment-status.unpaid {
+  border-color: #f0dfb5;
+  background: #fff9eb;
+  color: #8a671d;
+}
+
+/* ==========================================================
+   TEST TABLE
+   ========================================================== */
+
+.registration-tests-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.registration-tests-table {
+  width: 100%;
+  min-width: 650px;
+  border-collapse: collapse;
+}
+
+.registration-tests-table th,
+.registration-tests-table td {
+  padding: 9px 10px;
+  border-bottom: 1px solid #e6ebf1;
+  text-align: left;
+  font-size: 11px;
+}
+
+.registration-tests-table th {
+  background: #f6f8fb;
+  color: #6c7a8e;
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.registration-tests-table td {
+  color: #344156;
+}
+
+.registration-tests-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.registration-no-tests {
+  padding: 16px;
+  border: 1px dashed #d6dee8;
+  border-radius: 9px;
+  background: #fafbfd;
+  color: #78869a;
+  font-size: 11px;
+  text-align: center;
+}
+
+/* ==========================================================
+   CORRECTION NOTICE
+   ========================================================== */
+
+.registration-correction-notice,
+.registration-edit-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 13px;
+  border: 1px solid #d6e3f0;
+  border-radius: 10px;
+  background: #f5faff;
+  color: #526277;
+}
+
+.registration-correction-notice svg,
+.registration-edit-warning svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+  color: #0b63ce;
+}
+
+.registration-correction-notice strong,
+.registration-edit-warning strong {
+  display: block;
+  margin-bottom: 3px;
+  color: #27364b;
+  font-size: 11px;
+}
+
+.registration-correction-notice p,
+.registration-edit-warning p {
+  margin: 0;
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+/* ==========================================================
+   MODAL FOOTER
+   ========================================================== */
+
+.registration-modal-footer,
+.registration-edit-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 22px;
+  border-top: 1px solid #e3e9f0;
+  background: #fafbfd;
+}
+
+.registration-modal-footer > span {
+  color: #7a8799;
+  font-size: 10px;
+}
+
+.registration-secondary-btn,
+.registration-save-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 37px;
+  padding: 0 14px;
+  border-radius: 9px;
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.registration-secondary-btn {
+  border: 1px solid #d5dee9;
+  background: #fff;
+  color: #526176;
+}
+
+.registration-secondary-btn:hover:not(:disabled) {
+  background: #f1f4f7;
+  color: #172033;
+}
+
+.registration-save-btn {
+  min-width: 155px;
+  border: 1px solid #0b63ce;
+  background: #0b63ce;
+  color: #fff;
+  box-shadow: 0 6px 15px rgba(11, 99, 206, 0.18);
+}
+
+.registration-save-btn:hover:not(:disabled) {
+  background: #0956b2;
+  border-color: #0956b2;
+}
+
+.registration-save-btn:disabled,
+.registration-secondary-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* ==========================================================
+   EDIT FORM
+   ========================================================== */
+
+.registration-edit-warning {
+  margin: 16px 22px 0;
+  background: #fffaf0;
+  border-color: #efdfb7;
+}
+
+.registration-edit-warning svg {
+  color: #a56d16;
+}
+
+.registration-edit-body {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px;
+  max-height: calc(100vh - 265px);
+  padding: 18px 22px;
+  overflow-y: auto;
+}
+
+.registration-form-field {
+  min-width: 0;
+}
+
+.registration-form-field.full {
+  grid-column: 1 / -1;
+}
+
+.registration-form-field label {
+  display: block;
+  margin-bottom: 6px;
+  color: #445269;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.registration-form-field input,
+.registration-form-field select,
+.registration-form-field textarea {
+  display: block;
+  width: 100%;
+  border: 1px solid #d7e0ea;
+  border-radius: 9px;
+  outline: 0;
+  background: #fff;
+  color: #1e2b3e;
+  font: inherit;
+  font-size: 12px;
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+.registration-form-field input,
+.registration-form-field select {
+  height: 40px;
+  padding: 0 11px;
+}
+
+.registration-form-field textarea {
+  min-height: 84px;
+  padding: 10px 11px;
+  resize: vertical;
+  line-height: 1.45;
+}
+
+.registration-form-field input:focus,
+.registration-form-field select:focus,
+.registration-form-field textarea:focus {
+  border-color: #6fa8dc;
+  box-shadow: 0 0 0 3px rgba(11, 99, 206, 0.09);
+}
+
+.registration-edit-footer {
+  justify-content: flex-end;
+}
+
+.registration-spin {
+  animation: registration-spin 0.9s linear infinite;
+}
+
+@keyframes registration-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ==========================================================
    RESPONSIVE
-===================================================== */
+   ========================================================== */
 
-@media(max-width:1200px){
-
-  .registration-table{
-    overflow-x:auto;
+@media (max-width: 1100px) {
+  .registration-action-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .registration-table-header,
-  .registration-row{
-    min-width:1100px;
-  }
-}
-
-/* =====================================================
-   TABLET
-===================================================== */
-
-@media(max-width:992px){
-
-  .dashboard-content{
-    padding:20px;
-  }
-
-  .registration-records-card{
-    padding:18px;
+  .registration-detail-grid,
+  .registration-financial-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
-/* =====================================================
-   MOBILE
-===================================================== */
-
-@media(max-width:768px){
-
-  .dashboard-content{
-    padding:16px;
+@media (max-width: 760px) {
+  .registration-records-header {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
-  .registration-records-header h1{
-    font-size:24px;
+  .registration-record-count {
+    min-width: 90px;
   }
 
-  .registration-records-card{
-    border-radius:18px;
+  .registration-search-card {
+    align-items: stretch;
+    flex-direction: column;
   }
 
-  .registration-search{
-    height:54px;
+  .registration-action-legend {
+    padding-top: 10px;
+    padding-left: 0;
+    border-top: 1px solid #e5eaf1;
+    border-left: 0;
   }
 
-  .registration-table-header,
-  .registration-row{
-    min-width:1100px;
+  .registration-action-legend span {
+    white-space: normal;
+  }
+
+  .registration-action-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .registration-detail-grid,
+  .registration-financial-grid,
+  .registration-edit-body {
+    grid-template-columns: 1fr;
+  }
+
+  .registration-detail-wide,
+  .registration-form-field.full {
+    grid-column: auto;
+  }
+
+  .registration-modal-overlay {
+    padding: 10px;
+    align-items: flex-start;
+  }
+
+  .registration-view-modal,
+  .registration-edit-modal {
+    max-height: calc(100vh - 20px);
+    border-radius: 14px;
+  }
+
+  .registration-modal-body {
+    max-height: calc(100vh - 125px);
+    padding: 14px;
+  }
+
+  .registration-modal-header {
+    padding: 14px;
+  }
+
+  .registration-modal-footer,
+  .registration-edit-footer {
+    padding: 11px 14px;
+  }
+
+  .registration-edit-warning {
+    margin: 12px 14px 0;
+  }
+
+  .registration-edit-body {
+    max-height: calc(100vh - 245px);
+    padding: 14px;
+  }
+
+  .registration-section-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .registration-section-heading p {
+    max-width: none;
+    text-align: left;
   }
 }
 
-/* =====================================================
+@media (max-width: 520px) {
+  .registration-action-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .registration-records-header h1 {
+    font-size: 26px;
+  }
+
+  .registration-modal-heading h2 {
+    font-size: 17px;
+  }
+
+  .registration-modal-icon {
+    width: 38px;
+    height: 38px;
+    flex-basis: 38px;
+  }
+
+  .registration-financial-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ==========================================================
    PRINT
-===================================================== */
+   ========================================================== */
 
-@media print{
-
-  .dashboard-navbar,
-  .registration-search,
-  .registration-actions{
-    display:none !important;
+@media print {
+  .registration-modal-overlay {
+    position: static;
+    display: block;
+    padding: 0;
+    background: #fff;
+    overflow: visible;
   }
 
-  .dashboard-content{
-    padding:0;
+  .registration-view-modal {
+    width: 100%;
+    max-height: none;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
   }
 
-  .registration-records-card{
-    box-shadow:none;
-    border:none;
+  .registration-modal-header,
+  .registration-modal-footer,
+  .registration-action-panel,
+  .registration-correction-notice {
+    display: none !important;
+  }
+
+  .registration-modal-body {
+    max-height: none;
+    overflow: visible;
+    padding: 0;
   }
 }

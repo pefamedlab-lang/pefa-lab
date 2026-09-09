@@ -1,255 +1,310 @@
 export default function PrintHistology({
-
-  results = [],
-
+    results = [],
 }) {
 
-  /* ======================================================
-     NO RESULT
-  ====================================================== */
+    /* ======================================================
+       NO RESULT
+    ====================================================== */
 
-  if (!results?.length) {
-
-    return null;
-
-  }
-
-  /* ======================================================
-     JSON SAFETY
-  ====================================================== */
-
-  const parseData = (data) => {
-
-    if (!data) {
-
-      return {};
-
+    if (!results?.length) {
+        return null;
     }
 
-    if (typeof data === "string") {
+    /* ======================================================
+       JSON SAFETY
+    ====================================================== */
 
-      try {
+    const parseData = (data) => {
 
-        return JSON.parse(data);
+        if (!data) {
+            return {};
+        }
 
-      }
+        if (typeof data === "string") {
 
-      catch {
+            try {
+                return JSON.parse(data);
+            } catch {
+                return {};
+            }
 
-        return {};
+        }
 
-      }
+        return data;
 
-    }
+    };
 
-    return data;
+    /* ======================================================
+       INLINE STYLES
+    ====================================================== */
 
-  };
+    const departmentStyle = {
+        textAlign: "center",
+        fontSize: "16px",
+        fontWeight: "700",
+        color: "#003366",
+        textTransform: "uppercase",
+        letterSpacing: "1px",
+        marginBottom: results.length === 1 ? "6px" : "14px",
+    };
 
-  /* ======================================================
-     REPORT
-  ====================================================== */
+    const testTitleStyle = {
+        textAlign: "center",
+        fontSize: "14px",
+        fontWeight: "700",
+        color: "#0f4c81",
+        background: "#eef5fb",
+        border: "1px solid #c9d9ea",
+        borderRadius: "4px",
+        padding: "8px",
+        marginBottom: "18px",
+        textTransform: "uppercase",
+        letterSpacing: "0.5px",
+    };
 
-  return (
+    const sectionStyle = {
+        marginBottom: "18px",
+        pageBreakInside: "avoid",
+    };
 
-    <div className="histology-report">
+    const headingStyle = {
+        fontSize: "13px",
+        fontWeight: "700",
+        color: "#003366",
+        borderBottom: "1px solid #d6d6d6",
+        paddingBottom: "4px",
+        marginBottom: "6px",
+        textTransform: "uppercase",
+        letterSpacing: "0.4px",
+    };
 
-      {results.map((item, index) => {
+    const textStyle = {
+        fontSize: "12px",
+        lineHeight: "1.7",
+        color: "#222",
+        margin: 0,
+        whiteSpace: "pre-wrap",
+        textAlign: "justify",
+    };
 
-        const data = parseData(
+    /* ======================================================
+       REPORT
+    ====================================================== */
 
-          item.result ||
+    return (
 
-          item.result_data
-
-        );
-
-        return (
-
-          <div
-
-            key={index}
-
-            className="report-block"
-
-          >
-
-            {/* ==========================================
-                CLINICAL DETAILS
-            ========================================== */}
-
-            {data.clinicalDetails && (
-
-              <div className="report-comment">
-
-                <h4>
-
-                  Clinical Details
-
-                </h4>
-
-                <p>
-
-                  {data.clinicalDetails}
-
-                </p>
-
-              </div>
-
-            )}
-
-            {/* ==========================================
-                SPECIMEN RECEIVED
-            ========================================== */}
-
-            {data.specimen && (
-
-              <div className="report-comment">
-
-                <h4>
-
-                  Specimen Received
-
-                </h4>
-
-                <p>
-
-                  {data.specimen}
-
-                </p>
-
-              </div>
-
-            )}
+        <div className="histology-report">
 
             {/* ==========================================
-                GROSS DESCRIPTION
+                DEPARTMENT
             ========================================== */}
 
-            {data.grossDescription && (
-
-              <div className="report-comment">
-
-                <h4>
-
-                  Gross Description
-
-                </h4>
-
-                <p>
-
-                  {data.grossDescription}
-
-                </p>
-
-              </div>
-
-            )}
+            <div style={departmentStyle}>
+                {results[0]?.department_name ||
+                    results[0]?.department ||
+                    "HISTOPATHOLOGY"}
+            </div>
 
             {/* ==========================================
-                MICROSCOPIC EXAMINATION
+                TEST TITLE (ONLY FOR SINGLE TEST)
             ========================================== */}
 
-            {data.microscopy && (
-
-              <div className="report-comment">
-
-                <h4>
-
-                  Microscopic Examination
-
-                </h4>
-
-                <p>
-
-                  {data.microscopy}
-
-                </p>
-
-              </div>
-
+            {results.length === 1 && (
+                <div style={testTitleStyle}>
+                    {results[0]?.test_name ||
+                        results[0]?.test_type ||
+                        "Histopathology Examination"}
+                </div>
             )}
 
-            {/* ==========================================
-                HISTOPATHOLOGICAL DIAGNOSIS
-            ========================================== */}
+            {results.map((item, index) => {
 
-            {data.diagnosis && (
+                const data = parseData(
+                    item.result ||
+                    item.result_data
+                );
 
-              <div className="report-comment">
+                return (
 
-                <h4>
+                    <div
+                        key={index}
+                        className="report-block"
+                    >
 
-                  Histopathological Diagnosis
+                        {/* ==========================================
+                            CLINICAL DETAILS
+                        ========================================== */}
 
-                </h4>
+                        {data.clinicalDetails && (
 
-                <p>
+                            <div
+                                className="report-comment"
+                                style={sectionStyle}
+                            >
 
-                  {data.diagnosis}
+                                <h4 style={headingStyle}>
+                                    Clinical Details
+                                </h4>
 
-                </p>
+                                <p style={textStyle}>
+                                    {data.clinicalDetails}
+                                </p>
 
-              </div>
+                            </div>
 
-            )}
+                        )}
 
-            {/* ==========================================
-                RECOMMENDATION
-            ========================================== */}
+                        {/* ==========================================
+                            SPECIMEN RECEIVED
+                        ========================================== */}
 
-            {data.recommendation && (
+                        {data.specimen && (
 
-              <div className="report-comment">
+                            <div
+                                className="report-comment"
+                                style={sectionStyle}
+                            >
 
-                <h4>
+                                <h4 style={headingStyle}>
+                                    Specimen Received
+                                </h4>
 
-                  Recommendation
+                                <p style={textStyle}>
+                                    {data.specimen}
+                                </p>
 
-                </h4>
+                            </div>
 
-                <p>
+                        )}
 
-                  {data.recommendation}
+                        {/* ==========================================
+                            GROSS DESCRIPTION
+                        ========================================== */}
 
-                </p>
+                        {data.grossDescription && (
 
-              </div>
+                            <div
+                                className="report-comment"
+                                style={sectionStyle}
+                            >
 
-            )}
+                                <h4 style={headingStyle}>
+                                    Gross Description
+                                </h4>
 
-            {/* ==========================================
-                PATHOLOGIST COMMENT
-            ========================================== */}
+                                <p style={textStyle}>
+                                    {data.grossDescription}
+                                </p>
 
-            {data.comment && (
+                            </div>
 
-              <div className="report-comment">
+                        )}
 
-                <h4>
+                        {/* ==========================================
+                            MICROSCOPIC EXAMINATION
+                        ========================================== */}
 
-                  Pathologist Comment
+                        {data.microscopy && (
 
-                </h4>
+                            <div
+                                className="report-comment"
+                                style={sectionStyle}
+                            >
 
-                <p>
+                                <h4 style={headingStyle}>
+                                    Microscopic Examination
+                                </h4>
 
-                  {data.comment}
+                                <p style={textStyle}>
+                                    {data.microscopy}
+                                </p>
 
-                </p>
+                            </div>
 
-              </div>
+                        )}
 
-            )}
+                        {/* ==========================================
+                            HISTOPATHOLOGICAL DIAGNOSIS
+                        ========================================== */}
 
-          </div>
+                        {data.diagnosis && (
 
-        );
+                            <div
+                                className="report-comment"
+                                style={sectionStyle}
+                            >
 
-      })}
+                                <h4 style={headingStyle}>
+                                    Histopathological Diagnosis
+                                </h4>
 
-    </div>
+                                <p
+                                    style={{
+                                        ...textStyle,
+                                        fontWeight: "600",
+                                    }}
+                                >
+                                    {data.diagnosis}
+                                </p>
 
-  );
+                            </div>
+
+                        )}
+
+                        {/* ==========================================
+                            RECOMMENDATION
+                        ========================================== */}
+
+                        {data.recommendation && (
+
+                            <div
+                                className="report-comment"
+                                style={sectionStyle}
+                            >
+
+                                <h4 style={headingStyle}>
+                                    Recommendation
+                                </h4>
+
+                                <p style={textStyle}>
+                                    {data.recommendation}
+                                </p>
+
+                            </div>
+
+                        )}
+
+                        {/* ==========================================
+                            PATHOLOGIST COMMENT
+                        ========================================== */}
+
+                        {data.comment && (
+
+                            <div
+                                className="report-comment"
+                                style={sectionStyle}
+                            >
+
+                                <h4 style={headingStyle}>
+                                    Pathologist Comment
+                                </h4>
+
+                                <p style={textStyle}>
+                                    {data.comment}
+                                </p>
+
+                            </div>
+
+                        )}
+
+                    </div>
+
+                );
+
+            })}
+
+        </div>
+
+    );
 
 }

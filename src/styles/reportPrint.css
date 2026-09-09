@@ -1,0 +1,106 @@
+/* ======================================================
+   ULTRASOUND REPORT
+====================================================== */
+
+.ultrasound-report{
+    width:100%;
+    font-family:"Times New Roman", serif;
+    color:#000;
+    font-size:15px;
+    line-height:1.6;
+}
+
+/* ======================================================
+   PATIENT TABLE
+====================================================== */
+
+.patient-info-table{
+    width:100%;
+    border-collapse:collapse;
+    margin-bottom:25px;
+    font-size:14px;
+}
+
+.patient-info-table td{
+    border:1px solid #444;
+    padding:8px 10px;
+    vertical-align:top;
+}
+
+.patient-info-table strong{
+    color:#000;
+}
+
+/* ======================================================
+   SECTIONS
+====================================================== */
+
+.report-section{
+    margin-top:18px;
+    margin-bottom:20px;
+}
+
+.report-section h3{
+    margin:0 0 8px;
+    font-size:17px;
+    border-bottom:2px solid #222;
+    padding-bottom:4px;
+    text-transform:uppercase;
+}
+
+.report-text{
+    white-space:pre-wrap;
+    word-break:break-word;
+    font-family:"Times New Roman", serif;
+    font-size:15px;
+    margin:0;
+}
+
+/* ======================================================
+   SIGNATURES
+====================================================== */
+
+.signature-row{
+    display:flex;
+    justify-content:space-between;
+    margin-top:70px;
+    gap:60px;
+}
+
+.signature-row div{
+    flex:1;
+    text-align:center;
+    font-size:15px;
+    line-height:1.8;
+}
+
+/* ======================================================
+   PRINT
+====================================================== */
+
+@media print{
+
+    body{
+        background:#fff;
+    }
+
+    .ultrasound-report{
+        width:100%;
+        margin:0;
+        padding:0;
+    }
+
+    .patient-info-table{
+        page-break-inside:avoid;
+    }
+
+    .report-section{
+        page-break-inside:avoid;
+    }
+
+    .signature-row{
+        page-break-inside:avoid;
+    }
+
+}
+

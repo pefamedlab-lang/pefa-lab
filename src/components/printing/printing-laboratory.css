@@ -1,0 +1,158 @@
+/* ==========================================================
+   PEFA ENTERPRISE LIS — LABORATORY PRINTING
+   Laboratory-only print layout.
+   No radiology rules are required here.
+   ========================================================== */
+
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+
+.pefa-print-document {
+  width: 100%;
+}
+
+.pefa-print-page {
+  box-sizing: border-box;
+  width: 210mm;
+  min-height: 297mm;
+  padding: 16mm 14mm 15mm;
+  background: #fff;
+  position: relative;
+  break-inside: avoid;
+  page-break-inside: avoid;
+  page-break-after: always;
+}
+
+.pefa-print-page:last-child {
+  page-break-after: auto;
+}
+
+.pefa-print-page--break-before {
+  break-before: page;
+  page-break-before: always;
+}
+
+.pefa-panel-page {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.pefa-print-atomic-special {
+  break-inside: avoid;
+  page-break-inside: avoid;
+  page-break-after: always;
+}
+
+.pefa-section-heading {
+  margin: 0 0 8mm;
+  text-align: center;
+}
+
+.pefa-section-heading__department {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.pefa-section-heading h2 {
+  margin: 3mm 0 0;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.pefa-result-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 10.5px;
+}
+
+.pefa-result-table th,
+.pefa-result-table td {
+  border: 0.5px solid #222;
+  padding: 6px 7px;
+  vertical-align: middle;
+}
+
+.pefa-result-table th {
+  font-size: 9px;
+  font-weight: 800;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.pefa-result-table th:nth-child(1) { width: 30%; }
+.pefa-result-table th:nth-child(2) { width: 16%; }
+.pefa-result-table th:nth-child(3) { width: 13%; }
+.pefa-result-table th:nth-child(4) { width: 25%; }
+.pefa-result-table th:nth-child(5) { width: 16%; }
+
+.pefa-result-value {
+  text-align: center;
+  font-weight: 700;
+}
+
+.pefa-flag {
+  display: inline-block;
+  font-size: 8.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.pefa-flag--high,
+.pefa-flag--low {
+  font-weight: 900;
+}
+
+.pefa-flag--critical {
+  font-weight: 900;
+  text-decoration: underline;
+}
+
+.pefa-report-note {
+  margin-top: 8mm;
+  font-size: 9px;
+}
+
+.pefa-print-empty {
+  min-height: 240mm;
+  display: grid;
+  place-content: center;
+  text-align: center;
+}
+
+@media print {
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  .pefa-print-page {
+    min-height: 297mm;
+    width: 210mm;
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .pefa-result-table tr {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .pefa-panel-page {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    page-break-after: always;
+  }
+
+  .pefa-print-atomic-special {
+    break-inside: avoid;
+    page-break-inside: avoid;
+    page-break-after: always;
+  }
+}

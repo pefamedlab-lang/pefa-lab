@@ -1,251 +1,220 @@
+import { useEffect } from "react";
+
+import TextAreaField from "../fields/TextAreaField";
+
+import {
+  generateThyroidReport,
+} from "../../../utils/ultrasound/reportGenerators";
+
+import {
+  generateThyroidImpression,
+  generateThyroidRecommendation,
+} from "../../../utils/ultrasound/impressionGenerator";
+
 export default function ThyroidScanForm({
-
   data = {},
-
   onChange,
-
 }) {
 
-  const setValue = (
+  /* ==========================================
+      AUTO GENERATE REPORT & IMPRESSION
+  ========================================== */
 
-    key,
+  useEffect(() => {
 
-    value
+    const report =
+      generateThyroidReport(data);
 
-  ) => {
+    const impression =
+      generateThyroidImpression(data);
 
-    onChange(
+    const recommendation =
+      generateThyroidRecommendation(data);
 
-      key,
+    // Report
+    if (report !== (data.report_text || "")) {
+      onChange("report_text", report);
+    }
 
-      value
+    // Impression
+    if (
+      JSON.stringify(impression) !==
+      JSON.stringify(data.impression || [])
+    ) {
+      onChange(
+        "impression",
+        impression
+      );
+    }
 
-    );
+    // Recommendation
+    if (
+      JSON.stringify(recommendation) !==
+      JSON.stringify(data.recommendation || [])
+    ) {
+      onChange(
+        "recommendation",
+        recommendation
+      );
+    }
 
+  }, [data, onChange]);
+
+  const setValue = (key, value) => {
+    onChange(key, value);
   };
 
   return (
 
     <div className="scan-form-grid">
 
-      {/* =====================
-          RIGHT THYROID LOBE
-      ===================== */}
+      {/* ======================================
+          THYROID GLAND
+      ====================================== */}
 
-      <h3>
+      <section className="scan-section">
 
-        Right Thyroid Lobe
+        <h2>Thyroid Gland</h2>
 
-      </h3>
+        <h3>Right Thyroid Lobe</h3>
 
-      <textarea
-        rows={3}
-        placeholder="Right thyroid lobe findings..."
-        value={data.rightLobe || ""}
-        onChange={(e)=>
-          setValue(
-            "rightLobe",
-            e.target.value
-          )
-        }
+        <TextAreaField
+          rows={3}
+          placeholder="Right thyroid lobe findings..."
+          value={data.rightLobe || ""}
+          onChange={(value) =>
+            setValue("rightLobe", value)
+          }
+        />
+
+        <h3>Left Thyroid Lobe</h3>
+
+        <TextAreaField
+          rows={3}
+          placeholder="Left thyroid lobe findings..."
+          value={data.leftLobe || ""}
+          onChange={(value) =>
+            setValue("leftLobe", value)
+          }
+        />
+
+        <h3>Isthmus</h3>
+
+        <TextAreaField
+          rows={2}
+          placeholder="Isthmus findings..."
+          value={data.isthmus || ""}
+          onChange={(value) =>
+            setValue("isthmus", value)
+          }
+        />
+
+        <h3>Thyroid Echotexture</h3>
+
+        <TextAreaField
+          rows={2}
+          placeholder="Thyroid echotexture..."
+          value={data.echotexture || ""}
+          onChange={(value) =>
+            setValue("echotexture", value)
+          }
+        />
+
+        <h3>Nodules</h3>
+
+        <TextAreaField
+          rows={3}
+          placeholder="Nodules and measurements..."
+          value={data.nodules || ""}
+          onChange={(value) =>
+            setValue("nodules", value)
+          }
+        />
+
+        <h3>Calcifications</h3>
+
+        <TextAreaField
+          rows={2}
+          placeholder="Calcifications..."
+          value={data.calcifications || ""}
+          onChange={(value) =>
+            setValue("calcifications", value)
+          }
+        />
+
+        <h3>Vascularity</h3>
+
+        <TextAreaField
+          rows={2}
+          placeholder="Doppler vascularity findings..."
+          value={data.vascularity || ""}
+          onChange={(value) =>
+            setValue("vascularity", value)
+          }
+        />
+
+      </section>
+
+      {/* ======================================
+          REGIONAL ASSESSMENT
+      ====================================== */}
+
+      <section className="scan-section">
+
+        <h2>Regional Assessment</h2>
+
+        <h3>Cervical Lymph Nodes</h3>
+
+        <TextAreaField
+          rows={2}
+          placeholder="Cervical lymph nodes..."
+          value={data.cervicalNodes || ""}
+          onChange={(value) =>
+            setValue("cervicalNodes", value)
+          }
+        />
+
+      </section>
+
+      {/* ======================================
+          GENERATED FINDINGS
+      ====================================== */}
+
+      <TextAreaField
+        label="Generated Findings"
+        rows={18}
+        value={data.report_text || ""}
+        readOnly
       />
 
-      {/* =====================
-          LEFT THYROID LOBE
-      ===================== */}
-
-      <h3>
-
-        Left Thyroid Lobe
-
-      </h3>
-
-      <textarea
-        rows={3}
-        placeholder="Left thyroid lobe findings..."
-        value={data.leftLobe || ""}
-        onChange={(e)=>
-          setValue(
-            "leftLobe",
-            e.target.value
-          )
-        }
-      />
-
-      {/* =====================
-          ISTHMUS
-      ===================== */}
-
-      <h3>
-
-        Isthmus
-
-      </h3>
-
-      <textarea
-        rows={2}
-        placeholder="Isthmus findings..."
-        value={data.isthmus || ""}
-        onChange={(e)=>
-          setValue(
-            "isthmus",
-            e.target.value
-          )
-        }
-      />
-
-      {/* =====================
-          THYROID ECHOTEXTURE
-      ===================== */}
-
-      <h3>
-
-        Thyroid Echotexture
-
-      </h3>
-
-      <textarea
-        rows={2}
-        placeholder="Thyroid echotexture..."
-        value={data.echotexture || ""}
-        onChange={(e)=>
-          setValue(
-            "echotexture",
-            e.target.value
-          )
-        }
-      />
-
-      {/* =====================
-          NODULES
-      ===================== */}
-
-      <h3>
-
-        Nodules
-
-      </h3>
-
-      <textarea
-        rows={3}
-        placeholder="Nodules and measurements..."
-        value={data.nodules || ""}
-        onChange={(e)=>
-          setValue(
-            "nodules",
-            e.target.value
-          )
-        }
-      />
-
-      {/* =====================
-          CALCIFICATIONS
-      ===================== */}
-
-      <h3>
-
-        Calcifications
-
-      </h3>
-
-      <textarea
-        rows={2}
-        placeholder="Calcifications..."
-        value={data.calcifications || ""}
-        onChange={(e)=>
-          setValue(
-            "calcifications",
-            e.target.value
-          )
-        }
-      />
-
-      {/* =====================
-          CERVICAL LYMPH NODES
-      ===================== */}
-
-      <h3>
-
-        Cervical Lymph Nodes
-
-      </h3>
-
-      <textarea
-        rows={2}
-        placeholder="Cervical lymph nodes..."
-        value={data.cervicalNodes || ""}
-        onChange={(e)=>
-          setValue(
-            "cervicalNodes",
-            e.target.value
-          )
-        }
-      />
-
-      {/* =====================
-          VASCULARITY
-      ===================== */}
-
-      <h3>
-
-        Vascularity
-
-      </h3>
-
-      <textarea
-        rows={2}
-        placeholder="Doppler vascularity findings..."
-        value={data.vascularity || ""}
-        onChange={(e)=>
-          setValue(
-            "vascularity",
-            e.target.value
-          )
-        }
-      />
-
-      {/* =====================
+      {/* ======================================
           IMPRESSION
-      ===================== */}
+      ====================================== */}
 
-      <h3>
-
-        Impression
-
-      </h3>
-
-      <textarea
-        rows={4}
-        placeholder="Impression..."
-        value={data.impression || ""}
-        onChange={(e)=>
-          setValue(
-            "impression",
-            e.target.value
-          )
+      <TextAreaField
+        label="Impression"
+        rows={6}
+        value={
+          Array.isArray(data.impression)
+            ? data.impression.join("\n")
+            : data.impression || ""
         }
+        readOnly
       />
 
-      {/* =====================
+      {/* ======================================
           RECOMMENDATION
-      ===================== */}
+      ====================================== */}
 
-      <h3>
-
-        Recommendation
-
-      </h3>
-
-      <textarea
-        rows={4}
-        placeholder="Recommendation..."
-        value={data.recommendation || ""}
-        onChange={(e)=>
-          setValue(
-            "recommendation",
-            e.target.value
-          )
+      <TextAreaField
+        label="Recommendation"
+        rows={5}
+        value={
+          Array.isArray(data.recommendation)
+            ? data.recommendation.join("\n")
+            : data.recommendation || ""
         }
+        readOnly
       />
 
     </div>

@@ -1,287 +1,218 @@
-import {
-
-  FilePlus,
-
-  ClipboardList,
-
-  FileText,
-
-  Printer,
-
-  ScanLine,
-
-} from "lucide-react";
-
-import {
-
-  useNavigate,
-
-} from "react-router-dom";
-
+import { useEffect, useState } from "react";
+import { supabase } from "../supabase";
 import "../styles/ultrasoundDashboard.css";
 
-import UltrasoundStatsCards
-from "../components/ultrasound/UltrasoundStatsCards";
-import UltrasoundCalendar
-from "../components/ultrasound/UltrasoundCalendar";
-import RecentUltrasoundTable
-from "../components/ultrasound/RecentUltrasoundTable";
-
-
-export default function UltrasoundDashboard() {
-
-  const navigate =
-
-    useNavigate();
-
-  const cards = [
-
-    {
-
-      title:
-
-        "Patient Registration",
-
-      icon:
-
-        <FilePlus size={32} />,
-
-      path:
-
-        "/ultrasound-registration",
-
-      color:
-
-        "blue",
-
-    },
-
-    {
-
-      title:
-
-        "Scan Results",
-
-      icon:
-
-        <ScanLine size={32} />,
-
-      path:
-
-        "/ultrasound-results",
-
-      color:
-
-        "green",
-
-    },
-
-    {
-
-      title:
-
-        "Scan Records",
-
-      icon:
-
-        <ClipboardList size={32} />,
-
-      path:
-
-        "/ultrasound-records",
-
-      color:
-
-        "orange",
-
-    },
-
-<UltrasoundStatsCards
-
-  records={records}
-
-/>
-
-<UltrasoundCalendar
-
-  records={records}
-
-/>
-
-<RecentUltrasoundTable
-
-  records={records}
-
-  onRelease={releaseReport}
-
-/>
-
-<UltrasoundQuickActions
-
-  pendingCount={
-
-    records.filter(
-
-      r =>
-
-        r.release_status ===
-
-        "Pending"
-
-    ).length
-
-  }
-
-  releasedCount={
-
-    records.filter(
-
-      r =>
-
-        r.release_status ===
-
-        "Released"
-
-    ).length
-
-  }
-
-  onPrintSchedule={() =>
-
-    window.print()
-
-  }
-
-  onExport={() =>
-
-    console.log(
-
-      "Export Ultrasound Records"
-
-    )
-
-  }
-
-/>
-
-    {
-
-      title:
-
-        "Patient Portal",
-
-      icon:
-
-        <FileText size={32} />,
-
-      path:
-
-        "/ultrasound-patient-portal",
-
-      color:
-
-        "purple",
-
-    },
-
-    {
-
-      title:
-
-        "Print Center",
-
-      icon:
-
-        <Printer size={32} />,
-
-      path:
-
-        "/ultrasound-printing",
-
-      color:
-
-        "red",
-
-    },
-
-  ];
+// Forms
+import OBSForm from "../components/ultrasound/forms/OBSForm";
+import PelvicScanForm from "../components/ultrasound/forms/PelvicScanForm";
+import AbdominalScanForm from "../components/ultrasound/forms/AbdominalScanForm";
+import AbdominoPelvicScanForm from "../components/ultrasound/forms/AbdominoPelvicScanForm";
+import BreastScanForm from "../components/ultrasound/forms/BreastScanForm";
+import ScrotalScanForm from "../components/ultrasound/forms/ScrotalScanForm";
+import KidneyScanForm from "../components/ultrasound/forms/KidneyScanForm";
+import LiverScanForm from "../components/ultrasound/forms/LiverScanForm";
+import ThyroidScanForm from "../components/ultrasound/forms/ThyroidScanForm";
+import ProstateScanForm from "../components/ultrasound/forms/ProstateScanForm";
+import SoftTissueScanForm from "../components/ultrasound/forms/SoftTissueScanForm";
+
+const FORM_COMPONENTS = {
+  obs_scan: OBSForm,
+  pelvic_scan: PelvicScanForm,
+  abdominal_scan: AbdominalScanForm,
+  abdomino_pelvic_scan: AbdominoPelvicScanForm,
+  breast_scan: BreastScanForm,
+  scrotal_scan: ScrotalScanForm,
+  kidney_scan: KidneyScanForm,
+  liver_scan: LiverScanForm,
+  thyroid_scan: ThyroidScanForm,
+  prostate_scan: ProstateScanForm,
+  soft_tissue_scan: SoftTissueScanForm,
+};
+
+export default function UltrasoundResultDashboard() {
+  const [patients, setPatients] = useState([]);
+  const [selectedPatient, setSelectedPatient] = useState(null);
+  const [resultData, setResultData] = useState({});
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    loadPatients();
+  }, []);
+
+  const loadPatients = async () => {
+    setLoading(true);
+
+    const { data, error } = await supabase
+      .from("ultrasound_results")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      console.error(error);
+    } else {
+      setPatients(data || []);
+    }
+
+    setLoading(false);
+  };
+
+  const selectPatient = (patient) => {
+    setSelectedPatient(patient);
+    setResultData(patient.result || {});
+  };
+
+  const handleChange = (field, value) => {
+    setResultData((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
+
+  const saveReport = async () => {
+    if (!selectedPatient) return;
+
+    setSaving(true);
+
+    const { error } = await supabase
+      .from("ultrasound_results")
+      .update({
+        result: resultData,
+      })
+      .eq("id", selectedPatient.id);
+
+    setSaving(false);
+
+    if (error) {
+      alert(error.message);
+      return;
+    }
+
+    alert("Report saved successfully.");
+
+    loadPatients();
+  };
+
+  const CurrentForm =
+    FORM_COMPONENTS[selectedPatient?.template_type] || null;
 
   return (
+    <div className="ultrasound-dashboard">
 
-    <div className="dashboard-layout">
+      {/* LEFT PANEL */}
 
-      <div className="dashboard-content">
+      <div className="patient-list">
 
-        <div className="ultrasound-header">
+        <h2>Ultrasound Queue</h2>
 
-          <h1>
+        {loading && <p>Loading...</p>}
 
-            Ultrasound Dashboard
+        {!loading && patients.length === 0 && (
+          <p>No pending requests.</p>
+        )}
 
-          </h1>
+        {patients.map((patient) => (
+          <button
+            key={patient.id}
+            className={`patient-item ${
+              selectedPatient?.id === patient.id ? "active" : ""
+            }`}
+            onClick={() => selectPatient(patient)}
+          >
+            <strong>{patient.patient_name}</strong>
 
-          <p>
+            <br />
 
-            Enterprise Radiology &
+            <small>{patient.lab_number}</small>
 
-            Ultrasound Information System
+            <br />
 
-          </p>
+            <span>{patient.test_type}</span>
+          </button>
+        ))}
+      </div>
 
-        </div>
+      {/* RIGHT PANEL */}
 
-        <div className="ultrasound-grid">
+      <div className="result-editor">
 
-          {
+        {!selectedPatient && (
+          <div className="empty-state">
+            <h2>Select a patient</h2>
+            <p>Choose a patient from the queue to begin reporting.</p>
+          </div>
+        )}
 
-            cards.map(
+        {selectedPatient && (
+          <>
+            <div className="editor-header">
 
-              (card) => (
+              <h1>{selectedPatient.test_type}</h1>
 
-                <div
+              <div className="patient-info">
 
-                  key={card.title}
+                <p>
+                  <strong>Patient:</strong>{" "}
+                  {selectedPatient.patient_name}
+                </p>
 
-                  className={`ultrasound-card ${card.color}`}
+                <p>
+                  <strong>Lab No:</strong>{" "}
+                  {selectedPatient.lab_number}
+                </p>
 
-                  onClick={() =>
+                <p>
+                  <strong>Age:</strong>{" "}
+                  {selectedPatient.age}
+                </p>
 
-                    navigate(
+                <p>
+                  <strong>Sex:</strong>{" "}
+                  {selectedPatient.sex}
+                </p>
 
-                      card.path
+                <p>
+                  <strong>Clinical History:</strong>{" "}
+                  {selectedPatient.clinical_indication}
+                </p>
 
-                    )
+              </div>
+            </div>
 
-                  }
+            <hr />
 
-                >
+            {CurrentForm ? (
+              <CurrentForm
+                data={resultData}
+                onChange={handleChange}
+              />
+            ) : (
+              <div className="unsupported-form">
+                <h3>No reporting template available.</h3>
+                <p>
+                  Template:
+                  <strong> {selectedPatient.template_type}</strong>
+                </p>
+              </div>
+            )}
 
-                  <div className="card-icon">
+            <div className="dashboard-actions">
 
-                    {card.icon}
+              <button
+                className="save-btn"
+                onClick={saveReport}
+                disabled={saving}
+              >
+                {saving ? "Saving..." : "Save Report"}
+              </button>
 
-                  </div>
+            </div>
 
-                  <h3>
-
-                    {card.title}
-
-                  </h3>
-
-                </div>
-
-              )
-
-            )
-
-          }
-
-        </div>
+          </>
+        )}
 
       </div>
 
     </div>
-
   );
-
 }

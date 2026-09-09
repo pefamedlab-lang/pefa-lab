@@ -1,10 +1,29 @@
 import {
   createInterpretation,
   getNumericResult,
+  getScientistOverride,
 } from "../helpers";
 
 /* ==========================================================
    DIABETES INTERPRETATION ENGINE
+
+   Tests Supported
+   ----------------------------------------------------------
+   • Fasting Blood Glucose (FBG)
+   • Random Blood Glucose (RBG)
+   • 2-Hour OGTT Glucose
+   • HbA1c
+   • Estimated Average Glucose (optional)
+
+   Detects
+   ----------------------------------------------------------
+   • Normal glucose regulation
+   • Impaired fasting glucose
+   • Impaired glucose tolerance
+   • Diabetes mellitus
+   • Poor glycaemic control
+   • Excellent glycaemic control
+   • Possible hypoglycaemia
 ========================================================== */
 
 export default function interpretDiabetes(
@@ -15,60 +34,95 @@ export default function interpretDiabetes(
 
 ) {
 
-  const glucose =
-    getNumericResult(
-      resultMap,
-      "Glucose"
-    ) ??
+  /* ======================================================
+     SCIENTIST OVERRIDE
+  ====================================================== */
 
-    getNumericResult(
-      resultMap,
-      "Fasting Blood Sugar"
-    ) ??
+  const override =
+    getScientistOverride(report);
 
+  if (override) {
+    return override;
+  }
+
+  /* ======================================================
+     RESULTS
+  ====================================================== */
+
+  const fastingGlucose =
     getNumericResult(
       resultMap,
-      "FBS"
+      "Fasting Glucose"
+    ) ??
+    getNumericResult(
+      resultMap,
+      "FBG"
+    ) ??
+    getNumericResult(
+      resultMap,
+      "Fasting Blood Glucose"
     );
 
-  const random =
+  const randomGlucose =
     getNumericResult(
       resultMap,
-      "Random Blood Sugar"
+      "Random Glucose"
     ) ??
-
     getNumericResult(
       resultMap,
-      "RBS"
-    );
-
-  const twoHPP =
-    getNumericResult(
-      resultMap,
-      "2HPP"
+      "RBG"
     ) ??
-
     getNumericResult(
       resultMap,
-      "2 Hours Post Prandial"
+      "Random Blood Glucose"
     );
 
   const ogtt =
     getNumericResult(
       resultMap,
-      "OGTT"
+      "2 Hour Glucose"
     ) ??
-
     getNumericResult(
       resultMap,
-      "2 Hour Glucose"
+      "OGTT"
     );
 
   const hba1c =
     getNumericResult(
       resultMap,
       "HbA1c"
+    ) ??
+    getNumericResult(
+      resultMap,
+      "Glycated Haemoglobin"
     );
+
+  const eag =
+    getNumericResult(
+      resultMap,
+      "Estimated Average Glucose"
+    ) ??
+    getNumericResult(
+      resultMap,
+      "eAG"
+    );
+
+  /* ======================================================
+     REFERENCE LIMITS
+     (WHO / ADA based)
+  ====================================================== */
+
+  const FBG_LOW = 3.9;
+  const FBG_IFG = 5.6;
+  const FBG_DIABETES = 7.0;
+
+  const RANDOM_DIABETES = 11.1;
+
+  const OGTT_IGT = 7.8;
+  const OGTT_DIABETES = 11.1;
+
+  const HBA1C_NORMAL = 5.7;
+  const HBA1C_PREDIABETES = 6.5;
 
   let interpretation = "";
 
@@ -77,123 +131,154 @@ export default function interpretDiabetes(
   let recommendation = "";
 
   /* ======================================================
-     FASTING GLUCOSE
+     DERIVED FLAGS
   ====================================================== */
 
-  if (glucose !== null) {
+  const fastingLow =
+    fastingGlucose !== null &&
+    fastingGlucose < FBG_LOW;
 
-    if (glucose < 3.0) {
+  const impairedFasting =
+    fastingGlucose !== null &&
+    fastingGlucose >= FBG_IFG &&
+    fastingGlucose < FBG_DIABETES;
+
+  const fastingDiabetes =
+    fastingGlucose !== null &&
+    fastingGlucose >= FBG_DIABETES;
+
+  const randomDiabetes =
+    randomGlucose !== null &&
+    randomGlucose >= RANDOM_DIABETES;
+
+  const impairedGlucoseTolerance =
+    ogtt !== null &&
+    ogtt >= OGTT_IGT &&
+    ogtt < OGTT_DIABETES;
+
+  const ogttDiabetes =
+    ogtt !== null &&
+    ogtt >= OGTT_DIABETES;
+
+  const hba1cPrediabetes =
+    hba1c !== null &&
+    hba1c >= HBA1C_NORMAL &&
+    hba1c < HBA1C_PREDIABETES;
+
+  const hba1cDiabetes =
+    hba1c !== null &&
+    hba1c >= HBA1C_PREDIABETES;
+
+  /* ======================================================
+     HELPER FUNCTIONS
+  ====================================================== */
+
+  function isHigh(
+    value,
+    upperLimit
+  ) {
+
+    return (
+      value !== null &&
+      value >= upperLimit
+    );
+
+  }
+
+  function isLow(
+    value,
+    lowerLimit
+  ) {
+
+    return (
+      value !== null &&
+      value < lowerLimit
+    );
+
+  }
+
+  /* ======================================================
+     FASTING BLOOD GLUCOSE (FBG)
+  ====================================================== */
+
+  if (fastingGlucose !== null) {
+
+    if (fastingLow) {
 
       interpretation +=
-        "Fasting plasma glucose is critically low, consistent with severe hypoglycaemia. Immediate clinical attention is required.\n\n";
+        "Fasting blood glucose is below the reference interval, consistent with hypoglycaemia. Clinical correlation is recommended to determine the underlying cause.\n\n";
 
     }
 
-    else if (glucose < 3.9) {
+    else if (fastingGlucose < FBG_IFG) {
 
       interpretation +=
-        "Fasting plasma glucose is below the reference interval, indicating hypoglycaemia.\n\n";
+        "Fasting blood glucose is within the normal reference interval.\n\n";
 
     }
 
-    else if (glucose < 5.6) {
+    else if (impairedFasting) {
 
       interpretation +=
-        "Fasting plasma glucose is within the normal reference interval.\n\n";
-
-    }
-
-    else if (glucose < 7.0) {
-
-      interpretation +=
-        "Fasting plasma glucose is elevated and falls within the impaired fasting glucose (prediabetes) range.\n\n";
+        "Fasting blood glucose is within the impaired fasting glucose (prediabetes) range, indicating an increased risk of developing diabetes mellitus.\n\n";
 
     }
 
     else {
 
       interpretation +=
-        "Fasting plasma glucose is within the diagnostic range for diabetes mellitus.\n\n";
+        "Fasting blood glucose is within the diagnostic range for diabetes mellitus. Confirmation with repeat testing or an alternative diagnostic test is recommended unless unequivocal hyperglycaemia is present.\n\n";
 
     }
 
   }
 
   /* ======================================================
-     RANDOM GLUCOSE
+     RANDOM BLOOD GLUCOSE
   ====================================================== */
 
-  if (random !== null) {
+  if (randomGlucose !== null) {
 
-    if (random >= 11.1) {
+    if (randomGlucose < RANDOM_DIABETES) {
 
       interpretation +=
-        "Random plasma glucose is markedly elevated and is consistent with diabetes mellitus when correlated with clinical symptoms.\n\n";
+        "Random blood glucose is below the diagnostic threshold for diabetes mellitus.\n\n";
 
     }
 
     else {
 
       interpretation +=
-        "Random plasma glucose does not meet the diagnostic threshold for diabetes mellitus.\n\n";
+        "Random blood glucose is within the diagnostic range for diabetes mellitus. Diagnosis should be interpreted alongside symptoms and confirmed according to current clinical guidelines where appropriate.\n\n";
 
     }
 
   }
 
   /* ======================================================
-     2-HOUR POST PRANDIAL
-  ====================================================== */
-
-  if (twoHPP !== null) {
-
-    if (twoHPP < 7.8) {
-
-      interpretation +=
-        "Two-hour post-prandial glucose is within the normal range.\n\n";
-
-    }
-
-    else if (twoHPP < 11.1) {
-
-      interpretation +=
-        "Two-hour post-prandial glucose is elevated, suggesting impaired glucose tolerance.\n\n";
-
-    }
-
-    else {
-
-      interpretation +=
-        "Two-hour post-prandial glucose is consistent with diabetes mellitus.\n\n";
-
-    }
-
-  }
-
-  /* ======================================================
-     OGTT
+     2-HOUR OGTT
   ====================================================== */
 
   if (ogtt !== null) {
 
-    if (ogtt < 7.8) {
+    if (ogtt < OGTT_IGT) {
 
       interpretation +=
-        "Oral Glucose Tolerance Test result is normal.\n\n";
+        "The 2-hour oral glucose tolerance test (OGTT) result is within the normal range.\n\n";
 
     }
 
-    else if (ogtt < 11.1) {
+    else if (impairedGlucoseTolerance) {
 
       interpretation +=
-        "OGTT demonstrates impaired glucose tolerance (prediabetes).\n\n";
+        "The 2-hour OGTT result demonstrates impaired glucose tolerance (prediabetes).\n\n";
 
     }
 
     else {
 
       interpretation +=
-        "OGTT result satisfies the diagnostic criteria for diabetes mellitus.\n\n";
+        "The 2-hour OGTT result is within the diagnostic range for diabetes mellitus.\n\n";
 
     }
 
@@ -205,128 +290,260 @@ export default function interpretDiabetes(
 
   if (hba1c !== null) {
 
-    if (hba1c < 5.7) {
+    if (hba1c < HBA1C_NORMAL) {
 
       interpretation +=
-        "HbA1c is within the normal range and reflects normal average blood glucose over the previous 2–3 months.\n\n";
+        "HbA1c is within the non-diabetic reference range.\n\n";
 
     }
 
-    else if (hba1c < 6.5) {
+    else if (hba1cPrediabetes) {
 
       interpretation +=
-        "HbA1c falls within the prediabetes range, indicating increased risk of developing diabetes mellitus.\n\n";
-
-    }
-
-    else if (hba1c < 8.0) {
-
-      interpretation +=
-        "HbA1c is diagnostic of diabetes mellitus and indicates suboptimal long-term glycaemic control.\n\n";
-
-    }
-
-    else if (hba1c < 10.0) {
-
-      interpretation +=
-        "HbA1c indicates poorly controlled diabetes mellitus.\n\n";
+        "HbA1c is within the prediabetes range, indicating an increased risk of progression to diabetes mellitus.\n\n";
 
     }
 
     else {
 
       interpretation +=
-        "HbA1c indicates very poor long-term glycaemic control with a significantly increased risk of diabetic complications.\n\n";
+        "HbA1c is within the diagnostic range for diabetes mellitus and reflects chronic hyperglycaemia over the preceding 2–3 months.\n\n";
 
     }
 
   }
 
   /* ======================================================
-     COMBINED IMPRESSION
+     ESTIMATED AVERAGE GLUCOSE (eAG)
   ====================================================== */
 
-  if (
+  if (eag !== null) {
 
-    hba1c >= 6.5 &&
-
-    glucose >= 7.0
-
-  ) {
-
-    impression =
-      "Findings are diagnostic of diabetes mellitus with persistent hyperglycaemia.";
-
-  }
-
-  else if (
-
-    hba1c >= 5.7 ||
-
-    glucose >= 5.6 ||
-
-    ogtt >= 7.8 ||
-
-    twoHPP >= 7.8
-
-  ) {
-
-    impression =
-      "Findings are consistent with prediabetes / impaired glucose regulation.";
-
-  }
-
-  else {
-
-    impression =
-      "No laboratory evidence of abnormal glucose metabolism.";
+    interpretation +=
+      `Estimated average glucose (eAG) is ${eag.toFixed(1)} mmol/L, representing the approximate average blood glucose over the preceding 2–3 months.\n\n`;
 
   }
 
   /* ======================================================
-     RECOMMENDATION
+     PATTERN RECOGNITION
+  ====================================================== */
+
+  /*
+     Hypoglycaemia
+  ------------------------------------------------------ */
+
+  if (
+
+    fastingLow
+
+  ) {
+
+    impression =
+      "Biochemical findings are consistent with hypoglycaemia.";
+
+    recommendation =
+      "Interpret together with the patient's symptoms, medication history and clinical condition. Further evaluation may be required to determine the underlying cause.";
+
+  }
+
+  /*
+     Diabetes Mellitus
+  ------------------------------------------------------ */
+
+  else if (
+
+    fastingDiabetes ||
+    randomDiabetes ||
+    ogttDiabetes ||
+    hba1cDiabetes
+
+  ) {
+
+    impression =
+      "Biochemical findings are consistent with diabetes mellitus.";
+
+    recommendation =
+      "Diagnosis should be confirmed according to current clinical guidelines where appropriate. Assessment for diabetic complications and comprehensive glycaemic management are recommended.";
+
+  }
+
+  /*
+     Prediabetes
+  ------------------------------------------------------ */
+
+  else if (
+
+    impairedFasting ||
+    impairedGlucoseTolerance ||
+    hba1cPrediabetes
+
+  ) {
+
+    impression =
+      "Biochemical findings are consistent with prediabetes.";
+
+    recommendation =
+      "Lifestyle modification is recommended, including weight management, healthy diet and regular physical activity. Repeat glycaemic assessment should be performed according to clinical guidelines.";
+
+  }
+
+  /*
+     Poor Glycaemic Control
+  ------------------------------------------------------ */
+
+  else if (
+
+    hba1c !== null &&
+    hba1c >= 8.0
+
+  ) {
+
+    impression =
+      "Poor long-term glycaemic control.";
+
+    recommendation =
+      "Review current diabetic management, medication adherence, dietary control and lifestyle measures. Consider treatment optimisation where appropriate.";
+
+  }
+
+  /*
+     Acute Hyperglycaemia with Normal HbA1c
+  ------------------------------------------------------ */
+
+  else if (
+
+    randomDiabetes &&
+    hba1c !== null &&
+    hba1c < HBA1C_NORMAL
+
+  ) {
+
+    impression =
+      "Acute hyperglycaemia with a normal HbA1c.";
+
+    recommendation =
+      "Consider acute illness, physiological stress or recent-onset hyperglycaemia. Repeat glucose testing and clinical correlation are recommended.";
+
+  }
+
+  /*
+     Discordant Glycaemic Results
+  ------------------------------------------------------ */
+
+  else if (
+
+    fastingDiabetes &&
+    hba1c !== null &&
+    hba1c < HBA1C_PREDIABETES
+
+  ) {
+
+    impression =
+      "Discordant glucose and HbA1c results.";
+
+    recommendation =
+      "Repeat testing and clinical correlation are recommended. Conditions affecting red cell survival or recent changes in glycaemic status should be considered.";
+
+  }
+
+  /*
+     Normal Glucose Regulation
+  ------------------------------------------------------ */
+
+  else {
+
+    impression =
+      "Glucose metabolism is within acceptable laboratory limits.";
+
+    recommendation =
+      "Routine clinical correlation is advised.";
+
+  }
+
+  /* ======================================================
+     RECOMMENDATION REFINEMENT
   ====================================================== */
 
   if (
 
-    hba1c >= 6.5 ||
-
-    glucose >= 7.0 ||
-
-    ogtt >= 11.1 ||
-
-    twoHPP >= 11.1
+    impression.includes("within acceptable")
 
   ) {
 
     recommendation =
-      "Clinical evaluation, diabetic education, lifestyle modification, and regular monitoring of HbA1c, renal function, lipid profile, and urine microalbumin are recommended.";
+      "Routine clinical correlation is advised. Repeat glucose assessment where clinically indicated or as part of routine health screening.";
 
   }
 
   else if (
 
-    hba1c >= 5.7 ||
-
-    glucose >= 5.6 ||
-
-    ogtt >= 7.8 ||
-
-    twoHPP >= 7.8
+    impression.includes("hypoglycaemia")
 
   ) {
 
     recommendation =
-      "Lifestyle modification, weight control, dietary counselling, regular physical activity, and repeat glucose assessment within 3–6 months are recommended.";
+      "Evaluate for diabetes treatment-related hypoglycaemia, prolonged fasting, endocrine disorders, liver disease or other underlying causes. Urgent management may be required in symptomatic patients.";
 
   }
 
-  else {
+  else if (
+
+    impression.includes("prediabetes")
+
+  ) {
 
     recommendation =
-      "Maintain healthy lifestyle practices and continue routine screening according to clinical risk factors.";
+      "Lifestyle modification, including weight optimisation, healthy diet and regular physical activity, is recommended. Repeat glycaemic assessment should be performed according to current clinical guidelines.";
 
   }
+
+  else if (
+
+    impression.includes("diabetes mellitus")
+
+  ) {
+
+    recommendation =
+      "Confirm the diagnosis where appropriate according to current diagnostic guidelines. Assess for diabetic complications and initiate comprehensive glycaemic management, including lifestyle measures and pharmacological therapy where indicated.";
+
+  }
+
+  else if (
+
+    impression.includes("Poor long-term glycaemic control")
+
+  ) {
+
+    recommendation =
+      "Review medication adherence, dietary habits, exercise, home glucose monitoring and treatment regimen. Consider intensification of therapy where clinically appropriate.";
+
+  }
+
+  else if (
+
+    impression.includes("Acute hyperglycaemia")
+
+  ) {
+
+    recommendation =
+      "Repeat plasma glucose testing after recovery from acute illness where appropriate. Consider stress hyperglycaemia and correlate with the clinical presentation.";
+
+  }
+
+  else if (
+
+    impression.includes("Discordant")
+
+  ) {
+
+    recommendation =
+      "Consider conditions affecting HbA1c interpretation such as haemoglobinopathies, recent blood loss, haemolysis or chronic kidney disease. Repeat testing or alternative glycaemic assessment may be appropriate.";
+
+  }
+
+  /* ======================================================
+     RETURN INTERPRETATION
+  ====================================================== */
 
   return createInterpretation({
 

@@ -1,0 +1,865 @@
+/*
+==========================================================
+PEFA ENTERPRISE LIS
+PRINTING CSS
+----------------------------------------------------------
+PATH:
+src/components/printing/printing.css
+
+PURPOSE
+- Formal laboratory report layout
+- A4 portrait printing
+- Full Digital Letterhead
+- Pre-printed Letterhead
+- Result tables
+- Structured/special results
+- Signature and verification areas
+- PDF/html2canvas friendly layout
+- Prevent dashboard/modal duplication during print
+
+IMPORTANT
+This stylesheet is intentionally scoped to PEFA printing classes.
+It does not redesign the Result Dashboard.
+==========================================================
+*/
+
+/* ========================================================
+   PRINT VARIABLES / BASE
+======================================================== */
+
+:root {
+  --pefa-print-blue: #075985;
+  --pefa-print-deep: #0f172a;
+  --pefa-print-green: #15803d;
+  --pefa-print-red: #b91c1c;
+  --pefa-print-border: #cbd5e1;
+  --pefa-print-soft: #f1f5f9;
+  --pefa-print-muted: #64748b;
+  --pefa-print-paper: #ffffff;
+}
+
+/* ========================================================
+   PRINT SURFACE
+======================================================== */
+
+.pefa-print-surface {
+  position: fixed;
+  inset: 0;
+  z-index: -9999;
+  width: 100%;
+  min-height: 100%;
+  overflow: visible;
+  background: transparent;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.pefa-print-a4 {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  background: #fff;
+  box-sizing: border-box;
+}
+
+.pefa-report-document {
+  width: 210mm;
+  min-height: 297mm;
+  box-sizing: border-box;
+  margin: 0 auto;
+  padding: 0 12mm 9mm;
+  background: var(--pefa-print-paper);
+  color: var(--pefa-print-deep);
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 9.5pt;
+  line-height: 1.35;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+
+.pefa-report-document * {
+  box-sizing: border-box;
+}
+
+.pefa-report-document img,
+.pefa-report-document svg {
+  max-width: 100%;
+}
+
+/* ========================================================
+   DIGITAL LETTERHEAD
+======================================================== */
+
+.pefa-report-letterhead {
+  padding-top: 7mm;
+  margin: 0 -12mm 5mm;
+  padding-left: 12mm;
+  padding-right: 12mm;
+  border-bottom: 0;
+}
+
+.pefa-letterhead-top {
+  display: grid;
+  grid-template-columns: 27mm 1fr 19mm;
+  gap: 4mm;
+  align-items: center;
+  min-height: 31mm;
+}
+
+.pefa-letterhead-logo-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pefa-letterhead-logo {
+  display: block;
+  width: 25mm;
+  height: 25mm;
+  object-fit: contain;
+}
+
+.pefa-letterhead-title {
+  text-align: center;
+  min-width: 0;
+}
+
+.pefa-letterhead-title h1,
+.pefa-letterhead-title h2,
+.pefa-letterhead-title p {
+  margin: 0;
+}
+
+.pefa-letterhead-title h1 {
+  font-size: 18pt;
+  line-height: 1;
+  font-weight: 900;
+  letter-spacing: .7px;
+  color: var(--pefa-print-blue);
+}
+
+.pefa-letterhead-title h2 {
+  margin-top: 1mm;
+  font-size: 12pt;
+  line-height: 1.05;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--pefa-print-deep);
+}
+
+.pefa-letterhead-title p {
+  margin-top: 1.5mm;
+  font-size: 7.2pt;
+  line-height: 1.3;
+  color: #334155;
+}
+
+.pefa-service-strip {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.5mm 3mm;
+  margin-top: 2.2mm;
+  font-size: 6.8pt;
+  color: #475569;
+}
+
+.pefa-service-strip span {
+  white-space: nowrap;
+}
+
+.pefa-service-strip span:not(:last-of-type)::after {
+  content: "•";
+  margin-left: 3mm;
+  color: #94a3b8;
+}
+
+.pefa-service-strip b {
+  color: var(--pefa-print-red);
+  font-size: 6.9pt;
+  white-space: nowrap;
+}
+
+.pefa-letterhead-qr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pefa-letterhead-qr svg {
+  width: 16mm;
+  height: 16mm;
+}
+
+.pefa-office-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 3mm;
+  margin-top: 3mm;
+  padding: 2.2mm 0;
+  border-top: 1px solid #cbd5e1;
+  border-bottom: 1px solid #cbd5e1;
+}
+
+.pefa-office-row > div {
+  display: flex;
+  flex-direction: column;
+  gap: .6mm;
+  text-align: center;
+  min-width: 0;
+}
+
+.pefa-office-row strong {
+  font-size: 6.4pt;
+  color: var(--pefa-print-blue);
+  letter-spacing: .4px;
+}
+
+.pefa-office-row span {
+  font-size: 6.3pt;
+  line-height: 1.25;
+  color: #475569;
+}
+
+.pefa-contact-strip {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1.2mm;
+  padding: 1.8mm 0;
+  font-size: 6.2pt;
+  color: #475569;
+  text-align: center;
+}
+
+.pefa-header-ribbon {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  height: 1.5mm;
+  margin: 0 -12mm;
+  overflow: hidden;
+}
+
+.pefa-header-ribbon i:nth-child(1) {
+  background: #075985;
+}
+
+.pefa-header-ribbon i:nth-child(2) {
+  background: #84cc16;
+}
+
+.pefa-header-ribbon i:nth-child(3) {
+  background: #dc2626;
+}
+
+/* ========================================================
+   PRE-PRINTED LETTERHEAD
+======================================================== */
+
+.pefa-report-document.is-preprinted {
+  /*
+    Physical letterhead already contains branding.
+    Keep a controlled top clearance so patient information
+    starts in the writing area below the pre-printed header.
+  */
+  padding-top: 47mm;
+}
+
+.pefa-report-document.is-preprinted .pefa-report-patient {
+  margin-top: 0;
+}
+
+/* ========================================================
+   PATIENT INFORMATION
+======================================================== */
+
+.pefa-report-patient {
+  margin-top: 2mm;
+  border: 1px solid var(--pefa-print-border);
+  border-radius: 1.5mm;
+  overflow: hidden;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.pefa-report-patient-title {
+  padding: 1.7mm 3mm;
+  background: var(--pefa-print-blue);
+  color: #fff;
+  font-size: 7.5pt;
+  font-weight: 800;
+  letter-spacing: .8px;
+}
+
+.pefa-report-patient-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0;
+}
+
+.pefa-report-patient-grid > div {
+  min-height: 9.5mm;
+  padding: 1.5mm 2.3mm;
+  border-right: 1px solid #e2e8f0;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.pefa-report-patient-grid > div:nth-child(4n) {
+  border-right: 0;
+}
+
+.pefa-report-patient-grid > div:nth-last-child(-n + 4) {
+  border-bottom: 0;
+}
+
+.pefa-report-patient label,
+.pefa-clinical-history label {
+  display: block;
+  margin-bottom: .6mm;
+  font-size: 6.1pt;
+  line-height: 1.1;
+  color: var(--pefa-print-muted);
+  text-transform: uppercase;
+  letter-spacing: .35px;
+}
+
+.pefa-report-patient strong {
+  display: block;
+  font-size: 7.7pt;
+  line-height: 1.2;
+  font-weight: 700;
+  color: #0f172a;
+  overflow-wrap: anywhere;
+}
+
+.pefa-clinical-history {
+  display: grid;
+  grid-template-columns: 31mm 1fr;
+  gap: 2mm;
+  padding: 2mm 2.3mm;
+  border-top: 1px solid #e2e8f0;
+}
+
+.pefa-clinical-history label {
+  margin: 0;
+}
+
+.pefa-clinical-history span {
+  font-size: 7.2pt;
+  color: #334155;
+  overflow-wrap: anywhere;
+}
+
+/* ========================================================
+   REPORT BODY / HEADING
+======================================================== */
+
+.pefa-report-body {
+  margin-top: 5mm;
+}
+
+.pefa-report-heading {
+  margin-bottom: 3mm;
+  text-align: center;
+  break-after: avoid;
+  page-break-after: avoid;
+}
+
+.pefa-report-heading > span {
+  display: inline-block;
+  font-size: 6.5pt;
+  font-weight: 800;
+  color: var(--pefa-print-blue);
+  letter-spacing: 1.3px;
+}
+
+.pefa-report-heading h2 {
+  margin: .8mm 0 .5mm;
+  font-size: 13pt;
+  line-height: 1.15;
+  font-weight: 900;
+  color: #111827;
+  text-transform: uppercase;
+}
+
+.pefa-report-heading small {
+  font-size: 7pt;
+  color: #64748b;
+}
+
+.pefa-router-body,
+.pefa-formal-renderer-body {
+  width: 100%;
+  min-width: 0;
+}
+
+/* ========================================================
+   RESULT TABLE
+======================================================== */
+
+.pefa-renderer-table-wrap {
+  width: 100%;
+  overflow: visible;
+}
+
+.pefa-renderer-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  margin: 0;
+  font-size: 7.7pt;
+  color: #172033;
+  page-break-inside: auto;
+}
+
+.pefa-renderer-table thead {
+  display: table-header-group;
+}
+
+.pefa-renderer-table tfoot {
+  display: table-footer-group;
+}
+
+.pefa-renderer-table tr {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.pefa-renderer-table th,
+.pefa-renderer-table td {
+  padding: 1.8mm 1.8mm;
+  border: 1px solid #cbd5e1;
+  vertical-align: middle;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+.pefa-renderer-table th {
+  background: #e2e8f0;
+  color: #0f172a;
+  font-size: 6.5pt;
+  line-height: 1.15;
+  font-weight: 800;
+  text-align: center;
+  letter-spacing: .25px;
+}
+
+.pefa-renderer-table th:nth-child(1),
+.pefa-renderer-table td:nth-child(1) {
+  width: 30%;
+  text-align: left;
+}
+
+.pefa-renderer-table th:nth-child(2),
+.pefa-renderer-table td:nth-child(2) {
+  width: 19%;
+  text-align: center;
+}
+
+.pefa-renderer-table th:nth-child(3),
+.pefa-renderer-table td:nth-child(3) {
+  width: 12%;
+  text-align: center;
+}
+
+.pefa-renderer-table th:nth-child(4),
+.pefa-renderer-table td:nth-child(4) {
+  width: 25%;
+  text-align: center;
+}
+
+.pefa-renderer-table th:nth-child(5),
+.pefa-renderer-table td:nth-child(5) {
+  width: 14%;
+  text-align: center;
+}
+
+.pefa-renderer-table tbody tr:nth-child(even) td {
+  background: #f8fafc;
+}
+
+.pefa-renderer-table tbody td strong {
+  font-weight: 700;
+}
+
+.pefa-renderer-parent-row td {
+  background: #f1f5f9 !important;
+  font-weight: 700;
+}
+
+.pefa-renderer-indent {
+  padding-left: 5mm !important;
+  color: #334155;
+}
+
+.pefa-renderer-table .pefa-result-flag {
+  display: inline-block;
+  min-width: 9mm;
+  padding: .7mm 1.4mm;
+  border: 1px solid #cbd5e1;
+  border-radius: 1mm;
+  background: #f8fafc;
+  font-size: 6.4pt;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.pefa-result-flag--high,
+.pefa-result-flag--critical {
+  color: #991b1b;
+  border-color: #fca5a5;
+  background: #fef2f2;
+}
+
+.pefa-result-flag--low {
+  color: #1d4ed8;
+  border-color: #93c5fd;
+  background: #eff6ff;
+}
+
+/* ========================================================
+   PANEL / SPECIAL RESULT SECTIONS
+======================================================== */
+
+.pefa-renderer-panel {
+  width: 100%;
+}
+
+.pefa-renderer-special {
+  width: 100%;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.pefa-renderer-special-title {
+  margin: 0 0 2mm;
+  padding: 1.8mm 2.5mm;
+  border-left: 1.2mm solid var(--pefa-print-blue);
+  background: #f1f5f9;
+  color: #0f172a;
+  font-size: 8pt;
+  font-weight: 900;
+  letter-spacing: .5px;
+  text-transform: uppercase;
+}
+
+.pefa-renderer-special .pefa-renderer-table th:first-child,
+.pefa-renderer-special .pefa-renderer-table td:first-child {
+  width: 42%;
+}
+
+.pefa-renderer-special .pefa-renderer-table th:nth-child(2),
+.pefa-renderer-special .pefa-renderer-table td:nth-child(2) {
+  width: 58%;
+  text-align: left;
+}
+
+/* ========================================================
+   EMPTY / ERROR STATES
+======================================================== */
+
+.pefa-results-empty {
+  padding: 7mm 4mm;
+  border: 1px dashed #cbd5e1;
+  border-radius: 1.5mm;
+  color: #64748b;
+  background: #f8fafc;
+  text-align: center;
+  font-size: 8pt;
+}
+
+/* ========================================================
+   SIGNATURES
+======================================================== */
+
+.pefa-report-signatures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18mm;
+  margin-top: 9mm;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.pefa-signature-card {
+  text-align: center;
+  min-width: 0;
+}
+
+.pefa-signature-space {
+  height: 12mm;
+}
+
+.pefa-signature-line {
+  width: 100%;
+  height: 0;
+  border-top: 1px solid #334155;
+}
+
+.pefa-signature-card strong {
+  display: block;
+  margin-top: 1.5mm;
+  font-size: 7.2pt;
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.pefa-signature-card span {
+  display: block;
+  margin-top: .6mm;
+  font-size: 6.2pt;
+  color: #64748b;
+  letter-spacing: .5px;
+}
+
+/* ========================================================
+   VERIFICATION
+======================================================== */
+
+.pefa-report-verification {
+  display: grid;
+  grid-template-columns: 18mm repeat(5, 1fr);
+  gap: 2.5mm;
+  align-items: center;
+  margin-top: 7mm;
+  padding: 2.5mm;
+  border: 1px solid #cbd5e1;
+  border-radius: 1.5mm;
+  background: #f8fafc;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.pefa-verification-qr {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pefa-verification-qr svg {
+  width: 14mm;
+  height: 14mm;
+}
+
+.pefa-verification-item {
+  min-width: 0;
+}
+
+.pefa-verification-item label {
+  display: block;
+  margin-bottom: .6mm;
+  font-size: 5.7pt;
+  color: #64748b;
+  text-transform: uppercase;
+  letter-spacing: .35px;
+}
+
+.pefa-verification-item strong {
+  display: block;
+  font-size: 6.6pt;
+  line-height: 1.2;
+  color: #0f172a;
+  overflow-wrap: anywhere;
+}
+
+/* ========================================================
+   CONFIDENTIAL NOTICE / FOOTER
+======================================================== */
+
+.pefa-confidential-notice {
+  margin-top: 4mm;
+  padding: 1.8mm 2.5mm;
+  border-top: 1px solid #e2e8f0;
+  color: #64748b;
+  font-size: 6pt;
+  line-height: 1.35;
+  text-align: center;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.pefa-report-footer {
+  margin: 3mm -12mm 0;
+  padding: 2mm 12mm 0;
+  border-top: 1px solid #cbd5e1;
+  color: #64748b;
+  font-size: 6.1pt;
+  line-height: 1.2;
+  text-align: center;
+}
+
+/* ========================================================
+   PRINT-ONLY BEHAVIOUR
+======================================================== */
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  html,
+  body {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #fff !important;
+  }
+
+  body.pefa-printing-result {
+    overflow: visible !important;
+  }
+
+  body.pefa-printing-result > * {
+    visibility: hidden !important;
+  }
+
+  body.pefa-printing-result #pefa-result-print-area {
+    visibility: visible !important;
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 999999 !important;
+    width: 210mm !important;
+    min-height: 297mm !important;
+    overflow: visible !important;
+    background: #fff !important;
+  }
+
+  body.pefa-printing-result #pefa-result-print-area * {
+    visibility: visible !important;
+  }
+
+  .pefa-print-surface {
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 999999 !important;
+    visibility: visible !important;
+    width: 210mm !important;
+    min-height: 297mm !important;
+    background: #fff !important;
+  }
+
+  .pefa-print-a4,
+  .pefa-report-document {
+    width: 210mm !important;
+    min-height: 297mm !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  .pefa-report-document {
+    overflow: visible !important;
+  }
+
+  .pefa-renderer-table {
+    page-break-inside: auto;
+  }
+
+  .pefa-renderer-table tr,
+  .pefa-report-patient,
+  .pefa-report-signatures,
+  .pefa-report-verification,
+  .pefa-confidential-notice {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  a,
+  button,
+  select,
+  input,
+  textarea {
+    box-shadow: none !important;
+  }
+}
+
+/* ========================================================
+   SCREEN PREVIEW
+======================================================== */
+
+@media screen {
+  .pefa-print-surface {
+    /*
+      Kept hidden during normal dashboard use.
+      The dashboard owns the visible report preview.
+    */
+    display: none;
+  }
+}
+
+/* ========================================================
+   NARROW PRINT SAFETY
+======================================================== */
+
+@media print and (max-width: 900px) {
+  .pefa-report-document {
+    font-size: 9pt;
+  }
+}
+
+/* ========================================================
+   PDF / CANVAS SAFETY
+======================================================== */
+
+.pefa-report-document,
+.pefa-report-document table,
+.pefa-report-document tr,
+.pefa-report-document td,
+.pefa-report-document th {
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
+}
+
+.pefa-report-document table {
+  border-spacing: 0;
+}
+
+.pefa-report-document svg {
+  shape-rendering: geometricPrecision;
+}
+
+/* ==========================================================
+   PEFA FORMAL RESULT — INTERPRETATION / IMPRESSION
+   ========================================================== */
+.pefa-renderer-interpretation {
+  margin: 18px 0 0;
+  border: 1px solid #d8e3ea;
+  border-left: 4px solid #1769aa;
+  border-radius: 8px;
+  background: #f7fafc;
+  overflow: hidden;
+  page-break-inside: avoid;
+}
+.pefa-renderer-interpretation-title {
+  padding: 9px 13px;
+  background: #edf4f8;
+  border-bottom: 1px solid #d8e3ea;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: .08em;
+  color: #174b70;
+}
+.pefa-renderer-interpretation > div:not(.pefa-renderer-interpretation-title) {
+  display: grid;
+  grid-template-columns: 145px 1fr;
+  gap: 12px;
+  padding: 9px 13px;
+  border-bottom: 1px solid #e4ebf0;
+  font-size: 12px;
+  line-height: 1.55;
+}
+.pefa-renderer-interpretation > div:last-child { border-bottom: 0; }
+.pefa-renderer-interpretation > div:not(.pefa-renderer-interpretation-title) > strong {
+  color: #3d5363;
+  font-weight: 800;
+}
+.pefa-renderer-interpretation > div:not(.pefa-renderer-interpretation-title) > span {
+  color: #172b3a;
+}
+@media print {
+  .pefa-renderer-interpretation { box-shadow: none; background: #fff; }
+}

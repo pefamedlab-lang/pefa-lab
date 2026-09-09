@@ -9,6 +9,7 @@ import { supabase } from "../supabase";
 
 import "../styles/ultrasoundDashboard.css";
 
+
 import OBSForm
 from "../components/ultrasound/forms/OBSForm";
 
@@ -67,6 +68,8 @@ export default function UltrasoundResultDashboard() {
     setResultData,
 
   ] = useState({});
+
+
 
   /* ==========================
      LOAD PENDING SCANS
@@ -172,49 +175,76 @@ export default function UltrasoundResultDashboard() {
      SAVE REPORT
   ========================== */
 
-  const saveReport =
+ const saveReport = async () => {
+  if (!selectedPatient) return;
 
-    async () => {
+  const { error } = await supabase
+    .from("ultrasound_results")
+    .update({
+      result: resultData,
+      report_status: "Completed",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", selectedPatient.id);
 
-      if (
+  if (error) {
+    alert(error.message);
+    return;
+  }
 
-        !selectedPatient
+  alert("Report saved successfully.");
 
-      ) return;
+  await loadPatients();
 
-      await supabase
+  setSelectedPatient((prev) => ({
+    ...prev,
+    result: resultData,
+    report_status: "Completed",
+  }));
+};
 
-        .from(
+const releaseReport = async () => {
 
-          "ultrasound_results"
+  if (!selectedPatient) return;
 
-        )
+  const { error } = await supabase
 
-        .update({
+    .from("ultrasound_results")
 
-          result:
+    .update({
 
-            resultData,
+      result: resultData,
 
-        })
+      report_status: "Completed",
 
-        .eq(
+      release_status: "Released",
 
-          "id",
+      released_at: new Date().toISOString(),
 
-          selectedPatient.id
+    })
 
-        );
+    .eq("id", selectedPatient.id);
 
-      alert(
+  if (error) {
 
-        "Saved Successfully"
+    alert(error.message);
 
-      );
+    return;
 
-      loadPatients();
+  }
 
-    };
+  alert("Report Released Successfully");
+
+  await loadPatients();
+
+  setSelectedPatient((prev) => ({
+    ...prev,
+    result: resultData,
+    report_status: "Completed",
+    release_status: "Released",
+  }));
+
+};
 
   return (
 
@@ -264,23 +294,17 @@ export default function UltrasoundResultDashboard() {
 
               >
 
-                <strong>
+<strong>
+  {patient.patient_name}
+</strong>
 
-                  {
+<div className="queue-scan-id">
+  {patient.scan_id}
+</div>
 
-                    patient.patient_name
-
-                  }
-
-                </strong>
-
-                <br/>
-
-                {
-
-                  patient.test_type
-
-                }
+<div className="queue-test">
+  {patient.test_type}
+</div>
 
               </button>
 
@@ -319,6 +343,26 @@ export default function UltrasoundResultDashboard() {
                 }
 
               </h1>
+
+<div className="scan-information">
+
+  <p>
+    <strong>Scan ID:</strong> {selectedPatient.scan_id}
+  </p>
+
+  <p>
+    <strong>Patient:</strong> {selectedPatient.patient_name}
+  </p>
+
+  <p>
+    <strong>Age/Sex:</strong> {selectedPatient.age} / {selectedPatient.sex}
+  </p>
+
+  <p>
+    <strong>Referring Doctor:</strong> {selectedPatient.referring_doctor}
+  </p>
+
+</div>
 
               {/* OBS */}
 
@@ -390,21 +434,11 @@ export default function UltrasoundResultDashboard() {
 
                 "abdominal_scan" && (
 
-                  <AbdominalScanForm
-
-                    data={
-
-                      resultData
-
-                    }
-
-                    onChange={
-
-                      handleChange
-
-                    }
-
-                  />
+               <AbdominalScanForm
+  patient={selectedPatient}
+  data={resultData}
+  onChange={handleChange}
+/>
 
                 )
 
@@ -650,21 +684,33 @@ export default function UltrasoundResultDashboard() {
 
               }
 
-              <button
+              <div className="report-actions">
 
-                className="save-btn"
+  <button
 
-                onClick={
+    className="save-btn"
 
-                  saveReport
+    onClick={saveReport}
 
-                }
+  >
 
-              >
+    Save Draft
 
-                Save Report
+  </button>
 
-              </button>
+  <button
+
+    className="release-btn"
+
+    onClick={releaseReport}
+
+  >
+
+    Release Report
+
+  </button>
+
+</div>
 
             </>
 

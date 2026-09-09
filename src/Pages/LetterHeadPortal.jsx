@@ -6,30 +6,38 @@ import PrintEngine from "../utils/PrintEngine";
 import "../styles/LetterHeadPortal.css";
 
 export default function LetterHeadPortal() {
+  const PRINT_ID = "letterhead-print-root";
+
+  const handlePrint = () => {
+    PrintEngine.print(PRINT_ID);
+  };
+
+  const handleDownload = () => {
+    PrintEngine.download(
+      PRINT_ID,
+      "PEFA-LetterHead.pdf"
+    );
+  };
 
   return (
-
     <div className="letterhead-page">
 
       {/* ======================================================
           TOOLBAR
       ====================================================== */}
 
-      <div className="letterhead-toolbar">
+      <header className="letterhead-toolbar">
 
         <div className="letterhead-info">
 
           <h2>
-
             PEFA Letter Head Printing
-
           </h2>
 
           <p>
-
             Print or download the official PEFA Medical Diagnostic
-            Services letterhead.
-
+            Services letterhead. This template should be used as the
+            reference when configuring report spacing for record copies.
           </p>
 
         </div>
@@ -41,19 +49,12 @@ export default function LetterHeadPortal() {
           ================================================== */}
 
           <button
+            type="button"
             className="letterhead-download-btn"
-            onClick={() =>
-              PrintEngine.download(
-                "print-root",
-                "PEFA-LetterHead.pdf"
-              )
-            }
+            onClick={handleDownload}
           >
-
             <Download size={18} />
-
-            Download PDF
-
+            <span>Download PDF</span>
           </button>
 
           {/* ==================================================
@@ -61,41 +62,39 @@ export default function LetterHeadPortal() {
           ================================================== */}
 
           <button
+            type="button"
             className="letterhead-print-btn"
-            onClick={() =>
-              PrintEngine.print("print-root")
-            }
+            onClick={handlePrint}
           >
-
             <Printer size={18} />
-
-            Print Letter Head
-
+            <span>Print Letter Head</span>
           </button>
 
         </div>
 
-      </div>
+      </header>
 
       {/* ======================================================
           PRINT PREVIEW
       ====================================================== */}
 
-      <div
-        id="print-root"
+      <section
+        id={PRINT_ID}
         className="letterhead-preview"
       >
 
-        <div className="letterhead-a4">
+        {/* ==================================================
+            A4 SHEET
+        ================================================== */}
+
+        <article className="letterhead-a4">
 
           <LetterHeadDocument />
 
-        </div>
+        </article>
 
-      </div>
+      </section>
 
     </div>
-
   );
-
 }

@@ -1,245 +1,136 @@
 import {
-
   FileText,
   Clock3,
   CheckCircle2,
   CalendarDays,
   AlertTriangle,
-
 } from "lucide-react";
 
 export default function UltrasoundStatsCards({
-
   records = [],
-
 }) {
+  /* =====================================
+      TODAY
+  ===================================== */
 
-  const today =
+  const today = new Date().toDateString();
 
-    new Date()
+  /* =====================================
+      TOTAL SCANS
+  ===================================== */
 
-      .toDateString();
+  const totalScans = records.length;
 
-  const totalScans =
+  /* =====================================
+      PENDING REPORTS
+  ===================================== */
 
-    records.length;
+  const pendingScans = records.filter((item) => {
+    return (
+      item.release_status === "Pending" ||
+      item.report_status === "Pending"
+    );
+  }).length;
 
-  const pendingScans =
+  /* =====================================
+      RELEASED REPORTS
+  ===================================== */
 
-    records.filter(
+  const releasedScans = records.filter((item) => {
+    return (
+      item.release_status === "Released" ||
+      item.report_status === "Released"
+    );
+  }).length;
 
-      item =>
+  /* =====================================
+      TODAY'S SCANS
+  ===================================== */
 
-        item.release_status ===
+  const todayScans = records.filter((item) => {
+    if (!item.created_at) {
+      return false;
+    }
 
-        "Pending"
+    return (
+      new Date(item.created_at).toDateString() === today
+    );
+  }).length;
 
-    ).length;
+  /* =====================================
+      URGENT CASES
+  ===================================== */
 
-  const releasedScans =
+  const urgentCases = records.filter((item) => {
+    return (
+      String(item.priority || "").toLowerCase() ===
+      "urgent"
+    );
+  }).length;
 
-    records.filter(
-
-      item =>
-
-        item.release_status ===
-
-        "Released"
-
-    ).length;
-
-  const todayScans =
-
-    records.filter(
-
-      item =>
-
-        new Date(
-
-          item.created_at
-
-        ).toDateString() ===
-
-        today
-
-    ).length;
-
-  const urgentCases =
-
-    records.filter(
-
-      item =>
-
-        item.priority ===
-
-        "Urgent"
-
-    ).length;
+  /* =====================================
+      KPI CARDS
+  ===================================== */
 
   const cards = [
-
     {
-
-      title:
-
-        "Total Scans",
-
-      value:
-
-        totalScans,
-
-      icon:
-
-        FileText,
-
-      className:
-
-        "card-blue",
-
+      title: "Total Scans",
+      value: totalScans,
+      icon: FileText,
+      className: "card-blue",
     },
-
     {
-
-      title:
-
-        "Pending Reports",
-
-      value:
-
-        pendingScans,
-
-      icon:
-
-        Clock3,
-
-      className:
-
-        "card-orange",
-
+      title: "Pending Reports",
+      value: pendingScans,
+      icon: Clock3,
+      className: "card-orange",
     },
-
     {
-
-      title:
-
-        "Released Reports",
-
-      value:
-
-        releasedScans,
-
-      icon:
-
-        CheckCircle2,
-
-      className:
-
-        "card-green",
-
+      title: "Released Reports",
+      value: releasedScans,
+      icon: CheckCircle2,
+      className: "card-green",
     },
-
     {
-
-      title:
-
-        "Today's Scans",
-
-      value:
-
-        todayScans,
-
-      icon:
-
-        CalendarDays,
-
-      className:
-
-        "card-purple",
-
+      title: "Today's Scans",
+      value: todayScans,
+      icon: CalendarDays,
+      className: "card-purple",
     },
-
     {
-
-      title:
-
-        "Urgent Cases",
-
-      value:
-
-        urgentCases,
-
-      icon:
-
-        AlertTriangle,
-
-      className:
-
-        "card-red",
-
+      title: "Urgent Cases",
+      value: urgentCases,
+      icon: AlertTriangle,
+      className: "card-red",
     },
-
   ];
 
+  /* =====================================
+      RENDER
+  ===================================== */
+
   return (
-
     <div className="ultrasound-kpi-grid">
+      {cards.map((card) => {
+        const Icon = card.icon;
 
-      {cards.map(
-
-        (
-
-          card,
-
-          index
-
-        ) => {
-
-          const Icon =
-
-            card.icon;
-
-          return (
-
-            <div
-
-              key={index}
-
-              className={`ultrasound-kpi-card ${card.className}`}
-
-            >
-
-              <div className="kpi-icon">
-
-                <Icon size={28} />
-
-              </div>
-
-              <div className="kpi-content">
-
-                <h2>
-
-                  {card.value}
-
-                </h2>
-
-                <p>
-
-                  {card.title}
-
-                </p>
-
-              </div>
-
+        return (
+          <div
+            key={card.title}
+            className={`ultrasound-kpi-card ${card.className}`}
+          >
+            <div className="kpi-icon">
+              <Icon size={28} />
             </div>
 
-          );
+            <div className="kpi-content">
+              <h2>{card.value}</h2>
 
-        }
-
-      )}
-
+              <p>{card.title}</p>
+            </div>
+          </div>
+        );
+      })}
     </div>
-
   );
-
 }

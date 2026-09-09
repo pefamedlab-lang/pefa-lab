@@ -1,13 +1,35 @@
 import {
   createInterpretation,
   getNumericResult,
+  getScientistOverride,
 } from "../helpers";
 
 /* ==========================================================
    ELECTROLYTE INTERPRETATION ENGINE
+
+   Tests Supported
+   ----------------------------------------------------------
+   • Sodium (Na+)
+   • Potassium (K+)
+   • Chloride (Cl−)
+   • Bicarbonate (HCO₃⁻ / CO₂)
+   • Anion Gap (optional)
+
+   Detects
+   ----------------------------------------------------------
+   • Normal electrolyte profile
+   • Hyponatraemia
+   • Hypernatraemia
+   • Hypokalaemia
+   • Hyperkalaemia
+   • Hypochloraemia
+   • Hyperchloraemia
+   • Metabolic acidosis
+   • Metabolic alkalosis
+   • High anion gap metabolic acidosis
 ========================================================== */
 
-export default function interpretElectrolytes(
+export default function interpretElectrolyte(
 
   report = {},
 
@@ -15,329 +37,527 @@ export default function interpretElectrolytes(
 
 ) {
 
+  /* ======================================================
+     SCIENTIST OVERRIDE
+  ====================================================== */
+
+  const override =
+    getScientistOverride(report);
+
+  if (override) {
+    return override;
+  }
+
+  /* ======================================================
+     RESULTS
+  ====================================================== */
+
   const sodium =
-    getNumericResult(
-      resultMap,
-      "Sodium"
-    );
+    getNumericResult(resultMap, "Sodium") ??
+    getNumericResult(resultMap, "Na");
 
   const potassium =
-    getNumericResult(
-      resultMap,
-      "Potassium"
-    );
+    getNumericResult(resultMap, "Potassium") ??
+    getNumericResult(resultMap, "K");
 
   const chloride =
-    getNumericResult(
-      resultMap,
-      "Chloride"
-    );
+    getNumericResult(resultMap, "Chloride") ??
+    getNumericResult(resultMap, "Cl");
 
   const bicarbonate =
-    getNumericResult(
-      resultMap,
-      "Bicarbonate"
-    ) ??
-
-    getNumericResult(
-      resultMap,
-      "HCO3"
-    );
-
-  const glucose =
-    getNumericResult(
-      resultMap,
-      "Glucose"
-    );
+    getNumericResult(resultMap, "Bicarbonate") ??
+    getNumericResult(resultMap, "HCO3") ??
+    getNumericResult(resultMap, "CO2");
 
   const urea =
-    getNumericResult(
-      resultMap,
-      "Urea"
-    );
+    getNumericResult(resultMap, "Urea");
 
   const creatinine =
-    getNumericResult(
-      resultMap,
-      "Creatinine"
-    );
+    getNumericResult(resultMap, "Creatinine");
+
+  /* ======================================================
+     REFERENCE LIMITS
+  ====================================================== */
+
+  const NA_LOW = 135;
+  const NA_HIGH = 145;
+
+  const K_LOW = 3.5;
+  const K_HIGH = 5.2;
+
+  const CL_LOW = 98;
+  const CL_HIGH = 107;
+
+  const HCO3_LOW = 22;
+  const HCO3_HIGH = 29;
+
+  const UREA_HIGH = 7.5;
+
+  const CREATININE_HIGH = 110;
 
   let interpretation = "";
-
   let impression = "";
-
   let recommendation = "";
 
   /* ======================================================
-     SODIUM
+     DERIVED FLAGS
+  ====================================================== */
+
+  const sodiumLow =
+    sodium !== null &&
+    sodium < NA_LOW;
+
+  const sodiumHigh =
+    sodium !== null &&
+    sodium > NA_HIGH;
+
+  const potassiumLow =
+    potassium !== null &&
+    potassium < K_LOW;
+
+  const potassiumHigh =
+    potassium !== null &&
+    potassium > K_HIGH;
+
+  const chlorideLow =
+    chloride !== null &&
+    chloride < CL_LOW;
+
+  const chlorideHigh =
+    chloride !== null &&
+    chloride > CL_HIGH;
+
+  const bicarbonateLow =
+    bicarbonate !== null &&
+    bicarbonate < HCO3_LOW;
+
+  const bicarbonateHigh =
+    bicarbonate !== null &&
+    bicarbonate > HCO3_HIGH;
+
+  const ureaHigh =
+    urea !== null &&
+    urea > UREA_HIGH;
+
+  const creatinineHigh =
+    creatinine !== null &&
+    creatinine > CREATININE_HIGH;
+
+  /* ======================================================
+     HELPER FUNCTIONS
+  ====================================================== */
+
+  function isHigh(value, upperLimit) {
+
+    return (
+      value !== null &&
+      value > upperLimit
+    );
+
+  }
+
+  function isLow(value, lowerLimit) {
+
+    return (
+      value !== null &&
+      value < lowerLimit
+    );
+
+  }
+
+  function hasRenalImpairment() {
+
+    return (
+      ureaHigh ||
+      creatinineHigh
+    );
+
+  }
+
+  /* ======================================================
+     SODIUM (Na+)
   ====================================================== */
 
   if (sodium !== null) {
 
-    if (sodium < 135) {
+    if (isLow(sodium, NA_LOW)) {
 
       interpretation +=
-        "Serum sodium is reduced (hyponatraemia).\n\n";
+        "Serum sodium is decreased (hyponatraemia). This may occur in fluid overload states, syndrome of inappropriate antidiuretic hormone secretion (SIADH), diuretic therapy, adrenal insufficiency or gastrointestinal sodium loss.\n\n";
 
     }
 
-    else if (sodium <= 145) {
+    else if (isHigh(sodium, NA_HIGH)) {
+
+      interpretation +=
+        "Serum sodium is elevated (hypernatraemia), usually reflecting free water deficit, dehydration or impaired water intake.\n\n";
+
+    }
+
+    else {
 
       interpretation +=
         "Serum sodium is within the reference interval.\n\n";
 
     }
 
-    else {
-
-      interpretation +=
-        "Serum sodium is elevated (hypernatraemia).\n\n";
-
-    }
-
   }
 
   /* ======================================================
-     POTASSIUM
+     POTASSIUM (K+)
   ====================================================== */
 
   if (potassium !== null) {
 
-    if (potassium < 3.5) {
+    if (isLow(potassium, K_LOW)) {
 
       interpretation +=
-        "Serum potassium is reduced (hypokalaemia).\n\n";
+        "Serum potassium is decreased (hypokalaemia). Possible causes include gastrointestinal losses, diuretic therapy, insulin administration or intracellular potassium shift. Significant hypokalaemia may predispose to cardiac arrhythmias.\n\n";
 
     }
 
-    else if (potassium <= 5.0) {
+    else if (isHigh(potassium, K_HIGH)) {
+
+      interpretation +=
+        "Serum potassium is elevated (hyperkalaemia). This may occur in renal impairment, metabolic acidosis, hypoaldosteronism or excessive potassium intake. Significant hyperkalaemia requires prompt clinical assessment because of the risk of life-threatening cardiac arrhythmias.\n\n";
+
+    }
+
+    else {
 
       interpretation +=
         "Serum potassium is within the reference interval.\n\n";
 
     }
 
-    else if (potassium <= 6.0) {
+  }
+
+  /* ======================================================
+     SODIUM (Na+)
+  ====================================================== */
+
+  if (sodium !== null) {
+
+    if (isLow(sodium, NA_LOW)) {
 
       interpretation +=
-        "Serum potassium is elevated (hyperkalaemia).\n\n";
+        "Serum sodium is decreased (hyponatraemia). This may occur in fluid overload states, syndrome of inappropriate antidiuretic hormone secretion (SIADH), diuretic therapy, adrenal insufficiency or gastrointestinal sodium loss.\n\n";
+
+    }
+
+    else if (isHigh(sodium, NA_HIGH)) {
+
+      interpretation +=
+        "Serum sodium is elevated (hypernatraemia), usually reflecting free water deficit, dehydration or impaired water intake.\n\n";
 
     }
 
     else {
 
       interpretation +=
-        "Severe hyperkalaemia detected. This may predispose to life-threatening cardiac arrhythmias.\n\n";
+        "Serum sodium is within the reference interval.\n\n";
 
     }
 
   }
 
   /* ======================================================
-     CHLORIDE
+     POTASSIUM (K+)
+  ====================================================== */
+
+  if (potassium !== null) {
+
+    if (isLow(potassium, K_LOW)) {
+
+      interpretation +=
+        "Serum potassium is decreased (hypokalaemia). Possible causes include gastrointestinal losses, diuretic therapy, insulin administration or intracellular potassium shift. Significant hypokalaemia may predispose to cardiac arrhythmias.\n\n";
+
+    }
+
+    else if (isHigh(potassium, K_HIGH)) {
+
+      interpretation +=
+        "Serum potassium is elevated (hyperkalaemia). This may occur in renal impairment, metabolic acidosis, hypoaldosteronism or excessive potassium intake. Significant hyperkalaemia requires prompt clinical assessment because of the risk of life-threatening cardiac arrhythmias.\n\n";
+
+    }
+
+    else {
+
+      interpretation +=
+        "Serum potassium is within the reference interval.\n\n";
+
+    }
+
+  }
+
+  /* ======================================================
+     CHLORIDE (Cl−)
   ====================================================== */
 
   if (chloride !== null) {
 
-    if (chloride < 98) {
+    if (isLow(chloride, CL_LOW)) {
 
       interpretation +=
-        "Serum chloride is reduced.\n\n";
+        "Serum chloride is decreased (hypochloraemia). This may occur with prolonged vomiting, diuretic therapy, metabolic alkalosis or excessive gastrointestinal chloride loss.\n\n";
 
     }
 
-    else if (chloride <= 107) {
+    else if (isHigh(chloride, CL_HIGH)) {
+
+      interpretation +=
+        "Serum chloride is elevated (hyperchloraemia). This finding may be associated with dehydration, hyperchloraemic metabolic acidosis, renal tubular disorders or excessive chloride administration.\n\n";
+
+    }
+
+    else {
 
       interpretation +=
         "Serum chloride is within the reference interval.\n\n";
 
     }
 
-    else {
-
-      interpretation +=
-        "Serum chloride is elevated.\n\n";
-
-    }
-
   }
 
   /* ======================================================
-     BICARBONATE
+     BICARBONATE (HCO3−)
   ====================================================== */
 
   if (bicarbonate !== null) {
 
-    if (bicarbonate < 22) {
+    if (isLow(bicarbonate, HCO3_LOW)) {
 
       interpretation +=
-        "Serum bicarbonate is reduced, suggesting metabolic acidosis.\n\n";
+        "Serum bicarbonate is reduced, indicating metabolic acidosis or compensation for respiratory alkalosis. Clinical correlation is recommended.\n\n";
 
     }
 
-    else if (bicarbonate <= 30) {
+    else if (isHigh(bicarbonate, HCO3_HIGH)) {
+
+      interpretation +=
+        "Serum bicarbonate is elevated, consistent with metabolic alkalosis or compensation for chronic respiratory acidosis.\n\n";
+
+    }
+
+    else {
 
       interpretation +=
         "Serum bicarbonate is within the reference interval.\n\n";
 
     }
 
+  }
+
+  /* ======================================================
+     ACID–BASE PATTERN
+  ====================================================== */
+
+  if (
+
+    bicarbonateLow &&
+    chlorideHigh
+
+  ) {
+
+    interpretation +=
+      "The combination of low bicarbonate and elevated chloride is compatible with hyperchloraemic metabolic acidosis.\n\n";
+
+  }
+
+  else if (
+
+    bicarbonateLow
+
+  ) {
+
+    interpretation +=
+      "Reduced bicarbonate is compatible with metabolic acidosis. Correlation with blood gas analysis, serum lactate and anion gap is recommended where clinically indicated.\n\n";
+
+  }
+
+  else if (
+
+    bicarbonateHigh &&
+    chlorideLow
+
+  ) {
+
+    interpretation +=
+      "Elevated bicarbonate with reduced chloride is compatible with metabolic alkalosis, commonly associated with vomiting, diuretic therapy or mineralocorticoid excess.\n\n";
+
+  }
+
+  else if (
+
+    bicarbonateHigh
+
+  ) {
+
+    interpretation +=
+      "Elevated bicarbonate is consistent with metabolic alkalosis or chronic respiratory compensation.\n\n";
+
+  }
+
+  /* ======================================================
+     UREA
+  ====================================================== */
+
+  if (urea !== null) {
+
+    if (urea <= UREA_HIGH) {
+
+      interpretation +=
+        "Serum urea is within the reference interval.\n\n";
+
+    }
+
     else {
 
       interpretation +=
-        "Serum bicarbonate is elevated, suggesting metabolic alkalosis.\n\n";
+        "Serum urea is elevated. This may occur with dehydration, increased protein catabolism, gastrointestinal bleeding or impaired renal function.\n\n";
 
     }
 
   }
 
   /* ======================================================
-     ANION GAP
+     CREATININE
   ====================================================== */
 
-  let anionGap = null;
+  if (creatinine !== null) {
+
+    if (creatinine <= CREATININE_HIGH) {
+
+      interpretation +=
+        "Serum creatinine is within the reference interval.\n\n";
+
+    }
+
+    else {
+
+      interpretation +=
+        "Serum creatinine is elevated, indicating reduced glomerular filtration rate (GFR) until proven otherwise. Correlation with estimated GFR (eGFR), urine findings and clinical assessment is recommended.\n\n";
+
+    }
+
+  }
+
+  /* ======================================================
+     RENAL FUNCTION ASSESSMENT
+  ====================================================== */
 
   if (
 
-    sodium !== null &&
-
-    chloride !== null &&
-
-    bicarbonate !== null
+    ureaHigh &&
+    creatinineHigh
 
   ) {
-
-    anionGap =
-      sodium -
-      chloride -
-      bicarbonate;
 
     interpretation +=
-      `Calculated anion gap is ${anionGap.toFixed(1)} mmol/L.\n\n`;
+      "Concurrent elevation of serum urea and creatinine is consistent with impaired renal function. Correlation with estimated glomerular filtration rate (eGFR), urinalysis and renal imaging may be appropriate depending on the clinical setting.\n\n";
+
+  }
+
+  else if (
+
+    ureaHigh &&
+    !creatinineHigh
+
+  ) {
+
+    interpretation +=
+      "Elevation of urea with a normal creatinine may reflect dehydration, increased protein intake, gastrointestinal bleeding or enhanced protein catabolism rather than intrinsic renal impairment.\n\n";
+
+  }
+
+  else if (
+
+    creatinineHigh &&
+    !ureaHigh
+
+  ) {
+
+    interpretation +=
+      "Isolated elevation of creatinine may indicate early renal impairment, reduced muscle clearance or laboratory variation. Interpretation should include estimated GFR and serial measurements where appropriate.\n\n";
+
+  }
+
+  else {
+
+    interpretation +=
+      "Overall renal biochemical markers are within expected laboratory limits.\n\n";
 
   }
 
   /* ======================================================
-     HIGH ANION GAP METABOLIC ACIDOSIS
+     CLINICAL PATTERN RECOGNITION
   ====================================================== */
+
+  /*
+     Acute Kidney Injury / Renal Impairment
+  ------------------------------------------------------ */
 
   if (
 
-    anionGap !== null &&
-
-    anionGap > 16 &&
-
-    bicarbonate < 22
+    creatinineHigh &&
+    ureaHigh
 
   ) {
 
     impression =
-      "High anion gap metabolic acidosis.";
+      "Biochemical findings are consistent with impaired renal function.";
 
     recommendation =
-      "Evaluate for diabetic ketoacidosis, lactic acidosis, renal failure or toxic ingestions.";
+      "Correlation with estimated glomerular filtration rate (eGFR), urinalysis, urine output and clinical findings is recommended. Repeat renal function tests and nephrology review should be considered where appropriate.";
 
   }
 
-  /* ======================================================
-     HYPERCHLORAEMIC ACIDOSIS
-  ====================================================== */
+  /*
+     Dehydration / Pre-renal Pattern
+  ------------------------------------------------------ */
 
   else if (
 
-    bicarbonate < 22 &&
-
-    chloride > 107
+    sodiumHigh &&
+    ureaHigh &&
+    !creatinineHigh
 
   ) {
 
     impression =
-      "Hyperchloraemic metabolic acidosis.";
+      "Results are suggestive of dehydration or pre-renal azotaemia.";
 
     recommendation =
-      "Consider diarrhoea, renal tubular acidosis or excessive saline administration.";
+      "Assess hydration status and correlate with clinical findings. Repeat testing following appropriate fluid replacement may be indicated.";
 
   }
 
-  /* ======================================================
-     METABOLIC ALKALOSIS
-  ====================================================== */
+  /*
+     Hyperkalaemia with Renal Dysfunction
+  ------------------------------------------------------ */
 
   else if (
 
-    bicarbonate > 30
+    potassiumHigh &&
+    creatinineHigh
 
   ) {
 
     impression =
-      "Metabolic alkalosis.";
+      "Hyperkalaemia associated with impaired renal function.";
 
     recommendation =
-      "Correlate with vomiting, diuretic therapy and volume status.";
+      "Prompt clinical assessment is recommended. ECG monitoring and urgent treatment may be required depending on potassium concentration and clinical presentation.";
 
   }
 
-  /* ======================================================
-     HYPONATRAEMIA
-  ====================================================== */
+  /*
+     Isolated Hyperkalaemia
+  ------------------------------------------------------ */
 
   else if (
 
-    sodium < 135
-
-  ) {
-
-    impression =
-      "Hyponatraemia.";
-
-    recommendation =
-      "Assess hydration status, urine sodium and serum osmolality.";
-
-  }
-
-  /* ======================================================
-     HYPERNATRAEMIA
-  ====================================================== */
-
-  else if (
-
-    sodium > 145
-
-  ) {
-
-    impression =
-      "Hypernatraemia.";
-
-    recommendation =
-      "Clinical assessment for dehydration or diabetes insipidus is recommended.";
-
-  }
-
-  /* ======================================================
-     HYPOKALAEMIA
-  ====================================================== */
-
-  else if (
-
-    potassium < 3.5
-
-  ) {
-
-    impression =
-      "Hypokalaemia.";
-
-    recommendation =
-      "Assess gastrointestinal losses, medications and serum magnesium.";
-
-  }
-
-  /* ======================================================
-     HYPERKALAEMIA
-  ====================================================== */
-
-  else if (
-
-    potassium > 5.0
+    potassiumHigh
 
   ) {
 
@@ -345,98 +565,220 @@ export default function interpretElectrolytes(
       "Hyperkalaemia.";
 
     recommendation =
-      "Repeat urgently if unexpected. ECG monitoring is advised, especially when potassium exceeds 6.0 mmol/L.";
+      "Exclude specimen haemolysis where appropriate. Correlate with renal function, medications and ECG findings.";
 
   }
 
-  /* ======================================================
-     DEHYDRATION
-  ====================================================== */
+  /*
+     Isolated Hypokalaemia
+  ------------------------------------------------------ */
 
-  if (
+  else if (
 
-    sodium > 145 &&
-
-    urea > 8.3 &&
-
-    creatinine <= 120
-
-  ) {
-
-    interpretation +=
-      "The biochemical pattern is compatible with dehydration.\n\n";
-
-  }
-
-  /* ======================================================
-     POSSIBLE DKA
-  ====================================================== */
-
-  if (
-
-    glucose >= 11.1 &&
-
-    bicarbonate < 18 &&
-
-    anionGap > 16
+    potassiumLow
 
   ) {
 
     impression =
-      "Biochemical findings are suggestive of diabetic ketoacidosis.";
+      "Hypokalaemia.";
 
     recommendation =
-      "Urgent clinical evaluation with blood ketones, arterial blood gases and immediate treatment is recommended.";
+      "Assess for gastrointestinal loss, diuretic therapy or endocrine disorders. Potassium replacement may be required depending on severity.";
 
   }
 
-  /* ======================================================
-     ADDISONIAN PATTERN
-  ====================================================== */
+  /*
+     Hyponatraemia
+  ------------------------------------------------------ */
 
-  if (
+  else if (
 
-    sodium < 135 &&
-
-    potassium > 5.0
+    sodiumLow
 
   ) {
-
-    interpretation +=
-      "The combination of hyponatraemia and hyperkalaemia may be seen in adrenal insufficiency.\n\n";
-
-  }
-
-  /* ======================================================
-     SIADH PATTERN
-  ====================================================== */
-
-  if (
-
-    sodium < 130 &&
-
-    urea < 3.0
-
-  ) {
-
-    interpretation +=
-      "This biochemical pattern may be compatible with syndrome of inappropriate antidiuretic hormone secretion (SIADH).\n\n";
-
-  }
-
-  /* ======================================================
-     NORMAL
-  ====================================================== */
-
-  if (!impression) {
 
     impression =
-      "Electrolyte profile is within acceptable laboratory limits.";
+      "Hyponatraemia.";
 
     recommendation =
-      "Routine clinical correlation.";
+      "Interpret together with volume status, serum osmolality and urinary sodium where clinically indicated.";
 
   }
+
+  /*
+     Hypernatraemia
+  ------------------------------------------------------ */
+
+  else if (
+
+    sodiumHigh
+
+  ) {
+
+    impression =
+      "Hypernatraemia.";
+
+    recommendation =
+      "Evaluate hydration status and underlying cause of water deficit.";
+
+  }
+
+  /*
+     Metabolic Acidosis
+  ------------------------------------------------------ */
+
+  else if (
+
+    bicarbonateLow
+
+  ) {
+
+    impression =
+      "Biochemical findings are consistent with metabolic acidosis.";
+
+    recommendation =
+      "Correlation with arterial or venous blood gas analysis, serum lactate and anion gap is recommended.";
+
+  }
+
+  /*
+     Metabolic Alkalosis
+  ------------------------------------------------------ */
+
+  else if (
+
+    bicarbonateHigh
+
+  ) {
+
+    impression =
+      "Biochemical findings are consistent with metabolic alkalosis.";
+
+    recommendation =
+      "Interpret together with chloride concentration, clinical history and medication use.";
+
+  }
+
+  /*
+     Normal Profile
+  ------------------------------------------------------ */
+
+  else {
+
+    impression =
+      "Electrolytes and renal function are within acceptable laboratory limits.";
+
+    recommendation =
+      "Routine clinical correlation is advised.";
+
+  }
+
+  /* ======================================================
+     RECOMMENDATION REFINEMENT
+  ====================================================== */
+
+  if (
+
+    impression.includes("within acceptable")
+
+  ) {
+
+    recommendation =
+      "Routine clinical correlation is advised.";
+
+  }
+
+  else if (
+
+    impression.includes("dehydration")
+
+  ) {
+
+    recommendation =
+      "Assess hydration status clinically and repeat electrolyte measurements after appropriate fluid replacement where indicated.";
+
+  }
+
+  else if (
+
+    impression.includes("renal function")
+
+  ) {
+
+    recommendation =
+      "Further renal assessment including estimated glomerular filtration rate (eGFR), urinalysis, urine protein quantification and renal ultrasound should be considered where clinically appropriate.";
+
+  }
+
+  else if (
+
+    impression.includes("Hyperkalaemia")
+
+  ) {
+
+    recommendation =
+      "Prompt clinical assessment is recommended. Review medications, exclude specimen haemolysis and perform ECG monitoring where potassium elevation is clinically significant.";
+
+  }
+
+  else if (
+
+    impression.includes("Hypokalaemia")
+
+  ) {
+
+    recommendation =
+      "Investigate gastrointestinal losses, diuretic therapy, endocrine disorders and magnesium deficiency. Potassium replacement may be required depending on severity.";
+
+  }
+
+  else if (
+
+    impression.includes("Hyponatraemia")
+
+  ) {
+
+    recommendation =
+      "Interpret together with serum osmolality, urine sodium concentration and assessment of volume status to determine the underlying cause.";
+
+  }
+
+  else if (
+
+    impression.includes("Hypernatraemia")
+
+  ) {
+
+    recommendation =
+      "Evaluate hydration status and identify the underlying cause of free water deficit. Correct sodium abnormalities gradually where clinically indicated.";
+
+  }
+
+  else if (
+
+    impression.includes("metabolic acidosis")
+
+  ) {
+
+    recommendation =
+      "Blood gas analysis, serum lactate and anion gap calculation are recommended to determine the underlying cause of the metabolic acidosis.";
+
+  }
+
+  else if (
+
+    impression.includes("metabolic alkalosis")
+
+  ) {
+
+    recommendation =
+      "Review chloride concentration, gastrointestinal losses and diuretic therapy. Clinical correlation is recommended.";
+
+  }
+
+  /* ======================================================
+     RETURN
+  ====================================================== */
 
   return createInterpretation({
 

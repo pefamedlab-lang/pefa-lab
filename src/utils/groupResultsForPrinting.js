@@ -1,35 +1,5 @@
 export default function groupResultsForPrinting(results = []) {
-
-  if (!Array.isArray(results)) {
-
-    console.log(
-      "INVALID RESULTS:",
-      results
-    );
-
-    return {
-      chemistrySingles: [],
-      chemistryPanels: [],
-
-      haematologySingles: [],
-      haematologyPanels: [],
-
-      qualitative: [],
-
-      endocrinologySingles: [],
-      endocrinologyPanels: [],
-
-      microbiology: [],
-      radiology: [],
-      histology: [],
-
-      specialTests: [],
-    };
-
-  }
-
-  const grouped = {
-
+  const empty = {
     chemistrySingles: [],
     chemistryPanels: [],
 
@@ -46,494 +16,268 @@ export default function groupResultsForPrinting(results = []) {
     histology: [],
 
     specialTests: [],
-
   };
 
-  /* ==========================
-     REMOVE DUPLICATES
-  ========================== */
+  if (!Array.isArray(results)) {
+    return empty;
+  }
 
-  const chemistryMap = new Map();
+  const grouped = structuredClone(empty);
 
-  const haematologyMap = new Map();
+  /* =====================================================
+     HELPERS
+  ===================================================== */
 
-  const qualitativeMap = new Map();
+  const normalize = (value = "") =>
+    String(value)
+      .toLowerCase()
+      .replace(/[_-]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
 
-  const endocrinologyMap = new Map();
-
-  /* ==========================
+  /* =====================================================
      MASTER LISTS
-  ========================== */
+  ===================================================== */
 
-  const chemistrySingles = [
+  const chemistrySingles = new Set([
+    "fbs",
+    "fasting blood sugar",
 
-  "fbs",
-  "fasting blood sugar",
+    "rbs",
+    "random blood sugar",
 
-  "rbs",
-  "random blood sugar",
+    "hba1c",
+    "glycated haemoglobin",
 
-  "hba1c",
-  "glycated haemoglobin",
+    "psa",
+    "total psa",
+    "free psa",
+    "prostate specific antigen",
 
-  "psa",
-  "total psa",
-  "free psa",
-  "prostate specific antigen",
+    "creatinine",
+    "serum creatinine",
 
-  "creatinine",
-  "serum creatinine",
+    "urea",
+    "blood urea",
 
-  "urea",
-  "blood urea",
+    "uric acid",
 
-  "uric acid",
+    "calcium",
+    "magnesium",
 
-  "calcium",
-  "magnesium",
+    "phosphorus",
+    "phosphate",
+  ].map(normalize));
 
-  "phosphorus",
-  "phosphate",
-
-];
-
-  const chemistryPanels = [
-
+  const chemistryPanels = new Set([
     "lft",
-    "liver_function_test",
+    "liver function test",
 
     "kft",
-    "kidney_function_test",
+    "kidney function test",
 
     "lipid profile",
-    "lipid_profile",
+  ].map(normalize));
 
-  ];
+  const haematologySingles = new Set([
+    "pcv",
+    "packed cell volume",
 
-  const haematologySingles = [
+    "haemoglobin",
+    "hemoglobin",
 
-  "pcv",
-  "packed cell volume",
+    "wbc",
+    "white blood cell count",
+    "total wbc",
 
-  "hemoglobin",
-  "haemoglobin",
+    "platelets",
+    "platelet count",
 
-  "wbc",
-  "total wbc",
-  "white blood cell count",
+    "esr",
+    "erythrocyte sedimentation rate",
 
-  "platelets",
-  "platelet count",
+    "reticulocyte count",
 
-  "esr",
-  "erythrocyte sedimentation rate",
+    "d-dimer",
+    "d dimer",
+    "ddimer",
+  ].map(normalize));
 
-  "reticulocyte count",
-
-  "d-dimer",
-  "d dimer",
-  "ddimer",
-
-];
-
-  const haematologyPanels = [
-
+  const haematologyPanels = new Set([
     "fbc",
     "cbc",
+    "full blood count",
+    "full blood count",
+    "coagulation profile",
+    "cd4 count",
+  ].map(normalize));
 
-    "full_blood_count",
+  const qualitativeTests = new Set([
+    "hbsag",
+    "hcv",
 
-    "coagulation_profile",
+    "hiv",
+    "hiv i & ii",
 
-    "cd4_count",
+    "vdrl",
 
-  ];
+    "blood group",
+    "blood grouping",
 
- const qualitativeTests = [
+    "genotype",
+    "haemoglobin genotype",
 
-  "hbsag",
+    "pregnancy test",
 
-  "hcv",
+    "malaria parasite",
+    "malaria parasite (mp)",
+    "mp",
 
-  "hiv",
-  "hiv i & ii",
+    "rheumatoid factor",
+    "rf",
 
-  "vdrl",
+    "crp qualitative",
+  ].map(normalize));
 
-  "blood group",
-  "blood grouping",
+  const endocrinologySingles = new Set([
+    "tsh",
+    "thyroid stimulating hormone",
 
-  "genotype",
-  "haemoglobin genotype",
+    "ft3",
+    "free t3",
 
-  "pregnancy test",
+    "ft4",
+    "free t4",
 
-  "malaria parasite",
-  "mp",
+    "t3",
+    "t4",
 
-  "malaria parasite (mp)",
+    "fsh",
+    "follicle stimulating hormone",
 
-  "rheumatoid factor",
-  "rf",
+    "lh",
+    "luteinizing hormone",
 
-  "crp qualitative",
+    "prolactin",
 
-];
+    "progesterone",
 
- const endocrinologySingles = [
+    "testosterone",
 
-  "tsh",
-  "thyroid stimulating hormone",
+    "estradiol",
+    "e2",
 
-  "ft3",
-  "free t3",
+    "amh",
 
-  "ft4",
-  "free t4",
+    "cortisol",
 
-  "t3",
-  "t4",
+    "insulin",
 
-  "fsh",
-  "follicle stimulating hormone",
+    "beta hcg",
+  ].map(normalize));
 
-  "lh",
-  "luteinizing hormone",
-
-  "prolactin",
-
-  "progesterone",
-
-  "testosterone",
-
-  "estradiol",
-  "e2",
-
-  "amh",
-
-  "cortisol",
-
-  "insulin",
-
-  "beta hcg",
-
-];
-
-  const endocrinologyPanels = [
-
+  const endocrinologyPanels = new Set([
     "free tft",
-    "free_tft",
-
     "total tft",
-    "total_tft",
-
     "hormonal profile",
-    "hormonal_profile",
+  ].map(normalize));
 
-  ];
+  /* =====================================================
+     GROUP RESULTS
+  ===================================================== */
 
-  /* ==========================
-     LOOP THROUGH RESULTS
-  ========================== */
+  for (const item of results) {
+    if (!item) continue;
 
-  results.forEach((item) => {
-
-    if (!item) return;
-
-   const testType = (
-
-  item.test_type ||
-
-  item.test_name ||
-
-  ""
-
-)
-
-  .toLowerCase()
-
-  .replace(/[_-]/g, " ")
-
-  .replace(/\s+/g, " ")
-
-  .trim();
-
-    const templateType = (
-
-      item.template_type ||
-
-      ""
-
-    )
-
-      .toLowerCase()
-
-      .trim();
-
-    const department = (
-
-      item.department ||
-
-      ""
-
-    )
-
-      .toLowerCase()
-
-      .trim();
-
-    console.log({
-
-      testType,
-
-      templateType,
-
-      department,
-
-    });
-
-    /* ======================
-       QUALITATIVE
-    ====================== */
-
-    if (
-
-      qualitativeTests.includes(
-        testType
-      )
-
-    ) {
-
-      qualitativeMap.set(
-        testType,
-        item
-      );
-
-      return;
-
-    }
-
-    /* ======================
-       CHEMISTRY SINGLES
-    ====================== */
-
-    if (
-
-      chemistrySingles.includes(
-        testType
-      )
-
-    ) {
-
-      chemistryMap.set(
-        testType,
-        item
-      );
-
-      return;
-
-    }
-
-    /* ======================
-       CHEMISTRY PANELS
-    ====================== */
-
-    if (
-
-      chemistryPanels.includes(
-        testType
-      )
-
-    ) {
-
-      grouped.chemistryPanels.push(
-        item
-      );
-
-      return;
-
-    }
-
-    /* ======================
-       HAEMATOLOGY SINGLES
-    ====================== */
-
-    if (
-
-      haematologySingles.includes(
-        testType
-      )
-
-    ) {
-
-      haematologyMap.set(
-        testType,
-        item
-      );
-
-      return;
-
-    }
-
-    /* ======================
-       HAEMATOLOGY PANELS
-    ====================== */
-
-    if (
-
-      haematologyPanels.includes(
-        testType
-      ) ||
-
-      haematologyPanels.includes(
-        templateType
-      )
-
-    ) {
-
-      grouped.haematologyPanels.push(
-        item
-      );
-
-      return;
-
-    }
-
-    /* ======================
-       ENDOCRINOLOGY SINGLES
-    ====================== */
-
-    if (
-
-      endocrinologySingles.includes(
-        testType
-      )
-
-    ) {
-
-      endocrinologyMap.set(
-        testType,
-        item
-      );
-
-      return;
-
-    }
-
-    /* ======================
-       ENDOCRINOLOGY PANELS
-    ====================== */
-
-    if (
-
-      endocrinologyPanels.includes(
-        testType
-      ) ||
-
-      endocrinologyPanels.includes(
-        templateType
-      )
-
-    ) {
-
-      grouped.endocrinologyPanels.push(
-        item
-      );
-
-      return;
-
-    }
-
-    /* ======================
-       MICROBIOLOGY
-    ====================== */
-
-    if (
-
-      department.includes(
-        "micro"
-      )
-
-    ) {
-
-      grouped.microbiology.push(
-        item
-      );
-
-      return;
-
-    }
-
-    /* ======================
-       RADIOLOGY
-    ====================== */
-
-    if (
-
-      department.includes(
-        "radio"
-      )
-
-    ) {
-
-      grouped.radiology.push(
-        item
-      );
-
-      return;
-
-    }
-
-    /* ======================
-       HISTOLOGY
-    ====================== */
-
-    if (
-
-      department.includes(
-        "histo"
-      )
-
-    ) {
-
-      grouped.histology.push(
-        item
-      );
-
-      return;
-
-    }
-
-    /* ======================
-       EVERYTHING ELSE
-    ====================== */
-
-    grouped.specialTests.push(
-      item
+    const testType = normalize(
+      item.test_type || item.test_name
     );
 
-  });
+    const templateType = normalize(
+      item.template_type
+    );
 
-  /* ==========================
-     FINAL GROUPS
-  ========================== */
+    const department = normalize(
+      item.department
+    );
 
-  grouped.chemistrySingles = [
-    ...chemistryMap.values(),
-  ];
+    /* ---------------- QUALITATIVE ---------------- */
 
-  grouped.haematologySingles = [
-    ...haematologyMap.values(),
-  ];
+    if (qualitativeTests.has(testType)) {
+      grouped.qualitative.push(item);
+      continue;
+    }
 
-  grouped.qualitative = [
-    ...qualitativeMap.values(),
-  ];
+    /* ---------------- CHEMISTRY ---------------- */
 
-  grouped.endocrinologySingles = [
-    ...endocrinologyMap.values(),
-  ];
+    if (chemistrySingles.has(testType)) {
+      grouped.chemistrySingles.push(item);
+      continue;
+    }
+
+    if (
+      chemistryPanels.has(testType) ||
+      chemistryPanels.has(templateType)
+    ) {
+      grouped.chemistryPanels.push(item);
+      continue;
+    }
+
+    /* ---------------- HAEMATOLOGY ---------------- */
+
+    if (haematologySingles.has(testType)) {
+      grouped.haematologySingles.push(item);
+      continue;
+    }
+
+    if (
+      haematologyPanels.has(testType) ||
+      haematologyPanels.has(templateType)
+    ) {
+      grouped.haematologyPanels.push(item);
+      continue;
+    }
+
+    /* ---------------- ENDOCRINOLOGY ---------------- */
+
+    if (endocrinologySingles.has(testType)) {
+      grouped.endocrinologySingles.push(item);
+      continue;
+    }
+
+    if (
+      endocrinologyPanels.has(testType) ||
+      endocrinologyPanels.has(templateType)
+    ) {
+      grouped.endocrinologyPanels.push(item);
+      continue;
+    }
+
+    /* ---------------- MICROBIOLOGY ---------------- */
+
+    if (department.includes("micro")) {
+      grouped.microbiology.push(item);
+      continue;
+    }
+
+    /* ---------------- RADIOLOGY ---------------- */
+
+    if (department.includes("radio")) {
+      grouped.radiology.push(item);
+      continue;
+    }
+
+    /* ---------------- HISTOLOGY ---------------- */
+
+    if (department.includes("histo")) {
+      grouped.histology.push(item);
+      continue;
+    }
+
+    /* ---------------- EVERYTHING ELSE ---------------- */
+
+    grouped.specialTests.push(item);
+  }
 
   return grouped;
-
 }

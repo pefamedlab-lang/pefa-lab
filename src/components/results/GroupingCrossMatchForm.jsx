@@ -1,665 +1,855 @@
-import { useState } from "react";
+import React from "react";
+
+const emptyUnit = () => ({
+    unitNumber: "",
+    donorGroup: "",
+    donorRh: "",
+    collectionDate: "",
+    expiryDate: "",
+    donorHb: "",
+    hiv: "",
+    hbsag: "",
+    hcv: "",
+    vdrl: "",
+    crossMatch: "",
+});
 
 export default function GroupingCrossMatchForm({
-
-  resultData,
-
-  setResultData,
-
+    resultData = {},
+    setResultData,
 }) {
 
-  const [form, setForm] = useState({
+    const units =
+        Array.isArray(resultData.units) &&
+        resultData.units.length
+            ? resultData.units
+            : [emptyUnit()];
 
-    recipientGroup: "",
+    /* ==========================================
+       UPDATE GENERAL FIELD
+    ========================================== */
 
-    recipientRh: "",
+    const updateField = (field, value) => {
 
-    donorGroup: "",
-
-    donorRh: "",
-
-    unitNumber: "",
-
-    donorHb: "",
-
-    crossMatch: "",
-
-    screeningStatus: "",
-
-    interpretation: "",
-
-    remark: "",
-
-    impression: "",
-
-  });
-
-  const bloodGroups = [
-
-    "",
-
-    "A",
-
-    "B",
-
-    "AB",
-
-    "O",
-
-  ];
-
-  const rhOptions = [
-
-    "",
-
-    "Positive",
-
-    "Negative",
-
-  ];
-
-  const crossOptions = [
-
-    "",
-
-    "Compatible",
-
-    "Incompatible",
-
-  ];
-
-  const updateField = (
-
-    field,
-
-    value
-
-  ) => {
-
-    const updated = {
-
-      ...form,
-
-      [field]: value,
+        setResultData(prev => ({
+            ...prev,
+            [field]: value,
+        }));
 
     };
 
-    /* AUTO INTERPRETATION */
+    /* ==========================================
+       UPDATE BLOOD UNIT
+    ========================================== */
 
-    if (
+    const updateUnitField = (
+        index,
+        field,
+        value
+    ) => {
 
-      field === "crossMatch"
+        const updatedUnits = [...units];
 
-    ) {
+        updatedUnits[index] = {
+            ...updatedUnits[index],
+            [field]: value,
+        };
 
-      if (
+        /* Auto Interpretation */
 
-        value ===
+        const compatible = updatedUnits.filter(
+            u => u.crossMatch === "Compatible"
+        ).length;
 
-        "Compatible"
+        const incompatible = updatedUnits.filter(
+            u => u.crossMatch === "Incompatible"
+        ).length;
 
-      ) {
+        let interpretation = "";
+        let impression = "";
 
-        updated.interpretation =
+        if (compatible > 0) {
 
-          "Compatible blood unit for transfusion.";
+            interpretation =
+                `${compatible} blood unit(s) compatible with recipient serum.`;
 
-        updated.impression =
+            impression =
+                "Compatible blood unit(s) available for transfusion.";
 
-          "Suitable donor blood available.";
+        }
 
-      }
+        if (incompatible > 0 && compatible === 0) {
 
-      else if (
+            interpretation =
+                "No compatible blood unit identified.";
 
-        value ===
+            impression =
+                "Do not transfuse incompatible blood.";
 
-        "Incompatible"
+        }
 
-      ) {
+        setResultData(prev => ({
+            ...prev,
+            units: updatedUnits,
+            interpretation,
+            impression,
+        }));
 
-        updated.interpretation =
+    };
 
-          "Cross match incompatible.";
+    /* ==========================================
+       ADD UNIT
+    ========================================== */
 
-        updated.impression =
+    const addUnit = () => {
 
-          "Alternative donor unit required.";
+        if (units.length >= 4) return;
 
-      }
+        setResultData(prev => ({
+            ...prev,
+            units: [
+                ...units,
+                emptyUnit(),
+            ],
+        }));
 
-    }
+    };
 
-    setForm(updated);
+    /* ==========================================
+       REMOVE LAST UNIT
+    ========================================== */
 
-    setResultData(updated);
+    const removeLastUnit = () => {
 
-  };
+        if (units.length <= 1) return;
 
-  return (
+        setResultData(prev => ({
+            ...prev,
+            units: units.slice(
+                0,
+                units.length - 1
+            ),
+        }));
 
-    <div>
+    };
 
-      <h3>
+    const bloodGroups = [
+        "",
+        "A",
+        "B",
+        "AB",
+        "O",
+    ];
 
-        Grouping & Cross Matching
+    const rhOptions = [
+        "",
+        "Positive",
+        "Negative",
+    ];
 
-      </h3>
+    const screeningOptions = [
+        "",
+        "Reactive",
+        "Non-Reactive",
+    ];
 
-      <table className="result-table">
+    const crossMatchOptions = [
+        "",
+        "Compatible",
+        "Incompatible",
+    ];
 
-        <tbody>
+    return (
 
-          <tr>
+        <div className="dashboard-card">
 
-            <td>
+            <h3>
+                Blood Grouping & Crossmatching
+            </h3>
 
-              Recipient Group
+            {/* =======================================
+                RECIPIENT INFORMATION
+            ======================================== */}
 
-            </td>
+            <table className="result-table">
 
-            <td>
+                <tbody>
 
-              <select
+                    <tr>
 
-                value={
+                        <td>
+                            Recipient Blood Group
+                        </td>
 
-                  form.recipientGroup
+                        <td>
 
-                }
+                            <select
+                                value={
+                                    resultData.recipientGroup || ""
+                                }
+                                onChange={(e) =>
+                                    updateField(
+                                        "recipientGroup",
+                                        e.target.value
+                                    )
+                                }
+                            >
 
+                                <option value="">
+                                    Select Blood Group
+                                </option>
+
+                                {bloodGroups
+                                    .filter(Boolean)
+                                    .map(group => (
+
+                                        <option
+                                            key={group}
+                                            value={group}
+                                        >
+                                            {group}
+                                        </option>
+
+                                    ))}
+
+                            </select>
+
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>
+                            Recipient Rh(D)
+                        </td>
+
+                        <td>
+
+                            <select
+                                value={
+                                    resultData.recipientRh || ""
+                                }
+                                onChange={(e) =>
+                                    updateField(
+                                        "recipientRh",
+                                        e.target.value
+                                    )
+                                }
+                            >
+
+                                <option value="">
+                                    Select Rh(D)
+                                </option>
+
+                                {rhOptions
+                                    .filter(Boolean)
+                                    .map(item => (
+
+                                        <option
+                                            key={item}
+                                            value={item}
+                                        >
+                                            {item}
+                                        </option>
+
+                                    ))}
+
+                            </select>
+
+                        </td>
+
+                    </tr>
+
+                    <tr>
+
+                        <td>
+                            Recipient RVS Status
+                        </td>
+
+                        <td>
+
+                            <select
+                                value={
+                                    resultData.recipientRVS || ""
+                                }
+                                onChange={(e) =>
+                                    updateField(
+                                        "recipientRVS",
+                                        e.target.value
+                                    )
+                                }
+                            >
+
+                                <option value="">
+                                    Select Status
+                                </option>
+
+                                {screeningOptions
+                                    .filter(Boolean)
+                                    .map(item => (
+
+                                        <option
+                                            key={item}
+                                            value={item}
+                                        >
+                                            {item}
+                                        </option>
+
+                                    ))}
+
+                            </select>
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+            <h4
+                style={{
+                    marginTop: 30,
+                    marginBottom: 10,
+                }}
+            >
+                Compatible Blood Units
+            </h4>
+
+            <table className="result-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th
+                            style={{
+                                width: "220px",
+                            }}
+                        >
+                            Parameter
+                        </th>
+
+                        {units.map((_, index) => (
+
+                            <th key={index}>
+                                Unit {index + 1}
+                            </th>
+
+                        ))}
+
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+{/* Blood Bag Number */}
+
+<tr>
+
+    <td>Blood Bag Number</td>
+
+    {units.map((unit, index) => (
+
+        <td key={index}>
+
+            <input
+                value={unit.unitNumber}
                 onChange={(e) =>
-
-                  updateField(
-
-                    "recipientGroup",
-
-                    e.target.value
-
-                  )
-
-                }
-
-              >
-
-                {
-
-                  bloodGroups.map(
-
-                    item => (
-
-                      <option
-
-                        key={item}
-
-                        value={item}
-
-                      >
-
-                        {
-
-                          item ||
-
-                          "Select"
-
-                        }
-
-                      </option>
-
+                    updateUnitField(
+                        index,
+                        "unitNumber",
+                        e.target.value
                     )
-
-                  )
-
                 }
+            />
 
-              </select>
+        </td>
 
-            </td>
+    ))}
 
-          </tr>
+</tr>
 
-          <tr>
+{/* Donor Blood Group */}
 
-            <td>
+<tr>
 
-              Recipient Rh
+    <td>Donor Blood Group</td>
 
-            </td>
+    {units.map((unit, index) => (
 
-            <td>
+        <td key={index}>
 
-              <select
-
-                value={
-
-                  form.recipientRh
-
-                }
-
+            <select
+                value={unit.donorGroup}
                 onChange={(e) =>
-
-                  updateField(
-
-                    "recipientRh",
-
-                    e.target.value
-
-                  )
-
-                }
-
-              >
-
-                {
-
-                  rhOptions.map(
-
-                    item => (
-
-                      <option
-
-                        key={item}
-
-                        value={item}
-
-                      >
-
-                        {
-
-                          item ||
-
-                          "Select"
-
-                        }
-
-                      </option>
-
+                    updateUnitField(
+                        index,
+                        "donorGroup",
+                        e.target.value
                     )
-
-                  )
-
                 }
+            >
 
-              </select>
+                <option value="">Select</option>
 
-            </td>
+                {bloodGroups
+                    .filter(Boolean)
+                    .map(group => (
 
-          </tr>
+                        <option
+                            key={group}
+                            value={group}
+                        >
+                            {group}
+                        </option>
 
-          <tr>
+                    ))}
 
-            <td>
+            </select>
 
-              Donor Group
+        </td>
 
-            </td>
+    ))}
 
-            <td>
+</tr>
 
-              <select
+{/* Donor Rh */}
 
-                value={
+<tr>
 
-                  form.donorGroup
+    <td>Donor Rh(D)</td>
 
-                }
+    {units.map((unit, index) => (
 
+        <td key={index}>
+
+            <select
+                value={unit.donorRh}
                 onChange={(e) =>
-
-                  updateField(
-
-                    "donorGroup",
-
-                    e.target.value
-
-                  )
-
-                }
-
-              >
-
-                {
-
-                  bloodGroups.map(
-
-                    item => (
-
-                      <option
-
-                        key={item}
-
-                        value={item}
-
-                      >
-
-                        {
-
-                          item ||
-
-                          "Select"
-
-                        }
-
-                      </option>
-
+                    updateUnitField(
+                        index,
+                        "donorRh",
+                        e.target.value
                     )
-
-                  )
-
                 }
+            >
 
-              </select>
+                <option value="">Select</option>
 
-            </td>
+                {rhOptions
+                    .filter(Boolean)
+                    .map(item => (
 
-          </tr>
+                        <option
+                            key={item}
+                            value={item}
+                        >
+                            {item}
+                        </option>
 
-          <tr>
+                    ))}
 
-            <td>
+            </select>
 
-              Donor Rh
+        </td>
 
-            </td>
+    ))}
 
-            <td>
+</tr>
 
-              <select
+{/* Collection Date */}
 
-                value={
+<tr>
 
-                  form.donorRh
+    <td>Collection Date</td>
 
-                }
+    {units.map((unit, index) => (
 
+        <td key={index}>
+
+            <input
+                type="date"
+                value={unit.collectionDate}
                 onChange={(e) =>
-
-                  updateField(
-
-                    "donorRh",
-
-                    e.target.value
-
-                  )
-
-                }
-
-              >
-
-                {
-
-                  rhOptions.map(
-
-                    item => (
-
-                      <option
-
-                        key={item}
-
-                        value={item}
-
-                      >
-
-                        {
-
-                          item ||
-
-                          "Select"
-
-                        }
-
-                      </option>
-
+                    updateUnitField(
+                        index,
+                        "collectionDate",
+                        e.target.value
                     )
-
-                  )
-
                 }
+            />
 
-              </select>
+        </td>
 
-            </td>
+    ))}
 
-          </tr>
+</tr>
 
-          <tr>
+{/* Expiry Date */}
 
-            <td>
+<tr>
 
-              Unit Number
+    <td>Expiry Date</td>
 
-            </td>
+    {units.map((unit, index) => (
 
-            <td>
+        <td key={index}>
 
-              <input
-
-                value={
-
-                  form.unitNumber
-
-                }
-
+            <input
+                type="date"
+                value={unit.expiryDate}
                 onChange={(e) =>
-
-                  updateField(
-
-                    "unitNumber",
-
-                    e.target.value
-
-                  )
-
-                }
-
-              />
-
-            </td>
-
-          </tr>
-
-          <tr>
-
-            <td>
-
-              Donor Hb
-
-            </td>
-
-            <td>
-
-              <input
-
-                value={
-
-                  form.donorHb
-
-                }
-
-                onChange={(e) =>
-
-                  updateField(
-
-                    "donorHb",
-
-                    e.target.value
-
-                  )
-
-                }
-
-                placeholder="14.5 g/dL"
-
-              />
-
-            </td>
-
-          </tr>
-
-          <tr>
-
-            <td>
-
-              Cross Match
-
-            </td>
-
-            <td>
-
-              <select
-
-                value={
-
-                  form.crossMatch
-
-                }
-
-                onChange={(e) =>
-
-                  updateField(
-
-                    "crossMatch",
-
-                    e.target.value
-
-                  )
-
-                }
-
-              >
-
-                {
-
-                  crossOptions.map(
-
-                    item => (
-
-                      <option
-
-                        key={item}
-
-                        value={item}
-
-                      >
-
-                        {
-
-                          item ||
-
-                          "Select"
-
-                        }
-
-                      </option>
-
+                    updateUnitField(
+                        index,
+                        "expiryDate",
+                        e.target.value
                     )
-
-                  )
-
                 }
+            />
 
-              </select>
+        </td>
 
-            </td>
+    ))}
 
-          </tr>
+</tr>
 
-          <tr>
+{/* Donor Hb */}
 
-            <td>
+<tr>
 
-              Screening Status
+    <td>Donor Hb (g/dL)</td>
 
-            </td>
+    {units.map((unit, index) => (
 
-            <td>
+        <td key={index}>
 
-              <input
-
-                value={
-
-                  form.screeningStatus
-
-                }
-
+            <input
+                value={unit.donorHb}
                 onChange={(e) =>
-
-                  updateField(
-
-                    "screeningStatus",
-
-                    e.target.value
-
-                  )
-
+                    updateUnitField(
+                        index,
+                        "donorHb",
+                        e.target.value
+                    )
                 }
+            />
 
-                placeholder="All mandatory tests negative"
+        </td>
 
-              />
+    ))}
 
-            </td>
+</tr>
 
-          </tr>
+{/* HIV */}
 
-        </tbody>
+<tr>
 
-      </table>
+    <td>HIV I & II</td>
 
-      <textarea
+    {units.map((unit, index) => (
 
+        <td key={index}>
+
+            <select
+                value={unit.hiv}
+                onChange={(e) =>
+                    updateUnitField(
+                        index,
+                        "hiv",
+                        e.target.value
+                    )
+                }
+            >
+
+                <option value="">Select</option>
+
+                {screeningOptions
+                    .filter(Boolean)
+                    .map(item => (
+
+                        <option
+                            key={item}
+                            value={item}
+                        >
+                            {item}
+                        </option>
+
+                    ))}
+
+            </select>
+
+        </td>
+
+    ))}
+
+</tr>
+
+{/* HBsAg */}
+
+<tr>
+
+    <td>HBsAg</td>
+
+    {units.map((unit, index) => (
+
+        <td key={index}>
+
+            <select
+                value={unit.hbsag}
+                onChange={(e) =>
+                    updateUnitField(
+                        index,
+                        "hbsag",
+                        e.target.value
+                    )
+                }
+            >
+
+                <option value="">Select</option>
+
+                {screeningOptions
+                    .filter(Boolean)
+                    .map(item => (
+
+                        <option
+                            key={item}
+                            value={item}
+                        >
+                            {item}
+                        </option>
+
+                    ))}
+
+            </select>
+
+        </td>
+
+    ))}
+
+</tr>
+
+{/* HCV */}
+
+<tr>
+
+    <td>HCV</td>
+
+    {units.map((unit, index) => (
+
+        <td key={index}>
+
+            <select
+                value={unit.hcv}
+                onChange={(e) =>
+                    updateUnitField(
+                        index,
+                        "hcv",
+                        e.target.value
+                    )
+                }
+            >
+
+                <option value="">Select</option>
+
+                {screeningOptions
+                    .filter(Boolean)
+                    .map(item => (
+
+                        <option
+                            key={item}
+                            value={item}
+                        >
+                            {item}
+                        </option>
+
+                    ))}
+
+            </select>
+
+        </td>
+
+    ))}
+
+</tr>
+
+{/* VDRL */}
+
+<tr>
+
+    <td>VDRL</td>
+
+    {units.map((unit, index) => (
+
+        <td key={index}>
+
+            <select
+                value={unit.vdrl}
+                onChange={(e) =>
+                    updateUnitField(
+                        index,
+                        "vdrl",
+                        e.target.value
+                    )
+                }
+            >
+
+                <option value="">Select</option>
+
+                {screeningOptions
+                    .filter(Boolean)
+                    .map(item => (
+
+                        <option
+                            key={item}
+                            value={item}
+                        >
+                            {item}
+                        </option>
+
+                    ))}
+
+            </select>
+
+        </td>
+
+    ))}
+
+</tr>
+
+{/* Cross Match */}
+
+<tr>
+
+    <td>Cross Match Result</td>
+
+    {units.map((unit, index) => (
+
+        <td key={index}>
+
+            <select
+                value={unit.crossMatch}
+                onChange={(e) =>
+                    updateUnitField(
+                        index,
+                        "crossMatch",
+                        e.target.value
+                    )
+                }
+            >
+
+                <option value="">Select</option>
+
+                {crossMatchOptions
+                    .filter(Boolean)
+                    .map(item => (
+
+                        <option
+                            key={item}
+                            value={item}
+                        >
+                            {item}
+                        </option>
+
+                    ))}
+
+            </select>
+
+        </td>
+
+    ))}
+
+</tr>
+
+</tbody>
+
+</table>
+
+<div
+    style={{
+        marginTop: 20,
+        display: "flex",
+        gap: 10,
+    }}
+>
+
+    {units.length < 4 && (
+
+        <button
+            type="button"
+            className="secondary-btn"
+            onClick={addUnit}
+        >
+
+            + Add Blood Unit
+
+        </button>
+
+    )}
+
+    {units.length > 1 && (
+
+        <button
+            type="button"
+            className="danger-btn"
+            onClick={() =>
+                removeUnit(units.length - 1)
+            }
+        >
+
+            Remove Last Unit
+
+        </button>
+
+    )}
+
+</div>
+
+<div style={{ marginTop: 25 }}>
+
+    <h4>Interpretation</h4>
+
+    <textarea
+        rows={4}
         readOnly
+        value={resultData.interpretation || ""}
+    />
 
-        value={
+</div>
 
-          form.interpretation
+<div style={{ marginTop: 20 }}>
 
-        }
+    <h4>Impression</h4>
 
-        placeholder="Interpretation"
+    <textarea
+        rows={3}
+        readOnly
+        value={resultData.impression || ""}
+    />
 
-      />
+</div>
 
-      <textarea
+<div style={{ marginTop: 20 }}>
 
-        value={
+    <h4>Scientist Remark</h4>
 
-          form.remark
-
-        }
-
+    <textarea
+        rows={4}
+        value={resultData.remark || ""}
         onChange={(e) =>
-
-          updateField(
-
-            "remark",
-
-            e.target.value
-
-          )
-
+            updateField(
+                "remark",
+                e.target.value
+            )
         }
+    />
 
-        placeholder="Scientist Remark"
+</div>
 
-      />
+</div>
 
-      <textarea
-
-        readOnly
-
-        value={
-
-          form.impression
-
-        }
-
-        placeholder="Impression"
-
-      />
-
-    </div>
-
-  );
+);
 
 }

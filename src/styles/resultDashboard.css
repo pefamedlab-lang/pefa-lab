@@ -1,510 +1,2794 @@
-/* ==========================================
-   PAGE
-========================================== */
-
-.page{
-  padding:30px;
-  background:#f8fafc;
-  min-height:100vh;
-}
-
-/* ==========================================
-   HEADER
-========================================== */
-
-.dashboard-header{
-  margin-bottom:24px;
-}
-
-.dashboard-header h1{
-  margin:0;
-  font-size:32px;
-  font-weight:800;
-  color:#0f172a;
-}
-
-.dashboard-header p{
-  margin-top:6px;
-  color:#64748b;
-  font-size:15px;
-}
-
-/* ==========================================
-   CARDS
-========================================== */
-
-.dashboard-card{
-  background:#fff;
-  border-radius:22px;
-  padding:24px;
-  margin-bottom:24px;
-  box-shadow:
-    0 8px 25px
-    rgba(15,23,42,.06);
-  border:1px solid #e2e8f0;
-}
+/* ==========================================================
+   PEFA LAB
+   ==========================================================
+   RESULT DASHBOARD — PREMIUM ENTERPRISE STYLES
+
+   FILE:
+   src/styles/resultDashboard.css
+
+   DESIGNED FOR:
+   • ResultDashboard.jsx
+   • SearchPanel
+   • PatientCard
+   • RegisteredTestsTable
+   • ResultEntryModal
+
+   DESIGN:
+   • Premium clinical interface
+   • Compact information density
+   • Blue PEFA laboratory identity
+   • Premium tables
+   • Smart patient information
+   • Premium search controls
+   • Premium result actions
+   • Responsive desktop / tablet / mobile
+========================================================== */
+
+
+/* ==========================================================
+   ROOT DESIGN TOKENS
+========================================================== */
+
+.page {
+  --rd-primary: #155eef;
+  --rd-primary-hover: #1049b7;
+  --rd-primary-dark: #0b3b91;
+
+  --rd-blue-50: #f5f9ff;
+  --rd-blue-100: #eef5ff;
+  --rd-blue-200: #dbe9ff;
+  --rd-blue-300: #bfd6ff;
+
+  --rd-success: #067647;
+  --rd-success-light: #ecfdf3;
+  --rd-success-border: #abefc6;
+
+  --rd-warning: #b54708;
+  --rd-warning-light: #fffaeb;
+  --rd-warning-border: #fedf89;
+
+  --rd-danger: #b42318;
+  --rd-danger-light: #fef3f2;
+  --rd-danger-border: #fecdca;
+
+  --rd-text: #101828;
+  --rd-text-strong: #1d2939;
+  --rd-text-secondary: #344054;
+  --rd-text-muted: #667085;
+  --rd-text-light: #98a2b3;
+
+  --rd-border: #e4e7ec;
+  --rd-border-light: #edf0f5;
+  --rd-border-dark: #d0d5dd;
+
+  --rd-surface: #ffffff;
+  --rd-surface-soft: #f8fafc;
+  --rd-surface-blue: #f5f9ff;
+
+  --rd-shadow-xs:
+    0 1px 2px rgba(16, 24, 40, 0.04);
+
+  --rd-shadow-sm:
+    0 2px 7px rgba(16, 24, 40, 0.06),
+    0 1px 2px rgba(16, 24, 40, 0.03);
+
+  --rd-shadow-md:
+    0 8px 24px rgba(16, 24, 40, 0.08),
+    0 2px 6px rgba(16, 24, 40, 0.04);
+
+  --rd-shadow-lg:
+    0 20px 55px rgba(16, 24, 40, 0.16),
+    0 6px 18px rgba(16, 24, 40, 0.08);
+
+  width: 100%;
+  min-height: 100vh;
+
+  box-sizing: border-box;
+
+  padding:
+    22px
+    28px
+    46px;
 
-/* ==========================================
-   SEARCH
-========================================== */
-
-.search-row{
-  display:flex;
-  gap:16px;
-}
-
-.search-row input{
-  flex:1;
-  height:54px;
-  border:1px solid #d1d5db;
-  border-radius:14px;
-  padding:0 18px;
-  font-size:15px;
-  outline:none;
-  transition:.2s;
-}
-
-.search-row input:focus{
-  border-color:#0ea5e9;
-  box-shadow:
-    0 0 0 3px
-    rgba(14,165,233,.15);
-}
-
-.search-row button{
-  height:54px;
-  padding:0 24px;
-  border:none;
-  border-radius:14px;
-  background:#0ea5e9;
-  color:#fff;
-  font-weight:700;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  cursor:pointer;
-  transition:.2s;
-}
-
-.search-row button:hover{
-  background:#0284c7;
-}
-
-/* ==========================================
-   PATIENT INFORMATION
-========================================== */
-
-.patient-grid{
-
-  display:grid;
-
-  grid-template-columns:
-    repeat(2, 1fr);
-
-  gap:18px;
-
-  margin-top:20px;
-
-}
-
-.patient-grid > div{
-
-  background:#f8fafc;
-
-  border:1px solid #e2e8f0;
-
-  border-radius:16px;
-
-  padding:16px 18px;
-
-  transition:all .25s ease;
-
-  min-height:80px;
-
-  display:flex;
-
-  flex-direction:column;
-
-  justify-content:center;
-
-}
-
-.patient-grid > div:hover{
-
-  border-color:#0ea5e9;
-
-  box-shadow:
-
-    0 8px 20px
-
-    rgba(14,165,233,.08);
-
-  transform:translateY(-2px);
-
-}
-
-.patient-grid strong{
-
-  display:block;
-
-  margin-bottom:8px;
-
-  font-size:11px;
-
-  font-weight:700;
-
-  text-transform:uppercase;
-
-  letter-spacing:.8px;
-
-  color:#64748b;
-
-}
-
-.patient-grid p{
-
-  margin:0;
-
-  font-size:15px;
-
-  font-weight:700;
-
-  color:#0f172a;
-
-  line-height:1.5;
-
-  word-break:break-word;
-
-}
-
-/* ==========================================
-   CLINICAL HISTORY
-========================================== */
-
-.patient-grid .clinical-history{
-
-  grid-column:1 / -1;
-
-  min-height:100px;
-
-  align-items:flex-start;
-
-  justify-content:flex-start;
-
-}
-
-.patient-grid .clinical-history p{
-
-  font-weight:600;
-
-  color:#334155;
-
-  margin-top:4px;
-
-}
-
-/* ==========================================
-   RESPONSIVE
-========================================== */
-
-@media (max-width:768px){
-
-  .patient-grid{
-
-    grid-template-columns:1fr;
-
-    gap:14px;
-
-  }
-
-}
-
-/* ==========================================
-   TABLE
-========================================== */
-
-.result-table{
-  width:100%;
-  border-collapse:collapse;
-  margin-top:20px;
-  overflow:hidden;
-  border-radius:18px;
-}
-
-.result-table thead{
-  background:#0f172a;
-  color:#fff;
-}
-
-.result-table th{
-  padding:16px;
-  text-align:left;
-  font-size:13px;
-  font-weight:700;
-}
-
-.result-table td{
-  padding:14px 16px;
-  border-bottom:1px solid #e2e8f0;
-  font-size:14px;
-}
-
-.result-table tbody tr:hover{
-  background:#f8fafc;
-}
-
-/* ==========================================
-   BUTTONS
-========================================== */
-
-.action-btn,
-.save-btn{
-  border:none;
-  cursor:pointer;
-  font-weight:700;
-  transition:.2s;
-}
-
-.action-btn{
-  padding:10px 18px;
-  border-radius:12px;
-  background:#0ea5e9;
-  color:#fff;
-}
-
-.action-btn:hover{
-  background:#0284c7;
-}
-
-.save-btn{
-  min-width:180px;
-  height:52px;
-  border-radius:14px;
-  background:#16a34a;
-  color:#fff;
-  font-size:15px;
-}
-
-.save-btn:hover{
-  background:#15803d;
-}
-
-.save-btn:disabled{
-  opacity:.6;
-  cursor:not-allowed;
-}
-
-/* ==========================================
-   EMPTY STATE
-========================================== */
-
-.empty-state{
-  text-align:center;
-  color:#64748b;
-  padding:60px 20px;
-}
-
-.empty-state svg{
-  margin-bottom:15px;
-  color:#94a3b8;
-}
-
-/* ==========================================
-   RESULT MODAL
-========================================== */
-
-.result-modal-overlay{
-  position:fixed;
-  inset:0;
   background:
-    rgba(15,23,42,.55);
-  backdrop-filter:blur(6px);
-  z-index:9999;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  padding:30px;
+    linear-gradient(
+      180deg,
+      #f7f9fc 0%,
+      #f2f5f9 100%
+    );
+
+  color: var(--rd-text);
+
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  line-height: 1.45;
+
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-.result-modal{
-  width:100%;
-  max-width:1100px;
-  max-height:92vh;
-  overflow-y:auto;
-  background:#fff;
-  border-radius:28px;
-  padding:32px;
-  position:relative;
+
+/* ==========================================================
+   GLOBAL BOX SIZING
+========================================================== */
+
+.page *,
+.page *::before,
+.page *::after {
+  box-sizing: border-box;
+}
+
+
+/* ==========================================================
+   CONTENT WIDTH
+========================================================== */
+
+.page > * {
+  width: 100%;
+
+  max-width: 1480px;
+
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+/* ==========================================================
+   DASHBOARD HEADER
+========================================================== */
+
+.dashboard-header {
+  position: relative;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  min-height: 76px;
+
+  margin-bottom: 15px;
+
+  padding:
+    16px
+    23px;
+
+  overflow: hidden;
+
+  border:
+    1px solid
+    var(--rd-border);
+
+  border-radius: 13px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #f9fbff 100%
+    );
+
   box-shadow:
-    0 20px 60px
-    rgba(0,0,0,.25);
+    var(--rd-shadow-sm);
 }
 
-.result-modal h2{
-  margin-bottom:28px;
-  color:#0f172a;
+
+/* ==========================================================
+   HEADER BLUE ACCENT
+========================================================== */
+
+.dashboard-header::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 4px;
+  height: 100%;
+
+  background:
+    linear-gradient(
+      180deg,
+      #155eef 0%,
+      #3b82f6 100%
+    );
 }
 
-/* ==========================================
-   CLOSE BUTTON
-========================================== */
 
-.modal-close-btn{
-  position:absolute;
-  top:18px;
-  right:18px;
-  width:42px;
-  height:42px;
-  border:none;
-  border-radius:50%;
-  background:#ef4444;
-  color:#fff;
-  font-size:24px;
-  cursor:pointer;
-  transition:.2s;
+/* ==========================================================
+   HEADER TITLE
+========================================================== */
+
+.dashboard-header h1 {
+  margin: 0;
+
+  color: var(--rd-text);
+
+  font-size: 24px;
+
+  font-weight: 760;
+
+  line-height: 1.15;
+
+  letter-spacing: -0.025em;
 }
 
-.modal-close-btn:hover{
-  transform:scale(1.05);
+
+/* ==========================================================
+   HEADER SUBTITLE
+========================================================== */
+
+.dashboard-header p {
+  margin:
+    5px
+    0
+    0;
+
+  color: var(--rd-text-muted);
+
+  font-size: 12px;
+
+  font-weight: 500;
+
+  letter-spacing: 0.01em;
 }
 
-/* ==========================================
-   MODAL INFO
-========================================== */
 
-.result-modal-info{
-  display:grid;
-  grid-template-columns:
-    repeat(auto-fit,minmax(220px,1fr));
-  gap:20px;
-  margin-bottom:28px;
+/* ==========================================================
+   COMMON CARD
+========================================================== */
+
+.dashboard-card {
+  width: 100%;
+
+  margin-bottom: 15px;
+
+  border:
+    1px solid
+    var(--rd-border);
+
+  border-radius: 12px;
+
+  background:
+    var(--rd-surface);
+
+  box-shadow:
+    var(--rd-shadow-xs);
+
+  overflow: hidden;
 }
 
-.result-modal-info div{
-  background:#f8fafc;
-  padding:16px;
-  border-radius:16px;
+
+/* ==========================================================
+   SEARCH PANEL
+========================================================== */
+
+.search-panel,
+.search-container,
+.search-card {
+  position: relative;
+
+  display: flex;
+
+  align-items: flex-end;
+
+  gap: 10px;
+
+  min-height: 72px;
+
+  margin-bottom: 15px;
+
+  padding:
+    13px
+    15px;
+
+  border:
+    1px solid
+    var(--rd-border);
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff 0%,
+      #fbfcfe 100%
+    );
+
+  box-shadow:
+    var(--rd-shadow-sm);
 }
 
-.result-modal-info strong{
-  font-size:13px;
-  color:#475569;
+
+/* ==========================================================
+   SEARCH PANEL TOP ACCENT
+========================================================== */
+
+.search-panel::before,
+.search-container::before,
+.search-card::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  top: 0;
+
+  width: 100%;
+  height: 2px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #155eef,
+      #60a5fa,
+      #155eef
+    );
 }
 
-.result-modal-info p{
-  margin-top:8px;
-  font-weight:700;
-  color:#0f172a;
+
+/* ==========================================================
+   SEARCH LABEL
+========================================================== */
+
+.search-panel label,
+.search-container label,
+.search-card label {
+  display: block;
+
+  margin-bottom: 5px;
+
+  color:
+    var(--rd-text-secondary);
+
+  font-size: 10px;
+
+  font-weight: 750;
+
+  letter-spacing: 0.025em;
 }
 
-/* ==========================================
-   ENTRY CONTAINER
-========================================== */
 
-.result-entry-container{
-  margin-top:24px;
-  padding:24px;
-  background:#f8fafc;
-  border-radius:20px;
+/* ==========================================================
+   SEARCH FIELD WRAPPER
+========================================================== */
+
+.search-panel .form-group,
+.search-panel .field,
+.search-panel .input-group,
+.search-container .form-group,
+.search-container .field,
+.search-container .input-group,
+.search-card .form-group,
+.search-card .field,
+.search-card .input-group {
+  flex: 1;
+
+  min-width: 0;
 }
 
-/* ==========================================
-   MODAL ACTIONS
-========================================== */
 
-.result-modal-actions{
-  margin-top:30px;
-  display:flex;
-  justify-content:flex-end;
+/* ==========================================================
+   SEARCH INPUT
+========================================================== */
+
+.search-panel input,
+.search-container input,
+.search-card input {
+  width: 100%;
+
+  height: 39px;
+
+  padding:
+    0
+    12px;
+
+  border:
+    1px solid
+    var(--rd-border-dark);
+
+  border-radius: 8px;
+
+  outline: none;
+
+  background:
+    #ffffff;
+
+  color:
+    var(--rd-text);
+
+  font-size: 13px;
+
+  font-weight: 550;
+
+  box-shadow:
+    inset 0 1px 2px
+    rgba(16, 24, 40, 0.025);
+
+  transition:
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    background-color 0.18s ease;
 }
 
-/* ==========================================
-   FORMS
-========================================== */
 
-.result-entry-container input,
-.result-entry-container select,
-.result-entry-container textarea{
-  width:100%;
-  border:1px solid #d1d5db;
-  border-radius:12px;
-  padding:12px 14px;
-  font-size:14px;
-  outline:none;
-  transition:.2s;
-  background:#fff;
+.search-panel input:hover,
+.search-container input:hover,
+.search-card input:hover {
+  border-color:
+    #98a2b3;
 }
 
-.result-entry-container input:focus,
-.result-entry-container select:focus,
-.result-entry-container textarea:focus{
-  border-color:#0ea5e9;
+
+.search-panel input:focus,
+.search-container input:focus,
+.search-card input:focus {
+  border-color:
+    var(--rd-primary);
+
+  background:
+    #ffffff;
+
   box-shadow:
     0 0 0 3px
-    rgba(14,165,233,.15);
+    rgba(21, 94, 239, 0.10);
 }
 
-/* ==========================================
-   WIDAL TABLE
-========================================== */
 
-.result-table select{
-  min-width:120px;
+.search-panel input::placeholder,
+.search-container input::placeholder,
+.search-card input::placeholder {
+  color:
+    var(--rd-text-light);
+
+  opacity: 1;
 }
 
-.auto-comment-box{
-  margin-top:20px;
+
+/* ==========================================================
+   SEARCH BUTTON
+========================================================== */
+
+.search-panel button,
+.search-container button,
+.search-card button {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 6px;
+
+  height: 39px;
+
+  min-width: 108px;
+
+  padding:
+    0
+    17px;
+
+  border:
+    1px solid
+    var(--rd-primary-hover);
+
+  border-radius: 8px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #155eef 0%,
+      #1049b7 100%
+    );
+
+  color:
+    #ffffff;
+
+  font-size: 11px;
+
+  font-weight: 750;
+
+  letter-spacing: 0.01em;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 4px 9px
+    rgba(21, 94, 239, 0.20);
+
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    filter 0.16s ease;
 }
 
-.auto-comment-box label{
-  display:block;
-  margin-bottom:8px;
-  font-weight:700;
-  color:#0f172a;
+
+.search-panel button:hover:not(:disabled),
+.search-container button:hover:not(:disabled),
+.search-card button:hover:not(:disabled) {
+  transform:
+    translateY(-1px);
+
+  filter:
+    brightness(1.04);
+
+  box-shadow:
+    0 6px 14px
+    rgba(21, 94, 239, 0.27);
 }
 
-.auto-comment{
-  min-height:90px;
-  resize:none;
-  background:#f1f5f9 !important;
-  color:#334155;
+
+.search-panel button:active:not(:disabled),
+.search-container button:active:not(:disabled),
+.search-card button:active:not(:disabled) {
+  transform:
+    translateY(0);
+
+  box-shadow:
+    0 3px 7px
+    rgba(21, 94, 239, 0.20);
 }
 
-/* ==========================================
-   MOBILE
-========================================== */
 
-@media(max-width:768px){
+.search-panel button:disabled,
+.search-container button:disabled,
+.search-card button:disabled {
+  cursor:
+    not-allowed;
 
-  .page{
-    padding:16px;
+  opacity:
+    0.60;
+
+  transform:
+    none;
+}
+
+
+/* ==========================================================
+   PATIENT INFORMATION CARD
+========================================================== */
+
+.patient-card,
+.patient-info,
+.patient-information,
+.patient-details {
+  position: relative;
+
+  margin-bottom: 15px;
+
+  padding:
+    13px
+    15px;
+
+  border:
+    1px solid
+    var(--rd-border);
+
+  border-radius: 12px;
+
+  background:
+    #ffffff;
+
+  box-shadow:
+    var(--rd-shadow-sm);
+
+  overflow: hidden;
+}
+
+
+/* ==========================================================
+   PATIENT TOP ACCENT
+========================================================== */
+
+.patient-card::before,
+.patient-info::before,
+.patient-information::before,
+.patient-details::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  top: 0;
+
+  width: 100%;
+  height: 2px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #155eef,
+      #60a5fa
+    );
+}
+
+
+/* ==========================================================
+   PATIENT TITLE
+========================================================== */
+
+.patient-card h2,
+.patient-card h3,
+.patient-info h2,
+.patient-info h3,
+.patient-information h2,
+.patient-information h3,
+.patient-details h2,
+.patient-details h3 {
+  margin:
+    0
+    0
+    10px;
+
+  color:
+    var(--rd-text);
+
+  font-size: 13px;
+
+  font-weight: 760;
+
+  letter-spacing: -0.005em;
+}
+
+
+/* ==========================================================
+   PATIENT GRID
+========================================================== */
+
+.patient-card .patient-grid,
+.patient-card .info-grid,
+.patient-info .patient-grid,
+.patient-info .info-grid,
+.patient-information .patient-grid,
+.patient-information .info-grid,
+.patient-details .patient-grid,
+.patient-details .info-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(
+      5,
+      minmax(0, 1fr)
+    );
+
+  gap: 7px;
+}
+
+
+/* ==========================================================
+   PATIENT INFORMATION ITEM
+========================================================== */
+
+.patient-card .info-item,
+.patient-card .patient-item,
+.patient-info .info-item,
+.patient-info .patient-item,
+.patient-information .info-item,
+.patient-information .patient-item,
+.patient-details .info-item,
+.patient-details .patient-item {
+  min-width: 0;
+
+  padding:
+    7px
+    9px;
+
+  border:
+    1px solid
+    var(--rd-border-light);
+
+  border-radius: 8px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #fafbfc 0%,
+      #f8fafc 100%
+    );
+
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+
+.patient-card .info-item:hover,
+.patient-card .patient-item:hover,
+.patient-info .info-item:hover,
+.patient-info .patient-item:hover,
+.patient-information .info-item:hover,
+.patient-information .patient-item:hover,
+.patient-details .info-item:hover,
+.patient-details .patient-item:hover {
+  border-color:
+    var(--rd-blue-300);
+
+  background:
+    var(--rd-blue-50);
+
+  box-shadow:
+    0 2px 5px
+    rgba(21, 94, 239, 0.05);
+}
+
+
+/* ==========================================================
+   PATIENT LABEL
+========================================================== */
+
+.patient-card .info-item label,
+.patient-card .patient-item label,
+.patient-info .info-item label,
+.patient-info .patient-item label,
+.patient-information .info-item label,
+.patient-information .patient-item label,
+.patient-details .info-item label,
+.patient-details .patient-item label {
+  display: block;
+
+  margin:
+    0
+    0
+    2px;
+
+  color:
+    var(--rd-text-muted);
+
+  font-size: 8px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.065em;
+
+  line-height: 1.2;
+
+  text-transform: uppercase;
+}
+
+
+/* ==========================================================
+   PATIENT VALUE
+========================================================== */
+
+.patient-card .info-item span,
+.patient-card .patient-item span,
+.patient-info .info-item span,
+.patient-info .patient-item span,
+.patient-information .info-item span,
+.patient-information .patient-item span,
+.patient-details .info-item span,
+.patient-details .patient-item span {
+  display: block;
+
+  overflow: hidden;
+
+  color:
+    var(--rd-text-strong);
+
+  font-size: 11px;
+
+  font-weight: 650;
+
+  line-height: 1.3;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+
+/* ==========================================================
+   LAB NUMBER EMPHASIS
+========================================================== */
+
+.patient-card .lab-number,
+.patient-info .lab-number,
+.patient-information .lab-number,
+.patient-details .lab-number {
+  color:
+    var(--rd-primary);
+
+  font-weight:
+    800;
+}
+
+
+/* ==========================================================
+   REGISTERED TESTS CONTAINER
+========================================================== */
+
+.registered-tests,
+.registered-tests-card,
+.tests-card,
+.registered-tests-table-container,
+.registered-tests-container {
+  position: relative;
+
+  width: 100%;
+
+  margin-bottom: 15px;
+
+  border:
+    1px solid
+    var(--rd-border);
+
+  border-radius: 12px;
+
+  background:
+    #ffffff;
+
+  box-shadow:
+    var(--rd-shadow-md);
+
+  overflow: hidden;
+}
+
+
+/* ==========================================================
+   REGISTERED TESTS TOP BAR
+========================================================== */
+
+.registered-tests::before,
+.registered-tests-card::before,
+.tests-card::before,
+.registered-tests-table-container::before,
+.registered-tests-container::before {
+  content: "";
+
+  position: absolute;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 3px;
+
+  z-index: 2;
+
+  background:
+    linear-gradient(
+      90deg,
+      #155eef,
+      #3b82f6,
+      #155eef
+    );
+}
+
+
+/* ==========================================================
+   REGISTERED TESTS TITLE
+========================================================== */
+
+.registered-tests h2,
+.registered-tests h3,
+.registered-tests-card h2,
+.registered-tests-card h3,
+.tests-card h2,
+.tests-card h3 {
+  margin: 0;
+
+  padding:
+    12px
+    15px;
+
+  border-bottom:
+    1px solid
+    #0f4dcc;
+
+  background:
+    linear-gradient(
+      135deg,
+      #155eef 0%,
+      #1049b7 100%
+    );
+
+  color:
+    #ffffff;
+
+  font-size: 13px;
+
+  font-weight: 750;
+
+  line-height: 1.2;
+}
+
+
+/* ==========================================================
+   TABLE WRAPPERS
+========================================================== */
+
+.registered-tests-table,
+.tests-table,
+.table-container,
+.table-wrapper,
+.registered-tests .table-wrapper,
+.registered-tests-card .table-wrapper {
+  width: 100%;
+
+  overflow-x: auto;
+
+  scrollbar-width: thin;
+}
+
+
+/* ==========================================================
+   ALL DASHBOARD TABLES
+========================================================== */
+
+.page table {
+  width: 100%;
+
+  border-collapse: separate;
+
+  border-spacing: 0;
+
+  font-size: 12px;
+}
+
+
+/* ==========================================================
+   PREMIUM BLUE TABLE HEADER
+   ----------------------------------------------------------
+   Applies to Registered Tests and Result Entry tables.
+========================================================== */
+
+.page table thead th {
+  position: relative;
+
+  height: 41px;
+
+  padding:
+    0
+    11px;
+
+  border:
+    0;
+
+  border-bottom:
+    1px solid
+    #0b3b91;
+
+  background:
+    linear-gradient(
+      135deg,
+      #155eef 0%,
+      #1049b7 100%
+    );
+
+  color:
+    #ffffff;
+
+  font-size: 9px;
+
+  font-weight: 800;
+
+  line-height: 1;
+
+  letter-spacing: 0.055em;
+
+  text-align: left;
+
+  text-transform: uppercase;
+
+  white-space: nowrap;
+
+  vertical-align: middle;
+}
+
+
+/* ==========================================================
+   TABLE HEADER HIGHLIGHT
+========================================================== */
+
+.page table thead th::after {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  height: 1px;
+
+  background:
+    rgba(255, 255, 255, 0.18);
+}
+
+
+/* ==========================================================
+   TABLE FIRST HEADER
+========================================================== */
+
+.page table thead th:first-child {
+  padding-left:
+    14px;
+}
+
+
+/* ==========================================================
+   TABLE LAST HEADER
+========================================================== */
+
+.page table thead th:last-child {
+  padding-right:
+    14px;
+}
+
+
+/* ==========================================================
+   TABLE BODY
+========================================================== */
+
+.page table tbody td {
+  height: 44px;
+
+  padding:
+    7px
+    11px;
+
+  border-bottom:
+    1px solid
+    var(--rd-border-light);
+
+  background:
+    #ffffff;
+
+  color:
+    var(--rd-text-secondary);
+
+  font-size: 11px;
+
+  font-weight: 520;
+
+  vertical-align: middle;
+
+  transition:
+    background-color 0.14s ease,
+    border-color 0.14s ease;
+}
+
+
+/* ==========================================================
+   FIRST TABLE CELL
+========================================================== */
+
+.page table tbody td:first-child {
+  padding-left:
+    14px;
+
+  color:
+    var(--rd-text-strong);
+
+  font-weight:
+    680;
+}
+
+
+/* ==========================================================
+   LAST TABLE CELL
+========================================================== */
+
+.page table tbody td:last-child {
+  padding-right:
+    14px;
+}
+
+
+/* ==========================================================
+   TABLE ROW
+========================================================== */
+
+.page table tbody tr {
+  transition:
+    background-color 0.14s ease;
+}
+
+
+/* ==========================================================
+   TABLE ROW HOVER
+========================================================== */
+
+.page table tbody tr:hover td {
+  background:
+    #f5f9ff;
+
+  border-bottom-color:
+    #dbe7f8;
+}
+
+
+/* ==========================================================
+   LAST TABLE ROW
+========================================================== */
+
+.page table tbody tr:last-child td {
+  border-bottom:
+    0;
+}
+
+
+/* ==========================================================
+   TABLE ACTION BUTTON
+========================================================== */
+
+.page table tbody button {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 5px;
+
+  min-height: 29px;
+
+  padding:
+    5px
+    10px;
+
+  border:
+    1px solid
+    #bfd6ff;
+
+  border-radius: 7px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff 0%,
+      #eef5ff 100%
+    );
+
+  color:
+    var(--rd-primary);
+
+  font-size: 9px;
+
+  font-weight: 750;
+
+  cursor: pointer;
+
+  box-shadow:
+    var(--rd-shadow-xs);
+
+  transition:
+    transform 0.15s ease,
+    background 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+
+.page table tbody button:hover:not(:disabled) {
+  transform:
+    translateY(-1px);
+
+  border-color:
+    #8db5ff;
+
+  background:
+    #e5efff;
+
+  box-shadow:
+    0 4px 8px
+    rgba(21, 94, 239, 0.12);
+}
+
+
+/* ==========================================================
+   STATUS BADGES
+========================================================== */
+
+.page .status,
+.page .badge,
+.page .test-status {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  min-height: 21px;
+
+  padding:
+    3px
+    8px;
+
+  border-radius:
+    999px;
+
+  font-size: 8px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.025em;
+
+  line-height: 1;
+
+  white-space: nowrap;
+}
+
+
+/* ==========================================================
+   COMPLETED / SAVED
+========================================================== */
+
+.page .status.completed,
+.page .status.saved,
+.page .badge.completed,
+.page .badge.saved,
+.page .test-status.completed,
+.page .test-status.saved {
+  border:
+    1px solid
+    var(--rd-success-border);
+
+  background:
+    var(--rd-success-light);
+
+  color:
+    var(--rd-success);
+}
+
+
+/* ==========================================================
+   PENDING
+========================================================== */
+
+.page .status.pending,
+.page .badge.pending,
+.page .test-status.pending {
+  border:
+    1px solid
+    var(--rd-warning-border);
+
+  background:
+    var(--rd-warning-light);
+
+  color:
+    var(--rd-warning);
+}
+
+
+/* ==========================================================
+   PROCESSING
+========================================================== */
+
+.page .status.processing,
+.page .badge.processing,
+.page .test-status.processing {
+  border:
+    1px solid
+    #b2ddff;
+
+  background:
+    #eff8ff;
+
+  color:
+    #175cd3;
+}
+
+
+/* ==========================================================
+   ERROR
+========================================================== */
+
+.page .status.error,
+.page .badge.error,
+.page .test-status.error {
+  border:
+    1px solid
+    var(--rd-danger-border);
+
+  background:
+    var(--rd-danger-light);
+
+  color:
+    var(--rd-danger);
+}
+
+
+/* ==========================================================
+   PANEL / TEST TYPE BADGES
+========================================================== */
+
+.page .panel-badge,
+.page .test-type-badge,
+.page .type-badge {
+  display: inline-flex;
+
+  align-items: center;
+
+  min-height: 20px;
+
+  padding:
+    3px
+    7px;
+
+  border:
+    1px solid
+    #c9dcff;
+
+  border-radius:
+    6px;
+
+  background:
+    var(--rd-blue-100);
+
+  color:
+    var(--rd-primary);
+
+  font-size: 8px;
+
+  font-weight: 800;
+}
+
+
+/* ==========================================================
+   RESULT ENTRY CONTAINER
+========================================================== */
+
+.result-entry,
+.result-entry-card,
+.result-form,
+.result-form-card {
+  position: relative;
+
+  box-sizing: border-box;
+
+  border:
+    1px solid
+    var(--rd-border);
+
+  border-radius: 12px;
+
+  background:
+    #ffffff;
+
+  box-shadow:
+    var(--rd-shadow-md);
+
+  overflow: hidden;
+}
+
+
+/* ==========================================================
+   RESULT ENTRY TOP ACCENT
+========================================================== */
+
+.result-entry::before,
+.result-entry-card::before,
+.result-form::before,
+.result-form-card::before {
+  content: "";
+
+  position: absolute;
+
+  left: 0;
+  top: 0;
+
+  width: 100%;
+  height: 3px;
+
+  z-index: 2;
+
+  background:
+    linear-gradient(
+      90deg,
+      #155eef,
+      #3b82f6,
+      #155eef
+    );
+}
+
+
+/* ==========================================================
+   RESULT ENTRY HEADER
+========================================================== */
+
+.result-entry-header,
+.result-form-header,
+.result-entry-card-header {
+  padding:
+    12px
+    15px;
+
+  border-bottom:
+    1px solid
+    #0f4dcc;
+
+  background:
+    linear-gradient(
+      135deg,
+      #155eef 0%,
+      #1049b7 100%
+    );
+
+  color:
+    #ffffff;
+}
+
+
+/* ==========================================================
+   RESULT ENTRY HEADER TITLE
+========================================================== */
+
+.result-entry-header h2,
+.result-entry-header h3,
+.result-form-header h2,
+.result-form-header h3,
+.result-entry-card-header h2,
+.result-entry-card-header h3 {
+  margin: 0;
+
+  color:
+    #ffffff;
+
+  font-size: 14px;
+
+  font-weight: 750;
+}
+
+
+/* ==========================================================
+   RESULT ENTRY BODY
+========================================================== */
+
+.result-entry-body,
+.result-form-body,
+.result-entry-card-body {
+  padding:
+    14px
+    15px;
+}
+
+
+/* ==========================================================
+   RESULT ENTRY LABEL
+========================================================== */
+
+.result-entry label,
+.result-form label,
+.result-entry-card label {
+  display: block;
+
+  margin-bottom:
+    4px;
+
+  color:
+    var(--rd-text-secondary);
+
+  font-size: 9px;
+
+  font-weight: 750;
+
+  letter-spacing: 0.025em;
+}
+
+
+/* ==========================================================
+   RESULT ENTRY INPUTS
+========================================================== */
+
+.result-entry input,
+.result-entry select,
+.result-entry textarea,
+.result-form input,
+.result-form select,
+.result-form textarea,
+.result-entry-card input,
+.result-entry-card select,
+.result-entry-card textarea {
+  width: 100%;
+
+  min-height: 36px;
+
+  padding:
+    7px
+    10px;
+
+  border:
+    1px solid
+    var(--rd-border-dark);
+
+  border-radius:
+    7px;
+
+  outline: none;
+
+  background:
+    #ffffff;
+
+  color:
+    var(--rd-text);
+
+  font-size:
+    11px;
+
+  font-weight:
+    550;
+
+  transition:
+    border-color 0.16s ease,
+    box-shadow 0.16s ease;
+}
+
+
+.result-entry input:focus,
+.result-entry select:focus,
+.result-entry textarea:focus,
+.result-form input:focus,
+.result-form select:focus,
+.result-form textarea:focus,
+.result-entry-card input:focus,
+.result-entry-card select:focus,
+.result-entry-card textarea:focus {
+  border-color:
+    var(--rd-primary);
+
+  box-shadow:
+    0 0 0 3px
+    rgba(21, 94, 239, 0.10);
+}
+
+
+/* ==========================================================
+   RESULT ENTRY TABLE HEADER
+========================================================== */
+
+.result-entry table thead th,
+.result-form table thead th,
+.result-entry-card table thead th {
+  height: 40px;
+
+  padding:
+    0
+    10px;
+
+  border-bottom:
+    1px solid
+    #0b3b91;
+
+  background:
+    linear-gradient(
+      135deg,
+      #155eef 0%,
+      #1049b7 100%
+    );
+
+  color:
+    #ffffff;
+
+  font-size:
+    9px;
+
+  font-weight:
+    800;
+
+  letter-spacing:
+    0.05em;
+
+  text-transform:
+    uppercase;
+}
+
+
+/* ==========================================================
+   RESULT ENTRY TABLE BODY
+========================================================== */
+
+.result-entry table tbody td,
+.result-form table tbody td,
+.result-entry-card table tbody td {
+  min-height: 42px;
+
+  padding:
+    7px
+    10px;
+
+  border-bottom:
+    1px solid
+    var(--rd-border-light);
+
+  color:
+    var(--rd-text-secondary);
+
+  font-size:
+    11px;
+}
+
+
+/* ==========================================================
+   RESULT ACTION BAR
+   ----------------------------------------------------------
+   Refresh / Cancel / Save / Saved
+========================================================== */
+
+.result-actions,
+.result-action-buttons,
+.form-actions,
+.modal-actions,
+.result-entry-actions,
+.result-footer-actions {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: flex-end;
+
+  gap: 7px;
+
+  flex-wrap: wrap;
+
+  padding:
+    11px
+    15px;
+
+  border-top:
+    1px solid
+    var(--rd-border);
+
+  background:
+    linear-gradient(
+      180deg,
+      #fcfdff 0%,
+      #f8fafc 100%
+    );
+}
+
+
+/* ==========================================================
+   ALL RESULT ACTION BUTTONS
+========================================================== */
+
+.result-actions button,
+.result-action-buttons button,
+.form-actions button,
+.modal-actions button,
+.result-entry-actions button,
+.result-footer-actions button {
+  display: inline-flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 6px;
+
+  min-height: 36px;
+
+  padding:
+    0
+    13px;
+
+  border-radius:
+    8px;
+
+  font-family:
+    inherit;
+
+  font-size:
+    10px;
+
+  font-weight:
+    750;
+
+  line-height:
+    1;
+
+  white-space:
+    nowrap;
+
+  cursor:
+    pointer;
+
+  transition:
+    transform 0.16s ease,
+    box-shadow 0.16s ease,
+    background 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease,
+    opacity 0.16s ease;
+}
+
+
+/* ==========================================================
+   ACTION ICONS
+========================================================== */
+
+.result-actions button svg,
+.result-action-buttons button svg,
+.form-actions button svg,
+.modal-actions button svg,
+.result-entry-actions button svg,
+.result-footer-actions button svg {
+  width:
+    14px;
+
+  height:
+    14px;
+
+  flex-shrink:
+    0;
+}
+
+
+/* ==========================================================
+   REFRESH
+========================================================== */
+
+.result-actions .refresh-button,
+.result-action-buttons .refresh-button,
+.form-actions .refresh-button,
+.modal-actions .refresh-button,
+.result-entry-actions .refresh-button,
+.result-footer-actions .refresh-button,
+
+.result-actions button.refresh,
+.result-action-buttons button.refresh,
+.form-actions button.refresh,
+.modal-actions button.refresh {
+  border:
+    1px solid
+    #b8cff8;
+
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff 0%,
+      #f2f7ff 100%
+    );
+
+  color:
+    var(--rd-primary);
+
+  box-shadow:
+    var(--rd-shadow-xs);
+}
+
+
+.result-actions .refresh-button:hover:not(:disabled),
+.result-action-buttons .refresh-button:hover:not(:disabled),
+.form-actions .refresh-button:hover:not(:disabled),
+.modal-actions .refresh-button:hover:not(:disabled),
+.result-entry-actions .refresh-button:hover:not(:disabled),
+.result-footer-actions .refresh-button:hover:not(:disabled),
+
+.result-actions button.refresh:hover:not(:disabled),
+.result-action-buttons button.refresh:hover:not(:disabled),
+.form-actions button.refresh:hover:not(:disabled),
+.modal-actions button.refresh:hover:not(:disabled) {
+  transform:
+    translateY(-1px);
+
+  border-color:
+    #7da8f5;
+
+  background:
+    linear-gradient(
+      180deg,
+      #f7faff 0%,
+      #e7f0ff 100%
+    );
+
+  box-shadow:
+    0 4px 9px
+    rgba(21, 94, 239, 0.12);
+}
+
+
+/* ==========================================================
+   SAVE
+========================================================== */
+
+.result-actions .save-button,
+.result-action-buttons .save-button,
+.form-actions .save-button,
+.modal-actions .save-button,
+.result-entry-actions .save-button,
+.result-footer-actions .save-button,
+
+.result-actions button.save,
+.result-action-buttons button.save,
+.form-actions button.save,
+.modal-actions button.save,
+
+.result-actions .primary-button,
+.result-action-buttons .primary-button,
+.form-actions .primary-button,
+.modal-actions .primary-button,
+.result-entry-actions .primary-button,
+.result-footer-actions .primary-button {
+  min-width:
+    112px;
+
+  border:
+    1px solid
+    var(--rd-primary-hover);
+
+  background:
+    linear-gradient(
+      135deg,
+      #155eef 0%,
+      #1049b7 100%
+    );
+
+  color:
+    #ffffff;
+
+  box-shadow:
+    0 4px 9px
+    rgba(21, 94, 239, 0.22);
+}
+
+
+.result-actions .save-button:hover:not(:disabled),
+.result-action-buttons .save-button:hover:not(:disabled),
+.form-actions .save-button:hover:not(:disabled),
+.modal-actions .save-button:hover:not(:disabled),
+.result-entry-actions .save-button:hover:not(:disabled),
+.result-footer-actions .save-button:hover:not(:disabled),
+
+.result-actions button.save:hover:not(:disabled),
+.result-action-buttons button.save:hover:not(:disabled),
+.form-actions button.save:hover:not(:disabled),
+.modal-actions button.save:hover:not(:disabled),
+
+.result-actions .primary-button:hover:not(:disabled),
+.result-action-buttons .primary-button:hover:not(:disabled),
+.form-actions .primary-button:hover:not(:disabled),
+.modal-actions .primary-button:hover:not(:disabled),
+.result-entry-actions .primary-button:hover:not(:disabled),
+.result-footer-actions .primary-button:hover:not(:disabled) {
+  transform:
+    translateY(-1px);
+
+  background:
+    linear-gradient(
+      135deg,
+      #1d6bf3 0%,
+      #1550c7 100%
+    );
+
+  box-shadow:
+    0 6px 14px
+    rgba(21, 94, 239, 0.28);
+}
+
+
+/* ==========================================================
+   SAVED
+========================================================== */
+
+.result-actions .saved-button,
+.result-action-buttons .saved-button,
+.form-actions .saved-button,
+.modal-actions .saved-button,
+.result-entry-actions .saved-button,
+.result-footer-actions .saved-button,
+
+.result-actions button.saved,
+.result-action-buttons button.saved,
+.form-actions button.saved,
+.modal-actions button.saved {
+  min-width:
+    100px;
+
+  border:
+    1px solid
+    var(--rd-success-border);
+
+  background:
+    linear-gradient(
+      180deg,
+      #f0fdf4 0%,
+      #dcfce7 100%
+    );
+
+  color:
+    var(--rd-success);
+
+  box-shadow:
+    0 2px 5px
+    rgba(7, 118, 71, 0.08);
+
+  cursor:
+    default;
+}
+
+
+/* ==========================================================
+   SAVED ICON
+========================================================== */
+
+.result-actions .saved-button svg,
+.result-action-buttons .saved-button svg,
+.form-actions .saved-button svg,
+.modal-actions .saved-button svg,
+.result-entry-actions .saved-button svg,
+.result-footer-actions .saved-button svg,
+
+.result-actions button.saved svg,
+.result-action-buttons button.saved svg,
+.form-actions button.saved svg,
+.modal-actions button.saved svg {
+  color:
+    #079455;
+}
+
+
+/* ==========================================================
+   CANCEL
+========================================================== */
+
+.result-actions .cancel-button,
+.result-action-buttons .cancel-button,
+.form-actions .cancel-button,
+.modal-actions .cancel-button,
+.result-entry-actions .cancel-button,
+.result-footer-actions .cancel-button,
+
+.result-actions button.cancel,
+.result-action-buttons button.cancel,
+.form-actions button.cancel,
+.modal-actions button.cancel {
+  border:
+    1px solid
+    var(--rd-border-dark);
+
+  background:
+    #ffffff;
+
+  color:
+    var(--rd-text-secondary);
+
+  box-shadow:
+    var(--rd-shadow-xs);
+}
+
+
+.result-actions .cancel-button:hover:not(:disabled),
+.result-action-buttons .cancel-button:hover:not(:disabled),
+.form-actions .cancel-button:hover:not(:disabled),
+.modal-actions .cancel-button:hover:not(:disabled),
+.result-entry-actions .cancel-button:hover:not(:disabled),
+.result-footer-actions .cancel-button:hover:not(:disabled),
+
+.result-actions button.cancel:hover:not(:disabled),
+.result-action-buttons button.cancel:hover:not(:disabled),
+.form-actions button.cancel:hover:not(:disabled),
+.modal-actions button.cancel:hover:not(:disabled) {
+  transform:
+    translateY(-1px);
+
+  border-color:
+    var(--rd-danger-border);
+
+  background:
+    var(--rd-danger-light);
+
+  color:
+    var(--rd-danger);
+
+  box-shadow:
+    0 3px 8px
+    rgba(217, 45, 32, 0.09);
+}
+
+
+/* ==========================================================
+   SAVING STATE
+========================================================== */
+
+.result-actions .saving,
+.result-action-buttons .saving,
+.form-actions .saving,
+.modal-actions .saving,
+.result-entry-actions .saving,
+.result-footer-actions .saving {
+  cursor:
+    wait;
+
+  opacity:
+    0.78;
+}
+
+
+/* ==========================================================
+   DISABLED ACTIONS
+========================================================== */
+
+.result-actions button:disabled,
+.result-action-buttons button:disabled,
+.form-actions button:disabled,
+.modal-actions button:disabled,
+.result-entry-actions button:disabled,
+.result-footer-actions button:disabled {
+  cursor:
+    not-allowed;
+
+  opacity:
+    0.58;
+
+  transform:
+    none !important;
+
+  box-shadow:
+    none;
+}
+
+
+/* ==========================================================
+   SPINNER
+========================================================== */
+
+.result-actions .saving::after,
+.result-action-buttons .saving::after,
+.form-actions .saving::after,
+.modal-actions .saving::after,
+.result-entry-actions .saving::after,
+.result-footer-actions .saving::after {
+  content: "";
+
+  width:
+    12px;
+
+  height:
+    12px;
+
+  margin-left:
+    2px;
+
+  border:
+    2px solid
+    rgba(255, 255, 255, 0.35);
+
+  border-top-color:
+    #ffffff;
+
+  border-radius:
+    50%;
+
+  animation:
+    result-dashboard-spin
+    0.7s
+    linear
+    infinite;
+}
+
+
+@keyframes result-dashboard-spin {
+
+  to {
+    transform:
+      rotate(360deg);
   }
 
-  .search-row{
-    flex-direction:column;
+}
+
+
+/* ==========================================================
+   MODAL OVERLAY
+========================================================== */
+
+.modal-overlay,
+.result-modal-overlay,
+.result-entry-modal-overlay {
+  position: fixed;
+
+  inset: 0;
+
+  z-index: 1000;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding:
+    20px;
+
+  background:
+    rgba(15, 23, 42, 0.48);
+
+  backdrop-filter:
+    blur(4px);
+
+  -webkit-backdrop-filter:
+    blur(4px);
+}
+
+
+/* ==========================================================
+   MODAL
+========================================================== */
+
+.modal-content,
+.result-modal,
+.result-entry-modal {
+  width:
+    min(
+      940px,
+      100%
+    );
+
+  max-height:
+    calc(
+      100vh - 40px
+    );
+
+  border:
+    1px solid
+    #dfe5ee;
+
+  border-radius:
+    14px;
+
+  background:
+    #ffffff;
+
+  box-shadow:
+    var(--rd-shadow-lg);
+
+  overflow-y:
+    auto;
+}
+
+
+/* ==========================================================
+   MODAL HEADER
+========================================================== */
+
+.modal-header,
+.result-modal-header,
+.result-entry-modal-header,
+
+.modal-content > header,
+.result-modal > header,
+.result-entry-modal > header {
+  padding:
+    13px
+    16px;
+
+  border-bottom:
+    1px solid
+    #0b3b91;
+
+  background:
+    linear-gradient(
+      135deg,
+      #155eef 0%,
+      #1049b7 100%
+    );
+
+  color:
+    #ffffff;
+}
+
+
+/* ==========================================================
+   MODAL TITLE
+========================================================== */
+
+.modal-header h2,
+.modal-header h3,
+.result-modal-header h2,
+.result-modal-header h3,
+.result-entry-modal-header h2,
+.result-entry-modal-header h3,
+
+.modal-content h2,
+.modal-content h3,
+.result-modal h2,
+.result-modal h3,
+.result-entry-modal h2,
+.result-entry-modal h3 {
+  margin:
+    0;
+
+  color:
+    #ffffff;
+
+  font-size:
+    15px;
+
+  font-weight:
+    750;
+}
+
+
+/* ==========================================================
+   MODAL BODY
+========================================================== */
+
+.modal-body,
+.result-modal-body,
+.result-entry-modal-body {
+  padding:
+    15px;
+}
+
+
+/* ==========================================================
+   MODAL FOOTER
+========================================================== */
+
+.modal-footer,
+.result-modal-footer,
+.result-entry-modal-footer {
+  display:
+    flex;
+
+  align-items:
+    center;
+
+  justify-content:
+    flex-end;
+
+  gap:
+    7px;
+
+  padding:
+    11px
+    15px;
+
+  border-top:
+    1px solid
+    var(--rd-border);
+
+  background:
+    linear-gradient(
+      180deg,
+      #fcfdff,
+      #f8fafc
+    );
+}
+
+
+/* ==========================================================
+   EMPTY STATE
+========================================================== */
+
+.empty-state {
+  min-height:
+    185px;
+
+  display:
+    flex;
+
+  flex-direction:
+    column;
+
+  align-items:
+    center;
+
+  justify-content:
+    center;
+
+  gap:
+    10px;
+
+  padding:
+    28px
+    20px;
+
+  border:
+    1px dashed
+    #cbd5e1;
+
+  border-radius:
+    12px;
+
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff,
+      #f8fafc
+    );
+
+  color:
+    var(--rd-text-muted);
+
+  text-align:
+    center;
+}
+
+
+.empty-state svg {
+  color:
+    var(--rd-primary);
+
+  opacity:
+    0.85;
+}
+
+
+.empty-state p {
+  max-width:
+    420px;
+
+  margin:
+    0;
+
+  color:
+    var(--rd-text-muted);
+
+  font-size:
+    12px;
+
+  font-weight:
+    500;
+}
+
+
+/* ==========================================================
+   SCROLLBARS
+========================================================== */
+
+.page ::-webkit-scrollbar {
+  width:
+    7px;
+
+  height:
+    7px;
+}
+
+
+.page ::-webkit-scrollbar-track {
+  background:
+    #f1f5f9;
+}
+
+
+.page ::-webkit-scrollbar-thumb {
+  background:
+    #cbd5e1;
+
+  border-radius:
+    999px;
+}
+
+
+.page ::-webkit-scrollbar-thumb:hover {
+  background:
+    #94a3b8;
+}
+
+
+/* ==========================================================
+   SELECTION
+========================================================== */
+
+.page ::selection {
+  background:
+    #dbe9ff;
+
+  color:
+    #123b8f;
+}
+
+
+/* ==========================================================
+   RESPONSIVE — 1200px
+========================================================== */
+
+@media (max-width: 1200px) {
+
+  .patient-card .patient-grid,
+  .patient-card .info-grid,
+  .patient-info .patient-grid,
+  .patient-info .info-grid,
+  .patient-information .patient-grid,
+  .patient-information .info-grid,
+  .patient-details .patient-grid,
+  .patient-details .info-grid {
+    grid-template-columns:
+      repeat(
+        4,
+        minmax(0, 1fr)
+      );
   }
 
-  .search-row button{
-    width:100%;
-    justify-content:center;
+}
+
+
+/* ==========================================================
+   RESPONSIVE — 900px
+========================================================== */
+
+@media (max-width: 900px) {
+
+  .page {
+    padding:
+      18px
+      18px
+      38px;
   }
 
-  .result-table{
-    display:block;
-    overflow-x:auto;
+
+  .patient-card .patient-grid,
+  .patient-card .info-grid,
+  .patient-info .patient-grid,
+  .patient-info .info-grid,
+  .patient-information .patient-grid,
+  .patient-information .info-grid,
+  .patient-details .patient-grid,
+  .patient-details .info-grid {
+    grid-template-columns:
+      repeat(
+        3,
+        minmax(0, 1fr)
+      );
   }
 
-  .result-modal{
-    padding:20px;
-    border-radius:20px;
+
+  .page table {
+    min-width:
+      700px;
   }
 
-  .result-modal-actions{
-    justify-content:center;
+}
+
+
+/* ==========================================================
+   RESPONSIVE — 760px
+========================================================== */
+
+@media (max-width: 760px) {
+
+  .page {
+    padding:
+      15px
+      13px
+      32px;
   }
 
-  .save-btn{
-    width:100%;
+
+  .dashboard-header {
+    min-height:
+      68px;
+
+    padding:
+      14px
+      17px;
+  }
+
+
+  .dashboard-header h1 {
+    font-size:
+      21px;
+  }
+
+
+  .dashboard-header p {
+    font-size:
+      11px;
+  }
+
+
+  .search-panel,
+  .search-container,
+  .search-card {
+    align-items:
+      stretch;
+
+    flex-wrap:
+      wrap;
+  }
+
+
+  .search-panel .form-group,
+  .search-panel .field,
+  .search-panel .input-group,
+  .search-container .form-group,
+  .search-container .field,
+  .search-container .input-group,
+  .search-card .form-group,
+  .search-card .field,
+  .search-card .input-group {
+    flex:
+      1 1 100%;
+  }
+
+
+  .search-panel button,
+  .search-container button,
+  .search-card button {
+    width:
+      100%;
+  }
+
+
+  .patient-card .patient-grid,
+  .patient-card .info-grid,
+  .patient-info .patient-grid,
+  .patient-info .info-grid,
+  .patient-information .patient-grid,
+  .patient-information .info-grid,
+  .patient-details .patient-grid,
+  .patient-details .info-grid {
+    grid-template-columns:
+      repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+
+
+  .modal-overlay,
+  .result-modal-overlay,
+  .result-entry-modal-overlay {
+    align-items:
+      flex-start;
+
+    padding:
+      12px;
+  }
+
+
+  .modal-content,
+  .result-modal,
+  .result-entry-modal {
+    max-height:
+      calc(
+        100vh - 24px
+      );
+  }
+
+}
+
+
+/* ==========================================================
+   RESPONSIVE — 560px
+========================================================== */
+
+@media (max-width: 560px) {
+
+  .page {
+    padding:
+      10px
+      9px
+      24px;
+  }
+
+
+  .dashboard-header {
+    min-height:
+      61px;
+
+    padding:
+      12px
+      14px;
+  }
+
+
+  .dashboard-header h1 {
+    font-size:
+      18px;
+  }
+
+
+  .dashboard-header p {
+    font-size:
+      10px;
+  }
+
+
+  .search-panel,
+  .search-container,
+  .search-card {
+    padding:
+      11px;
+  }
+
+
+  .patient-card,
+  .patient-info,
+  .patient-information,
+  .patient-details {
+    padding:
+      11px;
+  }
+
+
+  .patient-card .patient-grid,
+  .patient-card .info-grid,
+  .patient-info .patient-grid,
+  .patient-info .info-grid,
+  .patient-information .patient-grid,
+  .patient-information .info-grid,
+  .patient-details .patient-grid,
+  .patient-details .info-grid {
+    grid-template-columns:
+      1fr;
+  }
+
+
+  .page table {
+    min-width:
+      680px;
+  }
+
+
+  .page table thead th {
+    height:
+      38px;
+
+    padding:
+      0
+      8px;
+
+    font-size:
+      8px;
+  }
+
+
+  .page table tbody td {
+    height:
+      41px;
+
+    padding:
+      6px
+      8px;
+
+    font-size:
+      10px;
+  }
+
+
+  .result-actions,
+  .result-action-buttons,
+  .form-actions,
+  .modal-actions,
+  .result-entry-actions,
+  .result-footer-actions {
+    gap:
+      6px;
+
+    padding:
+      9px
+      11px;
+  }
+
+
+  .result-actions button,
+  .result-action-buttons button,
+  .form-actions button,
+  .modal-actions button,
+  .result-entry-actions button,
+  .result-footer-actions button {
+    min-height:
+      34px;
+
+    padding:
+      0
+      10px;
+
+    font-size:
+      9px;
+  }
+
+
+  .result-actions .save-button,
+  .result-action-buttons .save-button,
+  .form-actions .save-button,
+  .modal-actions .save-button {
+    min-width:
+      100px;
+  }
+
+
+  .empty-state {
+    min-height:
+      155px;
+  }
+
+}
+
+
+/* ==========================================================
+   REDUCED MOTION
+========================================================== */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .page *,
+  .page *::before,
+  .page *::after {
+    animation:
+      none !important;
+
+    transition:
+      none !important;
+
+    scroll-behavior:
+      auto !important;
+  }
+
+}
+
+
+/* ==========================================================
+   PRINT
+========================================================== */
+
+@media print {
+
+  .page {
+    padding:
+      0;
+
+    background:
+      #ffffff;
+  }
+
+
+  .dashboard-header,
+  .dashboard-card,
+  .patient-card,
+  .patient-info,
+  .patient-information,
+  .patient-details,
+  .registered-tests,
+  .registered-tests-card,
+  .tests-card {
+    box-shadow:
+      none;
+  }
+
+
+  .search-panel,
+  .search-container,
+  .search-card,
+  .modal-overlay,
+  .result-modal-overlay,
+  .result-entry-modal-overlay,
+  .result-actions,
+  .result-action-buttons,
+  .form-actions,
+  .modal-actions,
+  .result-entry-actions,
+  .result-footer-actions {
+    display:
+      none !important;
+  }
+
+
+  .dashboard-header {
+    border:
+      0;
+
+    padding:
+      8px
+      0;
+  }
+
+
+  .dashboard-header::before {
+    display:
+      none;
+  }
+
+
+  .page table thead th {
+    background:
+      #155eef !important;
+
+    color:
+      #ffffff !important;
   }
 
 }

@@ -1,296 +1,349 @@
+import { useEffect } from "react";
+
+import DropdownField from "../fields/DropdownField";
+import NumberField from "../fields/NumberField";
+import TextAreaField from "../fields/TextAreaField";
+
+import {
+  generateProstateReport,
+} from "../../../utils/ultrasound/reportGenerators";
+
+import {
+  generateProstateImpression,
+  generateProstateRecommendation,
+} from "../../../utils/ultrasound/impressionGenerator";
+
 export default function ProstateScanForm({
-
   data = {},
-
   onChange,
-
 }) {
 
-  const setValue = (
-
-    key,
-
-    value
-
-  ) => {
-
-    onChange(
-
-      key,
-
-      value
-
-    );
-
+  const setValue = (key, value) => {
+    onChange(key, value);
   };
+
+  /* ==========================================
+      AUTO GENERATE REPORT & IMPRESSION
+  ========================================== */
+
+  useEffect(() => {
+
+    const report =
+      generateProstateReport(data);
+
+    const impression =
+      generateProstateImpression(data);
+
+    const recommendation =
+      generateProstateRecommendation(data);
+
+    if (report !== (data.report_text || "")) {
+      onChange("report_text", report);
+    }
+
+    if (
+      JSON.stringify(impression) !==
+      JSON.stringify(data.impression || [])
+    ) {
+      onChange("impression", impression);
+    }
+
+    if (
+      JSON.stringify(recommendation) !==
+      JSON.stringify(data.recommendation || [])
+    ) {
+      onChange("recommendation", recommendation);
+    }
+
+  }, [data, onChange]);
 
   return (
 
     <div className="scan-form-grid">
 
-      {/* =====================
-          PROSTATE SIZE
-      ===================== */}
+      {/* ======================================
+          PROSTATE
+      ====================================== */}
 
-      <h3>
+      <section className="scan-section">
 
-        Prostate Size
+        <h2>Prostate</h2>
 
-      </h3>
+        <div className="scan-grid">
 
-      <textarea
-        rows={2}
-        placeholder="Prostate dimensions..."
-        value={data.prostateSize || ""}
-        onChange={(e)=>
-          setValue(
-            "prostateSize",
-            e.target.value
-          )
-        }
-      />
+          <NumberField
+            label="Length"
+            unit="cm"
+            value={data.length}
+            onChange={(value) =>
+              setValue("length", value)
+            }
+          />
 
-      {/* =====================
-          PROSTATE VOLUME
-      ===================== */}
+          <NumberField
+            label="Width"
+            unit="cm"
+            value={data.width}
+            onChange={(value) =>
+              setValue("width", value)
+            }
+          />
 
-      <h3>
+          <NumberField
+            label="Height"
+            unit="cm"
+            value={data.height}
+            onChange={(value) =>
+              setValue("height", value)
+            }
+          />
 
-        Prostate Volume
+          <NumberField
+            label="Volume"
+            unit="ml"
+            value={data.volume}
+            onChange={(value) =>
+              setValue("volume", value)
+            }
+          />
 
-      </h3>
+          <DropdownField
+            label="Echotexture"
+            value={data.echotexture}
+            options={[
+              "Homogeneous",
+              "Heterogeneous",
+            ]}
+            onChange={(value) =>
+              setValue("echotexture", value)
+            }
+          />
 
-      <textarea
-        rows={2}
-        placeholder="Prostate volume..."
-        value={data.prostateVolume || ""}
-        onChange={(e)=>
-          setValue(
-            "prostateVolume",
-            e.target.value
-          )
-        }
-      />
+          <DropdownField
+            label="Capsule"
+            value={data.capsule}
+            options={[
+              "Intact",
+              "Irregular",
+            ]}
+            onChange={(value) =>
+              setValue("capsule", value)
+            }
+          />
 
-      {/* =====================
-          ECHOTEXTURE
-      ===================== */}
+          <DropdownField
+            label="Median Lobe"
+            value={data.median_lobe}
+            options={[
+              "Normal",
+              "Enlarged",
+            ]}
+            onChange={(value) =>
+              setValue("median_lobe", value)
+            }
+          />
 
-      <h3>
+          <DropdownField
+            label="Seminal Vesicles"
+            value={data.seminal_vesicles}
+            options={[
+              "Normal",
+              "Enlarged",
+              "Asymmetrical",
+              "Dilated",
+              "Absent",
+            ]}
+            onChange={(value) =>
+              setValue("seminal_vesicles", value)
+            }
+          />
 
-        Echotexture
+          <DropdownField
+            label="Calcification"
+            value={data.calcification}
+            options={[
+              "Absent",
+              "Present",
+            ]}
+            onChange={(value) =>
+              setValue("calcification", value)
+            }
+          />
 
-      </h3>
+          <DropdownField
+            label="Prostate Nodule"
+            value={data.prostate_nodule}
+            options={[
+              "Absent",
+              "Present",
+            ]}
+            onChange={(value) =>
+              setValue("prostate_nodule", value)
+            }
+          />
 
-      <textarea
-        rows={2}
-        placeholder="Prostatic echotexture..."
-        value={data.echotexture || ""}
-        onChange={(e)=>
-          setValue(
-            "echotexture",
-            e.target.value
-          )
-        }
-      />
+        </div>
 
-      {/* =====================
-          CAPSULE
-      ===================== */}
+      </section>
 
-      <h3>
-
-        Capsule
-
-      </h3>
-
-      <textarea
-        rows={2}
-        placeholder="Capsular outline..."
-        value={data.capsule || ""}
-        onChange={(e)=>
-          setValue(
-            "capsule",
-            e.target.value
-          )
-        }
-      />
-
-      {/* =====================
-          MEDIAN LOBE
-      ===================== */}
-
-      <h3>
-
-        Median Lobe
-
-      </h3>
-
-      <textarea
-        rows={2}
-        placeholder="Median lobe findings..."
-        value={data.medianLobe || ""}
-        onChange={(e)=>
-          setValue(
-            "medianLobe",
-            e.target.value
-          )
-        }
-      />
-
-      {/* =====================
-          SEMINAL VESICLES
-      ===================== */}
-
-      <h3>
-
-        Seminal Vesicles
-
-      </h3>
-
-      <textarea
-        rows={2}
-        placeholder="Seminal vesicles..."
-        value={data.seminalVesicles || ""}
-        onChange={(e)=>
-          setValue(
-            "seminalVesicles",
-            e.target.value
-          )
-        }
-      />
-
-      {/* =====================
+      {/* ======================================
           URINARY BLADDER
-      ===================== */}
+      ====================================== */}
 
-      <h3>
+      <section className="scan-section">
 
-        Urinary Bladder
+        <h2>Urinary Bladder</h2>
 
-      </h3>
+        <div className="scan-grid">
 
-      <textarea
-        rows={3}
-        placeholder="Bladder findings..."
-        value={data.bladder || ""}
-        onChange={(e)=>
-          setValue(
-            "bladder",
-            e.target.value
-          )
-        }
-      />
+          <DropdownField
+            label="Distension"
+            value={data.bladder_distension}
+            options={[
+              "Well Distended",
+              "Partially Distended",
+              "Poorly Distended",
+            ]}
+            onChange={(value) =>
+              setValue("bladder_distension", value)
+            }
+          />
 
-      {/* =====================
-          POST VOID RESIDUAL
-      ===================== */}
+          <DropdownField
+            label="Wall Thickness"
+            value={data.bladder_wall}
+            options={[
+              "Normal",
+              "Thickened",
+            ]}
+            onChange={(value) =>
+              setValue("bladder_wall", value)
+            }
+          />
 
-      <h3>
+          <DropdownField
+            label="Stone"
+            value={data.bladder_stone}
+            options={[
+              "Absent",
+              "Present",
+            ]}
+            onChange={(value) =>
+              setValue("bladder_stone", value)
+            }
+          />
 
-        Post-Void Residual Volume
+          <DropdownField
+            label="Mass"
+            value={data.bladder_mass}
+            options={[
+              "Absent",
+              "Present",
+            ]}
+            onChange={(value) =>
+              setValue("bladder_mass", value)
+            }
+          />
 
-      </h3>
+          <NumberField
+            label="Post-Void Residual"
+            unit="ml"
+            value={data.residual_urine}
+            onChange={(value) =>
+              setValue("residual_urine", value)
+            }
+          />
 
-      <textarea
-        rows={2}
-        placeholder="Residual urine volume..."
-        value={data.postVoidResidual || ""}
-        onChange={(e)=>
-          setValue(
-            "postVoidResidual",
-            e.target.value
-          )
-        }
-      />
+        </div>
 
-      {/* =====================
-          CALCIFICATIONS
-      ===================== */}
+        <TextAreaField
+          label="Additional Bladder Findings"
+          rows={3}
+          value={data.bladder_notes || ""}
+          onChange={(value) =>
+            setValue("bladder_notes", value)
+          }
+        />
 
-      <h3>
+      </section>
 
-        Calcifications
+      {/* ======================================
+          ADDITIONAL FINDINGS
+      ====================================== */}
 
-      </h3>
+      <section className="scan-section">
 
-      <textarea
-        rows={2}
-        placeholder="Calcifications..."
-        value={data.calcifications || ""}
-        onChange={(e)=>
-          setValue(
-            "calcifications",
-            e.target.value
-          )
-        }
-      />
+        <h2>Additional Findings</h2>
 
-      {/* =====================
-          FOCAL LESIONS
-      ===================== */}
+        <TextAreaField
+          label="Additional Findings"
+          rows={4}
+          value={data.additional_findings || ""}
+          onChange={(value) =>
+            setValue("additional_findings", value)
+          }
+        />
 
-      <h3>
+      </section>
 
-        Focal Lesions
+      {/* ======================================
+          GENERATED FINDINGS
+      ====================================== */}
 
-      </h3>
+      <section className="scan-section">
 
-      <textarea
-        rows={3}
-        placeholder="Focal lesions or masses..."
-        value={data.focalLesions || ""}
-        onChange={(e)=>
-          setValue(
-            "focalLesions",
-            e.target.value
-          )
-        }
-      />
+        <h2>Generated Findings</h2>
 
-      {/* =====================
+        <TextAreaField
+          label="Generated Report"
+          rows={18}
+          value={data.report_text || ""}
+          readOnly
+        />
+
+      </section>
+
+      {/* ======================================
           IMPRESSION
-      ===================== */}
+      ====================================== */}
 
-      <h3>
+      <section className="scan-section">
 
-        Impression
+        <h2>Impression</h2>
 
-      </h3>
+        <TextAreaField
+          label="Impression"
+          rows={6}
+          value={
+            Array.isArray(data.impression)
+              ? data.impression.join("\n")
+              : data.impression || ""
+          }
+          readOnly
+        />
 
-      <textarea
-        rows={4}
-        placeholder="Impression..."
-        value={data.impression || ""}
-        onChange={(e)=>
-          setValue(
-            "impression",
-            e.target.value
-          )
-        }
-      />
+      </section>
 
-      {/* =====================
+      {/* ======================================
           RECOMMENDATION
-      ===================== */}
+      ====================================== */}
 
-      <h3>
+      <section className="scan-section">
 
-        Recommendation
+        <h2>Recommendation</h2>
 
-      </h3>
+        <TextAreaField
+          label="Recommendation"
+          rows={5}
+          value={
+            Array.isArray(data.recommendation)
+              ? data.recommendation.join("\n")
+              : data.recommendation || ""
+          }
+          readOnly
+        />
 
-      <textarea
-        rows={4}
-        placeholder="Recommendation..."
-        value={data.recommendation || ""}
-        onChange={(e)=>
-          setValue(
-            "recommendation",
-            e.target.value
-          )
-        }
-      />
+      </section>
 
     </div>
 

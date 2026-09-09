@@ -1,10 +1,7 @@
-import "./PrintStyles.css";
+import "../../styles/printing/printing.css";
 
 import LetterHead from "./LetterHead";
-import PatientInfoSection from "./PatientInfoSection";
-import DepartmentTitle from "./DepartmentTitle";
-import TestTitle from "./TestTitle";
-import InterpretationSection from "./InterpretationSection";
+import PatientHeader from "./PatientHeader";
 import SignatureSection from "./SignatureSection";
 import VerificationSection from "./VerificationSection";
 import PrintFooter from "./PrintFooter";
@@ -25,40 +22,16 @@ export default function ReportWrapper({
      CURRENT REPORT
   ====================================================== */
 
-  const report = results?.[0] || {};
+  const report = results?.[0] ?? {};
 
-const hasResults = results.length > 0;
+  const hasResults = results.length > 0;
 
   /* ======================================================
-   PRINT MODES
-====================================================== */
+     PRINT MODES
+  ====================================================== */
 
-const isLetterHead = printMode === "letterhead";
-
-const isPortal = printMode === "portal";
-
-const isRecord = printMode === "record";
-
-const isPDF = printMode === "pdf";
-
-const isFull = printMode === "full";
-
-/* ======================================================
-   DISPLAY RULES
-====================================================== */
-
-// Internal / Portal / PDF use the printed PEFA letterhead
-
-// Result Records leave blank space for
-// the laboratory's pre-printed letterhead
-
-// Everything else is always shown
-const showPatientInfo = true;
-const showReportBody = true;
-const showSignature = true;
-const showVerification = true;
-const showFooter = !isRecord;
-const showWatermark = isPDF;
+  const isRecord = printMode === "record";
+  const isPDF = printMode === "pdf";
 
   /* ======================================================
      PAGE
@@ -66,135 +39,92 @@ const showWatermark = isPDF;
 
   return (
 
-    <div
-      id="print-root"
-      className={`report-page ${printMode}`}
-    >
+    <article className={`report-page ${printMode}`}>
 
       {/* ==================================================
-    LETTERHEAD / PREPRINTED SPACE
-================================================== */}
-
-<LetterHead hidden={isRecord} />
-
-      {/* ==================================================
-          PATIENT INFORMATION
+          LETTERHEAD
       ================================================== */}
 
-      {showPatientInfo && (
+      <div className="report-header-space">
 
-        <PatientInfoSection
+        {!isRecord && <LetterHead />}
 
-          patient={patient}
-
-          report={report}
-
-        />
-
-      )}
+      </div>
 
       {/* ==================================================
           REPORT BODY
       ================================================== */}
 
-      {showReportBody && (
+      <main className="report-body">
 
-        <main className="report-body">
+        {/* ==============================================
+            PATIENT INFORMATION
+        ============================================== */}
 
-          {/* ==============================================
-              REPORT HEADING
-          ============================================== */}
+        <section className="patient-section">
 
-          <section className="report-heading">
+          <PatientHeader
+            patient={patient}
+            results={results}
+          />
 
-            <DepartmentTitle
+        </section>
 
-              report={report}
+        {/* ==============================================
+            REPORT CONTENT
+        ============================================== */}
 
-            />
+        <section className="report-content compact">
 
-            <TestTitle
+          {children}
 
-              report={report}
+        </section>
 
-            />
+        {/* ==============================================
+            SIGNATURE
+        ============================================== */}
 
-          </section>
+        {hasResults && (
 
-          {/* ==============================================
-              RESULT
-          ============================================== */}
+          <SignatureSection
+            report={report}
+          />
 
-          <section className="report-content">
+        )}
 
-            {children}
+        {/* ==============================================
+            VERIFICATION
+        ============================================== */}
 
-          </section>
+        {hasResults && (
 
-          {/* ==============================================
-              INTERPRETATION / IMPRESSION
-          ============================================== */}
+          <VerificationSection
+            report={report}
+          />
 
-          {hasResults && (
+        )}
 
-  <InterpretationSection
-
-    report={report}
-
-  />
-
-)}
-
-        </main>
-
-      )}
-
-      {/* ==================================================
-          SIGNATURE
-      ================================================== */}
-
-{showSignature && hasResults && (
-
-  <SignatureSection
-
-    report={report}
-
-  />
-
-)}
-      {/* ==================================================
-          VERIFICATION
-      ================================================== */}
-
-      {showVerification && hasResults && (
-
-  <VerificationSection
-
-    report={report}
-
-  />
-
-)}
+      </main>
 
       {/* ==================================================
-          FOOTER
+          ENTERPRISE FOOTER
       ================================================== */}
 
-      {showFooter && (
+      <footer className="report-footer-space">
 
-        <PrintFooter
+        {!isRecord && (
 
-          showTagline
+          <PrintFooter />
 
-        />
+        )}
 
-      )}
+      </footer>
 
       {/* ==================================================
-          WATERMARK
+          PDF WATERMARK
       ================================================== */}
 
-      {showWatermark && (
+      {isPDF && (
 
         <div className="report-watermark">
 
@@ -204,7 +134,7 @@ const showWatermark = isPDF;
 
       )}
 
-    </div>
+    </article>
 
   );
 

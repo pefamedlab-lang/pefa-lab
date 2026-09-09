@@ -1,0 +1,431 @@
+/* ==========================================================
+   PEFA Medical Diagnostic Services
+   Enterprise Printing System
+========================================================== */
+
+/* ==========================================================
+   CORE MODULES
+========================================================== */
+
+@import "./01-print-engine.css";
+@import "./02-report-layout.css";
+
+/* ==========================================================
+   REPORT COMPONENTS
+========================================================== */
+
+@import "./03-letterhead.css";
+@import "./04-patient-header.css";
+@import "./05-section-titles.css";
+@import "./06-result-table.css";
+@import "./07-interpretation.css";
+@import "./08-signatures.css";
+@import "./09-verification.css";
+@import "./10-enterprise-footer.css";
+
+
+/* ==========================================================
+   GLOBAL
+========================================================== */
+
+*,
+*::before,
+*::after{
+
+    box-sizing:border-box;
+
+}
+
+html,
+body{
+
+    margin:0;
+    padding:0;
+
+    background:#ffffff;
+
+}
+
+
+/* ==========================================================
+   PAGE
+========================================================== */
+
+.report-page{
+
+    position:relative;
+
+    display:flex;
+    flex-direction:column;
+
+    width:100%;
+    max-width:100%;
+
+    min-height:297mm;
+
+    margin:0;
+    padding:0;
+
+    background:#ffffff;
+
+}
+
+
+/* ==========================================================
+   HEADER
+========================================================== */
+
+.report-header,
+.report-header-space{
+
+    width:100%;
+    max-width:100%;
+
+    margin:0;
+    padding:0;
+
+    flex-shrink:0;
+
+}
+
+
+/* ==========================================================
+   PATIENT SECTION
+========================================================== */
+
+.patient-section{
+
+    width:100%;
+    max-width:100%;
+
+    margin:0;
+    padding:0;
+
+    flex-shrink:0;
+
+}
+
+
+/* ==========================================================
+   REPORT BODY
+========================================================== */
+
+.report-body{
+
+    display:flex;
+    flex-direction:column;
+
+    flex:0 0 auto;
+
+    width:100%;
+    max-width:100%;
+    min-width:0;
+
+    margin:0;
+    padding:0;
+
+}
+
+
+/* ==========================================================
+   REPORT CONTENT
+========================================================== */
+
+.report-content{
+
+    display:flex;
+    flex-direction:column;
+
+    flex:0 0 auto;
+
+    width:100%;
+    max-width:100%;
+    min-width:0;
+
+    margin:0;
+    padding:0;
+
+}
+
+.report-content.compact{
+
+    margin:0;
+    padding:0;
+
+}
+
+.report-content > *{
+
+    width:100%;
+    max-width:100%;
+    min-width:0;
+
+}
+
+
+/* ==========================================================
+   REPORT ROOTS
+========================================================== */
+
+.chemistry-report,
+.haematology-report,
+.microbiology-report,
+.serology-report,
+.immunology-report,
+.histopathology-report,
+.parasitology-report,
+.bloodbank-report{
+
+    width:100%;
+    max-width:100%;
+    min-width:0;
+
+    margin:0;
+    padding:0;
+
+}
+
+
+/* ==========================================================
+   TABLES
+========================================================== */
+
+.report-content table,
+.result-table,
+.print-result-table{
+
+    width:100%;
+    max-width:100%;
+
+    margin:0;
+
+    border-collapse:collapse;
+    border-spacing:0;
+
+    table-layout:fixed;
+
+}
+
+.result-table,
+.print-result-table{
+
+    margin-top:2px;
+
+}
+
+.report-content th,
+.report-content td{
+
+    vertical-align:top;
+
+    white-space:normal;
+
+    word-break:break-word;
+    overflow-wrap:anywhere;
+
+}
+
+
+/* ==========================================================
+   INTERPRETATION
+========================================================== */
+
+.interpretation-section{
+
+    margin-top:6px;
+
+    page-break-inside:avoid;
+    break-inside:avoid;
+
+}
+
+
+/* ==========================================================
+   FOOTER
+========================================================== */
+
+.report-footer-space{
+
+    display:flex;
+    flex-direction:column;
+
+    width:100%;
+
+    margin-top:auto;
+
+    flex-shrink:0;
+
+    page-break-inside:avoid;
+    break-inside:avoid;
+
+}
+
+
+/* ==========================================================
+   FIXED COMPONENTS
+========================================================== */
+
+.signature-section,
+.verification-section,
+.enterprise-footer,
+.print-footer{
+
+    width:100%;
+
+    flex-shrink:0;
+
+    page-break-inside:avoid;
+    break-inside:avoid;
+
+}
+
+
+/* ==========================================================
+   MEDIA
+========================================================== */
+
+img,
+svg,
+canvas{
+
+    display:block;
+
+    max-width:100%;
+    height:auto;
+
+}
+
+
+/* ==========================================================
+   SCREEN
+========================================================== */
+
+@media screen{
+
+    .report-page{
+
+        overflow:visible;
+
+    }
+
+}
+
+
+/* ==========================================================
+   PRINT
+========================================================== */
+
+@media print{
+
+    html,
+    body{
+
+        margin:0;
+        padding:0;
+
+        width:210mm;
+
+        background:#ffffff;
+
+    }
+
+    .report-page{
+
+        width:210mm;
+        max-width:210mm;
+
+        min-height:297mm;
+
+        margin:0;
+        padding:0;
+
+        background:#ffffff;
+
+        overflow:visible;
+
+    }
+
+    .report-body,
+    .report-content{
+
+        width:100%;
+        max-width:100%;
+        min-width:0;
+
+    }
+
+    .chemistry-report,
+    .haematology-report,
+    .microbiology-report,
+    .serology-report,
+    .immunology-report,
+    .histopathology-report,
+    .parasitology-report,
+    .bloodbank-report{
+
+        width:100%;
+        max-width:100%;
+        min-width:0;
+
+    }
+
+    .report-content table,
+    .result-table,
+    .print-result-table{
+
+        width:100% !important;
+        max-width:100% !important;
+
+        table-layout:fixed !important;
+
+        border-collapse:collapse !important;
+        border-spacing:0 !important;
+
+    }
+
+    .report-content th,
+    .report-content td{
+
+        white-space:normal !important;
+
+        word-break:break-word !important;
+        overflow-wrap:anywhere !important;
+
+    }
+
+    thead{
+
+        display:table-header-group;
+
+    }
+
+    tfoot{
+
+        display:table-footer-group;
+
+    }
+
+    tr{
+
+        page-break-inside:avoid;
+        break-inside:avoid;
+
+    }
+
+    .report-footer-space{
+
+        margin-top:auto;
+
+    }
+
+    .signature-section,
+    .verification-section,
+    .enterprise-footer,
+    .print-footer{
+
+        page-break-inside:avoid;
+        break-inside:avoid;
+
+    }
+
+}

@@ -1,553 +1,522 @@
-* {
-  box-sizing: border-box;
+/* ==========================================================
+   HEMATOLOGY WORKSHEET (SCREEN ONLY)
+   PEFA Medical Diagnostic Services
+========================================================== */
+
+*,
+*::before,
+*::after{
+    box-sizing:border-box;
 }
 
-/* =========================
+
+/* ==========================================================
    PAGE
-========================= */
+========================================================== */
 
-.hematology-report {
-  padding: 30px;
+.hematology-report{
 
-  background: #f8fafc;
+    padding:30px;
 
-  min-height: 100vh;
+    min-height:100vh;
+
+    background:#F8FAFC;
+
 }
 
-/* =========================
+
+/* ==========================================================
    HEADER
-========================= */
+========================================================== */
 
-.report-header {
-  display: flex;
+.report-header{
 
-  justify-content: space-between;
+    display:flex;
 
-  align-items: center;
+    justify-content:space-between;
 
-  margin-bottom: 30px;
+    align-items:center;
 
-  gap: 20px;
+    gap:20px;
 
-  flex-wrap: wrap;
+    flex-wrap:wrap;
+
+    margin-bottom:30px;
+
 }
 
-.report-header h1 {
-  margin: 0 0 10px;
+.report-header h1{
 
-  font-size: 38px;
+    margin:0 0 10px;
 
-  color: #0f172a;
+    font-size:38px;
 
-  font-weight: 800;
+    font-weight:800;
+
+    color:#0F172A;
+
 }
 
-.report-header p {
-  margin: 0;
+.report-header p{
 
-  color: #64748b;
+    margin:0;
 
-  font-size: 15px;
+    font-size:15px;
+
+    color:#64748B;
+
 }
 
-/* =========================
-   STATUS BADGE
-========================= */
 
-.status-badge {
-  color: white;
+/* ==========================================================
+   STATUS
+========================================================== */
 
-  padding: 14px 22px;
+.status-badge{
 
-  border-radius: 999px;
+    padding:14px 22px;
 
-  font-size: 14px;
+    border-radius:999px;
 
-  font-weight: 700;
+    color:#fff;
+
+    font-size:14px;
+
+    font-weight:700;
+
 }
 
-/* =========================
-   PATIENT INFO
-========================= */
 
-.patient-info {
-  display: grid;
+/* ==========================================================
+   PATIENT
+========================================================== */
 
-  grid-template-columns:
-    repeat(
-      auto-fit,
-      minmax(220px, 1fr)
-    );
+.patient-info{
 
-  gap: 18px;
+    display:grid;
 
-  margin-bottom: 30px;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+
+    gap:18px;
+
+    margin-bottom:30px;
+
 }
 
-.patient-info div {
-  background: white;
+.patient-info div{
 
-  padding: 20px;
+    padding:20px;
 
-  border-radius: 20px;
+    background:#fff;
 
-  box-shadow:
-    0 10px 25px
-      rgba(
-        15,
-        23,
-        42,
-        0.05
-      );
+    border-radius:20px;
 
-  font-size: 15px;
+    box-shadow:0 10px 25px rgba(15,23,42,.05);
 
-  color: #334155;
+    font-size:15px;
+
+    color:#334155;
+
 }
 
-/* =========================
+
+/* ==========================================================
    PANEL
-========================= */
+========================================================== */
 
-.panel-section {
-  background: white;
+.panel-section{
 
-  border-radius: 28px;
+    padding:30px;
 
-  padding: 30px;
+    background:#fff;
 
-  box-shadow:
-    0 12px 30px
-      rgba(
-        15,
-        23,
-        42,
-        0.06
-      );
+    border-radius:28px;
+
+    box-shadow:0 12px 30px rgba(15,23,42,.06);
+
+    overflow-x:auto;
+
 }
 
-.panel-section h2 {
-  margin-top: 0;
+.panel-section h2{
 
-  margin-bottom: 24px;
+    margin:0 0 24px;
 
-  color: #0f172a;
+    font-size:28px;
 
-  font-size: 28px;
+    color:#0F172A;
+
 }
 
-/* =========================
-   TABLE
-========================= */
 
-table {
-  width: 100%;
+/* ==========================================================
+   DATA ENTRY TABLE
+========================================================== */
 
-  border-collapse: collapse;
+.panel-section table{
 
-  overflow: hidden;
+    width:100%;
 
-  border-radius: 20px;
+    border-collapse:collapse;
+
+    table-layout:auto;
+
 }
 
-thead {
-  background: #eff6ff;
+.panel-section thead{
+
+    background:#EFF6FF;
+
 }
 
-th {
-  padding: 18px;
+.panel-section th{
 
-  text-align: left;
+    padding:18px;
 
-  font-size: 14px;
+    text-align:left;
 
-  color: #334155;
+    font-size:14px;
 
-  font-weight: 700;
+    font-weight:700;
+
+    color:#334155;
+
 }
 
-td {
-  padding: 16px 18px;
+.panel-section td{
 
-  border-bottom:
-    1px solid #f1f5f9;
+    padding:16px 18px;
 
-  font-size: 14px;
+    border-bottom:1px solid #F1F5F9;
 
-  color: #334155;
+    font-size:14px;
+
+    color:#334155;
+
 }
 
-/* =========================
-   INPUT
-========================= */
 
-td input {
-  width: 100%;
+/* ==========================================================
+   INPUTS
+========================================================== */
 
-  padding: 12px 14px;
+.panel-section input{
 
-  border-radius: 14px;
+    width:100%;
 
-  border:
-    1px solid #cbd5e1;
+    padding:12px 14px;
 
-  outline: none;
+    border:1px solid #CBD5E1;
 
-  font-size: 14px;
+    border-radius:14px;
 
-  transition: 0.2s ease;
+    outline:none;
+
+    font-size:14px;
+
+    transition:.2s;
+
 }
 
-td input:focus {
-  border-color: #2563eb;
+.panel-section input:focus{
 
-  box-shadow:
-    0 0 0 4px
-      rgba(
-        37,
-        99,
-        235,
-        0.1
-      );
+    border-color:#2563EB;
+
+    box-shadow:0 0 0 4px rgba(37,99,235,.1);
+
 }
 
-/* =========================
-   ABNORMAL
-========================= */
 
-.abnormal-input {
-  border:
-    2px solid #dc2626 !important;
+/* ==========================================================
+   INPUT STATES
+========================================================== */
 
-  background: #fef2f2;
+.abnormal-input{
+
+    border:2px solid #DC2626 !important;
+
+    background:#FEF2F2;
+
 }
 
-/* =========================
-   CRITICAL INPUT
-========================= */
+.critical-input{
 
-.critical-input {
-  border:
-    3px solid #991b1b !important;
+    border:3px solid #991B1B !important;
 
-  background: #7f1d1d !important;
+    background:#7F1D1D !important;
 
-  color: white !important;
+    color:#fff !important;
 
-  font-weight: 700;
+    font-weight:700;
 
-  animation:
-    pulseCritical 1s infinite;
+    animation:pulseCritical 1s infinite;
+
 }
 
-@keyframes pulseCritical {
-  0% {
-    transform: scale(1);
-  }
+@keyframes pulseCritical{
 
-  50% {
-    transform: scale(
-      1.02
-    );
-  }
+    0%{transform:scale(1);}
 
-  100% {
-    transform: scale(1);
-  }
+    50%{transform:scale(1.02);}
+
+    100%{transform:scale(1);}
+
 }
 
-/* =========================
+
+/* ==========================================================
    FLAGS
-========================= */
+========================================================== */
 
-.flag-high {
-  color: #dc2626;
+.flag-high{
 
-  font-weight: 700;
+    color:#DC2626;
+
+    font-weight:700;
+
 }
 
-.flag-normal {
-  color: #16a34a;
+.flag-normal{
 
-  font-weight: 700;
+    color:#16A34A;
+
+    font-weight:700;
+
 }
 
-.flag-critical {
-  color: #991b1b;
+.flag-critical{
 
-  font-weight: 800;
+    display:inline-block;
 
-  background: #fee2e2;
+    padding:8px 12px;
 
-  padding: 8px 12px;
+    border-radius:999px;
 
-  border-radius: 999px;
+    background:#FEE2E2;
 
-  display: inline-block;
+    color:#991B1B;
+
+    font-weight:800;
+
 }
 
-/* =========================
-   CRITICAL ALERT
-========================= */
 
-.critical-alert {
-  margin-bottom: 28px;
-
-  background:
-    linear-gradient(
-      135deg,
-      #991b1b,
-      #dc2626
-    );
-
-  color: white;
-
-  padding: 24px;
-
-  border-radius: 22px;
-
-  box-shadow:
-    0 12px 30px
-      rgba(
-        220,
-        38,
-        38,
-        0.25
-      );
-}
-
-.critical-alert h3 {
-  margin-top: 0;
-
-  margin-bottom: 14px;
-
-  font-size: 24px;
-}
-
-.critical-alert ul {
-  margin: 0;
-
-  padding-left: 22px;
-}
-
-.critical-alert li {
-  margin-bottom: 10px;
-
-  line-height: 1.7;
-}
-
-/* =========================
+/* ==========================================================
    INTERPRETATION
-========================= */
+========================================================== */
 
-.interpretation-box {
-  margin-top: 30px;
+.interpretation-box{
 
-  background: #f8fafc;
+    margin-top:30px;
 
-  border-left:
-    5px solid #2563eb;
+    padding:24px;
 
-  padding: 24px;
+    border-left:5px solid #2563EB;
 
-  border-radius: 18px;
+    border-radius:18px;
+
+    background:#F8FAFC;
+
 }
 
-.interpretation-box h3 {
-  margin-top: 0;
 
-  margin-bottom: 18px;
+/* ==========================================================
+   COMMENTS
+========================================================== */
 
-  color: #0f172a;
+.comment-section{
 
-  font-size: 22px;
+    margin-top:28px;
+
 }
 
-.interpretation-box ul {
-  margin: 0;
+.comment-section textarea{
 
-  padding-left: 20px;
+    width:100%;
+
+    min-height:130px;
+
+    padding:18px;
+
+    border:1px solid #CBD5E1;
+
+    border-radius:18px;
+
+    resize:vertical;
+
 }
 
-.interpretation-box li {
-  margin-bottom: 12px;
 
-  color: #334155;
-
-  line-height: 1.7;
-}
-
-/* =========================
-   COMMENT SECTION
-========================= */
-
-.comment-section {
-  margin-top: 28px;
-}
-
-.comment-section label {
-  display: block;
-
-  margin-bottom: 12px;
-
-  font-weight: 700;
-
-  color: #0f172a;
-}
-
-.comment-section textarea {
-  width: 100%;
-
-  min-height: 130px;
-
-  padding: 18px;
-
-  border-radius: 18px;
-
-  border:
-    1px solid #cbd5e1;
-
-  outline: none;
-
-  resize: vertical;
-
-  font-size: 14px;
-
-  line-height: 1.7;
-
-  transition: 0.2s ease;
-}
-
-.comment-section textarea:focus {
-  border-color: #2563eb;
-
-  box-shadow:
-    0 0 0 4px
-      rgba(
-        37,
-        99,
-        235,
-        0.1
-      );
-}
-
-/* =========================
+/* ==========================================================
    ACTIONS
-========================= */
+========================================================== */
 
-.workflow-actions {
-  display: flex;
+.workflow-actions{
 
-  flex-wrap: wrap;
+    display:flex;
 
-  gap: 16px;
+    flex-wrap:wrap;
 
-  margin-top: 30px;
+    gap:16px;
+
+    margin-top:30px;
+
 }
 
 .save-btn,
 .preview-btn,
-.authorize-btn {
-  border: none;
+.authorize-btn{
 
-  padding: 16px 24px;
+    display:flex;
 
-  border-radius: 18px;
+    align-items:center;
 
-  color: white;
+    justify-content:center;
 
-  font-size: 14px;
+    gap:10px;
 
-  font-weight: 700;
+    padding:16px 24px;
 
-  cursor: pointer;
+    border:none;
 
-  transition: 0.2s ease;
+    border-radius:18px;
 
-  display: flex;
+    color:#fff;
 
-  align-items: center;
+    font-size:14px;
 
-  gap: 10px;
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:.2s;
+
 }
 
-.save-btn {
-  background:
-    linear-gradient(
-      135deg,
-      #2563eb,
-      #7c3aed
-    );
+.save-btn{
+
+    background:linear-gradient(135deg,#2563EB,#7C3AED);
+
 }
 
-.preview-btn {
-  background:
-    linear-gradient(
-      135deg,
-      #0f766e,
-      #14b8a6
-    );
+.preview-btn{
+
+    background:linear-gradient(135deg,#0F766E,#14B8A6);
+
 }
 
-.authorize-btn {
-  background:
-    linear-gradient(
-      135deg,
-      #ea580c,
-      #f59e0b
-    );
+.authorize-btn{
+
+    background:linear-gradient(135deg,#EA580C,#F59E0B);
+
 }
 
 .save-btn:hover,
 .preview-btn:hover,
-.authorize-btn:hover {
-  transform: translateY(-2px);
+.authorize-btn:hover{
+
+    transform:translateY(-2px);
+
 }
 
-/* =========================
+
+/* ==========================================================
    MESSAGE
-========================= */
+========================================================== */
 
-.save-message {
-  margin-top: 24px;
+.save-message{
 
-  padding: 18px;
+    margin-top:24px;
 
-  border-radius: 18px;
+    padding:18px;
 
-  background: #dcfce7;
+    border-radius:18px;
 
-  color: #166534;
+    background:#DCFCE7;
 
-  font-weight: 600;
+    color:#166534;
+
+    font-weight:600;
+
 }
 
-/* =========================
+
+/* ==========================================================
    MOBILE
-========================= */
+========================================================== */
 
-@media (max-width: 900px) {
-  .hematology-report {
-    padding: 20px;
-  }
+@media (max-width:900px){
 
-  .panel-section {
-    overflow-x: auto;
-  }
+    .hematology-report{
 
-  table {
-    min-width: 900px;
-  }
+        padding:20px;
 
-  .workflow-actions {
-    flex-direction: column;
-  }
+    }
 
-  .save-btn,
-  .preview-btn,
-  .authorize-btn {
-    width: 100%;
+    .panel-section table{
 
-    justify-content: center;
-  }
+        min-width:900px;
+
+    }
+
+    .workflow-actions{
+
+        flex-direction:column;
+
+    }
+
+    .save-btn,
+    .preview-btn,
+    .authorize-btn{
+
+        width:100%;
+
+    }
+
+}
+
+
+/* ==========================================================
+   PRINT
+   The enterprise print system controls all report styling.
+========================================================== */
+
+@media print{
+
+    .hematology-report{
+
+        padding:0 !important;
+
+        background:#FFFFFF !important;
+
+        min-height:auto !important;
+
+    }
+
+    .panel-section{
+
+        padding:0 !important;
+
+        margin:0 !important;
+
+        border-radius:0 !important;
+
+        box-shadow:none !important;
+
+        overflow:visible !important;
+
+        background:transparent !important;
+
+    }
+
+    /*
+      IMPORTANT:
+      Do NOT style tables here.
+
+      The enterprise print engine
+      (06-result-table.css)
+      completely controls
+      .print-result-table.
+    */
+
 }

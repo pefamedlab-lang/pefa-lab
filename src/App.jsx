@@ -1,3 +1,4 @@
+
 import {
   BrowserRouter,
   Routes,
@@ -6,115 +7,95 @@ import {
 } from "react-router-dom";
 
 import ProtectedRoute from "./Pages/ProtectedRoute";
-
-/* =====================================================
-   LAYOUT
-===================================================== */
-
 import DashboardLayout from "./Pages/DashboardLayout";
 
-/* =====================================================
-   PUBLIC PAGES
-===================================================== */
+// ============================================================
+// PUBLIC
+// ============================================================
 
 import HomePage from "./Pages/HomePage";
 import LoginPortal from "./Pages/LoginPortal";
 import PatientResultPortal from "./Pages/PatientResultPortal";
 
-/* =====================================================
-   MAIN DASHBOARD
-===================================================== */
+// ============================================================
+// MAIN DASHBOARD
+// ============================================================
 
 import Dashboard from "./Pages/Dashboard";
 
-/* =====================================================
-   LAB MODULES
-===================================================== */
+// ============================================================
+// REGISTRATION / PAYMENT / INVOICE
+// ============================================================
 
 import RegistrationPortal from "./Pages/RegistrationPortal";
 import PaymentPortal from "./Pages/PaymentPortal";
-import ResultDashboard from "./Pages/ResultDashboard";
-import ResultRecords from "./Pages/ResultRecords";
+import InvoicePrint from "./Pages/InvoicePrint";
 import RegistrationRecords from "./Pages/RegistrationRecords";
+
+
+// ============================================================
+// LABORATORY
+// ============================================================
+
+import LaboratoryResultDashboard from "./pages/laboratory/LaboratoryResultDashboard";
+import LaboratoryResultEntry from "./pages/laboratory/LaboratoryResultEntry";
 import TestControlPortal from "./Pages/TestControlPortal";
-import HematologyDashboard from "./Pages/HematologyDashboard";
-import ChemistryDashboard from "./Pages/ChemistryDashboard";
-import MicrobiologyDashboard from "./Pages/MicrobiologyDashboard";
 import SpecimenTracking from "./Pages/SpecimenTracking";
-import AuditTrail
-from "./Pages/AuditTrail";
-import InventoryTransactions
-from "./Pages/InventoryTransactions";
-import QualityControl
-from "./Pages/QualityControl";
-import EquipmentManagement
-from "./Pages/EquipmentManagement";
-import TemperatureMonitoring
-from "./Pages/TemperatureMonitoring";
-import MaintenanceHistory
-from "./Pages/MaintenanceHistory";
-import FinanceDashboard
-from "./Pages/FinanceDashboard";
-import PaymentHistory
-from "./Pages/PaymentHistory";
-import PatientFinanceHistory
-from "./Pages/PatientFinanceHistory";
-import LetterHeadPortal
-from "./Pages/LetterHeadPortal";
 
+// ============================================================
+// QUALITY / EQUIPMENT
+// ============================================================
 
-/* =====================================================
-   ULTRASOUND
-===================================================== */
+import AuditTrail from "./Pages/AuditTrail";
+import InventoryTransactions from "./Pages/InventoryTransactions";
+import QualityControl from "./Pages/QualityControl";
+import EquipmentManagement from "./Pages/EquipmentManagement";
+import TemperatureMonitoring from "./Pages/TemperatureMonitoring";
+import MaintenanceHistory from "./Pages/MaintenanceHistory";
 
-import UltrasoundRegistration
-from "./Pages/UltrasoundRegistration";
+// ============================================================
+// FINANCE
+// ============================================================
+
+import FinanceDashboard from "./Pages/FinanceDashboard";
+import PaymentHistory from "./Pages/PaymentHistory";
+import PatientFinanceHistory from "./Pages/PatientFinanceHistory";
+import LetterHeadPortal from "./Pages/LetterHeadPortal";
+import ExpensePortal from "./Pages/ExpensePortal";
+import IncomePortal from "./Pages/IncomePortal";
+import FinancialReports from "./Pages/FinancialReports";
+import FinanceAnalytics from "./Pages/FinanceAnalytics";
+
+// ============================================================
+// ULTRASOUND
+// ============================================================
+
 import UltrasoundResultDashboard from "./Pages/UltrasoundResultDashboard";
-import UltrasoundRecords
-from "./Pages/UltrasoundRecords";
-import UltrasoundAnalytics
-from "./Pages/UltrasoundAnalytics";
+import UltrasoundRecords from "./Pages/UltrasoundRecords";
+import UltrasoundAnalytics from "./Pages/UltrasoundAnalytics";
+import UltrasoundReportPrint from "./Pages/UltrasoundReportPrint";
 
-/* =====================================================
-   ENTERPRISE MODULES
-===================================================== */
+// ============================================================
+// ENTERPRISE
+// ============================================================
 
 import ReferralDashboard from "./Pages/ReferralDashboard";
 import InventoryDashboard from "./Pages/InventoryDashboard";
 import StaffManagementDashboard from "./Pages/StaffManagementDashboard";
+import RolePermissionManager from "./Pages/RolePermissionManager";
 
-import ExpensePortal
-from "./Pages/ExpensePortal";
-
-import IncomePortal
-from "./Pages/IncomePortal";
-
-import FinancialReports
-from "./Pages/FinancialReports";
-
-import FinanceAnalytics
-from "./Pages/FinanceAnalytics";
-
-import RolePermissionManager
-from "./Pages/RolePermissionManager";
-
-
-
-/* =====================================================
-   APP
-===================================================== */
+// ============================================================
+// APP
+// ============================================================
 
 export default function App() {
-
   return (
-
     <BrowserRouter>
-
       <Routes>
 
-        {/* =====================================================
+        {/* ======================================================
             PUBLIC ROUTES
-        ===================================================== */}
+        ====================================================== */}
 
         <Route
           path="/"
@@ -131,84 +112,99 @@ export default function App() {
           element={<PatientResultPortal />}
         />
 
-        {/* =====================================================
-            PROTECTED DASHBOARD LAYOUT
-        ===================================================== */}
+        {/* ======================================================
+            PROTECTED APPLICATION
+        ====================================================== */}
 
         <Route
           element={
-
             <ProtectedRoute>
-
               <DashboardLayout />
-
             </ProtectedRoute>
           }
         >
 
-          {/* =====================================================
+          {/* ====================================================
               DASHBOARD
-          ===================================================== */}
+          ==================================================== */}
 
           <Route
             path="/dashboard"
             element={<Dashboard />}
           />
 
-          {/* =====================================================
+          {/* ====================================================
               REGISTRATION
-          ===================================================== */}
+          ==================================================== */}
 
           <Route
             path="/registration"
             element={
-
               <ProtectedRoute
-               allowedRoles={[
-  "Receptionist",
-  "Manager",
-  "Director",
-  "Admin",
-]}
+                allowedRoles={[
+                  "Receptionist",
+                  "Manager",
+                  "Director",
+                  "Admin",
+                ]}
               >
-
                 <RegistrationPortal />
-
               </ProtectedRoute>
             }
           />
 
-          {/* =====================================================
-              PAYMENT
-          ===================================================== */}
+          {/* ====================================================
+              PAYMENT PORTAL
+              
+              RegistrationPortal should navigate to:
+              /payment-portal?order_id=ORDER_ID
+          ==================================================== */}
 
           <Route
             path="/payment-portal"
             element={
-
               <ProtectedRoute
                 allowedRoles={[
-  "Receptionist",
-  "Manager",
-  "Director",
-  "Admin",
-]}
+                  "Receptionist",
+                  "Cashier",
+                  "Manager",
+                  "Director",
+                  "Admin",
+                ]}
               >
-
                 <PaymentPortal />
-
               </ProtectedRoute>
             }
           />
 
-          {/* =====================================================
+          {/* ====================================================
+              INVOICE
+          ==================================================== */}
+
+          <Route
+            path="/invoice"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "Receptionist",
+                  "Cashier",
+                  "Manager",
+                  "Director",
+                  "Admin",
+                ]}
+              >
+                <InvoicePrint />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ====================================================
               REGISTRATION RECORDS
-          ===================================================== */}
+          ==================================================== */}
 
           <Route
             path="/registration-records"
             element={
-
               <ProtectedRoute
                 allowedRoles={[
                   "Receptionist",
@@ -216,546 +212,448 @@ export default function App() {
                   "Admin",
                 ]}
               >
-
                 <RegistrationRecords />
-
               </ProtectedRoute>
             }
           />
 
-          {/* =====================================================
-              RESULT DASHBOARD
-          ===================================================== */}
+        {/* ====================================================
+    LABORATORY RESULT DASHBOARD
+==================================================== */}
 
-          <Route
-            path="/result-dashboard"
-            element={
+<Route
+  path="/result-dashboard"
+  element={
+    <ProtectedRoute
+      allowedRoles={[
+        "Scientist",
+        "Manager",
+        "Director",
+        "Admin",
+      ]}
+    >
+      <LaboratoryResultDashboard />
+    </ProtectedRoute>
+  }
+/>
 
-              <ProtectedRoute
-                allowedRoles={[
-  "Scientist",
-  "Manager",
-  "Director",
-  "Admin",
-]}
-              >
+{/* Backward-compatible legacy route */}
+<Route
+  path="/laboratory-results"
+  element={
+    <ProtectedRoute
+      allowedRoles={[
+        "Scientist",
+        "Manager",
+        "Director",
+        "Admin",
+      ]}
+    >
+      <LaboratoryResultDashboard />
+    </ProtectedRoute>
+  }
+/>
 
-                <ResultDashboard />
+<Route
+  path="/laboratory-result-entry"
+  element={
+    <ProtectedRoute
+      allowedRoles={[
+        "Scientist",
+        "Manager",
+        "Director",
+        "Admin",
+      ]}
+    >
+      <LaboratoryResultEntry />
+    </ProtectedRoute>
+  }
+/>
 
-              </ProtectedRoute>
-            }
-          />
-
-          {/* =====================================================
-              RESULT RECORDS
-          ===================================================== */}
-
-          <Route
-            path="/result-records"
-            element={
-
-              <ProtectedRoute
-               allowedRoles={[
-  "Scientist",
-  "Manager",
-  "Director",
-  "Admin",
-]}
-              >
-
-                <ResultRecords />
-
-              </ProtectedRoute>
-            }
-          />
-
-          {/* =====================================================
-              SPECIMEN TRACKING
-          ===================================================== */}
+         
 
           <Route
             path="/specimen-tracking"
             element={
-
               <ProtectedRoute
                 allowedRoles={[
                   "Scientist",
                   "Admin",
                 ]}
               >
-
                 <SpecimenTracking />
-
               </ProtectedRoute>
             }
           />
-
-          {/* =====================================================
-              TEST CONTROL
-          ===================================================== */}
 
           <Route
             path="/test-control"
             element={
-
               <ProtectedRoute
                 allowedRoles={[
-                   "Director",
+                  "Director",
                   "Admin",
                 ]}
               >
-
                 <TestControlPortal />
-
               </ProtectedRoute>
             }
           />
 
-          {/* =====================================================
-              HEMATOLOGY
-          ===================================================== */}
+          {/* ====================================================
+              ULTRASOUND
+          ==================================================== */}
 
           <Route
-            path="/hematology"
+            path="/ultrasound-results"
             element={
-
               <ProtectedRoute
                 allowedRoles={[
-  "Scientist",
-  "Manager",
-  "Director",
-  "Admin",
-]}
+                  "Radiologist",
+                  "Director",
+                  "Admin",
+                ]}
               >
-
-                <HematologyDashboard />
-
+                <UltrasoundResultDashboard />
               </ProtectedRoute>
             }
           />
 
-          {/* =====================================================
-              CHEMISTRY
-          ===================================================== */}
-
           <Route
-            path="/chemistry"
+            path="/ultrasound-records"
             element={
-
-              <ProtectedRoute
-               allowedRoles={[
-  "Scientist",
-  "Manager",
-  "Director",
-  "Admin",
-]}
-              >
-
-                <ChemistryDashboard />
-
-              </ProtectedRoute>
-            }
-          />
-
-          {/* =====================================================
-              MICROBIOLOGY
-          ===================================================== */}
-
-          <Route
-            path="/microbiology"
-            element={
-
               <ProtectedRoute
                 allowedRoles={[
-  "Scientist",
-  "Manager",
-  "Director",
-  "Admin",
-]}
+                  "Radiologist",
+                  "Sonographer",
+                  "Director",
+                  "Admin",
+                ]}
               >
-
-                <MicrobiologyDashboard />
-
+                <UltrasoundRecords />
               </ProtectedRoute>
             }
           />
 
-          {/* =====================================================
-              ULTRASOUND REGISTRATION
-          ===================================================== */}
+          <Route
+            path="/ultrasound-report"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "Radiologist",
+                  "Director",
+                  "Admin",
+                ]}
+              >
+                <UltrasoundReportPrint />
+              </ProtectedRoute>
+            }
+          />
 
           <Route
+            path="/ultrasound-analytics"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "Radiologist",
+                  "Director",
+                  "Admin",
+                ]}
+              >
+                <UltrasoundAnalytics />
+              </ProtectedRoute>
+            }
+          />
 
-  path="/ultrasound-registration"
+          {/* ====================================================
+              FINANCE
+          ==================================================== */}
 
-  element={
+          <Route
+            path="/finance"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "Manager",
+                  "Director",
+                  "Admin",
+                ]}
+              >
+                <FinanceDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-    <ProtectedRoute
+          <Route
+            path="/finance-analytics"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "Manager",
+                  "Director",
+                  "Admin",
+                ]}
+              >
+                <FinanceAnalytics />
+              </ProtectedRoute>
+            }
+          />
 
-      allowedRoles={[
+          <Route
+            path="/payment-history"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "Manager",
+                  "Director",
+                  "Admin",
+                ]}
+              >
+                <PaymentHistory />
+              </ProtectedRoute>
+            }
+          />
 
-        "Receptionist",
+          <Route
+            path="/patient-finance-history"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "Manager",
+                  "Director",
+                  "Admin",
+                ]}
+              >
+                <PatientFinanceHistory />
+              </ProtectedRoute>
+            }
+          />
 
-        "Director",
+          <Route
+            path="/income"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "Manager",
+                  "Director",
+                  "Admin",
+                ]}
+              >
+                <IncomePortal />
+              </ProtectedRoute>
+            }
+          />
 
-        "Admin",
+          <Route
+            path="/expenses"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "Manager",
+                  "Director",
+                  "Admin",
+                ]}
+              >
+                <ExpensePortal />
+              </ProtectedRoute>
+            }
+          />
 
-      ]}
+          <Route
+            path="/financial-reports"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "Manager",
+                  "Director",
+                  "Admin",
+                ]}
+              >
+                <FinancialReports />
+              </ProtectedRoute>
+            }
+          />
 
-    >
+          <Route
+            path="/letterhead"
+            element={<LetterHeadPortal />}
+          />
 
-      <UltrasoundRegistration />
+          {/* ====================================================
+              REFERRALS
+          ==================================================== */}
 
-    </ProtectedRoute>
+          <Route
+            path="/referrals"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "Manager",
+                  "Director",
+                  "Admin",
+                ]}
+              >
+                <ReferralDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-  }
-
-/>
-
-          {/* =====================================================
-              ULTRASOUND RESULTS
-          ===================================================== */}
-
-         <Route
-  path="/ultrasound-results"
-  element={
-    <ProtectedRoute
-      allowedRoles={[
-        "Radiologist",
-        "Director",
-        "Admin",
-      ]}
-    >
-      <UltrasoundResultDashboard />
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/ultrasound-records"
-  element={
-    <ProtectedRoute
-      allowedRoles={[
-        "Radiologist",
-        "Director",
-        "Admin",
-      ]}
-    >
-      <UltrasoundRecords />
-    </ProtectedRoute>
-  }
-/>
-
-          {/* =====================================================
-              ULTRASOUND ANALYTICS
-          ===================================================== */}
-
-         <Route
-
-  path="/ultrasound-analytics"
-
-  element={
-
-    <ProtectedRoute
-
-      allowedRoles={[
-
-        "Radiologist",
-        "Director",
-        "Admin",
-
-      ]}
-
-    >
-
-      <UltrasoundAnalytics />
-
-    </ProtectedRoute>
-
-  }
-
-/>
-
-<Route
-  path="/finance"
-  element={
-    <ProtectedRoute
-      allowedRoles={[
-        "Manager",
-        "Director",
-        "Admin",
-      ]}
-    >
-      <FinanceDashboard />
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/finance-analytics"
-  element={
-    <ProtectedRoute
-      allowedRoles={[
-        "Manager",
-        "Director",
-        "Admin",
-      ]}
-    >
-      <FinanceAnalytics />
-    </ProtectedRoute>
-  }
-/>
-
-          {/* =====================================================
-              REFERRAL DASHBOARD
-          ===================================================== */}
-
-        <Route
-  path="/referrals"
-  element={
-    <ProtectedRoute
-      allowedRoles={[
-        "Manager",
-        "Director",
-        "Admin",
-      ]}
-    >
-      <ReferralDashboard />
-    </ProtectedRoute>
-  }
-/>
-
-         
-          {/* =====================================================
+          {/* ====================================================
               INVENTORY
-          ===================================================== */}
+          ==================================================== */}
 
           <Route
             path="/inventory"
             element={
-
               <ProtectedRoute
-               allowedRoles={[
-  "Manager",
-  "Director",
-  "Admin",
-]}
+                allowedRoles={[
+                  "Manager",
+                  "Director",
+                  "Admin",
+                ]}
               >
-
                 <InventoryDashboard />
-
               </ProtectedRoute>
             }
           />
 
-<Route
-  path="/payment-history"
-  element={
-    <ProtectedRoute
-      allowedRoles={[
-        "Manager",
-        "Director",
-        "Admin",
-      ]}
-    >
-      <PaymentHistory />
-    </ProtectedRoute>
-  }
-/>
+          <Route
+            path="/inventory-transactions"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "Manager",
+                  "Director",
+                  "Admin",
+                ]}
+              >
+                <InventoryTransactions />
+              </ProtectedRoute>
+            }
+          />
 
-<Route
-  path="/patient-finance-history"
-  element={
-    <ProtectedRoute
-      allowedRoles={[
-        "Manager",
-        "Director",
-        "Admin",
-      ]}
-    >
-      <PatientFinanceHistory />
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/income"
-  element={
-    <ProtectedRoute
-      allowedRoles={[
-        "Manager",
-        "Director",
-        "Admin",
-      ]}
-    >
-      <IncomePortal />
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/expenses"
-  element={
-    <ProtectedRoute
-      allowedRoles={[
-        "Manager",
-        "Director",
-        "Admin",
-      ]}
-    >
-      <ExpensePortal />
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/financial-reports"
-  element={
-    <ProtectedRoute
-      allowedRoles={[
-        "Manager",
-        "Director",
-        "Admin",
-      ]}
-    >
-      <FinancialReports />
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/letterhead"
-  element={<LetterHeadPortal />}
-/>
-
-
- {/* =====================================================
+          {/* ====================================================
               STAFF MANAGEMENT
-          ===================================================== */}
+          ==================================================== */}
 
           <Route
             path="/staff-management"
             element={
-
               <ProtectedRoute
                 allowedRoles={[
-    "Director",
-  "Admin",
-]}
+                  "Director",
+                  "Admin",
+                ]}
               >
-
                 <StaffManagementDashboard />
+              </ProtectedRoute>
+            }
+          />
 
+          <Route
+            path="/role-permissions"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "Admin",
+                ]}
+              >
+                <RolePermissionManager />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ====================================================
+              AUDIT
+          ==================================================== */}
+
+          <Route
+            path="/audit-trail"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "Director",
+                  "Admin",
+                ]}
+              >
+                <AuditTrail />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ====================================================
+              QUALITY / EQUIPMENT
+          ==================================================== */}
+
+          <Route
+            path="/quality-control"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "Scientist",
+                  "Manager",
+                  "Director",
+                  "Admin",
+                ]}
+              >
+                <QualityControl />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/equipment"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "Scientist",
+                  "Manager",
+                  "Director",
+                  "Admin",
+                ]}
+              >
+                <EquipmentManagement />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/maintenance-history"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "Scientist",
+                  "Manager",
+                  "Director",
+                  "Admin",
+                ]}
+              >
+                <MaintenanceHistory />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/temperature-monitoring"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "Scientist",
+                  "Manager",
+                  "Director",
+                  "Admin",
+                ]}
+              >
+                <TemperatureMonitoring />
               </ProtectedRoute>
             }
           />
 
         </Route>
 
-<Route
-  path="/role-permissions"
-  element={
-    <RolePermissionManager />
-  }
-/>
-
-<Route
-  path="/audit-trail"
-  element={
-    <ProtectedRoute
-      allowedRoles={[
-        "Director",
-        "Admin",
-      ]}
-    >
-      <AuditTrail />
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/inventory-transactions"
-  element={
-    <ProtectedRoute
-      allowedRoles={[
-        "Manager",
-        "Director",
-        "Admin",
-      ]}
-    >
-      <InventoryTransactions />
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/quality-control"
-  element={
-    <ProtectedRoute
-      allowedRoles={[
-        "Scientist",
-        "Manager",
-        "Director",
-        "Admin",
-      ]}
-    >
-      <QualityControl />
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/equipment"
-  element={
-    <ProtectedRoute
-      allowedRoles={[
-        "Scientist",
-        "Manager",
-        "Director",
-        "Admin",
-      ]}
-    >
-      <EquipmentManagement />
-    </ProtectedRoute>
-  }
-/>
-
-<Route
-  path="/maintenance-history"
-  element={
-    <ProtectedRoute
-      allowedRoles={[
-        "Scientist",
-        "Manager",
-        "Director",
-        "Admin",
-      ]}
-    >
-      <MaintenanceHistory />
-    </ProtectedRoute>
-  }
-/>
-
-
-<Route
-  path="/temperature-monitoring"
-  element={
-    <ProtectedRoute
-      allowedRoles={[
-        "Scientist",
-        "Manager",
-        "Director",
-        "Admin",
-      ]}
-    >
-      <TemperatureMonitoring />
-    </ProtectedRoute>
-  }
-/>
-
-        {/* =====================================================
+        {/* ======================================================
             FALLBACK
-        ===================================================== */}
+        ====================================================== */}
 
         <Route
           path="*"
@@ -768,8 +666,6 @@ export default function App() {
         />
 
       </Routes>
-
     </BrowserRouter>
-
   );
 }

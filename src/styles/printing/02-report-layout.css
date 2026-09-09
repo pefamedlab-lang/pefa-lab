@@ -1,0 +1,431 @@
+/* ==========================================================
+   MODULE 02
+   REPORT LAYOUT
+   PEFA Medical Diagnostic Services
+========================================================== */
+
+
+/* ==========================================================
+   SHARED DIMENSIONS
+========================================================== */
+
+:root{
+
+    --page-width:210mm;
+    --page-height:297mm;
+
+    --letterhead-height:34mm;
+    --record-footer-height:40mm;
+
+}
+
+
+/* ==========================================================
+   GLOBAL
+========================================================== */
+
+*,
+*::before,
+*::after{
+
+    box-sizing:border-box;
+
+}
+
+
+/* ==========================================================
+   PRINT ROOT
+========================================================== */
+
+#print-root{
+
+    width:var(--page-width);
+    max-width:var(--page-width);
+
+    min-height:var(--page-height);
+
+    margin:0 auto;
+
+    background:#ffffff;
+
+}
+
+
+/* ==========================================================
+   PRINT ENGINE
+========================================================== */
+
+.print-engine{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:flex-start;
+
+    width:100%;
+
+}
+
+
+/* ==========================================================
+   REPORT PAGE
+========================================================== */
+
+.report-page{
+
+    display:flex;
+
+    flex-direction:column;
+
+    width:var(--page-width);
+    max-width:var(--page-width);
+
+    min-height:var(--page-height);
+
+    background:#ffffff;
+
+    overflow:visible;
+
+}
+
+
+/* ==========================================================
+   LETTERHEAD
+========================================================== */
+
+.report-header-space{
+
+    position:relative;
+
+    width:100%;
+
+    height:var(--letterhead-height);
+
+    flex-shrink:0;
+
+}
+
+.enterprise-letterhead{
+
+    width:100%;
+    height:100%;
+
+}
+
+.report-page.record .report-header-space{
+
+    background:transparent;
+
+}
+
+
+/* ==========================================================
+   REPORT BODY
+========================================================== */
+
+.report-body{
+
+    display:flex;
+
+    flex-direction:column;
+
+    flex:0 0 auto;
+
+    width:100%;
+    max-width:100%;
+
+    min-width:0;
+    min-height:0;
+
+}
+
+
+/* ==========================================================
+   PATIENT SECTION
+========================================================== */
+
+.patient-section{
+
+    width:100%;
+    max-width:100%;
+
+    flex-shrink:0;
+
+}
+
+
+/* ==========================================================
+   REPORT TITLE
+========================================================== */
+
+.report-heading{
+
+    width:100%;
+
+    flex-shrink:0;
+
+}
+
+
+/* ==========================================================
+   REPORT CONTENT
+========================================================== */
+
+.report-content{
+
+    display:flex;
+
+    flex-direction:column;
+
+    flex:0 0 auto;
+
+    width:100%;
+    max-width:100%;
+
+    min-width:0;
+
+    overflow:visible;
+
+}
+
+.report-content > *{
+
+    width:100%;
+    max-width:100%;
+    min-width:0;
+
+}
+
+
+/* ==========================================================
+   SIGNATURE / VERIFICATION
+========================================================== */
+
+.signature-section,
+.verification-section{
+
+    width:100%;
+
+    flex-shrink:0;
+
+    page-break-inside:avoid;
+    break-inside:avoid;
+
+}
+
+
+/* ==========================================================
+   FOOTER
+========================================================== */
+
+.report-footer-space{
+
+    width:100%;
+
+    margin-top:auto;
+
+    flex-shrink:0;
+
+}
+
+.enterprise-footer,
+.print-footer{
+
+    width:100%;
+
+    page-break-inside:avoid;
+    break-inside:avoid;
+
+}
+
+
+/* ==========================================================
+   RECORD FOOTER
+========================================================== */
+
+.record-footer-space{
+
+    width:100%;
+
+    height:var(--record-footer-height);
+
+    flex-shrink:0;
+
+}
+
+
+/* ==========================================================
+   PREVIEW
+========================================================== */
+
+.result-preview{
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:flex-start;
+
+    padding:24px;
+
+    overflow:auto;
+
+    background:#EDF1F5;
+
+}
+
+
+/* ==========================================================
+   SCREEN
+========================================================== */
+
+@media screen{
+
+    .report-page{
+
+        box-shadow:0 8px 28px rgba(0,0,0,.12);
+
+        border-radius:8px;
+
+    }
+
+}
+
+
+/* ==========================================================
+   PRINT
+========================================================== */
+
+@media print{
+
+    html,
+    body{
+
+        margin:0;
+        padding:0;
+
+        width:var(--page-width);
+
+        background:#ffffff;
+
+    }
+
+    #print-root{
+
+        width:var(--page-width);
+
+        margin:0;
+
+    }
+
+    .result-preview{
+
+        display:block !important;
+
+        margin:0 !important;
+        padding:0 !important;
+
+        overflow:visible !important;
+
+        background:#ffffff !important;
+
+    }
+
+    .print-engine{
+
+        display:block !important;
+
+        width:var(--page-width) !important;
+
+        margin:0 auto !important;
+
+    }
+
+    .report-page{
+
+        width:var(--page-width) !important;
+        max-width:var(--page-width) !important;
+
+        min-height:var(--page-height) !important;
+
+        margin:0 !important;
+
+        border-radius:0 !important;
+        box-shadow:none !important;
+
+        overflow:visible !important;
+
+    }
+
+    .report-header-space{
+
+        width:100% !important;
+
+        height:var(--letterhead-height) !important;
+
+        flex-shrink:0 !important;
+
+    }
+
+    .enterprise-letterhead{
+
+        width:100% !important;
+
+        height:100% !important;
+
+    }
+
+    .report-body{
+
+        display:flex !important;
+
+        flex-direction:column !important;
+
+        width:100% !important;
+
+        max-width:100% !important;
+
+        min-width:0 !important;
+
+    }
+
+    .report-content{
+
+        display:flex !important;
+
+        flex-direction:column !important;
+
+        width:100% !important;
+
+        max-width:100% !important;
+
+        min-width:0 !important;
+
+        overflow:visible !important;
+
+    }
+
+    .signature-section,
+    .verification-section,
+    .enterprise-footer,
+    .print-footer{
+
+        page-break-inside:avoid !important;
+        break-inside:avoid !important;
+
+    }
+
+    .report-footer-space{
+
+        margin-top:auto !important;
+
+    }
+
+    .record-footer-space{
+
+        height:var(--record-footer-height) !important;
+
+    }
+
+}

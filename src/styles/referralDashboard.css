@@ -1204,6 +1204,350 @@ body{
     translateY(-2px);
 }
 
+/* ==========================================================
+   PREMIUM RECEIPT
+========================================================== */
+
+.premium-receipt {
+
+    width: 100%;
+
+    padding: 8mm 7mm;
+
+    background: #ffffff;
+
+    color: #111827;
+
+}
+
+
+.premium-receipt-banner {
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding: 8mm;
+
+    margin-bottom: 7mm;
+
+    border-bottom: 3px solid #111827;
+
+}
+
+
+.premium-receipt-banner span {
+
+    display: block;
+
+    font-size: 10px;
+
+    font-weight: 800;
+
+    letter-spacing: 2px;
+
+    color: #6b7280;
+
+}
+
+
+.premium-receipt-banner h1 {
+
+    margin: 4px 0 0;
+
+    font-size: 25px;
+
+    letter-spacing: 1px;
+
+    color: #111827;
+
+}
+
+
+.receipt-status {
+
+    padding: 8px 14px;
+
+    border: 1px solid #16a34a;
+
+    border-radius: 999px;
+
+    color: #15803d;
+
+    font-size: 11px;
+
+    font-weight: 800;
+
+    text-transform: uppercase;
+
+}
+
+
+.receipt-reference {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 12px;
+
+    padding: 6mm;
+
+    margin-bottom: 6mm;
+
+    background: #f8fafc;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 8px;
+
+}
+
+
+.receipt-reference span,
+.receipt-patient-card span,
+.receipt-payment-box span {
+
+    display: block;
+
+    margin-bottom: 5px;
+
+    font-size: 9px;
+
+    font-weight: 800;
+
+    letter-spacing: 1px;
+
+    color: #6b7280;
+
+    text-transform: uppercase;
+
+}
+
+
+.receipt-reference strong {
+
+    display: block;
+
+    font-size: 12px;
+
+    color: #111827;
+
+}
+
+
+.receipt-patient-card {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 15px;
+
+    padding: 7mm;
+
+    margin-bottom: 6mm;
+
+    border: 1px solid #e5e7eb;
+
+    border-radius: 8px;
+
+}
+
+
+.receipt-patient-card strong {
+
+    display: block;
+
+    font-size: 14px;
+
+    color: #111827;
+
+}
+
+
+.receipt-payment-box {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 1px;
+
+    overflow: hidden;
+
+    margin: 7mm 0;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 8px;
+
+    background: #d1d5db;
+
+}
+
+
+.receipt-payment-box > div {
+
+    padding: 7mm 5mm;
+
+    background: #ffffff;
+
+}
+
+
+.receipt-payment-box strong {
+
+    display: block;
+
+    font-size: 15px;
+
+    color: #111827;
+
+}
+
+
+.receipt-payment-box .receipt-paid {
+
+    background: #111827;
+
+}
+
+
+.receipt-payment-box .receipt-paid span {
+
+    color: #d1d5db;
+
+}
+
+
+.receipt-payment-box .receipt-paid strong {
+
+    color: #ffffff;
+
+    font-size: 19px;
+
+}
+
+
+.receipt-thank-you {
+
+    padding: 6mm;
+
+    margin-top: 7mm;
+
+    text-align: center;
+
+    border-top: 1px solid #e5e7eb;
+
+    border-bottom: 1px solid #e5e7eb;
+
+}
+
+
+.receipt-thank-you h3 {
+
+    margin: 0 0 5px;
+
+    font-size: 14px;
+
+}
+
+
+.receipt-thank-you p {
+
+    margin: 0;
+
+    font-size: 11px;
+
+    color: #6b7280;
+
+}
+
+
+.receipt-signatures {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 30mm;
+
+    margin-top: 20mm;
+
+}
+
+
+.receipt-signatures > div {
+
+    padding-top: 10mm;
+
+    border-top: 1px solid #111827;
+
+}
+
+
+.receipt-signatures strong {
+
+    display: block;
+
+    font-size: 11px;
+
+}
+
+
+.receipt-signatures span {
+
+    display: block;
+
+    margin-top: 3px;
+
+    font-size: 10px;
+
+    color: #6b7280;
+
+}
+
+
+.receipt-security-note {
+
+    margin-top: 12mm;
+
+    padding-top: 5mm;
+
+    border-top: 1px solid #e5e7eb;
+
+    text-align: center;
+
+    font-size: 9px;
+
+    color: #9ca3af;
+
+}
+
+
+@media print {
+
+    .premium-receipt {
+
+        padding: 7mm;
+
+    }
+
+    .receipt-payment-box {
+
+        grid-template-columns:
+            repeat(4, 1fr);
+
+    }
+
+}
 
 /* =========================
    COMMISSION MODAL
@@ -1382,4 +1726,762 @@ body{
     display:none !important;
   }
 
+}
+
+
+
+/* =========================================================
+   PEFA — PREMIUM REFERRAL INVOICE DOCUMENT
+   These selectors match the actual JSX rendered by
+   ReferralDashboard.jsx:
+   .referral-print-document
+   .referral-print-title
+   .referral-print-meta
+   .premium-print-table
+   .print-summary-grid
+   .print-authorization
+   .print-note
+   ========================================================= */
+
+.referral-print-document{
+  width:100%;
+  max-width:1000px;
+  margin:0 auto;
+  padding:28px 32px 30px;
+  background:#ffffff;
+  color:#172033;
+  font-family:Arial,Helvetica,sans-serif;
+  box-sizing:border-box;
+}
+
+.referral-print-title{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:24px;
+  margin:0 0 20px;
+  padding:0 0 16px;
+  border-bottom:3px solid #0b2f6b;
+}
+
+.referral-print-title h1{
+  margin:0;
+  color:#0b2f6b;
+  font-size:25px;
+  line-height:1;
+  font-weight:850;
+  letter-spacing:.5px;
+}
+
+.referral-print-title p{
+  margin:0;
+  color:#64748b;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:1.2px;
+  text-transform:uppercase;
+}
+
+.referral-print-meta{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin:0 0 22px;
+}
+
+.referral-print-meta > div{
+  min-width:0;
+  padding:12px 14px;
+  background:#f8fafc;
+  border:1px solid #dbe3ee;
+  border-radius:10px;
+}
+
+.referral-print-meta strong{
+  display:block;
+  margin:0 0 5px;
+  color:#64748b;
+  font-size:8.5px;
+  font-weight:800;
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+
+.referral-print-meta span{
+  display:block;
+  color:#172033;
+  font-size:11px;
+  font-weight:750;
+  line-height:1.35;
+  word-break:break-word;
+}
+
+.referral-print-meta > div:nth-child(3){
+  background:#eef5ff;
+  border-color:#b9d1f5;
+}
+
+.referral-print-meta > div:nth-child(3) span{
+  color:#0f4cbd;
+  font-size:12px;
+  font-weight:850;
+}
+
+.print-section-title{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin:20px 0 9px;
+  color:#0b2f6b;
+  font-size:10px;
+  font-weight:850;
+  letter-spacing:1.1px;
+  text-transform:uppercase;
+}
+
+.print-section-title::before{
+  content:"";
+  width:4px;
+  height:15px;
+  flex:0 0 4px;
+  border-radius:3px;
+  background:#84cc16;
+}
+
+.premium-print-table{
+  width:100%;
+  margin:0;
+  border-collapse:separate;
+  border-spacing:0;
+  border:1px solid #d8e1ed;
+  border-radius:11px;
+  overflow:hidden;
+  background:#ffffff;
+}
+
+.premium-print-table th{
+  padding:10px 9px;
+  background:#0b2f6b;
+  color:#ffffff;
+  border:0;
+  font-size:8.5px;
+  font-weight:800;
+  letter-spacing:.45px;
+  text-align:left;
+  text-transform:uppercase;
+}
+
+.premium-print-table th:first-child{
+  border-top-left-radius:10px;
+}
+
+.premium-print-table th:last-child{
+  border-top-right-radius:10px;
+}
+
+.premium-print-table td{
+  padding:9px;
+  color:#263449;
+  background:#ffffff;
+  border:0;
+  border-bottom:1px solid #e8edf3;
+  font-size:9.5px;
+  line-height:1.35;
+  vertical-align:top;
+}
+
+.premium-print-table tbody tr:nth-child(even) td{
+  background:#f8fbff;
+}
+
+.premium-print-table tbody tr:last-child td{
+  border-bottom:0;
+}
+
+.premium-print-table th:first-child,
+.premium-print-table td:first-child{
+  width:5%;
+  text-align:center;
+}
+
+.premium-print-table th:nth-child(2),
+.premium-print-table td:nth-child(2){
+  width:11%;
+}
+
+.premium-print-table th:nth-child(3),
+.premium-print-table td:nth-child(3){
+  width:17%;
+}
+
+.premium-print-table th:nth-child(4),
+.premium-print-table td:nth-child(4){
+  width:29%;
+}
+
+.premium-print-table th:nth-child(5),
+.premium-print-table td:nth-child(5),
+.premium-print-table th:nth-child(6),
+.premium-print-table td:nth-child(6),
+.premium-print-table th:nth-child(7),
+.premium-print-table td:nth-child(7){
+  width:10%;
+  text-align:right;
+  white-space:nowrap;
+}
+
+.premium-print-table th:last-child,
+.premium-print-table td:last-child{
+  width:8%;
+  text-align:center;
+  white-space:normal;
+}
+
+.print-summary-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin:10px 0 20px;
+}
+
+.print-summary-grid > div{
+  min-width:0;
+  padding:14px;
+  background:#f8fafc;
+  border:1px solid #dbe3ee;
+  border-radius:11px;
+}
+
+.print-summary-grid span{
+  display:block;
+  margin-bottom:6px;
+  color:#64748b;
+  font-size:8.5px;
+  font-weight:800;
+  letter-spacing:.7px;
+  text-transform:uppercase;
+}
+
+.print-summary-grid strong{
+  display:block;
+  color:#0b2f6b;
+  font-size:15px;
+  font-weight:850;
+  white-space:nowrap;
+}
+
+.print-summary-grid > div:nth-child(2){
+  background:#effcf6;
+  border-color:#b7e7d1;
+}
+
+.print-summary-grid > div:nth-child(2) strong{
+  color:#047857;
+}
+
+.print-summary-grid > div:nth-child(3){
+  background:#fffaf0;
+  border-color:#f3d79b;
+}
+
+.print-summary-grid > div:nth-child(3) strong{
+  color:#b45309;
+}
+
+.print-summary-grid > div:nth-child(4){
+  background:#eef5ff;
+  border-color:#b9d1f5;
+}
+
+.print-summary-grid > div:nth-child(4) strong{
+  color:#0f4cbd;
+}
+
+.print-authorization{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:55px;
+  margin:30px 0 0;
+  padding-top:20px;
+  border-top:1px solid #dbe3ee;
+}
+
+.print-authorization > div{
+  min-height:52px;
+  padding-top:20px;
+  border-top:1px solid #64748b;
+}
+
+.print-authorization strong{
+  display:block;
+  color:#0b2f6b;
+  font-size:10px;
+  font-weight:850;
+}
+
+.print-authorization span{
+  display:block;
+  margin-top:3px;
+  color:#64748b;
+  font-size:8.5px;
+}
+
+.print-note{
+  margin-top:17px;
+  padding:10px 14px;
+  color:#64748b;
+  background:#f8fafc;
+  border:1px solid #e2e8f0;
+  border-radius:8px;
+  text-align:center;
+  font-size:8px;
+  line-height:1.5;
+}
+
+/* Ensure generated PDF sees the complete document rather than an
+   old hidden/off-screen invoice state. */
+.print-render-target{
+  width:100%;
+  box-sizing:border-box;
+}
+
+@media print{
+  .referral-print-document{
+    width:100%;
+    max-width:none;
+    padding:0;
+    margin:0;
+  }
+
+  .referral-print-title{
+    margin-bottom:4mm;
+    padding-bottom:3mm;
+  }
+
+  .referral-print-title h1{
+    font-size:17pt;
+  }
+
+  .referral-print-title p{
+    font-size:6.5pt;
+  }
+
+  .referral-print-meta{
+    grid-template-columns:repeat(3,1fr);
+    gap:2.5mm;
+    margin-bottom:4mm;
+  }
+
+  .referral-print-meta > div{
+    padding:3mm;
+    border-radius:2mm;
+  }
+
+  .referral-print-meta strong{
+    font-size:6pt;
+  }
+
+  .referral-print-meta span{
+    font-size:7.5pt;
+  }
+
+  .referral-print-meta > div:nth-child(3) span{
+    font-size:8pt;
+  }
+
+  .print-section-title{
+    margin:4mm 0 2mm;
+    font-size:7pt;
+  }
+
+  .print-section-title::before{
+    height:10pt;
+    width:2.5mm;
+    flex-basis:2.5mm;
+  }
+
+  .premium-print-table{
+    width:100%;
+    page-break-inside:auto;
+  }
+
+  .premium-print-table thead{
+    display:table-header-group;
+  }
+
+  .premium-print-table tr{
+    page-break-inside:avoid;
+    page-break-after:auto;
+  }
+
+  .premium-print-table th{
+    padding:2.4mm 2mm;
+    font-size:6.5pt;
+    -webkit-print-color-adjust:exact;
+    print-color-adjust:exact;
+  }
+
+  .premium-print-table td{
+    padding:2.3mm 2mm;
+    font-size:7pt;
+  }
+
+  .print-summary-grid{
+    grid-template-columns:repeat(4,1fr);
+    gap:2.5mm;
+    margin:3mm 0 5mm;
+  }
+
+  .print-summary-grid > div{
+    padding:3mm;
+    page-break-inside:avoid;
+  }
+
+  .print-summary-grid span{
+    font-size:6pt;
+  }
+
+  .print-summary-grid strong{
+    font-size:9pt;
+  }
+
+  .print-authorization{
+    gap:18mm;
+    margin-top:7mm;
+    padding-top:5mm;
+    page-break-inside:avoid;
+  }
+
+  .print-authorization > div{
+    padding-top:5mm;
+  }
+
+  .print-authorization strong{
+    font-size:7pt;
+  }
+
+  .print-authorization span{
+    font-size:6pt;
+  }
+
+  .print-note{
+    margin-top:4mm;
+    padding:2.5mm;
+    font-size:5.8pt;
+  }
+}
+
+
+/* =========================================================
+   REFERRAL INVOICE — PENDING PAYMENT ONLY
+   ========================================================= */
+.referral-invoice-pending-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin: 14px 0 18px;
+  padding: 12px 16px;
+  border: 1px solid rgba(37, 99, 235, 0.18);
+  border-left: 4px solid #2563eb;
+  border-radius: 10px;
+  background: #f7faff;
+  color: #172033;
+  font-size: 12px;
+}
+
+.referral-invoice-pending-banner strong {
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.referral-invoice-pending-banner span {
+  color: #5b6577;
+  text-align: right;
+}
+
+.referral-invoice-due-summary {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 700px) {
+  .referral-invoice-pending-banner {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .referral-invoice-pending-banner span {
+    text-align: left;
+  }
+
+  .referral-invoice-due-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .referral-invoice-pending-banner {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+/* ==========================================================
+   PAID REFERRAL — RECEIPT-FIRST DOCUMENT WORKFLOW
+   ========================================================== */
+.paid-document-banner {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 13px;
+  border: 1px solid rgba(22, 163, 74, .25);
+  border-radius: 10px;
+  background: rgba(22, 163, 74, .08);
+  color: #166534;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+/* A paid referral must never expose the pending invoice document. */
+@media print {
+  #referral-invoice-print {
+    display: none !important;
+  }
+}
+
+/* =========================================================
+   PEFA DOCUMENT VIEWERS
+   Invoice and Receipt actions live inside their respective
+   document viewer. The underlying print targets remain mounted
+   for PrintEngine/html2pdf.
+========================================================= */
+
+.document-viewer-overlay {
+  z-index: 99990;
+  align-items: flex-start;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.document-viewer-modal {
+  width: min(1180px, 96vw);
+  max-width: 1180px;
+  max-height: calc(100vh - 48px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.document-viewer-header {
+  flex: 0 0 auto;
+  padding: 18px 22px;
+  border-bottom: 1px solid rgba(15, 23, 42, .10);
+}
+
+.document-viewer-header h2 {
+  margin: 0;
+}
+
+.document-viewer-header p {
+  margin: 4px 0 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.document-viewer-actions {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  padding: 13px 18px;
+  background: #f8fafc;
+  border-bottom: 1px solid rgba(15, 23, 42, .10);
+}
+
+.document-viewer-actions button {
+  min-height: 38px;
+}
+
+.document-viewer-paper {
+  flex: 1 1 auto;
+  overflow: auto;
+  padding: 24px;
+  background: #e2e8f0;
+}
+
+.document-viewer-render {
+  width: min(210mm, 100%);
+  min-height: 297mm;
+  margin: 0 auto;
+  padding: 0;
+  background: #fff;
+  box-shadow: 0 12px 36px rgba(15, 23, 42, .18);
+}
+
+.document-viewer-render > * {
+  box-sizing: border-box;
+}
+
+.document-viewer-render .print-render-target,
+.document-viewer-render [aria-hidden="true"] {
+  display: block !important;
+  visibility: visible !important;
+  position: static !important;
+  width: 100% !important;
+  height: auto !important;
+  overflow: visible !important;
+}
+
+.document-viewer-render .letterhead-document,
+.document-viewer-render .referral-print-document,
+.document-viewer-render .premium-receipt {
+  width: 100%;
+  max-width: none;
+}
+
+@media (max-width: 800px) {
+  .document-viewer-overlay {
+    padding: 8px;
+  }
+
+  .document-viewer-modal {
+    width: 100%;
+    max-height: calc(100vh - 16px);
+  }
+
+  .document-viewer-paper {
+    padding: 10px;
+  }
+
+  .document-viewer-render {
+    min-height: auto;
+    width: 100%;
+  }
+
+  .document-viewer-actions button {
+    flex: 1 1 calc(50% - 9px);
+  }
+}
+
+
+/* =========================================================
+   REFERRAL INVOICE — COMMISSION / NET PAYABLE
+   ========================================================= */
+
+.referral-invoice-financial-summary {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: stretch;
+}
+
+.referral-invoice-financial-summary > div {
+  min-height: 72px;
+}
+
+.referral-invoice-financial-summary .invoice-total-payable {
+  border: 2px solid rgba(37, 99, 235, 0.24);
+  background: rgba(37, 99, 235, 0.06);
+}
+
+.referral-invoice-financial-summary .invoice-total-payable strong {
+  font-size: 19px;
+}
+
+.invoice-commission-note {
+  margin-top: 10px;
+  padding: 10px 12px;
+  border-left: 3px solid #2563eb;
+  background: #f8fafc;
+  color: #475569;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
+/* =========================================================
+   REFERRAL INVOICE — OFFICIAL MANAGER SIGNATURE
+   ========================================================= */
+
+.invoice-manager-signature {
+  width: 300px;
+  max-width: 100%;
+  margin-top: 28px;
+  padding-top: 4px;
+  text-align: left;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.invoice-manager-signature-label {
+  margin-bottom: 7px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: #64748b;
+}
+
+.invoice-manager-signature-line {
+  height: 72px;
+  display: flex;
+  align-items: flex-end;
+  border-bottom: 1px solid #0f172a;
+  overflow: hidden;
+}
+
+.invoice-manager-signature-image {
+  display: block;
+  width: 220px;
+  max-width: 100%;
+  max-height: 68px;
+  object-fit: contain;
+  object-position: left bottom;
+}
+
+.invoice-manager-signature-missing {
+  padding-bottom: 8px;
+  color: #b91c1c;
+  font-size: 10px;
+  font-style: italic;
+}
+
+.invoice-manager-name {
+  margin-top: 8px;
+  font-size: 13px;
+  font-weight: 800;
+  color: #0f172a;
+}
+
+.invoice-manager-role {
+  margin-top: 2px;
+  font-size: 11px;
+  color: #64748b;
+}
+
+@media print {
+  .referral-invoice-financial-summary {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .invoice-manager-signature {
+    margin-top: 24px;
+  }
+}
+
+@media (max-width: 700px) {
+  .referral-invoice-financial-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* Official Manager signature on referral receipts */
+.receipt-manager-signature-image {
+  display: block;
+  width: 190px;
+  max-width: 100%;
+  height: 58px;
+  margin: 0 0 5px;
+  object-fit: contain;
+  object-position: left bottom;
 }

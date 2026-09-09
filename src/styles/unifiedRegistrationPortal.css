@@ -1,0 +1,267 @@
+.dashboard-layout {
+  min-height: 100vh;
+}
+
+.dashboard-content {
+  max-width: 1400px;
+  margin: auto;
+  padding: 30px;
+}
+
+.registration-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.registration-header h1 {
+  margin: 0;
+  font-size: 30px;
+}
+
+.registration-header p {
+  margin-top: 6px;
+  opacity: 0.7;
+}
+
+.registration-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.section-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.section-title h2 {
+  margin: 0;
+}
+
+.registration-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.form-group label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea,
+.registration-grid input,
+.registration-grid select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px 14px;
+  border: 1px solid #d7dce3;
+  border-radius: 9px;
+  font-size: 14px;
+  background: #fff;
+}
+
+.form-group textarea {
+  resize: vertical;
+}
+
+.input-box {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  border: 1px solid #d7dce3;
+  border-radius: 9px;
+  padding: 0 12px;
+}
+
+.input-box input {
+  border: none;
+  outline: none;
+  padding: 13px 0;
+}
+
+.full-width {
+  margin-top: 18px;
+}
+
+.service-selection {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+.service-option {
+  border: 2px solid #dfe4ea;
+  background: white;
+  border-radius: 16px;
+  padding: 30px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  transition: 0.2s;
+}
+
+.service-option:hover {
+  transform: translateY(-2px);
+}
+
+.service-option.active {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.service-option strong {
+  font-size: 18px;
+}
+
+.service-option span {
+  opacity: 0.7;
+}
+
+.test-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid #d7dce3;
+  border-radius: 10px;
+  padding: 0 14px;
+  margin-bottom: 20px;
+}
+
+.test-search input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 14px 0;
+  font-size: 15px;
+}
+
+.test-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.test-card {
+  border: 1px solid #e0e5eb;
+  border-radius: 12px;
+  padding: 15px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.test-card:hover {
+  border-color: #2563eb;
+  background: #f8fbff;
+}
+
+.test-card h4 {
+  margin: 0 0 8px;
+}
+
+.test-card p {
+  margin: 0;
+  font-weight: 700;
+}
+
+.selected-tests {
+  margin-top: 25px;
+}
+
+.selected-item,
+.summary-item,
+.ultrasound-selected {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 0;
+  border-bottom: 1px solid #edf0f3;
+}
+
+.selected-item button {
+  margin-left: 15px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.sub-total {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 18px;
+  font-weight: 700;
+}
+
+.total-box {
+  margin-top: 20px;
+  padding: 20px;
+  border-radius: 12px;
+  background: #f5f7fa;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.total-box h2 {
+  margin: 0;
+}
+
+.empty-text {
+  opacity: 0.6;
+  padding: 15px 0;
+}
+
+.registration-btn {
+  width: 100%;
+  border: none;
+  border-radius: 12px;
+  padding: 17px;
+  background: #2563eb;
+  color: white;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.registration-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 900px) {
+  .registration-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .test-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-content {
+    padding: 15px;
+  }
+
+  .registration-grid,
+  .service-selection,
+  .test-grid {
+    grid-template-columns: 1fr;
+  }
+}
