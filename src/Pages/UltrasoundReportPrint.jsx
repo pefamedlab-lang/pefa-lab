@@ -12,7 +12,7 @@ from "../components/ultrasound/templates/UltrasoundReport";
 
 import PrintEngine from "../utils/PrintEngine";
 
-import "../styles/letterHeadPortal.css";
+import "../styles/LetterHeadPortal.css";
 
 export default function UltrasoundReportPrint() {
 
