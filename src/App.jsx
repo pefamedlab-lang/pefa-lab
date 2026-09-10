@@ -37,8 +37,8 @@ import RegistrationRecords from "./Pages/RegistrationRecords";
 // LABORATORY
 // ============================================================
 
-import LaboratoryResultDashboard from "./pages/laboratory/LaboratoryResultDashboard";
-import LaboratoryResultEntry from "./pages/laboratory/LaboratoryResultEntry";
+import LaboratoryResultDashboard from "./Pages/laboratory/LaboratoryResultDashboard";
+import LaboratoryResultEntry from "./Pages/laboratory/LaboratoryResultEntry";
 import TestControlPortal from "./Pages/TestControlPortal";
 import SpecimenTracking from "./Pages/SpecimenTracking";
 
