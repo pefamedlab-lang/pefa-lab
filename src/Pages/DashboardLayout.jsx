@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
 
 import DashboardNavbar from "./DashboardNavbar";
@@ -6,63 +7,59 @@ import DashboardSidebar from "./DashboardSidebar";
 import "../styles/dashboardLayout.css";
 
 export default function DashboardLayout() {
-
   const user =
-    JSON.parse(
-      localStorage.getItem(
-        "pefa_user"
-      )
-    );
+    JSON.parse(localStorage.getItem("pefa_user"));
+
+  const [mobileMenuOpen, setMobileMenuOpen] =
+    useState(false);
 
   if (!user) {
-
-    window.location.href =
-      "/login";
-
+    window.location.href = "/login";
     return null;
-
   }
 
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
   return (
+    <div
+      className={`dashboard-container ${
+        mobileMenuOpen ? "mobile-menu-open" : ""
+      }`}
+    >
+      <div
+        className="mobile-sidebar-overlay"
+        aria-hidden={!mobileMenuOpen}
+        onClick={closeMobileMenu}
+      />
 
-    <div className="dashboard-container">
-
-      {/* =====================================
-          SIDEBAR
-      ===================================== */}
-
-      <aside className="sidebar-wrapper">
-
-        <DashboardSidebar />
-
+      <aside
+        className={`sidebar-wrapper ${
+          mobileMenuOpen ? "sidebar-wrapper-open" : ""
+        }`}
+      >
+        <DashboardSidebar
+          mobileOpen={mobileMenuOpen}
+          onClose={closeMobileMenu}
+        />
       </aside>
 
-      {/* =====================================
-          MAIN CONTENT
-      ===================================== */}
-
       <div className="content-panel">
-
-        {/* NAVBAR */}
-
         <header className="topbar">
-
-          <DashboardNavbar />
-
+          <DashboardNavbar
+            onMenuToggle={() =>
+              setMobileMenuOpen(
+                (previous) => !previous
+              )
+            }
+          />
         </header>
 
-        {/* PAGE CONTENT */}
-
         <main className="page-content">
-
           <Outlet />
-
         </main>
-
       </div>
-
     </div>
-
   );
-
 }

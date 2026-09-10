@@ -3199,7 +3199,7 @@ const reportStaffDesignation = (staff, fallback = "") => {
    * is expanded for Directors.
    */
   if (normalize(role) === "director") {
-    return "Director / Chief Medical Laboratory Scientist";
+    return "Director";
   }
 
   return firstValue(
@@ -3214,6 +3214,7 @@ function ReportSignatureCard({
   staff,
   fallbackName,
   fallbackDesignation,
+  designationOverride = "",
   label,
 }) {
   const name = firstValue(
@@ -3221,7 +3222,7 @@ function ReportSignatureCard({
     fallbackName,
     "Laboratory Scientist"
   );
-  const designation = reportStaffDesignation(
+  const designation = text(designationOverride) || reportStaffDesignation(
     staff,
     fallbackDesignation
   );
@@ -3405,12 +3406,8 @@ function PEFAReportShell({ report, printMode = "full", staffDirectory = [] }) {
         <ReportSignatureCard
           staff={authorizedStaff}
           fallbackName={authorizedBy}
-          fallbackDesignation={
-            authorizedStaff?.role ||
-            (normalize(authorizedBy).includes("laboratory")
-              ? authorizedBy
-              : "Chief Medical Laboratory Scientist")
-          }
+          fallbackDesignation="Director"
+          designationOverride="Director"
           label="AUTHORIZED BY"
         />
       </section>

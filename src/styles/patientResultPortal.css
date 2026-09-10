@@ -1,527 +1,321 @@
-/* ==========================================================
-   PEFA PATIENT RESULT PORTAL — PREMIUM PATIENT EXPERIENCE
-   UI ONLY: the laboratory report itself remains the exact
-   Result Dashboard renderer and print surface.
-   ========================================================== */
+/* =========================================================
+   PEFA MEDICAL DIAGNOSTIC SERVICES
+   PATIENT RESULT PORTAL — PREMIUM RESPONSIVE UI
+   ---------------------------------------------------------
+   Screen: responsive enterprise presentation
+   Mobile: full-width report, polished patient grid and branch display, no horizontal page clipping
+   Print/PDF: canonical A4 portrait, 4-column patient grid
+   ========================================================= */
 
-:root{
-  --portal-navy:#071a3a;
-  --portal-blue:#0b5ed7;
-  --portal-cyan:#06b6d4;
-  --portal-teal:#0f9f9a;
-  --portal-green:#84cc16;
-  --portal-yellow:#facc15;
-  --portal-red:#ef4444;
-  --portal-ink:#10213f;
-  --portal-muted:#64748b;
-  --portal-border:rgba(148,163,184,.22);
-  --portal-white:rgba(255,255,255,.96);
-  --portal-shadow:0 24px 70px rgba(7,26,58,.13);
-  --portal-shadow-soft:0 12px 34px rgba(7,26,58,.09);
+:root {
+  --pefa-blue: #0756a8;
+  --pefa-blue-dark: #043b78;
+  --pefa-blue-deep: #022b59;
+  --pefa-blue-soft: #eaf4ff;
+  --pefa-green: #a8d82d;
+  --pefa-green-dark: #7da91a;
+  --pefa-green-soft: #f2fadf;
+  --pefa-navy: #14213d;
+  --pefa-text: #24324a;
+  --pefa-muted: #6b7890;
+  --pefa-border: #dce5ef;
+  --pefa-border-light: #e9eff6;
+  --white: #fff;
+  --success: #16834b;
+  --warning: #c98a00;
+  --danger: #c0392b;
+  --shadow-sm: 0 3px 12px rgba(16,45,80,.06);
+  --shadow-md: 0 12px 32px rgba(16,45,80,.10);
+  --shadow-lg: 0 24px 65px rgba(16,45,80,.14);
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-xl: 28px;
+  --transition: 180ms ease;
 }
 
-*{box-sizing:border-box}
-
-.patient-result-page{
-  position:relative;
-  min-height:100vh;
-  overflow:hidden;
-  padding:54px 24px 80px;
-  color:var(--portal-ink);
-  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  background:
-    radial-gradient(circle at 8% 8%,rgba(6,182,212,.17),transparent 26%),
-    radial-gradient(circle at 92% 12%,rgba(132,204,22,.15),transparent 24%),
-    radial-gradient(circle at 50% 100%,rgba(11,94,215,.10),transparent 34%),
-    linear-gradient(145deg,#f5fbff 0%,#eef8ff 42%,#f8fff5 100%);
+.patient-result-page {
+  width:100%; min-height:100vh; min-height:100dvh;
+  padding:42px clamp(20px,4vw,72px) 80px;
+  box-sizing:border-box; color:var(--pefa-text);
+  background:radial-gradient(circle at 10% 0%,rgba(7,86,168,.09),transparent 32%),radial-gradient(circle at 90% 10%,rgba(168,216,45,.10),transparent 28%),linear-gradient(180deg,#f5f9fd 0%,#fff 48%,#f6f9fc 100%);
+  font-family:Inter,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  overflow-x:hidden;
 }
 
-.patient-result-page::before,
-.patient-result-page::after{
-  content:"";
-  position:absolute;
-  z-index:0;
-  pointer-events:none;
-  border-radius:50%;
-  filter:blur(2px);
-}
+.patient-result-header { position:relative; width:min(920px,100%); margin:0 auto 30px; padding:34px 30px 32px; text-align:center; border:1px solid rgba(255,255,255,.45); border-radius:var(--radius-xl); color:#fff; background:linear-gradient(135deg,var(--pefa-blue-deep),var(--pefa-blue) 58%,#0875d1); box-shadow:0 22px 55px rgba(4,59,120,.22); overflow:hidden; }
+.patient-result-header::before,.patient-result-header::after { content:""; position:absolute; border-radius:50%; pointer-events:none; }
+.patient-result-header::before { width:230px;height:230px;top:-135px;right:-65px;background:rgba(168,216,45,.18); }
+.patient-result-header::after { width:180px;height:180px;bottom:-125px;left:-65px;background:rgba(255,255,255,.08); }
+.patient-result-header svg { position:relative;display:block;margin:0 auto 12px;padding:12px;width:42px;height:42px;border-radius:50%;color:var(--pefa-green);background:rgba(255,255,255,.10);box-sizing:content-box; }
+.patient-result-header h1 { position:relative;margin:0;font-size:clamp(26px,4vw,38px);line-height:1.15;font-weight:800;letter-spacing:-.8px;color:#fff; }
+.patient-result-header p { position:relative;margin:9px 0 0;font-size:14px;font-weight:500;letter-spacing:.4px;color:rgba(255,255,255,.82); }
 
-.patient-result-page::before{
-  width:360px;height:360px;
-  left:-190px;top:310px;
-  background:rgba(15,159,154,.10);
-}
-
-.patient-result-page::after{
-  width:420px;height:420px;
-  right:-220px;bottom:70px;
-  background:rgba(250,204,21,.10);
-}
-
-.patient-result-page > *{
-  position:relative;
-  z-index:1;
-}
-
-/* ==========================================================
-   HERO
-   ========================================================== */
-.patient-result-header{
-  width:min(1180px,100%);
-  margin:0 auto 26px;
-  padding:38px 42px 40px;
-  position:relative;
-  overflow:hidden;
-  text-align:left;
-  border-radius:34px;
-  color:#fff;
-  background:
-    radial-gradient(circle at 82% 20%,rgba(255,255,255,.18),transparent 24%),
-    radial-gradient(circle at 15% 100%,rgba(132,204,22,.18),transparent 30%),
-    linear-gradient(135deg,#061738 0%,#083c83 52%,#087f8f 100%);
-  box-shadow:0 30px 80px rgba(7,26,58,.22);
-  border:1px solid rgba(255,255,255,.16);
-}
-
-.patient-result-header::before{
-  content:"";
-  position:absolute;
-  width:230px;height:230px;
-  right:-75px;top:-105px;
-  border:38px solid rgba(255,255,255,.07);
-  border-radius:50%;
-}
-
-.patient-result-header::after{
-  content:"PEFA • SECURE • VERIFIED";
-  position:absolute;
-  right:38px;bottom:24px;
-  font-size:10px;
-  font-weight:900;
-  letter-spacing:.18em;
-  color:rgba(255,255,255,.48);
-}
-
-.patient-result-header svg{
-  display:inline-flex;
-  width:58px;height:58px;
-  padding:13px;
-  margin-bottom:16px;
-  color:#06204a;
-  background:linear-gradient(135deg,#fff,#dffcff);
-  border-radius:18px;
-  box-shadow:0 12px 30px rgba(0,0,0,.18);
-}
-
-.patient-result-header h1{
-  position:relative;
-  z-index:2;
-  margin:0;
-  font-size:clamp(30px,4vw,48px);
-  line-height:1.02;
-  letter-spacing:-.045em;
-  font-weight:900;
-}
-
-.patient-result-header p{
-  position:relative;
-  z-index:2;
-  margin:12px 0 0;
-  color:rgba(255,255,255,.82);
-  font-size:15px;
-  font-weight:600;
-  letter-spacing:.01em;
-}
-
-/* ==========================================================
-   SEARCH CARD
-   ========================================================== */
-.patient-result-card{
-  width:min(1180px,100%);
-  margin:0 auto 28px;
-  padding:28px;
-  border-radius:30px;
-  background:var(--portal-white);
-  border:1px solid rgba(255,255,255,.8);
-  box-shadow:var(--portal-shadow);
-  backdrop-filter:blur(20px);
-}
-
-.search-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:18px;
-}
-
-.form-group{
-  min-width:0;
-}
-
-.form-group label{
-  display:block;
-  margin:0 0 9px 4px;
-  color:#334155;
-  font-size:12px;
-  font-weight:900;
-  letter-spacing:.055em;
-  text-transform:uppercase;
-}
-
-.form-group input{
-  width:100%;
-  height:58px;
-  padding:0 18px;
-  border:1.5px solid #dbe5f0;
-  border-radius:17px;
-  outline:none;
-  background:linear-gradient(180deg,#fff,#f8fbff);
-  color:#0f172a;
-  font-size:15px;
-  font-weight:700;
-  transition:.22s ease;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.9);
-}
-
-.form-group input::placeholder{color:#94a3b8;font-weight:500}
-
-.form-group input:hover{border-color:#a9c8ec}
-
-.form-group input:focus{
-  border-color:var(--portal-blue);
-  box-shadow:0 0 0 4px rgba(11,94,215,.10),0 10px 24px rgba(11,94,215,.07);
-  background:#fff;
-}
-
-.search-btn{
-  width:100%;
-  height:60px;
-  margin-top:20px;
-  border:0;
-  border-radius:18px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:10px;
-  cursor:pointer;
-  color:#fff;
-  font-size:15px;
-  font-weight:900;
-  letter-spacing:.01em;
-  background:linear-gradient(135deg,#0755c9 0%,#087bd9 46%,#0f9f9a 100%);
-  box-shadow:0 16px 34px rgba(11,94,215,.24);
-  transition:transform .2s ease,box-shadow .2s ease,filter .2s ease;
-}
-
-.search-btn:hover:not(:disabled){
-  transform:translateY(-2px);
-  filter:saturate(1.08);
-  box-shadow:0 20px 42px rgba(11,94,215,.30);
-}
-
+.patient-result-card { position:relative;width:min(920px,100%);margin:0 auto 34px;padding:28px;box-sizing:border-box;border:1px solid var(--pefa-border);border-radius:var(--radius-lg);background:rgba(255,255,255,.96);box-shadow:var(--shadow-lg);backdrop-filter:blur(14px); }
+.patient-result-card::before { content:"";position:absolute;top:0;left:28px;right:28px;height:3px;border-radius:0 0 10px 10px;background:linear-gradient(90deg,var(--pefa-blue),var(--pefa-green)); }
+.search-grid { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;width:100%; }
+.form-group { min-width:0; }
+.form-group label { display:block;margin:0 0 8px;color:var(--pefa-navy);font-size:13px;font-weight:750;letter-spacing:.2px; }
+.form-group input { width:100%;min-height:50px;padding:0 15px;box-sizing:border-box;border:1px solid var(--pefa-border);border-radius:var(--radius-sm);outline:none;background:#fbfdff;color:var(--pefa-navy);font-family:inherit;font-size:15px;font-weight:600;transition:border-color var(--transition),box-shadow var(--transition),background var(--transition),transform var(--transition); }
+.form-group input::placeholder { color:#9aa7b9;font-weight:400; }
+.form-group input:hover { border-color:#b9c8da;background:#fff; }
+.form-group input:focus { border-color:var(--pefa-blue);background:#fff;box-shadow:0 0 0 4px rgba(7,86,168,.10); }
+.search-btn { display:flex;align-items:center;justify-content:center;gap:9px;width:100%;min-height:52px;margin-top:22px;border:0;border-radius:11px;cursor:pointer;color:#fff;background:linear-gradient(135deg,var(--pefa-blue-dark),var(--pefa-blue));box-shadow:0 10px 22px rgba(7,86,168,.20);font-family:inherit;font-size:14px;font-weight:750;letter-spacing:.2px;transition:transform var(--transition),box-shadow var(--transition),filter var(--transition); }
+.search-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 14px 28px rgba(7,86,168,.25);filter:brightness(1.04)}
 .search-btn:active:not(:disabled){transform:translateY(0)}
-.search-btn:disabled{opacity:.7;cursor:not-allowed}
+.search-btn:disabled{cursor:not-allowed;opacity:.65;box-shadow:none}
 
-/* ==========================================================
-   PATIENT WELCOME
-   ========================================================== */
-.patient-portal-home{
-  width:min(1180px,100%);
-  margin:0 auto;
+.patient-portal-home { width:min(1200px,100%);margin:0 auto 28px; }
+.welcome-card { position:relative;margin-bottom:24px;padding:26px 28px;border:1px solid var(--pefa-border);border-radius:var(--radius-lg);background:linear-gradient(135deg,#fff,#f8fbff);box-shadow:var(--shadow-md);overflow:hidden; }
+.welcome-card::before { content:"";position:absolute;top:0;bottom:0;left:0;width:5px;background:linear-gradient(180deg,var(--pefa-blue),var(--pefa-green)); }
+.welcome-card h2 { display:flex;flex-wrap:wrap;align-items:baseline;gap:7px;margin:0 0 10px;color:var(--pefa-navy);font-size:clamp(20px,3vw,26px);line-height:1.3;font-weight:800; }
+.patient-name { color:var(--pefa-blue);font-weight:850; }
+.welcome-card p { max-width:850px;margin:0;color:var(--pefa-muted);font-size:14px;line-height:1.75; }
+.report-selector-wrapper { padding:22px;border:1px solid var(--pefa-border);border-radius:var(--radius-lg);background:rgba(255,255,255,.96);box-shadow:var(--shadow-sm); }
+.report-selector-wrapper h3 { display:flex;align-items:center;gap:9px;margin:0 0 15px;color:var(--pefa-navy);font-size:15px;font-weight:800; }
+.report-selector-wrapper h3::before { content:"";width:8px;height:8px;flex:0 0 8px;border-radius:50%;background:var(--pefa-green);box-shadow:0 0 0 5px var(--pefa-green-soft); }
+.report-selector { display:flex;flex-wrap:wrap;gap:10px; }
+.report-chip { display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:8px 15px;border:1px solid var(--pefa-border);border-radius:999px;cursor:pointer;color:#41516a;background:#f9fbfd;font-family:inherit;font-size:13px;font-weight:700;transition:transform var(--transition),border-color var(--transition),background var(--transition),color var(--transition),box-shadow var(--transition); }
+.report-chip:hover { transform:translateY(-1px);border-color:rgba(7,86,168,.35);color:var(--pefa-blue);background:var(--pefa-blue-soft);box-shadow:0 5px 15px rgba(7,86,168,.08); }
+.report-chip.active { border-color:var(--pefa-blue);color:#fff;background:linear-gradient(135deg,var(--pefa-blue-dark),var(--pefa-blue));box-shadow:0 7px 18px rgba(7,86,168,.20); }
+.report-chip:focus-visible,.report-action-btn:focus-visible { outline:3px solid rgba(7,86,168,.18);outline-offset:2px; }
+
+.report-print-container { width:100%;margin:30px auto 0;box-sizing:border-box;display:flex;justify-content:center;align-items:flex-start;overflow:visible; }
+.report-print-container .pefa-report-document { box-sizing:border-box;width:210mm;min-height:297mm;max-width:100%;margin:0 auto;background:#fff;box-shadow:0 20px 60px rgba(15,38,65,.16); }
+
+.pending-release-card { width:min(700px,100%);margin:30px auto;padding:38px 28px;text-align:center;border:1px solid rgba(201,138,0,.22);border-radius:var(--radius-lg);background:linear-gradient(135deg,#fffdf7,#fffaf0);box-shadow:var(--shadow-md); }
+.pending-release-card h3{margin:0 0 8px;color:#8b6200;font-size:19px;font-weight:800}.pending-release-card p{margin:0;color:#866f43;font-size:14px;line-height:1.6}
+.report-actions { display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:13px;width:100%;margin:28px auto 0; }
+.report-action-btn { display:inline-flex;align-items:center;justify-content:center;gap:9px;min-width:180px;min-height:48px;padding:0 20px;border:1px solid transparent;border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:750;transition:transform var(--transition),box-shadow var(--transition),background var(--transition),border-color var(--transition); }
+.report-action-btn:hover{transform:translateY(-2px)}
+.download-btn{color:#fff;background:linear-gradient(135deg,var(--pefa-blue-dark),var(--pefa-blue));box-shadow:0 9px 22px rgba(7,86,168,.18)}.download-btn:hover{box-shadow:0 13px 28px rgba(7,86,168,.25)}
+.print-btn{color:var(--pefa-blue-dark);border-color:rgba(7,86,168,.25);background:#fff;box-shadow:var(--shadow-sm)}.print-btn:hover{border-color:var(--pefa-blue);background:var(--pefa-blue-soft);box-shadow:0 9px 20px rgba(7,86,168,.10)}
+
+/* =========================================================
+   MOBILE SCREEN — POLISHED FULL-WIDTH REPORT
+   ========================================================= */
+@media (max-width:1100px){
+  .patient-result-page{padding:30px 24px 60px}
+  .report-print-container{overflow:hidden;padding-bottom:12px}
 }
 
-.welcome-card{
-  position:relative;
-  overflow:hidden;
-  margin:0 0 26px;
-  padding:34px 38px;
-  border-radius:30px;
-  color:#fff;
-  background:
-    radial-gradient(circle at 90% 10%,rgba(255,255,255,.15),transparent 23%),
-    linear-gradient(135deg,#0f172a 0%,#0b4ea2 48%,#0f9f9a 100%);
-  box-shadow:0 24px 60px rgba(15,23,42,.18);
-}
+@media (max-width:800px){
+  .patient-result-page{padding:24px 16px 50px}
+  .patient-result-header{padding:28px 22px}
+  .patient-result-card{padding:24px 20px}
+  .search-grid{grid-template-columns:1fr;gap:16px}
+  .welcome-card{padding:23px 22px}
+  .report-selector-wrapper{padding:19px}
+  .report-chip{flex:1 1 auto}
 
-.welcome-card::before{
-  content:"";
-  position:absolute;
-  width:270px;height:270px;
-  right:-110px;top:-150px;
-  border:42px solid rgba(255,255,255,.07);
-  border-radius:50%;
-}
-
-.welcome-card::after{
-  content:"PEFA";
-  position:absolute;
-  right:36px;bottom:-14px;
-  color:rgba(255,255,255,.06);
-  font-size:82px;
-  line-height:1;
-  font-weight:950;
-  letter-spacing:.1em;
-}
-
-.welcome-card h2{
-  position:relative;
-  z-index:2;
-  margin:0;
-  font-size:clamp(24px,3vw,34px);
-  line-height:1.15;
-  font-weight:900;
-  letter-spacing:-.03em;
-}
-
-.patient-name{
-  display:inline-block;
-  margin-left:8px;
-  color:#fde68a;
-}
-
-.welcome-card p{
-  position:relative;
-  z-index:2;
-  max-width:760px;
-  margin:14px 0 0;
-  color:rgba(255,255,255,.84);
-  font-size:14px;
-  line-height:1.8;
-  font-weight:500;
-}
-
-/* ==========================================================
-   AVAILABLE REPORTS
-   ========================================================== */
-.report-selector-wrapper{
-  padding:28px;
-  border-radius:28px;
-  background:rgba(255,255,255,.90);
-  border:1px solid rgba(255,255,255,.86);
-  box-shadow:var(--portal-shadow-soft);
-  backdrop-filter:blur(18px);
-}
-
-.report-selector-wrapper h3{
-  margin:0 0 18px;
-  color:#10213f;
-  font-size:18px;
-  font-weight:900;
-  letter-spacing:-.02em;
-}
-
-.report-selector-wrapper h3::before{
-  content:"";
-  display:inline-block;
-  width:9px;height:9px;
-  margin:0 9px 2px 0;
-  border-radius:50%;
-  background:linear-gradient(135deg,#0b5ed7,#0f9f9a);
-  box-shadow:0 0 0 5px rgba(11,94,215,.08);
-}
-
-.report-selector{
-  display:flex;
-  flex-wrap:wrap;
-  gap:12px;
-}
-
-.report-chip{
-  min-height:52px;
-  padding:0 19px;
-  border:1px solid #dce7f3;
-  border-radius:16px;
-  background:#fff;
-  color:#334155;
-  font-size:13px;
-  font-weight:850;
-  cursor:pointer;
-  box-shadow:0 6px 18px rgba(15,23,42,.055);
-  transition:.2s ease;
-}
-
-.report-chip:hover{
-  transform:translateY(-2px);
-  border-color:#80b5ed;
-  color:#0755c9;
-  box-shadow:0 12px 26px rgba(11,94,215,.12);
-}
-
-.report-chip.active{
-  color:#fff;
-  border-color:transparent;
-  background:linear-gradient(135deg,#0755c9,#0b7ed8 48%,#0f9f9a);
-  box-shadow:0 14px 30px rgba(11,94,215,.22);
-}
-
-/* ==========================================================
-   PENDING STATE
-   ========================================================== */
-.pending-release-card{
-  width:min(1180px,100%);
-  margin:28px auto;
-  padding:30px;
-  border-radius:24px;
-  border:1px solid #fde68a;
-  background:linear-gradient(135deg,#fffbeb,#fff7ed);
-  box-shadow:var(--portal-shadow-soft);
-}
-
-.pending-release-card h3{
-  margin:0 0 7px;
-  color:#9a3412;
-  font-size:22px;
-  font-weight:900;
-}
-
-.pending-release-card p{margin:0;color:#7c2d12}
-
-/* ==========================================================
-   REPORT ACTIONS
-   ========================================================== */
-.report-actions{
-  width:min(1180px,100%);
-  margin:26px auto 0;
-  display:flex;
-  justify-content:center;
-  gap:14px;
-}
-
-.report-action-btn{
-  min-width:220px;
-  height:56px;
-  padding:0 24px;
-  border-radius:17px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:9px;
-  font-size:14px;
-  font-weight:900;
-  cursor:pointer;
-  transition:.2s ease;
-}
-
-.download-btn{
-  color:#0b4ea2;
-  background:#fff;
-  border:1px solid #cfe0f4;
-  box-shadow:0 9px 24px rgba(15,23,42,.07);
-}
-
-.download-btn:hover{
-  transform:translateY(-2px);
-  border-color:#8eb9e9;
-  box-shadow:0 14px 30px rgba(11,94,215,.12);
-}
-
-.print-btn{
-  color:#fff;
-  border:0;
-  background:linear-gradient(135deg,#071a3a,#0755c9 55%,#0f9f9a);
-  box-shadow:0 14px 32px rgba(7,26,58,.24);
-}
-
-.print-btn:hover{
-  transform:translateY(-2px);
-  box-shadow:0 18px 38px rgba(7,26,58,.29);
-}
-
-/* ==========================================================
-   REPORT CONTAINER — SCREEN ONLY
-   The report's internal design is inherited from the exact
-   Result Dashboard renderer. Do not restyle its A4 internals.
-   ========================================================== */
-.report-print-container{
-  width:100%;
-  margin:34px auto 0;
-}
-
-#portal-report{
-  width:100%;
-}
-
-/* ==========================================================
-   ACCESSIBILITY / FOCUS
-   ========================================================== */
-button:focus-visible,
-input:focus-visible{
-  outline:3px solid rgba(6,182,212,.28);
-  outline-offset:2px;
-}
-
-/* ==========================================================
-   SCROLLBAR
-   ========================================================== */
-.patient-result-page::-webkit-scrollbar{width:10px;height:10px}
-.patient-result-page::-webkit-scrollbar-thumb{background:#b9cbe0;border-radius:999px}
-.patient-result-page::-webkit-scrollbar-thumb:hover{background:#8fa9c4}
-
-/* ==========================================================
-   TABLET
-   ========================================================== */
-@media(max-width:900px){
-  .patient-result-page{padding:30px 16px 60px}
-  .patient-result-header{padding:32px 28px}
-  .search-grid{grid-template-columns:1fr}
-  .patient-result-card{padding:22px}
-}
-
-/* ==========================================================
-   MOBILE
-   ========================================================== */
-@media(max-width:600px){
-  .patient-result-page{padding:18px 12px 48px}
-  .patient-result-header{
-    padding:28px 22px 30px;
-    border-radius:26px;
-    margin-bottom:18px;
+  #portal-report{width:100%!important;min-width:0!important;max-width:100%!important;padding:0!important;overflow:hidden!important;box-sizing:border-box!important}
+  #portal-report .pefa-report-document{width:100%!important;min-width:0!important;max-width:100%!important;min-height:0!important;margin:0!important;box-sizing:border-box!important;overflow:hidden!important;box-shadow:0 12px 35px rgba(15,38,65,.13)!important}
+  #portal-report .pefa-report-letterhead,#portal-report .pefa-report-patient,#portal-report .pefa-report-body,#portal-report .pefa-router-body,#portal-report .pefa-saved-result,#portal-report .pefa-saved-result-table-wrap{width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
+  #portal-report .pefa-letterhead-top{grid-template-columns:52px minmax(0,1fr) 48px!important;gap:8px!important}
+  #portal-report .pefa-letterhead-logo-wrap{min-width:0!important}
+  #portal-report .pefa-letterhead-logo{max-width:52px!important;height:auto!important}
+  #portal-report .pefa-letterhead-title{min-width:0!important}
+  #portal-report .pefa-letterhead-title h1{font-size:clamp(17px,5vw,24px)!important}
+  #portal-report .pefa-letterhead-title h2{font-size:clamp(11px,3vw,15px)!important}
+  #portal-report .pefa-letterhead-title p{font-size:8px!important;line-height:1.3!important}
+  #portal-report .pefa-letterhead-qr{min-width:0!important}
+  #portal-report .pefa-letterhead-qr svg{width:42px!important;height:42px!important}
+  #portal-report .pefa-service-strip{display:flex!important;flex-wrap:wrap!important;gap:4px!important;justify-content:center!important}
+  #portal-report .pefa-service-strip span,#portal-report .pefa-service-strip b{font-size:7px!important;padding:2px 4px!important;white-space:nowrap!important}
+  #portal-report .pefa-office-row{grid-template-columns:1fr!important}
+  #portal-report .pefa-contact-strip{display:flex!important;flex-wrap:wrap!important;justify-content:center!important;gap:3px!important;font-size:7px!important;line-height:1.25!important}
+  #portal-report .pefa-report-patient-grid{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    box-sizing:border-box!important;
   }
-  .patient-result-header svg{width:52px;height:52px;margin-bottom:13px}
-  .patient-result-header h1{font-size:30px}
-  .patient-result-header p{font-size:13px}
-  .patient-result-header::after{display:none}
 
-  .patient-result-card{padding:18px;border-radius:24px;margin-bottom:20px}
-  .form-group input{height:54px}
-  .search-btn{height:56px;margin-top:16px}
+  #portal-report .pefa-report-patient-grid>div{
+    min-width:0!important;
+    max-width:100%!important;
+    overflow:hidden!important;
+    box-sizing:border-box!important;
+  }
 
-  .welcome-card{padding:26px 22px;border-radius:24px}
-  .welcome-card h2{font-size:24px}
-  .patient-name{display:block;margin:5px 0 0}
-  .welcome-card p{font-size:13px;line-height:1.7}
-  .welcome-card::after{display:none}
+  #portal-report .pefa-report-patient-grid strong{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    overflow-wrap:anywhere!important;
+    word-break:normal!important;
+    white-space:normal!important;
+    line-height:1.35!important;
+  }
 
-  .report-selector-wrapper{padding:20px;border-radius:22px}
-  .report-selector{display:grid;grid-template-columns:1fr}
-  .report-chip{width:100%;text-align:left;padding:0 16px}
-
-  .report-actions{flex-direction:column;gap:10px;margin-top:20px}
-  .report-action-btn{width:100%;min-width:100%}
+  /* Branch is a short, single-value field. Keep it visually normal on phones. */
+  #portal-report .pefa-report-patient-grid>div:nth-child(7) strong{
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+  }
+  #portal-report .pefa-report-body{overflow:hidden!important}
+  #portal-report .pefa-saved-result-table-wrap{overflow-x:auto!important;-webkit-overflow-scrolling:touch!important}
+  #portal-report .pefa-saved-result-table{min-width:0!important;width:100%!important;table-layout:fixed!important}
+  #portal-report .pefa-saved-result-table th,#portal-report .pefa-saved-result-table td{padding:6px 5px!important;font-size:9px!important;line-height:1.3!important;overflow-wrap:anywhere!important;word-break:break-word!important}
+  #portal-report .pefa-saved-result-table th{white-space:normal!important}
+  #portal-report .pefa-report-signatures{display:grid!important;grid-template-columns:1fr!important;gap:18px!important}
+  #portal-report .pefa-report-verification{grid-template-columns:52px 1fr!important}
 }
 
-/* ==========================================================
-   PRINT BRIDGE
-   Hide portal UI and expose ONLY the canonical Dashboard
-   report. This keeps printing independent of the portal skin.
-   ========================================================== */
+@media (max-width:600px){
+  .patient-result-page{padding:15px 12px 40px;background:linear-gradient(180deg,#f5f9fd 0%,#fff 100%)}
+  .patient-result-header{margin-bottom:16px;padding:25px 18px 24px;border-radius:18px}
+  .patient-result-header svg{width:34px;height:34px;padding:10px;margin-bottom:10px}
+  .patient-result-header h1{font-size:25px;letter-spacing:-.5px}.patient-result-header p{font-size:12px}
+  .patient-result-card{margin-bottom:18px;padding:22px 16px;border-radius:16px}.patient-result-card::before{left:18px;right:18px}
+  .form-group label{font-size:12px}.form-group input{min-height:50px;font-size:14px}.search-btn{min-height:50px;margin-top:18px}
+  .welcome-card{margin-bottom:16px;padding:20px 17px;border-radius:16px}.welcome-card h2{display:block;font-size:20px}.patient-name{display:block;margin-top:2px}.welcome-card p{font-size:13px;line-height:1.65}
+  .report-selector-wrapper{padding:17px;border-radius:16px}.report-selector-wrapper h3{font-size:14px}.report-selector{display:grid;grid-template-columns:1fr;gap:8px}.report-chip{width:100%;min-height:45px;justify-content:flex-start;padding:8px 14px;border-radius:10px;text-align:left}
+  .report-print-container{margin-top:20px;width:100%;overflow:hidden;padding:0 0 16px;justify-content:center}
+  #portal-report .pefa-report-document{border-radius:0!important}
+  #portal-report .pefa-report-patient-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  #portal-report .pefa-report-patient-grid>div{
+    padding:8px 9px!important;
+    min-height:48px!important;
+  }
+  #portal-report .pefa-report-patient-grid label{
+    display:block!important;
+    margin-bottom:3px!important;
+    font-size:7.5px!important;
+    line-height:1.2!important;
+  }
+  #portal-report .pefa-report-patient-grid strong{
+    font-size:9.5px!important;
+    line-height:1.35!important;
+  }
+  #portal-report .pefa-report-patient-grid>div:nth-child(7) strong{
+    font-size:10px!important;
+    white-space:nowrap!important;
+  }
+  #portal-report .pefa-report-heading h2{font-size:16px!important;line-height:1.25!important}
+  #portal-report .pefa-report-heading small{font-size:9px!important}
+  #portal-report .pefa-saved-result-table th,#portal-report .pefa-saved-result-table td{font-size:8px!important;padding:5px 4px!important}
+  #portal-report .pefa-report-footer{font-size:7px!important;line-height:1.25!important}
+  .report-actions{display:grid;grid-template-columns:1fr;gap:9px;margin-top:18px}.report-action-btn{width:100%;min-height:50px}
+  .pending-release-card{margin-top:20px;padding:30px 18px;border-radius:16px}
+}
+
+@media (max-width:380px){
+  .patient-result-page{padding:10px 9px 30px}.patient-result-header{padding:22px 14px}.patient-result-header h1{font-size:22px}.patient-result-card{padding:19px 13px}.patient-result-card::before{left:14px;right:14px}.welcome-card{padding:18px 15px}.report-selector-wrapper{padding:14px}.form-group input{min-height:48px;padding:0 12px}
+  #portal-report .pefa-letterhead-top{grid-template-columns:42px minmax(0,1fr) 40px!important;gap:5px!important}
+  #portal-report .pefa-letterhead-logo{max-width:42px!important} #portal-report .pefa-letterhead-qr svg{width:34px!important;height:34px!important}
+  #portal-report .pefa-report-patient-grid>div{
+    padding:7px 6px!important;
+    min-height:44px!important;
+  }
+  #portal-report .pefa-report-patient-grid>div:nth-child(7) strong{
+    white-space:nowrap!important;
+  }
+  #portal-report .pefa-saved-result-table th,#portal-report .pefa-saved-result-table td{font-size:7.5px!important;padding:4px 3px!important}
+}
+
+@media (prefers-reduced-motion:reduce){.patient-result-page *,.patient-result-page *::before,.patient-result-page *::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}}
+
+/* =========================================================
+   PRINT / PDF — CANONICAL A4
+   ========================================================= */
+@page{size:A4 portrait;margin:0}
+
+
+/* MOBILE PRINT — BRANCH / PATIENT GRID ALIGNMENT */
+@media print and (max-width:900px){
+
+  /* Keep every patient-information cell on the same grid structure. */
+  #portal-report .pefa-report-patient-grid{
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    grid-auto-flow:row!important;
+    grid-auto-rows:minmax(0,auto)!important;
+    align-items:stretch!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+  }
+
+  #portal-report .pefa-report-patient-grid>div{
+    grid-column:auto!important;
+    width:auto!important;
+    min-width:0!important;
+    max-width:none!important;
+    align-self:stretch!important;
+    display:flex!important;
+    flex-direction:column!important;
+    justify-content:flex-start!important;
+    box-sizing:border-box!important;
+    overflow:hidden!important;
+  }
+
+  /* Branch is a short field: keep BRANCH + Home visually clean
+     instead of allowing the value to wrap in the print viewport. */
+  #portal-report .pefa-report-patient-grid>div:nth-child(7){
+    min-width:0!important;
+    overflow:hidden!important;
+  }
+
+  #portal-report .pefa-report-patient-grid>div:nth-child(7) strong{
+    display:block!important;
+    width:100%!important;
+    min-width:0!important;
+    max-width:100%!important;
+    white-space:nowrap!important;
+    overflow:hidden!important;
+    text-overflow:ellipsis!important;
+    word-break:normal!important;
+    overflow-wrap:normal!important;
+    line-height:1.3!important;
+  }
+
+  /* Keep all other values controlled inside their own cell. */
+  #portal-report .pefa-report-patient-grid>div strong{
+    display:block!important;
+    min-width:0!important;
+    max-width:100%!important;
+    overflow-wrap:anywhere!important;
+    word-break:break-word!important;
+    line-height:1.3!important;
+  }
+
+  /* Do not let long neighbouring fields change the four-column
+     structure or push the Branch cell out of alignment. */
+  #portal-report .pefa-report-patient-grid>div:nth-child(4n){
+    border-right:0!important;
+  }
+}
+
 @media print{
-  @page{size:A4 portrait;margin:0}
-  html,body{margin:0!important;padding:0!important;background:#fff!important}
+  html,body{width:210mm!important;min-width:210mm!important;max-width:210mm!important;margin:0!important;padding:0!important;background:#fff!important;overflow:visible!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
   body *{visibility:hidden!important}
-  #portal-report,#portal-report *{visibility:visible!important}
-  #portal-report{
-    position:absolute!important;
-    inset:0!important;
-    width:210mm!important;
-    min-height:297mm!important;
-    margin:0!important;
-    padding:0!important;
-    background:#fff!important;
-  }
-  .patient-result-page > *:not(#portal-report){display:none!important}
-  .report-actions,
-  .patient-result-header,
-  .patient-result-card,
-  .patient-portal-home,
-  .pending-release-card{display:none!important}
+  body.pefa-printing-result #portal-report,body.pefa-printing-result #portal-report *{visibility:visible!important}
+  .patient-result-page{width:210mm!important;min-width:210mm!important;max-width:210mm!important;margin:0!important;padding:0!important;background:#fff!important;overflow:visible!important}
+  .patient-result-page>.patient-result-header,.patient-result-page>.patient-result-card,.patient-result-page>.patient-portal-home,.patient-result-page>.report-actions,.patient-result-page>.pending-release-card{display:none!important}
+  body.pefa-printing-result #portal-report{position:absolute!important;left:0!important;top:0!important;width:210mm!important;min-width:210mm!important;max-width:210mm!important;margin:0!important;padding:0!important;overflow:visible!important;background:#fff!important;box-sizing:border-box!important}
+  #portal-report .pefa-report-document{display:block!important;width:210mm!important;min-width:210mm!important;max-width:210mm!important;min-height:297mm!important;margin:0!important;padding:0!important;box-shadow:none!important;transform:none!important;overflow:visible!important;box-sizing:border-box!important}
+  #portal-report .pefa-report-patient-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;width:100%!important;min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
+  #portal-report .pefa-report-patient-grid>div{grid-column:auto!important;min-width:0!important;max-width:none!important;box-sizing:border-box!important;overflow:hidden!important}
+  #portal-report .pefa-report-patient-grid>div:nth-child(4n){border-right:0!important}
+  #portal-report .pefa-report-body,#portal-report .pefa-router-body,#portal-report .pefa-saved-result,#portal-report .pefa-saved-result-table-wrap{display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;overflow:visible!important;box-sizing:border-box!important;transform:none!important}
+  #portal-report table{width:100%!important;min-width:0!important;max-width:100%!important;border-collapse:collapse!important;box-sizing:border-box!important}
+  #portal-report .pefa-report-signatures{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:20px!important}
+  #portal-report .pefa-report-verification{width:100%!important;min-width:0!important}
+  #portal-report *{animation:none!important;transition:none!important}
 }
+
+/* PDF capture state: always A4 regardless of phone viewport. */
+body.pefa-pdf-exporting{background:#fff!important}
+body.pefa-pdf-exporting .patient-result-page>.patient-result-header,body.pefa-pdf-exporting .patient-result-page>.patient-result-card,body.pefa-pdf-exporting .patient-result-page>.patient-portal-home,body.pefa-pdf-exporting .patient-result-page>.report-actions,body.pefa-pdf-exporting .patient-result-page>.pending-release-card{display:none!important}
+body.pefa-pdf-exporting #portal-report{position:fixed!important;left:0!important;top:0!important;width:210mm!important;min-width:210mm!important;max-width:210mm!important;margin:0!important;padding:0!important;display:block!important;visibility:visible!important;opacity:1!important;overflow:visible!important;background:#fff!important;transform:none!important;z-index:2147483647!important}
+body.pefa-pdf-exporting #portal-report *{visibility:visible!important}
+body.pefa-pdf-exporting #portal-report .pefa-report-document{width:210mm!important;min-width:210mm!important;max-width:210mm!important;min-height:297mm!important;margin:0!important;padding:0!important;box-shadow:none!important;transform:none!important;background:#fff!important;box-sizing:border-box!important}
+body.pefa-pdf-exporting #portal-report .pefa-report-letterhead,body.pefa-pdf-exporting #portal-report .pefa-report-patient,body.pefa-pdf-exporting #portal-report .pefa-report-body,body.pefa-pdf-exporting #portal-report .pefa-router-body,body.pefa-pdf-exporting #portal-report .pefa-saved-result,body.pefa-pdf-exporting #portal-report .pefa-saved-result-table-wrap{width:100%!important;min-width:0!important;max-width:none!important;overflow:visible!important;box-sizing:border-box!important}
+body.pefa-pdf-exporting #portal-report .pefa-report-patient-grid{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr))!important;width:100%!important;min-width:0!important;max-width:100%!important}
+body.pefa-pdf-exporting #portal-report .pefa-saved-result-table{width:100%!important;min-width:0!important;max-width:100%!important;border-collapse:collapse!important}
+body.pefa-pdf-exporting #portal-report .pefa-report-signatures{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:20px!important}
