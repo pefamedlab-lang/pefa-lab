@@ -81,7 +81,7 @@ import UltrasoundReportPrint from "./Pages/UltrasoundReportPrint";
 
 import ReferralDashboard from "./Pages/ReferralDashboard";
 import InventoryDashboard from "./Pages/InventoryDashboard";
-import StaffManagementDashboard from "./Pages/StaffManagementDashboard";
+import StaffManagement from "./Pages/StaffManagement";
 import RolePermissionManager from "./Pages/RolePermissionManager";
 
 // ============================================================
@@ -545,7 +545,7 @@ export default function App() {
                   "Admin",
                 ]}
               >
-                <StaffManagementDashboard />
+                <StaffManagement />
               </ProtectedRoute>
             }
           />
