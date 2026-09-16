@@ -32,7 +32,7 @@ import FormalResultRenderer from "../../components/printing/FormalResultRenderer
 import { getAgeAwareBilirubinResult } from "../../services/laboratory/neonatalBilirubinReferenceEngine";
 import { QRCodeSVG } from "qrcode.react";
 import logo from "../../assets/logo.png";
-import "./LaboratoryResultDashboard.SEND-RESULT.FULL.css";
+import "./LaboratoryResultDashboard.css";
 
 /*
   PEFA LABORATORY RESULT DASHBOARD
@@ -89,6 +89,15 @@ const isSavedValue = (value) => {
 const firstValue = (...values) => {
   for (const value of values) {
     if (value !== null && value !== undefined && text(value) !== "") return value;
+  }
+  return null;
+};
+
+const firstScalarValue = (...values) => {
+  for (const value of values) {
+    if (value === null || value === undefined) continue;
+    if (typeof value === "object") continue;
+    if (text(value) !== "") return value;
   }
   return null;
 };
@@ -199,6 +208,15 @@ const status = (row) => {
   // Keep legacy Completed rows visible as Entered.
   if (resultStatus === "completed") return "entered";
   if (resultStatus === "entered") return "entered";
+
+  // A structured Blood Bank result can legitimately retain legacy/payload
+  // result_status = Pending while the actual result object is already saved.
+  // The presence of a persisted result value is authoritative for Dashboard
+  // visibility/status.
+  if (resultStatus === "pending" && hasSavedResult(row)) {
+    return "entered";
+  }
+
   return resultStatus || "pending";
 };
 
@@ -297,7 +315,7 @@ const savedRows = (row) => {
     const nested = parseResultObject(structured.result);
     const payload = nested ? { ...structured, ...nested } : structured;
 
-    const value = firstValue(
+    const value = firstScalarValue(
       payload.value,
       payload.result_value,
       payload.resultValue,
@@ -410,6 +428,209 @@ const includesKnownName = (name, names) =>
     return name === n || name.includes(n);
   });
 
+const isPCVRow = (row = {}) => {
+  const identities = [
+    row?.test_name,
+    row?.testName,
+    row?.name,
+    row?.test,
+    row?.parameter,
+    row?.parameter_name,
+    row?.parameterName,
+    row?.masterTest?.test_name,
+    row?.masterTest?.testName,
+    row?.masterTest?.name,
+    row?.master_test?.test_name,
+    row?.master_test?.testName,
+    row?.master_test?.name,
+    row?.code,
+    row?.test_code,
+    row?.testCode,
+    row?.key,
+  ]
+    .filter((value) => value !== null && value !== undefined && text(value) !== "")
+    .map((value) =>
+      normalize(value)
+        .replace(/[()\[\]{}]+/g, " ")
+        .replace(/[_-]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+    );
+
+  return identities.some((identity) => {
+    const compact = identity.replace(/\s+/g, "");
+    return compact === "pcv" || compact === "packedcellvolume";
+  });
+};
+
+const isUricAcidRow = (row = {}) => {
+  const identities = [
+    row?.test_name, row?.testName, row?.name, row?.test,
+    row?.parameter, row?.parameter_name, row?.parameterName,
+    row?.masterTest?.test_name, row?.masterTest?.testName, row?.masterTest?.name,
+    row?.master_test?.test_name, row?.master_test?.testName, row?.master_test?.name,
+    row?.code, row?.test_code, row?.testCode, row?.key,
+  ].filter((value) => value !== null && value !== undefined && text(value) !== "")
+    .map((value) => normalize(value)
+      .replace(/[()\[\]{}]+/g, " ")
+      .replace(/[_-]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim());
+
+  return identities.some((identity) => {
+    const compact = identity.replace(/\s+/g, "");
+    return compact === "uricacid" || compact === "uric" || compact === "serumuricacid";
+  });
+};
+
+const isHbA1cRow = (row = {}) => {
+  const identities = [
+    row?.test_name, row?.testName, row?.name, row?.test,
+    row?.parameter, row?.parameter_name, row?.parameterName,
+    row?.masterTest?.test_name, row?.masterTest?.testName, row?.masterTest?.name,
+    row?.master_test?.test_name, row?.master_test?.testName, row?.master_test?.name,
+    row?.code, row?.test_code, row?.testCode, row?.key,
+  ].filter((value) => value !== null && value !== undefined && text(value) !== "")
+    .map((value) => normalize(value)
+      .replace(/[()\[\]{}]+/g, " ")
+      .replace(/[_-]+/g, " ")
+      .replace(/\s+/g, " ")
+      .trim());
+
+  return identities.some((identity) => {
+    const compact = identity.replace(/\s+/g, "");
+    return (
+      compact === "hba1c" ||
+      compact === "hba1" ||
+      compact === "glycatedhaemoglobin" ||
+      compact === "glycatedhemoglobin" ||
+      compact === "glycosylatedhaemoglobin" ||
+      compact === "glycosylatedhemoglobin"
+    );
+  });
+};
+
+const PEFA_URIC_ACID_DASHBOARD_UNIT = "mg/dL";
+const PEFA_HBA1C_DASHBOARD_UNIT = "%";
+const PEFA_HBA1C_DASHBOARD_REFERENCE = "4.0 - 6.0 %";
+
+// PEFA serum uric acid reference ranges. Keep sex-specific because uric acid
+// reference intervals commonly differ between adult males and females.
+const getUricAcidDashboardReference = (row, report = {}) => {
+  const { sex, age } = getSavedDemographics(row, report);
+  if (age !== null && age < 18) return "2.5 - 5.5 mg/dL";
+  if (sex === "female") return "2.4 - 6.0 mg/dL";
+  if (sex === "male") return "3.4 - 7.0 mg/dL";
+  return "3.4 - 7.0 mg/dL";
+};
+
+const PEFA_PCV_DASHBOARD_UNIT = "%";
+
+const getPCVDashboardReference = (row, report = {}) => {
+  const { sex, age } = getSavedDemographics(row, report);
+
+  // Keep the PCV ranges aligned with the PEFA hematology test library.
+  if (age !== null && age < 18) return "35 - 45 %";
+  if (age !== null && age >= 65) return "35 - 50 %";
+  if (sex === "female") return "36 - 48 %";
+  if (sex === "male") return "40 - 54 %";
+
+  return "";
+};
+
+const isFBSRow = (row = {}) => {
+  const identities = [
+    row?.test_name,
+    row?.testName,
+    row?.name,
+    row?.test,
+    row?.parameter,
+    row?.parameter_name,
+    row?.parameterName,
+    row?.masterTest?.test_name,
+    row?.masterTest?.testName,
+    row?.masterTest?.name,
+    row?.master_test?.test_name,
+    row?.master_test?.testName,
+    row?.master_test?.name,
+    row?.code,
+    row?.test_code,
+    row?.testCode,
+    row?.key,
+  ]
+    .filter((value) => value !== null && value !== undefined && text(value) !== "")
+    .map((value) =>
+      normalize(value)
+        .replace(/[()\[\]{}]+/g, " ")
+        .replace(/[_-]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+    );
+
+  return identities.some((identity) => {
+    const compact = identity.replace(/\s+/g, "");
+
+    return (
+      compact === "fbs" ||
+      compact === "fbsglucometer" ||
+      compact === "fastingbloodsugar" ||
+      compact === "fastingbloodsugarglucometer" ||
+      compact === "fastingbloodglucose" ||
+      compact === "fastingbloodglucoseglucometer" ||
+      compact === "fastingplasmaglucose"
+    );
+  });
+};
+
+const isRBSRow = (row = {}) => {
+  const identities = [
+    row?.test_name,
+    row?.testName,
+    row?.name,
+    row?.test,
+    row?.parameter,
+    row?.parameter_name,
+    row?.parameterName,
+    row?.masterTest?.test_name,
+    row?.masterTest?.testName,
+    row?.masterTest?.name,
+    row?.master_test?.test_name,
+    row?.master_test?.testName,
+    row?.master_test?.name,
+    row?.code,
+    row?.test_code,
+    row?.testCode,
+    row?.key,
+  ]
+    .filter((value) => value !== null && value !== undefined && text(value) !== "")
+    .map((value) =>
+      normalize(value)
+        .replace(/[()\[\]{}]+/g, " ")
+        .replace(/[_-]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim()
+    );
+
+  return identities.some((identity) => {
+    const compact = identity.replace(/\s+/g, "");
+    return (
+      compact === "rbs" ||
+      compact === "rbsglucometer" ||
+      compact === "randombloodsugar" ||
+      compact === "randombloodsugarglucometer" ||
+      compact === "randombloodglucose" ||
+      compact === "randombloodglucoseglucometer" ||
+      compact === "randomplasmaglucose" ||
+      compact === "randomplasmaglucoseglucometer"
+    );
+  });
+};
+
+const PEFA_FBS_DASHBOARD_UNIT = "mg/dL";
+const PEFA_FBS_DASHBOARD_REFERENCE = "70 - 110 mg/dL";
+const PEFA_RBS_DASHBOARD_UNIT = "mg/dL";
+const PEFA_RBS_DASHBOARD_REFERENCE = "90.0 - 180.0 mg/dL";
+
 const presentation = (row) => {
   const name = normalize(testName(row));
   const panel = normalize(panelName(row));
@@ -427,6 +648,19 @@ const presentation = (row) => {
       ""
   );
   const type = resultType(row);
+
+  // PCV is ALWAYS a quantitative hematology measurement. This override
+  // prevents stale/legacy qualitative metadata from changing the Dashboard
+  // report type.
+  if (isPCVRow(row) || isUricAcidRow(row) || isHbA1cRow(row)) {
+    return "quantitative";
+  }
+
+  // PEFA FBS is ALWAYS a quantitative result. This override prevents stale
+  // qualitative metadata from changing the Dashboard report type.
+  if (isFBSRow(row) || isRBSRow(row)) {
+    return "quantitative";
+  }
 
   // ESR is a true quantitative hematology measurement. Some legacy/result-entry
   // rows may carry qualitative metadata, but ESR must never be rendered as a
@@ -1517,6 +1751,21 @@ const isCompositeReferenceRange = (value) => {
 };
 
 const resolveDashboardReference = (row, objectValue = {}, report = {}) => {
+  // PEFA FBS reference range is authoritative and must not be replaced by
+  // stale/blank master-test or saved metadata.
+  if (isFBSRow(row)) {
+    return PEFA_FBS_DASHBOARD_REFERENCE;
+  }
+  if (isRBSRow(row)) {
+    return PEFA_RBS_DASHBOARD_REFERENCE;
+  }
+  if (isPCVRow(row)) {
+    return getPCVDashboardReference(row, report);
+  }
+  if (isHbA1cRow(row)) {
+    return PEFA_HBA1C_DASHBOARD_REFERENCE;
+  }
+
   const { sex, age } = getSavedDemographics(row, report);
   const metadata = getReferenceMetadata(row, objectValue);
 
@@ -1567,7 +1816,7 @@ const savedScalar = (row) => {
   const nested = parseSavedResultObject(parsed.result);
   const source = nested ? { ...parsed, ...nested } : parsed;
 
-  return firstValue(
+  return firstScalarValue(
     source.value,
     source.result_value,
     source.resultValue,
@@ -1599,8 +1848,25 @@ const savedParameter = (row) =>
     "Laboratory Test"
   );
 
-const savedUnit = (row, objectValue = {}) =>
-  firstValue(
+const savedUnit = (row, objectValue = {}) => {
+  // PEFA FBS always reports in mg/dL. Do not depend on stale/blank metadata.
+  if (isFBSRow(row)) {
+    return PEFA_FBS_DASHBOARD_UNIT;
+  }
+  if (isRBSRow(row)) {
+    return PEFA_RBS_DASHBOARD_UNIT;
+  }
+  if (isPCVRow(row)) {
+    return PEFA_PCV_DASHBOARD_UNIT;
+  }
+  if (isUricAcidRow(row)) {
+    return PEFA_URIC_ACID_DASHBOARD_UNIT;
+  }
+  if (isHbA1cRow(row)) {
+    return PEFA_HBA1C_DASHBOARD_UNIT;
+  }
+
+  return firstValue(
     row?.unit,
     row?.result_unit,
     row?.resultUnit,
@@ -1609,6 +1875,7 @@ const savedUnit = (row, objectValue = {}) =>
     objectValue?.resultUnit,
     ""
   );
+};
 
 const isBilirubinPanelRow = (row) => {
   const name = normalize(testName(row));
@@ -1665,6 +1932,17 @@ const getBilirubinAgeAware = (row, value) => {
 };
 
 const savedReference = (row, objectValue = {}, report = {}) => {
+  // PEFA FBS always uses 70 - 110 mg/dL.
+  if (isFBSRow(row)) {
+    return PEFA_FBS_DASHBOARD_REFERENCE;
+  }
+  if (isPCVRow(row)) {
+    return getPCVDashboardReference(row, report);
+  }
+  if (isHbA1cRow(row)) {
+    return PEFA_HBA1C_DASHBOARD_REFERENCE;
+  }
+
   const ageAware = getBilirubinAgeAware(row, savedScalar(row));
   if (ageAware?.reference?.text) return ageAware.reference.text;
   return resolveDashboardReference(row, objectValue, report);
@@ -1799,6 +2077,48 @@ const isCoombsRow = (row) => {
   );
 };
 
+const isGroupingCrossMatchingRow = (row = {}) => {
+  const name = normalize(testName(row))
+    .replace(/[()\\/\\-]+/g, " ")
+    .replace(/\\s+/g, " ")
+    .trim();
+
+  const template = normalize(
+    firstValue(
+      row?.template_type,
+      row?.templateType,
+      row?.masterTest?.template_type,
+      row?.master_test?.template_type,
+      ""
+    )
+  );
+
+  const category = normalize(
+    firstValue(
+      row?.result_category,
+      row?.category,
+      row?.masterTest?.result_category,
+      row?.master_test?.result_category,
+      ""
+    )
+  );
+
+  return (
+    name === "grouping & cross matching" ||
+    name === "grouping and cross matching" ||
+    name === "grouping cross matching" ||
+    name === "blood grouping & cross matching" ||
+    name === "blood grouping and cross matching" ||
+    name === "blood grouping cross matching" ||
+    name.includes("grouping & cross matching") ||
+    name.includes("grouping and cross matching") ||
+    ((template.includes("blood_bank") || template.includes("blood bank")) &&
+      (name.includes("grouping") || name.includes("cross matching"))) ||
+    (category === "blood bank" &&
+      (name.includes("grouping") || name.includes("cross matching")))
+  );
+};
+
 const getCoombsMode = (row) => {
   const name = normalize(testName(row));
   const objectValue = savedObject(row);
@@ -1839,6 +2159,11 @@ const getCoombsMode = (row) => {
 const isQualitativeRow = (row) => {
   const name = normalize(testName(row));
   const type = resultType(row);
+
+  // FBS is never qualitative, even if legacy metadata says otherwise.
+  if (isFBSRow(row) || isRBSRow(row) || isPCVRow(row) || isUricAcidRow(row) || isHbA1cRow(row)) {
+    return false;
+  }
 
   // ESR must never be classified as qualitative, even when legacy metadata
   // incorrectly stores result_type as qualitative.
@@ -1887,6 +2212,11 @@ const isMalariaParasiteRow = (row) => {
 };
 
 const isQualitativeReport = (report, items) => {
+  // A report containing FBS must never be routed to the qualitative renderer.
+  if (items.some((row) => isFBSRow(row) || isRBSRow(row) || isPCVRow(row) || isUricAcidRow(row) || isHbA1cRow(row))) {
+    return false;
+  }
+
   const source = normalize([
     report?.title,
     report?.test_name,
@@ -2231,6 +2561,109 @@ function SavedMalariaParasiteResult({ report }) {
   );
 }
 
+function SavedGroupingCrossMatchingResult({ report }) {
+  const items = (report?.items || []).filter(hasSavedResult);
+  const source = items.find(isGroupingCrossMatchingRow) || items[0] || {};
+  const data = savedObject(source) || {};
+
+  const displayValue = (value) => {
+    if (value === null || value === undefined) return "";
+    if (typeof value === "object") return "";
+    return text(value);
+  };
+
+  const rows = [
+    ["ABO Blood Group", firstValue(data.abo_group, data.recipient_abo_group)],
+    ["Rh(D) Type", firstValue(data.rh_type, data.recipient_rh_type)],
+    ["Donor ABO Group", data.donor_abo_group],
+    ["Donor Rh(D) Type", data.donor_rh_type],
+    ["Donor / Unit Bag No.", data.donor_bag_no],
+    ["HIV", data.hiv_status],
+    ["HBsAg", data.hbsag],
+    ["HCV", data.hcv],
+    ["VDRL", data.vdrl],
+    ["RVS", data.rvs],
+    ["Expiry Date", data.expiry_date],
+    ["Crossmatching", data.crossmatching],
+    ["Remarks", data.remarks],
+  ].filter(([, value]) => displayValue(value) !== "");
+
+  const crossmatches = Array.isArray(data.crossmatches)
+    ? data.crossmatches.filter(Boolean)
+    : [];
+
+  return (
+    <div className="pefa-saved-result pefa-saved-result--blood-grouping">
+      <div className="pefa-saved-result-header">
+        <div>
+          <span>BLOOD BANK • GROUPING &amp; CROSS MATCHING</span>
+          <strong>Grouping &amp; Cross Matching</strong>
+        </div>
+        <small>{statusLabel(firstValue(source?.result_status, "Entered"))}</small>
+      </div>
+
+      <div className="pefa-saved-result-table-wrap">
+        <table className="pefa-saved-result-table pefa-blood-grouping-table">
+          <thead>
+            <tr>
+              <th>Parameter / Test</th>
+              <th>Result</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map(([label, value]) => (
+              <tr key={label}>
+                <td><strong>{label}</strong></td>
+                <td className={
+                  normalize(label) === "crossmatching" &&
+                  normalize(value).includes("compatible")
+                    ? "pefa-coombs-final-result"
+                    : ""
+                }>
+                  {displayValue(value)}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {crossmatches.length > 0 && (
+        <div className="pefa-saved-result-table-wrap pefa-blood-crossmatch-wrap">
+          <table className="pefa-saved-result-table pefa-blood-grouping-table">
+            <thead>
+              <tr>
+                <th>Donor Unit</th>
+                <th>Blood Group</th>
+                <th>Rh(D)</th>
+                <th>Compatibility</th>
+                <th>Expiry Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              {crossmatches.map((match, index) => (
+                <tr key={`${match?.donorUnit || "unit"}-${index}`}>
+                  <td>{displayValue(match?.donorUnit) || "—"}</td>
+                  <td>{displayValue(match?.donorBloodGroup) || "—"}</td>
+                  <td>{displayValue(match?.donorRh) || "—"}</td>
+                  <td className={
+                    normalize(match?.compatibility).includes("compatible")
+                      ? "pefa-coombs-final-result"
+                      : ""
+                  }>
+                    {displayValue(match?.compatibility) || "—"}
+                  </td>
+                  <td>{displayValue(match?.expiryDate) || "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function SavedCoombsResult({ report }) {
   const items = (report?.items || []).filter(hasSavedResult);
   const source = items.find(isCoombsRow) || items[0] || {};
@@ -2332,11 +2765,16 @@ function SavedQualitativeResult({ report }) {
               const nested = parseSavedResultObject(objectValue?.result);
               const value = firstValue(
                 nested?.result,
+                nested?.value,
                 objectValue?.result,
                 objectValue?.value,
+                objectValue?.result_value,
+                objectValue?.resultValue,
+                objectValue?.reading,
                 objectValue?.display_value,
                 objectValue?.displayValue,
-                !objectValue ? resultValue(row) : "",
+                savedScalar(row),
+                resultValue(row),
                 ""
               );
 
@@ -2906,6 +3344,7 @@ function CompactClinicalInterpretation({ report }) {
     items.some(isWidalRow) ||
     items.some(isMalariaParasiteRow) ||
     items.some(isCoombsRow) ||
+    items.some(isGroupingCrossMatchingRow) ||
     isQualitativeReport(report, items);
 
   if (special) return null;
@@ -2951,10 +3390,30 @@ function SavedQuantitativeResult({ report }) {
               const value = savedScalar(row);
               const itemUnit = isESR(row)
                 ? "mm/hr"
-                : savedUnit(row, objectValue) || "—";
+                : isPCVRow(row)
+                  ? PEFA_PCV_DASHBOARD_UNIT
+                  : isUricAcidRow(row)
+                    ? PEFA_URIC_ACID_DASHBOARD_UNIT
+                    : isHbA1cRow(row)
+                      ? PEFA_HBA1C_DASHBOARD_UNIT
+                      : isFBSRow(row)
+                    ? PEFA_FBS_DASHBOARD_UNIT
+                    : isRBSRow(row)
+                      ? PEFA_RBS_DASHBOARD_UNIT
+                      : savedUnit(row, objectValue) || "—";
               const itemReference = isESR(row)
                 ? getESRReference(row)
-                : savedReference(row, objectValue, report) || "—";
+                : isPCVRow(row)
+                  ? getPCVDashboardReference(row, report) || "—"
+                  : isUricAcidRow(row)
+                    ? getUricAcidDashboardReference(row, report) || "3.4 - 7.0 mg/dL"
+                    : isHbA1cRow(row)
+                      ? PEFA_HBA1C_DASHBOARD_REFERENCE
+                      : isFBSRow(row)
+                        ? PEFA_FBS_DASHBOARD_REFERENCE
+                        : isRBSRow(row)
+                          ? PEFA_RBS_DASHBOARD_REFERENCE
+                          : savedReference(row, objectValue, report) || "—";
               const itemFlag = resolveDashboardFlag(row, objectValue, value, report);
 
               return (
@@ -3023,8 +3482,24 @@ function SavedResultContent({ report, patient, printMode }) {
     return <SavedMalariaParasiteResult report={{ ...report, items }} />;
   }
 
+  if (items.some(isGroupingCrossMatchingRow)) {
+    return <SavedGroupingCrossMatchingResult report={{ ...report, items }} />;
+  }
+
   if (items.some(isCoombsRow)) {
     return <SavedCoombsResult report={{ ...report, items }} />;
+  }
+
+  // PCV, Uric Acid and HbA1c are always quantitative scalar results. This must run
+  // before legacy qualitative metadata or renderer decisions.
+  if (items.some((row) => isPCVRow(row) || isUricAcidRow(row) || isHbA1cRow(row))) {
+    return <SavedQuantitativeResult report={{ ...report, items }} />;
+  }
+
+  // FBS/RBS are always quantitative scalar results. This must run before any
+  // legacy qualitative metadata or renderer decision.
+  if (items.some((row) => isFBSRow(row) || isRBSRow(row))) {
+    return <SavedQuantitativeResult report={{ ...report, items }} />;
   }
 
   // Qualitative reports ALWAYS use Parameter | Result. Never render the
@@ -3084,6 +3559,23 @@ const SAVED_RESULT_VIEW_STYLES = `
 .pefa-coombs-result-table th:last-child,.pefa-coombs-result-table td:last-child{width:62%}
 .pefa-coombs-final-result{font-weight:900}
 .pefa-saved-result--coombs .pefa-saved-result-header{border-left:4px solid #2563eb}
+/* Blood Bank grouping / crossmatching table: keep each column aligned. */
+.pefa-saved-result--blood-grouping .pefa-saved-result-header{border-left:4px solid #7c3aed}
+.pefa-blood-grouping-table{width:100%;table-layout:fixed}
+.pefa-blood-grouping-table th,.pefa-blood-grouping-table td{vertical-align:middle;white-space:normal;overflow-wrap:anywhere}
+.pefa-blood-grouping-table th:first-child,.pefa-blood-grouping-table td:first-child{width:42%}
+.pefa-blood-grouping-table th:last-child,.pefa-blood-grouping-table td:last-child{width:58%}
+.pefa-blood-crossmatch-wrap{margin-top:12px}
+.pefa-blood-crossmatch-wrap .pefa-blood-grouping-table th:nth-child(1),
+.pefa-blood-crossmatch-wrap .pefa-blood-grouping-table td:nth-child(1){width:24%}
+.pefa-blood-crossmatch-wrap .pefa-blood-grouping-table th:nth-child(2),
+.pefa-blood-crossmatch-wrap .pefa-blood-grouping-table td:nth-child(2){width:15%}
+.pefa-blood-crossmatch-wrap .pefa-blood-grouping-table th:nth-child(3),
+.pefa-blood-crossmatch-wrap .pefa-blood-grouping-table td:nth-child(3){width:15%}
+.pefa-blood-crossmatch-wrap .pefa-blood-grouping-table th:nth-child(4),
+.pefa-blood-crossmatch-wrap .pefa-blood-grouping-table td:nth-child(4){width:22%}
+.pefa-blood-crossmatch-wrap .pefa-blood-grouping-table th:nth-child(5),
+.pefa-blood-crossmatch-wrap .pefa-blood-grouping-table td:nth-child(5){width:24%;white-space:nowrap}
 .pefa-saved-result-table th{padding:9px 10px;background:#f1f5f9;border:1px solid #dbe3ec;color:#334155;font-size:10px;font-weight:800;text-align:left;white-space:nowrap}
 .pefa-saved-result-table td{padding:9px 10px;border:1px solid #e2e8f0;color:#172033;font-size:11px;vertical-align:middle}
 .pefa-saved-result-table td strong{font-weight:800;color:#0f172a}
@@ -3195,8 +3687,8 @@ const reportStaffDesignation = (staff, fallback = "") => {
 
   /*
    * Access control continues to use the database role "Director".
-   * Only the professional designation printed on laboratory reports
-   * is expanded for Directors.
+   * The professional designation printed on laboratory reports is
+   * intentionally kept simple: Director.
    */
   if (normalize(role) === "director") {
     return "Director";
@@ -3214,7 +3706,6 @@ function ReportSignatureCard({
   staff,
   fallbackName,
   fallbackDesignation,
-  designationOverride = "",
   label,
 }) {
   const name = firstValue(
@@ -3222,7 +3713,7 @@ function ReportSignatureCard({
     fallbackName,
     "Laboratory Scientist"
   );
-  const designation = text(designationOverride) || reportStaffDesignation(
+  const designation = reportStaffDesignation(
     staff,
     fallbackDesignation
   );
@@ -3286,7 +3777,7 @@ function PEFAReportShell({ report, printMode = "full", staffDirectory = [] }) {
     first.authorizedByUserId,
     report.authorized_by,
     report.authorizedBy,
-    "Chief Medical Laboratory Scientist"
+    "Director"
   );
   const releasedBy = firstValue(first.released_by, first.releasedBy, report.released_by, authorizedBy);
   const enteredStaff = resolveReportStaff(enteredBy, staffDirectory);
@@ -3406,8 +3897,12 @@ function PEFAReportShell({ report, printMode = "full", staffDirectory = [] }) {
         <ReportSignatureCard
           staff={authorizedStaff}
           fallbackName={authorizedBy}
-          fallbackDesignation="Director"
-          designationOverride="Director"
+          fallbackDesignation={
+            authorizedStaff?.role ||
+            (normalize(authorizedBy).includes("laboratory")
+              ? authorizedBy
+              : "Director")
+          }
           label="AUTHORIZED BY"
         />
       </section>
@@ -3766,6 +4261,107 @@ export default function LaboratoryResultDashboard() {
         )
       );
 
+      // =====================================================
+      // WHATSAPP RESULT RELEASE NOTIFICATION
+      // -----------------------------------------------------
+      // Only fire when the workflow actually transitions to
+      // Released. Notification failure must not roll back a
+      // successfully released laboratory report.
+      // =====================================================
+      if (nextStatus === "released") {
+        try {
+          const firstRow = selectedReport.items?.[0] || {};
+          const selectedLabNumber =
+            text(selectedReport.lab_number || firstRow.lab_number || "");
+          const selectedRegistrationNumber =
+            text(selectedReport.registration_number || firstRow.registration_number || "");
+
+          let registration = null;
+
+          if (selectedRegistrationNumber) {
+            const { data } = await supabase
+              .from("registrations")
+              .select("*")
+              .eq("registration_number", selectedRegistrationNumber)
+              .maybeSingle();
+            registration = data || null;
+          }
+
+          if (!registration && selectedLabNumber) {
+            const { data } = await supabase
+              .from("registrations")
+              .select("*")
+              .eq("lab_number", selectedLabNumber)
+              .maybeSingle();
+            registration = data || null;
+          }
+
+          const patientPhone =
+            text(
+              registration?.phone ||
+              firstRow.phone ||
+              firstRow.patient_phone ||
+              selectedReport.patient_phone ||
+              ""
+            );
+
+          const patientName =
+            text(
+              registration?.full_name ||
+              firstRow.patient_name ||
+              firstRow.full_name ||
+              selectedReport.patient_name ||
+              "Patient"
+            );
+
+          if (patientPhone) {
+            const reportTitle =
+              text(
+                selectedReport.title ||
+                `${selectedReport.department || "Laboratory"} ${pretty(selectedReport.presentation || "")} Results`
+              );
+
+            const { data: whatsappData, error: whatsappError } =
+              await supabase.functions.invoke(
+                "send-registration-whatsapp",
+                {
+                  body: {
+                    event_type: "result_released",
+                    registration_id: registration?.id || firstRow.registration_id || null,
+                    patient_name: patientName,
+                    phone: patientPhone,
+                    lab_number: selectedLabNumber,
+                    registration_number: selectedRegistrationNumber,
+                    access_code: registration?.access_code || firstRow.access_code || "",
+                    report_name: reportTitle || "Laboratory Result",
+                  },
+                }
+              );
+
+            if (whatsappError) {
+              console.warn(
+                "Result released, but WhatsApp notification failed:",
+                whatsappError
+              );
+            } else {
+              console.log(
+                "WhatsApp released-result notification:",
+                whatsappData
+              );
+            }
+          } else {
+            console.warn(
+              "Result released, but no patient WhatsApp number was available."
+            );
+          }
+        } catch (whatsappError) {
+          console.warn(
+            "Result released, but WhatsApp notification could not be sent:",
+            whatsappError
+          );
+        }
+      }
+
       const refreshedWorkspace = await load({
         requestedLab: searchedLabNumber,
         requestedSearch: search,
@@ -4091,7 +4687,7 @@ printArea.classList.add("pefa-active-result-print");
   const openEntry = () => {
     if (!selectedReport) return;
     navigate(
-      `/laboratory/result-entry?lab_number=${encodeURIComponent(
+      `/laboratory-result-entry?lab_number=${encodeURIComponent(
         selectedReport.lab_number || ""
       )}`
     );

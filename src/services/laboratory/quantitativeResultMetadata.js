@@ -2,29 +2,31 @@
    PEFA LAB
    QUANTITATIVE RESULT METADATA
    ----------------------------------------------------------
-   PATH:
-   src/services/laboratory/quantitativeResultMetadata.js
+   AUTHORITATIVE FBS CONFIGURATION
+   ----------------------------------------------------------
+   FBS / FBS (GLUCOMETER) reference interval:
 
-   PURPOSE:
-   - Resolve display unit
-   - Resolve patient-specific reference range
-   - Resolve critical limits
-   - Calculate quantitative flags
-   - Provide shared text normalization
-   - Provide canonical special-test handling
+      70 - 110 mg/dL
 
-   IMPORTANT:
-   This is the authoritative metadata resolver used by
-   QuantitativeSingleResultEntry.
+   IMPORTANT
+   ----------------------------------------------------------
+   FBS is an explicit PEFA local laboratory configuration.
 
-   DESIGN:
-   - Supports PEFA master_tests schema
-   - Supports snake_case and camelCase metadata
-   - Supports nested masterTest / master_test objects
-   - Supports patient-specific age/sex resolution
-   - Supports canonical special-test rules
-   - Never allows placeholder metadata to override a
-     valid reference range
+   It intentionally takes priority over:
+   - saved result reference_range
+   - master_tests reference_range
+   - nested master-test metadata
+   - generic fallback metadata
+
+   Therefore an old database value such as:
+
+      70 - 99 mg/dL
+
+   will NOT override the PEFA FBS range.
+
+   The same reference range is passed into the quantitative
+   flag engine, ensuring display and flag calculation use
+   the same limits.
    ========================================================== */
 
 
@@ -39,6 +41,8 @@ export const text = (value) =>
 export const normalizeText = (value) =>
   text(value)
     .replace(/[–—−]/g, "-")
+    .replace(/[()]/g, " ")
+    .replace(/[_-]+/g, " ")
     .replace(/\s+/g, " ")
     .toLowerCase()
     .trim();
@@ -49,8 +53,6 @@ const normalize = normalizeText;
 
 /* ==========================================================
    PLACEHOLDER VALUES
-   ----------------------------------------------------------
-   These values are NOT usable reference ranges.
    ========================================================== */
 
 const PLACEHOLDER_REFERENCES = new Set([
@@ -79,7 +81,9 @@ const PLACEHOLDER_REFERENCES = new Set([
 const isPlaceholderReference = (value) => {
   const normalized = normalize(value);
 
-  return PLACEHOLDER_REFERENCES.has(normalized);
+  return PLACEHOLDER_REFERENCES.has(
+    normalized
+  );
 };
 
 
@@ -97,12 +101,15 @@ const usableReference = (value) => {
 
 
 /* ==========================================================
-   GENERIC FIRST-VALUE HELPER
+   GENERIC FIRST-USABLE HELPER
    ========================================================== */
 
 const firstUsable = (...values) => {
+
   for (const value of values) {
-    const resolved = usableReference(value);
+
+    const resolved =
+      usableReference(value);
 
     if (resolved) {
       return resolved;
@@ -114,7 +121,7 @@ const firstUsable = (...values) => {
 
 
 /* ==========================================================
-   OBJECT HELPERS
+   OBJECT HELPER
    ========================================================== */
 
 const isObject = (value) =>
@@ -123,67 +130,48 @@ const isObject = (value) =>
   !Array.isArray(value);
 
 
-const objectValues = (...objects) =>
-  objects.filter(isObject);
-
-
 /* ==========================================================
-   MASTER TEST RESOLUTION
-   ----------------------------------------------------------
-   We intentionally keep ALL useful metadata sources instead
-   of choosing only the first truthy object.
-
-   This is important because PEFA objects may look like:
-
-     {
-       id: "...",
-       test_name: "...",
-       masterTest: {
-         male_range: "...",
-         female_range: "..."
-       }
-     }
-
-   or:
-
-     {
-       test_name: "...",
-       male_range: "..."
-     }
-
-   or:
-
-     {
-       master_test: {
-         ...
-       }
-     }
+   MASTER TEST OBJECTS
    ========================================================== */
 
-const getMasterObjects = (test = {}) => {
+const getMasterObjects = (
+  test = {}
+) => {
+
   if (!isObject(test)) {
     return [];
   }
 
-  const masterTest = isObject(test.masterTest)
-    ? test.masterTest
-    : null;
 
-  const master_test = isObject(test.master_test)
-    ? test.master_test
-    : null;
+  const masterTest =
+    isObject(test.masterTest)
+      ? test.masterTest
+      : null;
 
-  const master = isObject(test.master)
-    ? test.master
-    : null;
 
-  const metadata = isObject(test.metadata)
-    ? test.metadata
-    : null;
+  const master_test =
+    isObject(test.master_test)
+      ? test.master_test
+      : null;
 
-  const testMetadata = isObject(test.testMetadata)
-    ? test.testMetadata
-    : null;
+
+  const master =
+    isObject(test.master)
+      ? test.master
+      : null;
+
+
+  const metadata =
+    isObject(test.metadata)
+      ? test.metadata
+      : null;
+
+
+  const testMetadata =
+    isObject(test.testMetadata)
+      ? test.testMetadata
+      : null;
+
 
   return [
     test,
@@ -197,11 +185,7 @@ const getMasterObjects = (test = {}) => {
 
 
 /* ==========================================================
-   MASTER FIELD RESOLUTION
-   ----------------------------------------------------------
-   Searches all possible metadata objects.
-
-   First usable value wins.
+   MASTER FIELD
    ========================================================== */
 
 const getMasterField = (
@@ -209,13 +193,17 @@ const getMasterField = (
   ...fieldNames
 ) => {
 
-  const objects = getMasterObjects(test);
+  const objects =
+    getMasterObjects(test);
+
 
   for (const object of objects) {
 
     for (const fieldName of fieldNames) {
 
-      const value = object?.[fieldName];
+      const value =
+        object?.[fieldName];
+
 
       if (
         value !== null &&
@@ -227,21 +215,25 @@ const getMasterField = (
     }
   }
 
+
   return null;
 };
 
 
 /* ==========================================================
-   PATIENT OBJECT RESOLUTION
+   PATIENT OBJECTS
    ========================================================== */
 
-const getPatientObjects = (patient = {}) => {
+const getPatientObjects = (
+  patient = {}
+) => {
 
   if (!isObject(patient)) {
     return [];
   }
 
-  const objects = [
+
+  return [
     patient,
     patient.patient,
     patient.registration,
@@ -249,9 +241,7 @@ const getPatientObjects = (patient = {}) => {
     patient.patient_data,
     patient.demographics,
     patient.demographic,
-  ];
-
-  return objects.filter(isObject);
+  ].filter(isObject);
 };
 
 
@@ -259,9 +249,13 @@ const getPatientObjects = (patient = {}) => {
    PATIENT SEX NORMALIZATION
    ========================================================== */
 
-const normalizeSex = (value) => {
+const normalizeSex = (
+  value
+) => {
 
-  const normalized = normalizeText(value);
+  const normalized =
+    normalizeText(value);
+
 
   if (
     [
@@ -275,6 +269,7 @@ const normalizeSex = (value) => {
     return "male";
   }
 
+
   if (
     [
       "female",
@@ -287,6 +282,7 @@ const normalizeSex = (value) => {
     return "female";
   }
 
+
   return normalized;
 };
 
@@ -295,9 +291,13 @@ const normalizeSex = (value) => {
    PATIENT SEX
    ========================================================== */
 
-const getPatientSex = (patient = {}) => {
+const getPatientSex = (
+  patient = {}
+) => {
 
-  const objects = getPatientObjects(patient);
+  const objects =
+    getPatientObjects(patient);
+
 
   const fields = [
     "sex",
@@ -310,11 +310,14 @@ const getPatientSex = (patient = {}) => {
     "biologicalSex",
   ];
 
+
   for (const object of objects) {
 
     for (const field of fields) {
 
-      const value = object?.[field];
+      const value =
+        object?.[field];
+
 
       if (
         value !== null &&
@@ -326,15 +329,18 @@ const getPatientSex = (patient = {}) => {
     }
   }
 
+
   return "";
 };
 
 
 /* ==========================================================
-   NUMERIC AGE NORMALIZATION
+   AGE PARSER
    ========================================================== */
 
-const parseAge = (value) => {
+const parseAge = (
+  value
+) => {
 
   if (
     value === null ||
@@ -344,33 +350,47 @@ const parseAge = (value) => {
     return null;
   }
 
+
   if (
     typeof value === "string" &&
     /month|months|year|years/i.test(value)
   ) {
 
-    const match = value.match(
-      /(-?\d+(?:\.\d+)?)/
-    );
+    const match =
+      value.match(
+        /(-?\d+(?:\.\d+)?)/
+      );
+
 
     if (!match) {
       return null;
     }
 
-    const numeric = Number(match[1]);
 
-    if (!Number.isFinite(numeric) || numeric < 0) {
+    const numeric =
+      Number(match[1]);
+
+
+    if (
+      !Number.isFinite(numeric) ||
+      numeric < 0
+    ) {
       return null;
     }
+
 
     if (/month/i.test(value)) {
       return numeric / 12;
     }
 
+
     return numeric;
   }
 
-  const numeric = Number(value);
+
+  const numeric =
+    Number(value);
+
 
   if (
     Number.isFinite(numeric) &&
@@ -379,45 +399,62 @@ const parseAge = (value) => {
     return numeric;
   }
 
+
   return null;
 };
 
 
 /* ==========================================================
-   AGE FROM DATE OF BIRTH
+   AGE FROM DOB
    ========================================================== */
 
-const calculateAgeFromDOB = (dob) => {
+const calculateAgeFromDOB = (
+  dob
+) => {
 
   if (!dob) {
     return null;
   }
 
-  const birth = new Date(dob);
 
-  if (Number.isNaN(birth.getTime())) {
+  const birth =
+    new Date(dob);
+
+
+  if (
+    Number.isNaN(
+      birth.getTime()
+    )
+  ) {
     return null;
   }
 
-  const today = new Date();
+
+  const today =
+    new Date();
+
 
   let age =
     today.getFullYear() -
     birth.getFullYear();
 
+
   const monthDifference =
     today.getMonth() -
     birth.getMonth();
+
 
   if (
     monthDifference < 0 ||
     (
       monthDifference === 0 &&
-      today.getDate() < birth.getDate()
+      today.getDate() <
+        birth.getDate()
     )
   ) {
     age -= 1;
   }
+
 
   return age >= 0
     ? age
@@ -429,9 +466,13 @@ const calculateAgeFromDOB = (dob) => {
    PATIENT AGE
    ========================================================== */
 
-const getPatientAge = (patient = {}) => {
+const getPatientAge = (
+  patient = {}
+) => {
 
-  const objects = getPatientObjects(patient);
+  const objects =
+    getPatientObjects(patient);
+
 
   const ageFields = [
     "age",
@@ -443,13 +484,16 @@ const getPatientAge = (patient = {}) => {
     "ageInYears",
   ];
 
+
   for (const object of objects) {
 
     for (const field of ageFields) {
 
-      const parsed = parseAge(
-        object?.[field]
-      );
+      const parsed =
+        parseAge(
+          object?.[field]
+        );
+
 
       if (parsed !== null) {
         return parsed;
@@ -467,16 +511,22 @@ const getPatientAge = (patient = {}) => {
     "dateofbirth",
   ];
 
+
   for (const object of objects) {
 
     for (const field of dobFields) {
 
-      const dob = object?.[field];
+      const dob =
+        object?.[field];
+
 
       if (dob) {
 
         const age =
-          calculateAgeFromDOB(dob);
+          calculateAgeFromDOB(
+            dob
+          );
+
 
         if (age !== null) {
           return age;
@@ -484,6 +534,7 @@ const getPatientAge = (patient = {}) => {
       }
     }
   }
+
 
   return null;
 };
@@ -493,9 +544,13 @@ const getPatientAge = (patient = {}) => {
    TEST NAME
    ========================================================== */
 
-export const getTestName = (test = {}) => {
+export const getTestName = (
+  test = {}
+) => {
 
-  const objects = getMasterObjects(test);
+  const objects =
+    getMasterObjects(test);
+
 
   const fields = [
     "test_name",
@@ -510,11 +565,14 @@ export const getTestName = (test = {}) => {
     "title",
   ];
 
+
   for (const object of objects) {
 
     for (const field of fields) {
 
-      const value = object?.[field];
+      const value =
+        object?.[field];
+
 
       if (
         value !== null &&
@@ -526,22 +584,22 @@ export const getTestName = (test = {}) => {
     }
   }
 
+
   return "Laboratory Test";
 };
 
 
 /* ==========================================================
    TEST IDENTITY
-   ----------------------------------------------------------
-   We inspect ALL likely identity fields.
-
-   This is important because a technical `key` can be present
-   while the actual human-readable name is stored elsewhere.
    ========================================================== */
 
-const getTestIdentityValues = (test = {}) => {
+const getTestIdentityValues = (
+  test = {}
+) => {
 
-  const objects = getMasterObjects(test);
+  const objects =
+    getMasterObjects(test);
+
 
   const fields = [
     "test_name",
@@ -570,19 +628,24 @@ const getTestIdentityValues = (test = {}) => {
     "identifier",
   ];
 
+
   const identities = [];
+
 
   for (const object of objects) {
 
     for (const field of fields) {
 
-      const value = object?.[field];
+      const value =
+        object?.[field];
+
 
       if (
         value !== null &&
         value !== undefined &&
         text(value) !== ""
       ) {
+
         identities.push(
           normalizeText(value)
         );
@@ -590,111 +653,148 @@ const getTestIdentityValues = (test = {}) => {
     }
   }
 
+
   return [
-    ...new Set(identities),
+    ...new Set(
+      identities
+    ),
   ];
 };
 
 
 /* ==========================================================
-   CANONICAL TEST DETECTION
+   PEFA FBS DETECTION
    ========================================================== */
 
-const hasIdentityToken = (
-  identities,
-  token
-) =>
-  identities.some(
-    (identity) =>
-      identity === token ||
-      identity.includes(token)
+export const isPEFAFBS = (
+  test = {}
+) => {
+
+  const identities =
+    getTestIdentityValues(test);
+
+
+  return identities.some(
+    (identity) => {
+
+      if (!identity) {
+        return false;
+      }
+
+
+      /*
+       * Remove spaces, hyphens and underscores
+       * for robust matching.
+       *
+       * Examples:
+       *
+       * FBS
+       * FBS (GLUCOMETER)
+       * FBS-GLUCOMETER
+       * FASTING BLOOD SUGAR
+       * FASTING BLOOD GLUCOSE
+       */
+
+      const compact =
+        identity.replace(
+          /[\s_-]+/g,
+          ""
+        );
+
+
+      return (
+        compact === "fbs" ||
+
+        compact ===
+          "fbsglucometer" ||
+
+        compact ===
+          "fastingbloodsugar" ||
+
+        compact ===
+          "fastingbloodsugarglucometer" ||
+
+        compact ===
+          "fastingbloodglucose" ||
+
+        compact ===
+          "fastingbloodglucoseglucometer" ||
+
+        compact ===
+          "fastingplasmaglucose"
+      );
+    }
   );
+};
+
+
+/* ==========================================================
+   AUTHORITATIVE PEFA FBS RANGE
+   ========================================================== */
+
+export const PEFA_FBS_REFERENCE_RANGE =
+  "70 - 110 mg/dL";
 
 
 /* ==========================================================
    TOTAL PSA
    ========================================================== */
 
-const isTotalPSA = (test = {}) => {
+const isTotalPSA = (
+  test = {}
+) => {
 
   const identities =
     getTestIdentityValues(test);
 
-  return identities.some((identity) => {
 
-    if (!identity) {
-      return false;
-    }
+  return identities.some(
+    (identity) => {
 
-    const compact =
-      identity
-        .replace(/[\s_-]+/g, "");
-
-    if (
-      [
-        "psa",
-        "totalpsa",
-        "psatotal",
-        "tpsa",
-      ].includes(compact)
-    ) {
-      return true;
-    }
-
-    if (
-      identity.includes(
-        "prostate specific antigen"
-      ) ||
-      identity.includes(
-        "prostate-specific antigen"
-      )
-    ) {
-      return true;
-    }
-
-    if (
-      /\bpsa\b/.test(identity) &&
-      (
-        identity.includes("total") ||
-        identity === "psa"
-      )
-    ) {
-      return true;
-    }
-
-    return false;
-  });
-};
+      const compact =
+        identity.replace(
+          /[\s_-]+/g,
+          ""
+        );
 
 
-/* ==========================================================
-   CANONICAL AMH
-   ----------------------------------------------------------
-   AMH remains recognized as a quantitative endocrine test.
-   Its actual reference range remains controlled by the
-   configured master_tests metadata unless a dedicated
-   AMH engine is introduced elsewhere.
-   ========================================================== */
+      if (
+        [
+          "psa",
+          "totalpsa",
+          "psatotal",
+          "tpsa",
+        ].includes(compact)
+      ) {
+        return true;
+      }
 
-const isAMH = (test = {}) => {
 
-  const identities =
-    getTestIdentityValues(test);
+      if (
+        identity.includes(
+          "prostate specific antigen"
+        ) ||
+        identity.includes(
+          "prostate-specific antigen"
+        )
+      ) {
+        return true;
+      }
 
-  return identities.some((identity) => {
 
-    const compact =
-      identity.replace(
-        /[\s_-]+/g,
-        ""
+      return (
+        /\bpsa\b/.test(
+          identity
+        ) &&
+        (
+          identity.includes(
+            "total"
+          ) ||
+          identity === "psa"
+        )
       );
-
-    return (
-      compact === "amh" ||
-      compact === "antimullerianhormone" ||
-      compact === "antimüllerianhormone"
-    );
-  });
+    }
+  );
 };
 
 
@@ -709,46 +809,51 @@ const getPSAReferenceRange = (
   const sex =
     getPatientSex(patient);
 
+
   const age =
     getPatientAge(patient);
 
 
-  if (sex === "female") {
+  if (
+    sex === "female"
+  ) {
     return "Not applicable";
   }
 
 
-  if (sex === "male") {
-
-    if (!Number.isFinite(age)) {
-      return "Age required";
-    }
-
-    if (age < 40) {
-      return "≤ 2.0";
-    }
-
-    if (age < 50) {
-      return "≤ 2.5";
-    }
-
-    if (age < 60) {
-      return "≤ 3.5";
-    }
-
-    if (age < 70) {
-      return "≤ 4.5";
-    }
-
-    if (age < 80) {
-      return "≤ 6.5";
-    }
-
-    return "≤ 7.2";
+  if (
+    !Number.isFinite(age)
+  ) {
+    return "Age required";
   }
 
 
-  return "Age/sex required";
+  if (age < 40) {
+    return "≤ 2.0";
+  }
+
+
+  if (age < 50) {
+    return "≤ 2.5";
+  }
+
+
+  if (age < 60) {
+    return "≤ 3.5";
+  }
+
+
+  if (age < 70) {
+    return "≤ 4.5";
+  }
+
+
+  if (age < 80) {
+    return "≤ 6.5";
+  }
+
+
+  return "≤ 7.2";
 };
 
 
@@ -766,6 +871,7 @@ export const getDisplayUnit = (
     result?.result,
   ].filter(isObject);
 
+
   const fields = [
     "unit",
     "result_unit",
@@ -776,14 +882,20 @@ export const getDisplayUnit = (
     "measurementUnit",
   ];
 
-  for (const object of resultObjects) {
 
-    for (const field of fields) {
+  for (
+    const object of resultObjects
+  ) {
+
+    for (
+      const field of fields
+    ) {
 
       const value =
         usableReference(
           object?.[field]
         );
+
 
       if (value) {
         return value;
@@ -792,12 +904,32 @@ export const getDisplayUnit = (
   }
 
 
-  return firstUsable(
-    getMasterField(
-      test,
-      ...fields
-    )
-  );
+  const configuredUnit =
+    firstUsable(
+      getMasterField(
+        test,
+        ...fields
+      )
+    );
+
+
+  if (configuredUnit) {
+    return configuredUnit;
+  }
+
+
+  /*
+   * FBS is configured by PEFA in mg/dL.
+   */
+
+  if (
+    isPEFAFBS(test)
+  ) {
+    return "mg/dL";
+  }
+
+
+  return "";
 };
 
 
@@ -815,6 +947,7 @@ export const getCriticalLow = (
     result?.result,
   ].filter(isObject);
 
+
   const fields = [
     "critical_low",
     "criticalLow",
@@ -823,12 +956,17 @@ export const getCriticalLow = (
   ];
 
 
-  for (const object of resultObjects) {
+  for (
+    const object of resultObjects
+  ) {
 
-    for (const field of fields) {
+    for (
+      const field of fields
+    ) {
 
       const value =
         object?.[field];
+
 
       if (
         value !== null &&
@@ -862,6 +1000,7 @@ export const getCriticalHigh = (
     result?.result,
   ].filter(isObject);
 
+
   const fields = [
     "critical_high",
     "criticalHigh",
@@ -870,12 +1009,17 @@ export const getCriticalHigh = (
   ];
 
 
-  for (const object of resultObjects) {
+  for (
+    const object of resultObjects
+  ) {
 
-    for (const field of fields) {
+    for (
+      const field of fields
+    ) {
 
       const value =
         object?.[field];
+
 
       if (
         value !== null &&
@@ -896,25 +1040,17 @@ export const getCriticalHigh = (
 
 
 /* ==========================================================
-   ARGUMENT NORMALIZATION
-   ----------------------------------------------------------
-   The intended signature is:
-
-      getReferenceRange(test, patient, result)
-
-   However, older PEFA components may call:
-
-      getReferenceRange(test, result, patient)
-
-   We detect the objects by their field structure so both
-   remain compatible.
+   RESULT / PATIENT ARGUMENT DETECTION
    ========================================================== */
 
-const looksLikeResultObject = (value) => {
+const looksLikeResultObject = (
+  value
+) => {
 
   if (!isObject(value)) {
     return false;
   }
+
 
   return Boolean(
     value.result !== undefined ||
@@ -929,11 +1065,14 @@ const looksLikeResultObject = (value) => {
 };
 
 
-const looksLikePatientObject = (value) => {
+const looksLikePatientObject = (
+  value
+) => {
 
   if (!isObject(value)) {
     return false;
   }
+
 
   return Boolean(
     value.sex !== undefined ||
@@ -953,27 +1092,57 @@ const looksLikePatientObject = (value) => {
 };
 
 
+/* ==========================================================
+   NORMALIZE REFERENCE ARGUMENTS
+   ========================================================== */
+
 const normalizeReferenceArguments = (
   second = {},
   third = {}
 ) => {
 
-  let patient = second || {};
-  let result = third || {};
+  let patient =
+    second || {};
 
+
+  let result =
+    third || {};
+
+
+  /*
+   * Compatibility with older PEFA calls:
+
+       getReferenceRange(
+         test,
+         result,
+         patient
+       )
+   */
 
   if (
-    looksLikeResultObject(second) &&
-    looksLikePatientObject(third)
+    looksLikeResultObject(
+      second
+    ) &&
+    looksLikePatientObject(
+      third
+    )
   ) {
-    patient = third;
-    result = second;
+
+    patient =
+      third;
+
+
+    result =
+      second;
   }
 
 
   return {
-    patient: patient || {},
-    result: result || {},
+    patient:
+      patient || {},
+
+    result:
+      result || {},
   };
 };
 
@@ -983,16 +1152,21 @@ const normalizeReferenceArguments = (
    ----------------------------------------------------------
    AUTHORITY ORDER:
 
-   1. Canonical special-test logic
-   2. Saved result reference
-   3. Child range
-   4. Elderly range
-   5. Male range
-   6. Female range
-   7. Generic reference range
-   8. Reference value
-   9. Normal low/high
-   10. Optional configured fallback
+   1. PEFA FBS local override
+   2. Canonical PSA
+   3. Saved result reference
+   4. Child range
+   5. Elderly range
+   6. Male range
+   7. Female range
+   8. Generic reference range
+   9. Reference value
+   10. Normal low/high
+   11. No configuration
+
+   IMPORTANT:
+   ----------------------------------------------------------
+   FBS MUST remain at position #1.
    ========================================================== */
 
 export const getReferenceRange = (
@@ -1004,17 +1178,32 @@ export const getReferenceRange = (
   const {
     patient,
     result,
-  } = normalizeReferenceArguments(
-    second,
-    third
-  );
+  } =
+    normalizeReferenceArguments(
+      second,
+      third
+    );
 
 
-  /* --------------------------------------------------------
+  /* ========================================================
+     PEFA FBS — ABSOLUTE OVERRIDE
+     ======================================================== */
+
+  if (
+    isPEFAFBS(test)
+  ) {
+
+    return PEFA_FBS_REFERENCE_RANGE;
+  }
+
+
+  /* ========================================================
      CANONICAL PSA
-     -------------------------------------------------------- */
+     ======================================================== */
 
-  if (isTotalPSA(test)) {
+  if (
+    isTotalPSA(test)
+  ) {
 
     return getPSAReferenceRange(
       patient
@@ -1022,197 +1211,260 @@ export const getReferenceRange = (
   }
 
 
-  /* --------------------------------------------------------
+  /* ========================================================
      PATIENT DATA
-     -------------------------------------------------------- */
+     ======================================================== */
 
   const age =
-    getPatientAge(patient);
+    getPatientAge(
+      patient
+    );
+
 
   const sex =
-    getPatientSex(patient);
+    getPatientSex(
+      patient
+    );
 
 
-  /* --------------------------------------------------------
+  /* ========================================================
      SAVED RESULT REFERENCE
-     -------------------------------------------------------- */
+     ======================================================== */
 
   const savedReference =
     firstUsable(
+
       result?.reference_range,
+
       result?.referenceRange,
+
       result?.reference_value,
+
       result?.referenceValue
     );
 
-  if (savedReference) {
+
+  if (
+    savedReference
+  ) {
+
     return savedReference;
   }
 
 
-  /* --------------------------------------------------------
-     MASTER RANGE FIELDS
-
-     Notice that getMasterField() searches BOTH:
-
-       test
-       test.masterTest
-       test.master_test
-       test.master
-       test.metadata
-       test.testMetadata
-
-     This is the main generalized fix.
-     -------------------------------------------------------- */
+  /* ========================================================
+     CHILD RANGE
+     ======================================================== */
 
   const childRange =
     firstUsable(
+
       getMasterField(
+
         test,
+
         "child_range",
+
         "childRange",
+
         "pediatric_range",
+
         "pediatricRange"
       )
     );
 
 
+  /* ========================================================
+     ELDERLY RANGE
+     ======================================================== */
+
   const elderlyRange =
     firstUsable(
+
       getMasterField(
+
         test,
+
         "elderly_range",
+
         "elderlyRange",
+
         "geriatric_range",
+
         "geriatricRange"
       )
     );
 
 
+  /* ========================================================
+     MALE RANGE
+     ======================================================== */
+
   const maleRange =
     firstUsable(
+
       getMasterField(
+
         test,
+
         "male_range",
+
         "maleRange",
+
         "male_reference_range",
+
         "maleReferenceRange"
       )
     );
 
 
+  /* ========================================================
+     FEMALE RANGE
+     ======================================================== */
+
   const femaleRange =
     firstUsable(
+
       getMasterField(
+
         test,
+
         "female_range",
+
         "femaleRange",
+
         "female_reference_range",
+
         "femaleReferenceRange"
       )
     );
 
 
-  /* --------------------------------------------------------
+  /* ========================================================
      CHILD
-     -------------------------------------------------------- */
+     ======================================================== */
 
   if (
     Number.isFinite(age) &&
-    age < 18
+    age < 18 &&
+    childRange
   ) {
 
-    if (childRange) {
-      return childRange;
-    }
+    return childRange;
   }
 
 
-  /* --------------------------------------------------------
+  /* ========================================================
      ELDERLY
-     -------------------------------------------------------- */
+     ======================================================== */
 
   if (
     Number.isFinite(age) &&
-    age >= 65
+    age >= 65 &&
+    elderlyRange
   ) {
 
-    if (elderlyRange) {
-      return elderlyRange;
-    }
+    return elderlyRange;
   }
 
 
-  /* --------------------------------------------------------
-     SEX-SPECIFIC RANGE
-     -------------------------------------------------------- */
+  /* ========================================================
+     SEX-SPECIFIC
+     ======================================================== */
 
-  if (sex === "male") {
+  if (
+    sex === "male" &&
+    maleRange
+  ) {
 
-    if (maleRange) {
-      return maleRange;
-    }
+    return maleRange;
   }
 
 
-  if (sex === "female") {
+  if (
+    sex === "female" &&
+    femaleRange
+  ) {
 
-    if (femaleRange) {
-      return femaleRange;
-    }
+    return femaleRange;
   }
 
 
-  /* --------------------------------------------------------
+  /* ========================================================
      GENERIC MASTER REFERENCE RANGE
-     -------------------------------------------------------- */
+     ======================================================== */
 
   const genericReference =
     firstUsable(
+
       getMasterField(
+
         test,
+
         "reference_range",
+
         "referenceRange",
+
         "reference",
+
         "normal_range",
+
         "normalRange"
       )
     );
 
-  if (genericReference) {
+
+  if (
+    genericReference
+  ) {
+
     return genericReference;
   }
 
 
-  /* --------------------------------------------------------
+  /* ========================================================
      REFERENCE VALUE
-     -------------------------------------------------------- */
+     ======================================================== */
 
   const referenceValue =
     firstUsable(
+
       getMasterField(
+
         test,
+
         "reference_value",
+
         "referenceValue"
       )
     );
 
-  if (referenceValue) {
+
+  if (
+    referenceValue
+  ) {
+
     return referenceValue;
   }
 
 
-  /* --------------------------------------------------------
+  /* ========================================================
      NORMAL LOW / HIGH
-     -------------------------------------------------------- */
+     ======================================================== */
 
   const low =
     firstUsable(
+
       getMasterField(
+
         test,
+
         "normal_low",
+
         "normalLow",
+
         "reference_low",
+
         "referenceLow"
       )
     );
@@ -1220,17 +1472,27 @@ export const getReferenceRange = (
 
   const high =
     firstUsable(
+
       getMasterField(
+
         test,
+
         "normal_high",
+
         "normalHigh",
+
         "reference_high",
+
         "referenceHigh"
       )
     );
 
 
-  if (low && high) {
+  if (
+    low &&
+    high
+  ) {
+
     return `${low} - ${high}`;
   }
 
@@ -1245,9 +1507,9 @@ export const getReferenceRange = (
   }
 
 
-  /* --------------------------------------------------------
-     NO CONFIGURATION FOUND
-     -------------------------------------------------------- */
+  /* ========================================================
+     UNRESOLVED
+     ======================================================== */
 
   return "";
 };
@@ -1257,7 +1519,9 @@ export const getReferenceRange = (
    NUMERIC PARSER
    ========================================================== */
 
-const parseNumeric = (value) => {
+const parseNumeric = (
+  value
+) => {
 
   if (
     value === null ||
@@ -1278,7 +1542,9 @@ const parseNumeric = (value) => {
     Number(normalized);
 
 
-  return Number.isFinite(numeric)
+  return Number.isFinite(
+    numeric
+  )
     ? numeric
     : null;
 };
@@ -1286,20 +1552,6 @@ const parseNumeric = (value) => {
 
 /* ==========================================================
    REFERENCE RANGE PARSER
-   ----------------------------------------------------------
-   Supported:
-
-     >= 5
-     ≥ 5
-     > 5
-
-     <= 2.5
-     ≤ 2.5
-     < 2.5
-
-     2.1 - 2.6
-     2.1 to 2.6
-     2.1..2.6
    ========================================================== */
 
 const parseReference = (
@@ -1308,8 +1560,14 @@ const parseReference = (
 
   const raw =
     text(referenceRange)
-      .replace(/[–—−]/g, "-")
-      .replace(/\s+/g, " ")
+      .replace(
+        /[–—−]/g,
+        "-"
+      )
+      .replace(
+        /\s+/g,
+        " "
+      )
       .trim();
 
 
@@ -1331,9 +1589,14 @@ const parseReference = (
   if (match) {
 
     return {
-      type: "minimum",
-      min: Number(match[1]),
-      max: null,
+      type:
+        "minimum",
+
+      min:
+        Number(match[1]),
+
+      max:
+        null,
     };
   }
 
@@ -1351,9 +1614,14 @@ const parseReference = (
   if (match) {
 
     return {
-      type: "maximum",
-      min: null,
-      max: Number(match[1]),
+      type:
+        "maximum",
+
+      min:
+        null,
+
+      max:
+        Number(match[1]),
     };
   }
 
@@ -1373,20 +1641,27 @@ const parseReference = (
     const first =
       Number(match[1]);
 
+
     const second =
       Number(match[2]);
 
 
     return {
-      type: "range",
-      min: Math.min(
-        first,
-        second
-      ),
-      max: Math.max(
-        first,
-        second
-      ),
+
+      type:
+        "range",
+
+      min:
+        Math.min(
+          first,
+          second
+        ),
+
+      max:
+        Math.max(
+          first,
+          second
+        ),
     };
   }
 
@@ -1407,10 +1682,14 @@ export const calculateQuantitativeFlag = ({
 }) => {
 
   const numericValue =
-    parseNumeric(value);
+    parseNumeric(
+      value
+    );
 
 
-  if (numericValue === null) {
+  if (
+    numericValue === null
+  ) {
     return "";
   }
 
@@ -1433,16 +1712,20 @@ export const calculateQuantitativeFlag = ({
 
   if (
     criticalLowValue !== null &&
-    numericValue < criticalLowValue
+    numericValue <
+      criticalLowValue
   ) {
+
     return "CRITICAL LOW";
   }
 
 
   if (
     criticalHighValue !== null &&
-    numericValue > criticalHighValue
+    numericValue >
+      criticalHighValue
   ) {
+
     return "CRITICAL HIGH";
   }
 
@@ -1467,10 +1750,12 @@ export const calculateQuantitativeFlag = ({
      -------------------------------------------------------- */
 
   if (
-    range.type === "minimum"
+    range.type ===
+    "minimum"
   ) {
 
-    return numericValue >= range.min
+    return numericValue >=
+      range.min
       ? "NORMAL"
       : "LOW";
   }
@@ -1481,10 +1766,12 @@ export const calculateQuantitativeFlag = ({
      -------------------------------------------------------- */
 
   if (
-    range.type === "maximum"
+    range.type ===
+    "maximum"
   ) {
 
-    return numericValue <= range.max
+    return numericValue <=
+      range.max
       ? "NORMAL"
       : "HIGH";
   }
@@ -1495,18 +1782,21 @@ export const calculateQuantitativeFlag = ({
      -------------------------------------------------------- */
 
   if (
-    range.type === "range"
+    range.type ===
+    "range"
   ) {
 
     if (
-      numericValue < range.min
+      numericValue <
+      range.min
     ) {
       return "LOW";
     }
 
 
     if (
-      numericValue > range.max
+      numericValue >
+      range.max
     ) {
       return "HIGH";
     }
@@ -1541,4 +1831,8 @@ export default {
   getCriticalHigh,
 
   calculateQuantitativeFlag,
+
+  isPEFAFBS,
+
+  PEFA_FBS_REFERENCE_RANGE,
 };

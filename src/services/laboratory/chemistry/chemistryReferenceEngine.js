@@ -15,39 +15,29 @@
    5. Resolve nested master-test metadata.
    6. Resolve test-level metadata.
    7. Parse supported range formats.
-   8. NEVER invent a reference range.
+   8. Apply explicitly configured PEFA local overrides.
+   9. NEVER invent an unconfigured reference range.
 
    IMPORTANT
    ----------------------------------------------------------
-   The database/master-test metadata remains authoritative.
+   Master-test/database metadata remains authoritative UNLESS
+   an explicit PEFA local override is configured below.
 
-   Supported metadata may exist directly on the parameter:
+   CURRENT PEFA LOCAL OVERRIDE
+   ----------------------------------------------------------
+   FBS / Fasting Blood Sugar / Fasting Blood Glucose /
+   FBS (GLUCOMETER) / Fasting Blood Glucose (GLUCOMETER)
 
-      parameter.male_range
-      parameter.female_range
-      parameter.child_range
-      parameter.elderly_range
-      parameter.reference_value
-      parameter.reference_range
+      70 - 110 mg/dL
 
-   Or inside nested objects:
+   This is an explicit PEFA laboratory configuration, not a
+   generic clinical range. It therefore intentionally takes
+   precedence over an old database/master-test value such as
+   70 - 99 mg/dL.
 
-      parameter.masterTest
-      parameter.master_test
-      parameter.test
-      parameter.testData
-
-   Example:
-
-      {
-        test_name: "Urea",
-        masterTest: {
-          male_range: "2.5 - 7.1",
-          female_range: "2.5 - 7.1"
-        }
-      }
-
-   NO HARDCODED CLINICAL RANGES.
+   IMPORTANT:
+   ----------------------------------------------------------
+   The same FBS range must be used for flag calculation.
    ========================================================== */
 
 
@@ -64,12 +54,8 @@ const toNumber = (value) => {
     return null;
   }
 
-  if (
-    typeof value === "number"
-  ) {
-    return Number.isFinite(value)
-      ? value
-      : null;
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? value : null;
   }
 
   const number = Number(
@@ -78,9 +64,7 @@ const toNumber = (value) => {
       .trim()
   );
 
-  return Number.isFinite(number)
-    ? number
-    : null;
+  return Number.isFinite(number) ? number : null;
 };
 
 
@@ -92,7 +76,11 @@ const normalize = (value) =>
   String(value ?? "")
     .trim()
     .toLowerCase()
-    .replace(/\s+/g, " ");
+    .replace(/[‐‑‒–—]/g, "-")
+    .replace(/[()]/g, " ")
+    .replace(/[_-]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
 
 
 /* ==========================================================
@@ -115,29 +103,118 @@ const firstValue = (...values) => {
 
 
 /* ==========================================================
-   PARSE REFERENCE RANGE
+   TEST NAME EXTRACTION
+   ========================================================== */
+
+const getTestIdentityValues = (
+  parameter = {},
+  test = {}
+) => {
+  const values = [
+    parameter?.key,
+    parameter?.code,
+    parameter?.test_code,
+    parameter?.testCode,
+    parameter?.test_name,
+    parameter?.testName,
+    parameter?.name,
+    parameter?.parameter_name,
+    parameter?.parameterName,
+    parameter?.service_name,
+
+    parameter?.masterTest?.test_name,
+    parameter?.masterTest?.testName,
+    parameter?.masterTest?.name,
+    parameter?.masterTest?.code,
+
+    parameter?.master_test?.test_name,
+    parameter?.master_test?.testName,
+    parameter?.master_test?.name,
+    parameter?.master_test?.code,
+
+    parameter?.test?.test_name,
+    parameter?.test?.testName,
+    parameter?.test?.name,
+    parameter?.test?.code,
+
+    test?.key,
+    test?.code,
+    test?.test_code,
+    test?.testCode,
+    test?.test_name,
+    test?.testName,
+    test?.name,
+    test?.service_name,
+
+    test?.masterTest?.test_name,
+    test?.masterTest?.testName,
+    test?.masterTest?.name,
+    test?.masterTest?.code,
+
+    test?.master_test?.test_name,
+    test?.master_test?.testName,
+    test?.master_test?.name,
+    test?.master_test?.code,
+  ];
+
+  return values
+    .filter(
+      (value) =>
+        value !== null &&
+        value !== undefined &&
+        String(value).trim() !== ""
+    )
+    .map(normalize);
+};
+
+
+/* ==========================================================
+   PEFA FBS LOCAL OVERRIDE
    ----------------------------------------------------------
-   Supported:
+   IMPORTANT:
+   This is deliberately BEFORE database/master-test metadata.
+   Therefore a database value of 70 - 99 mg/dL cannot override
+   the PEFA-configured 70 - 110 mg/dL interval.
+   ========================================================== */
 
-      2.5 - 7.1
-      2.5–7.1
-      2.5 — 7.1
-      2.5 to 7.1
-      2.5 - 7.1 mmol/L
+export const isPEFAFBS = (
+  parameter = {},
+  test = {}
+) => {
+  const identities =
+    getTestIdentityValues(
+      parameter,
+      test
+    );
 
-   Also supports:
+  return identities.some((name) => {
+    if (!name) return false;
 
-      {
-        low: 2.5,
-        high: 7.1
-      }
+    return (
+      name === "fbs" ||
+      name === "fbs glucometer" ||
+      name === "fasting blood sugar" ||
+      name === "fasting blood sugar glucometer" ||
+      name === "fasting blood glucose" ||
+      name === "fasting blood glucose glucometer" ||
+      name === "fasting plasma glucose"
+    );
+  });
+};
 
-   And:
+export const PEFA_FBS_REFERENCE_RANGE = Object.freeze({
+  low: 70,
+  high: 110,
+  display: "70 - 110 mg/dL",
+  referenceRange: "70 - 110 mg/dL",
+  reference_range: "70 - 110 mg/dL",
+  unit: "mg/dL",
+  source: "PEFA laboratory configuration",
+});
 
-      {
-        min: 2.5,
-        max: 7.1
-      }
+
+/* ==========================================================
+   PARSE REFERENCE RANGE
    ========================================================== */
 
 export const parseRange = (raw) => {
@@ -194,25 +271,18 @@ export const parseRange = (raw) => {
       };
     }
 
-    /*
-     * Some systems store a nested range object.
-     */
     if (
       raw.range &&
       typeof raw.range === "object"
     ) {
-      return parseRange(
-        raw.range
-      );
+      return parseRange(raw.range);
     }
 
     if (
       raw.range &&
       typeof raw.range === "string"
     ) {
-      return parseRange(
-        raw.range
-      );
+      return parseRange(raw.range);
     }
   }
 
@@ -221,27 +291,17 @@ export const parseRange = (raw) => {
      String range
      -------------------------------------------------------- */
 
-  const text =
+  const rangeText =
     String(raw).trim();
 
-  if (!text) {
+  if (!rangeText) {
     return null;
   }
 
-
-  /*
-   * Extract numeric values.
-
-   * 2.5 - 7.1
-   * 2.5–7.1
-   * 2.5 to 7.1
-   * 2.5 — 7.1
-   */
   const numbers =
-    text.match(
+    rangeText.match(
       /-?\d+(?:\.\d+)?/g
     );
-
 
   if (
     !numbers ||
@@ -250,13 +310,11 @@ export const parseRange = (raw) => {
     return null;
   }
 
-
   const low =
     Number(numbers[0]);
 
   const high =
     Number(numbers[1]);
-
 
   if (
     !Number.isFinite(low) ||
@@ -265,11 +323,10 @@ export const parseRange = (raw) => {
     return null;
   }
 
-
   return {
     low,
     high,
-    display: text,
+    display: rangeText,
   };
 };
 
@@ -291,7 +348,6 @@ export const getAgeYears = (
     return direct;
   }
 
-
   const age =
     toNumber(
       patient.age
@@ -301,7 +357,6 @@ export const getAgeYears = (
     return null;
   }
 
-
   const unit =
     normalize(
       patient.age_unit ??
@@ -309,13 +364,11 @@ export const getAgeYears = (
       "years"
     );
 
-
   if (
     unit.startsWith("month")
   ) {
     return age / 12;
   }
-
 
   if (
     unit.startsWith("week")
@@ -323,13 +376,11 @@ export const getAgeYears = (
     return age / 52.1775;
   }
 
-
   if (
     unit.startsWith("day")
   ) {
     return age / 365.25;
   }
-
 
   return age;
 };
@@ -350,14 +401,12 @@ export const getSex = (
       patient.patientSex
     );
 
-
   if (
     sex === "m" ||
     sex.startsWith("male")
   ) {
     return "male";
   }
-
 
   if (
     sex === "f" ||
@@ -366,28 +415,12 @@ export const getSex = (
     return "female";
   }
 
-
   return "";
 };
 
 
 /* ==========================================================
    METADATA SOURCES
-   ----------------------------------------------------------
-   We deliberately inspect nested master-test objects.
-
-   This is important because panel parameters may arrive as:
-
-      {
-        name: "Urea",
-        masterTest: {
-          test_name: "Urea",
-          male_range: "...",
-          female_range: "..."
-        }
-      }
-
-   rather than carrying the metadata directly.
    ========================================================== */
 
 const getMetadataSources = (
@@ -396,77 +429,33 @@ const getMetadataSources = (
 ) => {
   const sources = [];
 
-  const add =
-    (value) => {
-      if (
-        value &&
-        typeof value === "object" &&
-        !Array.isArray(value)
-      ) {
-        if (
-          !sources.includes(value)
-        ) {
-          sources.push(value);
-        }
+  const add = (value) => {
+    if (
+      value &&
+      typeof value === "object" &&
+      !Array.isArray(value)
+    ) {
+      if (!sources.includes(value)) {
+        sources.push(value);
       }
-    };
-
-
-  /* Parameter itself */
+    }
+  };
 
   add(parameter);
 
-
-  /* Nested parameter metadata */
-
-  add(
-    parameter.masterTest
-  );
-
-  add(
-    parameter.master_test
-  );
-
-  add(
-    parameter.masterTestData
-  );
-
-  add(
-    parameter.master_test_data
-  );
-
-  add(
-    parameter.test
-  );
-
-  add(
-    parameter.testData
-  );
-
-
-  /* Test itself */
+  add(parameter.masterTest);
+  add(parameter.master_test);
+  add(parameter.masterTestData);
+  add(parameter.master_test_data);
+  add(parameter.test);
+  add(parameter.testData);
 
   add(test);
 
-
-  /* Nested test metadata */
-
-  add(
-    test.masterTest
-  );
-
-  add(
-    test.master_test
-  );
-
-  add(
-    test.masterTestData
-  );
-
-  add(
-    test.master_test_data
-  );
-
+  add(test.masterTest);
+  add(test.master_test);
+  add(test.masterTestData);
+  add(test.master_test_data);
 
   return sources;
 };
@@ -487,7 +476,6 @@ const getMetadataField = (
       test
     );
 
-
   for (
     const source of sources
   ) {
@@ -506,7 +494,6 @@ const getMetadataField = (
       }
     }
   }
-
 
   return "";
 };
@@ -554,14 +541,72 @@ export const resolveChemistryReference = ({
 
 
   const age =
-    getAgeYears(
-      patient
-    );
+    getAgeYears(patient);
 
   const sex =
-    getSex(
-      patient
-    );
+    getSex(patient);
+
+
+  /* ========================================================
+     PEFA LOCAL OVERRIDE — HIGHEST PRIORITY
+     ======================================================== */
+
+  if (
+    isPEFAFBS(
+      parameter,
+      test
+    )
+  ) {
+    return {
+      low:
+        PEFA_FBS_REFERENCE_RANGE.low,
+
+      high:
+        PEFA_FBS_REFERENCE_RANGE.high,
+
+      display:
+        PEFA_FBS_REFERENCE_RANGE.display,
+
+      referenceRange:
+        PEFA_FBS_REFERENCE_RANGE.referenceRange,
+
+      reference_range:
+        PEFA_FBS_REFERENCE_RANGE.reference_range,
+
+      unit:
+        PEFA_FBS_REFERENCE_RANGE.unit,
+
+      sex,
+
+      ageYears:
+        age,
+
+      source:
+        PEFA_FBS_REFERENCE_RANGE.source,
+
+      criticalLow:
+        toNumber(
+          getMetadataField(
+            parameter,
+            test,
+            "critical_low",
+            "criticalLow"
+          )
+        ),
+
+      criticalHigh:
+        toNumber(
+          getMetadataField(
+            parameter,
+            test,
+            "critical_high",
+            "criticalHigh"
+          )
+        ),
+
+      isPEFAOverride: true,
+    };
+  }
 
 
   const candidates = [];
@@ -749,7 +794,6 @@ export const resolveChemistryReference = ({
         candidate.value
       );
 
-
     if (
       parsed
     ) {
@@ -792,6 +836,8 @@ export const resolveChemistryReference = ({
               "criticalHigh"
             )
           ),
+
+        isPEFAOverride: false,
       };
     }
   }
@@ -839,5 +885,9 @@ export const resolveChemistryReference = ({
           "criticalHigh"
         )
       ),
+
+    isPEFAOverride: false,
   };
 };
+
+export default resolveChemistryReference;

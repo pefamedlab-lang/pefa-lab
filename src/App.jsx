@@ -1,4 +1,3 @@
-
 import {
   BrowserRouter,
   Routes,
@@ -16,6 +15,8 @@ import DashboardLayout from "./Pages/DashboardLayout";
 import HomePage from "./Pages/HomePage";
 import LoginPortal from "./Pages/LoginPortal";
 import PatientResultPortal from "./Pages/PatientResultPortal";
+import TestRequest from "./Pages/TestRequest";
+import WellnessPackages from "./Pages/WellnessPackages";
 
 // ============================================================
 // MAIN DASHBOARD
@@ -31,7 +32,6 @@ import RegistrationPortal from "./Pages/RegistrationPortal";
 import PaymentPortal from "./Pages/PaymentPortal";
 import InvoicePrint from "./Pages/InvoicePrint";
 import RegistrationRecords from "./Pages/RegistrationRecords";
-
 
 // ============================================================
 // LABORATORY
@@ -80,6 +80,8 @@ import UltrasoundReportPrint from "./Pages/UltrasoundReportPrint";
 // ============================================================
 
 import ReferralDashboard from "./Pages/ReferralDashboard";
+import TestRequestDashboard from "./Pages/TestRequestDashboard";
+import WellnessOrderDashboard from "./Pages/WellnessOrderDashboard";
 import InventoryDashboard from "./Pages/InventoryDashboard";
 import StaffManagement from "./Pages/StaffManagement";
 import RolePermissionManager from "./Pages/RolePermissionManager";
@@ -92,24 +94,27 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-
         {/* ======================================================
             PUBLIC ROUTES
         ====================================================== */}
 
-        <Route
-          path="/"
-          element={<HomePage />}
-        />
+        <Route path="/" element={<HomePage />} />
 
-        <Route
-          path="/login"
-          element={<LoginPortal />}
-        />
+        <Route path="/login" element={<LoginPortal />} />
 
         <Route
           path="/patient-results"
           element={<PatientResultPortal />}
+        />
+
+        <Route
+          path="/test-request"
+          element={<TestRequest />}
+        />
+
+        <Route
+          path="/wellness-packages"
+          element={<WellnessPackages />}
         />
 
         {/* ======================================================
@@ -123,14 +128,19 @@ export default function App() {
             </ProtectedRoute>
           }
         >
-
           {/* ====================================================
               DASHBOARD
           ==================================================== */}
 
           <Route
             path="/dashboard"
-            element={<Dashboard />}
+            element={
+              <ProtectedRoute
+                allowedRoles={["Manager", "Director"]}
+              >
+                <Dashboard />
+              </ProtectedRoute>
+            }
           />
 
           {/* ====================================================
@@ -155,9 +165,6 @@ export default function App() {
 
           {/* ====================================================
               PAYMENT PORTAL
-              
-              RegistrationPortal should navigate to:
-              /payment-portal?order_id=ORDER_ID
           ==================================================== */}
 
           <Route
@@ -217,69 +224,64 @@ export default function App() {
             }
           />
 
-        {/* ====================================================
-    LABORATORY RESULT DASHBOARD
-==================================================== */}
+          {/* ====================================================
+              LABORATORY RESULT DASHBOARD
+          ==================================================== */}
 
-<Route
-  path="/result-dashboard"
-  element={
-    <ProtectedRoute
-      allowedRoles={[
-        "Scientist",
-        "Manager",
-        "Director",
-        "Admin",
-      ]}
-    >
-      <LaboratoryResultDashboard />
-    </ProtectedRoute>
-  }
-/>
+          <Route
+            path="/result-dashboard"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "Scientist",
+                  "Manager",
+                  "Director",
+                  "Admin",
+                ]}
+              >
+                <LaboratoryResultDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-{/* Backward-compatible legacy route */}
-<Route
-  path="/laboratory-results"
-  element={
-    <ProtectedRoute
-      allowedRoles={[
-        "Scientist",
-        "Manager",
-        "Director",
-        "Admin",
-      ]}
-    >
-      <LaboratoryResultDashboard />
-    </ProtectedRoute>
-  }
-/>
+          {/* Backward-compatible legacy route */}
+          <Route
+            path="/laboratory-results"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "Scientist",
+                  "Manager",
+                  "Director",
+                  "Admin",
+                ]}
+              >
+                <LaboratoryResultDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-<Route
-  path="/laboratory-result-entry"
-  element={
-    <ProtectedRoute
-      allowedRoles={[
-        "Scientist",
-        "Manager",
-        "Director",
-        "Admin",
-      ]}
-    >
-      <LaboratoryResultEntry />
-    </ProtectedRoute>
-  }
-/>
-
-         
+          <Route
+            path="/laboratory-result-entry"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "Scientist",
+                  "Manager",
+                  "Director",
+                  "Admin",
+                ]}
+              >
+                <LaboratoryResultEntry />
+              </ProtectedRoute>
+            }
+          />
 
           <Route
             path="/specimen-tracking"
             element={
               <ProtectedRoute
-                allowedRoles={[
-                  "Scientist",
-                  "Admin",
-                ]}
+                allowedRoles={["Scientist", "Admin"]}
               >
                 <SpecimenTracking />
               </ProtectedRoute>
@@ -290,10 +292,7 @@ export default function App() {
             path="/test-control"
             element={
               <ProtectedRoute
-                allowedRoles={[
-                  "Director",
-                  "Admin",
-                ]}
+                allowedRoles={["Director", "Admin"]}
               >
                 <TestControlPortal />
               </ProtectedRoute>
@@ -499,6 +498,46 @@ export default function App() {
           />
 
           {/* ====================================================
+              TEST REQUESTS
+              Public submissions are managed separately from
+              the existing Referral Dashboard.
+          ==================================================== */}
+
+          <Route
+            path="/test-requests"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "Receptionist",
+                  "Scientist",
+                  "Manager",
+                  "Director",
+                  "Admin",
+                ]}
+              >
+                <TestRequestDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/wellness-orders"
+            element={
+              <ProtectedRoute
+                allowedRoles={[
+                  "Receptionist",
+                  "Scientist",
+                  "Manager",
+                  "Director",
+                  "Admin",
+                ]}
+              >
+                <WellnessOrderDashboard />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ====================================================
               INVENTORY
           ==================================================== */}
 
@@ -540,10 +579,7 @@ export default function App() {
             path="/staff-management"
             element={
               <ProtectedRoute
-                allowedRoles={[
-                  "Director",
-                  "Admin",
-                ]}
+                allowedRoles={["Director", "Admin"]}
               >
                 <StaffManagement />
               </ProtectedRoute>
@@ -553,11 +589,7 @@ export default function App() {
           <Route
             path="/role-permissions"
             element={
-              <ProtectedRoute
-                allowedRoles={[
-                  "Admin",
-                ]}
-              >
+              <ProtectedRoute allowedRoles={["Admin"]}>
                 <RolePermissionManager />
               </ProtectedRoute>
             }
@@ -571,10 +603,7 @@ export default function App() {
             path="/audit-trail"
             element={
               <ProtectedRoute
-                allowedRoles={[
-                  "Director",
-                  "Admin",
-                ]}
+                allowedRoles={["Director", "Admin"]}
               >
                 <AuditTrail />
               </ProtectedRoute>
@@ -648,7 +677,6 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-
         </Route>
 
         {/* ======================================================
@@ -657,14 +685,8 @@ export default function App() {
 
         <Route
           path="*"
-          element={
-            <Navigate
-              to="/"
-              replace
-            />
-          }
+          element={<Navigate to="/" replace />}
         />
-
       </Routes>
     </BrowserRouter>
   );

@@ -128,6 +128,7 @@ import {
   RefreshCw,
   Search,
   User,
+  X,
 } from "lucide-react";
 
 /* ==========================================================
@@ -135,6 +136,14 @@ import {
    ========================================================== */
 
 import { supabase } from "../../supabase";
+
+import SavedResultHydrator from "./SavedResultHydrator";
+
+/* ==========================================================
+   BLOOD BANK — GROUPING & CROSSMATCHING
+   ========================================================== */
+
+import BloodGroupingCrossmatchingResultEntry from "./special/BloodGroupingCrossmatchingResultEntry";
 
 /* ==========================================================
    SPECIAL RESULT RESOLVER
@@ -173,15 +182,6 @@ import PanelLaboratoryResultEntryResolver, {
 import ChemistrySingleResultEntry from "./panel/chemistry/ChemistrySingleResultEntry";
 
 /* ==========================================================
-   COOMBS / ANTIGLOBULIN RESULT ENTRY
-   ----------------------------------------------------------
-   Dedicated Blood Bank form for DAT and IAT.
-   The parent remains the persistence boundary.
-   ========================================================== */
-
-import CoombsResultEntry from "./panel/bloodbank/CoombsResultEntry";
-
-/* ==========================================================
    PANEL PARAMETER SERVICE
    ----------------------------------------------------------
    Loads authoritative child master_tests metadata for panels.
@@ -206,6 +206,37 @@ const normalizeText = (value) =>
   text(value)
     .replace(/\s+/g, " ")
     .toLowerCase();
+
+
+/**
+ * QUANTITATIVE SINGLE — MASTER TEST ALIASES
+ * FBS/RBS (GLUCOMETER) use the same master test as FBS/RBS.
+ * No duplicate master_tests record is required.
+ */
+function normalizeQuantitativeSingleTestName(value = "") {
+  const n = String(value || "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .toUpperCase();
+
+  const aliases = {
+    "FBS (GLUCOMETER)": "FBS",
+    "FBS(GLUCOMETER)": "FBS",
+    "FBS - GLUCOMETER": "FBS",
+    "FBS – GLUCOMETER": "FBS",
+    "FASTING BLOOD SUGAR (GLUCOMETER)": "FBS",
+    "FASTING BLOOD GLUCOSE (GLUCOMETER)": "FBS",
+    "RBS (GLUCOMETER)": "RBS",
+    "RBS(GLUCOMETER)": "RBS",
+    "RBS - GLUCOMETER": "RBS",
+    "RBS – GLUCOMETER": "RBS",
+    "RANDOM BLOOD SUGAR (GLUCOMETER)": "RBS",
+    "RANDOM BLOOD GLUCOSE (GLUCOMETER)": "RBS",
+    "RANDOM PLASMA GLUCOSE (GLUCOMETER)": "RBS",
+  };
+
+  return aliases[n] || String(value || "").trim();
+}
 
 
 /* ==========================================================
@@ -442,63 +473,29 @@ const isRoutineUrinalysis = (
 
 
 /* ==========================================================
-   COOMBS / ANTIGLOBULIN TEST DETECTION
+   BLOOD BANK DEDICATED TEST DETECTION
    ----------------------------------------------------------
-   DAT = Direct Antiglobulin Test / Direct Coombs Test
-   IAT = Indirect Antiglobulin Test / Indirect Coombs Test
-
-   Coombs routing has priority over generic special-test routing.
+   "Grouping & Cross Matching" is a Single master test with
+   template_type/result_category = blood_bank. It nevertheless
+   has a structured dedicated result-entry component.
    ========================================================== */
 
-const getCoombsType = (test) => {
-  if (!test) return "";
+const isGroupingCrossMatchingTest = (test) => {
+  if (!test) return false;
 
-  const explicitType = normalizeText(
-    test?.coombs_type ||
-    test?.coombsType ||
-    test?.antiglobulin_type ||
-    test?.antiglobulinType ||
-    test?.test_mode ||
-    test?.testMode
-  );
+  const name = normalizeText(getTestName(test))
+    .replace(/[()\\/\\-]+/g, " ")
+    .replace(/&/g, " and ")
+    .replace(/\\s+/g, " ")
+    .trim();
 
-  if (
-    explicitType === "dat" ||
-    explicitType === "direct" ||
-    explicitType.includes("direct coombs") ||
-    explicitType.includes("direct antiglobulin")
-  ) return "DAT";
-
-  if (
-    explicitType === "iat" ||
-    explicitType === "indirect" ||
-    explicitType.includes("indirect coombs") ||
-    explicitType.includes("indirect antiglobulin")
-  ) return "IAT";
-
-  const names = [
-    test?.test_name,
-    test?.testName,
-    test?.name,
-    test?.service_name,
-    test?.serviceName,
-    test?.masterTest?.test_name,
-    test?.master_test?.test_name,
-  ].map(normalizeText).filter(Boolean);
-
-  for (const name of names) {
-    if (name === "dat" || name.includes("direct coombs") || name.includes("direct antiglobulin")) {
-      return "DAT";
-    }
-    if (name === "iat" || name.includes("indirect coombs") || name.includes("indirect antiglobulin")) {
-      return "IAT";
-    }
-  }
-
-  return "";
+  return [
+    "grouping and cross matching",
+    "grouping cross matching",
+    "blood grouping and cross matching",
+    "blood grouping cross matching",
+  ].includes(name);
 };
-
-const isCoombsTest = (test) => Boolean(getCoombsType(test));
 
 
 /* ==========================================================
@@ -525,6 +522,7 @@ const isCanonicalQuantitativeSingleTest = (test) => {
 
 const isLocalSpecialTest = (test) => {
   if (!test) return false;
+  if (isGroupingCrossMatchingTest(test)) return false;
   if (isCanonicalQuantitativeSingleTest(test)) return false;
   if (isRoutineUrinalysis(test)) return true;
 
@@ -1466,6 +1464,33 @@ const getReferenceRangeForPatient = (
   const age =
     getPatientAge(patient);
 
+  // PEFA canonical glucose ranges. These overrides prevent stale or
+  // incorrectly configured master-test metadata from changing the
+  // laboratory-approved display range for the glucose single tests.
+  const canonicalTestName = normalizeText(
+    normalizeQuantitativeSingleTestName(
+      test?.test_name || test?.testName || test?.name || ""
+    )
+  );
+
+  if (
+    canonicalTestName === "rbs" ||
+    canonicalTestName === "random blood sugar" ||
+    canonicalTestName === "random blood glucose" ||
+    canonicalTestName === "random plasma glucose"
+  ) {
+    return "90.0 - 180.0 mg/dL";
+  }
+
+  if (
+    canonicalTestName === "fbs" ||
+    canonicalTestName === "fasting blood sugar" ||
+    canonicalTestName === "fasting blood glucose" ||
+    canonicalTestName === "fasting plasma glucose"
+  ) {
+    return "70 - 110 mg/dL";
+  }
+
   /*
    * PEFA master_tests schema:
    *   child_range
@@ -1702,6 +1727,116 @@ const calculateNumericFlag = (
   return "";
 };
 
+/*
+ * ================================================================
+ * SAVED RESULT PARAMETER BRIDGE
+ * ----------------------------------------------------------------
+ * Some panel forms (notably CBC/Hematology) need TWO things:
+ *
+ *   1. parameter definitions (analytes)
+ *   2. saved parameter values
+ *
+ * Previously the parent supplied an empty panelParameters array when
+ * the parameter engine failed/returned late. The child then created
+ * ZERO rows even though laboratory_results.result already contained
+ * saved values.
+ *
+ * This bridge derives the parameter definitions directly from the
+ * saved payload as a fallback. It does NOT change the database
+ * payload contract and does NOT make individual forms responsible
+ * for persistence.
+ * ================================================================
+ */
+const parseSavedResultObject = (value) => {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
+  if (typeof value === "object") {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return null;
+    }
+  }
+
+  return null;
+};
+
+const getSavedParameterCollection = (result) => {
+  const payload =
+    parseSavedResultObject(result?.result) ||
+    (result && typeof result === "object" ? result : null);
+
+  if (!payload || typeof payload !== "object") {
+    return [];
+  }
+
+  const candidates = [
+    payload.parameters,
+    payload.parameter_results,
+    payload.parameterResults,
+    payload.results,
+    payload.analytes,
+  ];
+
+  for (const candidate of candidates) {
+    if (Array.isArray(candidate) && candidate.length) {
+      return candidate;
+    }
+
+    if (
+      candidate &&
+      typeof candidate === "object" &&
+      !Array.isArray(candidate)
+    ) {
+      return Object.entries(candidate).map(
+        ([key, value]) => ({
+          ...(value && typeof value === "object" ? value : {}),
+          key:
+            value?.key ||
+            key,
+          name:
+            value?.name ||
+            value?.parameter_name ||
+            value?.parameterName ||
+            key,
+          result:
+            value?.result ??
+            value?.value ??
+            "",
+          value:
+            value?.value ??
+            value?.result ??
+            "",
+        })
+      );
+    }
+  }
+
+  return [];
+};
+
+const buildSavedParameterBridge = (
+  result,
+  liveParameters
+) => {
+  if (
+    Array.isArray(liveParameters) &&
+    liveParameters.length
+  ) {
+    return liveParameters;
+  }
+
+  return getSavedParameterCollection(
+    result
+  );
+};
+
 const getStoredResultValue = (result) => {
   if (!result) return "";
 
@@ -1918,6 +2053,52 @@ const parseLocalStorageObject = (key) => {
   } catch { return null; }
 };
 
+const LAB_RESULT_ENTRY_CACHE_PREFIX = "pefa:laboratory-result-entry:";
+
+const getLaboratoryResultEntryCacheKey = (resultId) =>
+  `${LAB_RESULT_ENTRY_CACHE_PREFIX}${String(resultId ?? "").trim()}`;
+
+const cacheLaboratoryResultEntry = (result) => {
+  if (!result?.id || !hasMeaningfulResultPayload(result?.result)) return;
+
+  try {
+    window.localStorage.setItem(
+      getLaboratoryResultEntryCacheKey(result.id),
+      JSON.stringify({
+        id: result.id,
+        result: result.result,
+        result_status: result.result_status || "Performed",
+        updated_at: result.updated_at || new Date().toISOString(),
+        cached_at: new Date().toISOString(),
+      })
+    );
+  } catch (cacheError) {
+    console.warn("[PEFA RESULT ENTRY] Could not cache saved result locally:", cacheError);
+  }
+};
+
+const getCachedLaboratoryResultEntry = (resultId) => {
+  if (!resultId) return null;
+
+  try {
+    const raw = window.localStorage.getItem(
+      getLaboratoryResultEntryCacheKey(resultId)
+    );
+
+    if (!raw) return null;
+
+    const cached = JSON.parse(raw);
+
+    return cached &&
+      String(cached.id) === String(resultId) &&
+      hasMeaningfulResultPayload(cached.result)
+      ? cached
+      : null;
+  } catch {
+    return null;
+  }
+};
+
 const normalizeStaffRecord = (staff = {}) => ({
   id: staff?.id ?? staff?.staff_id ?? staff?.user_id ?? null,
   auth_user_id: staff?.auth_user_id ?? staff?.authUserId ?? staff?.auth_id ?? null,
@@ -1928,20 +2109,54 @@ const normalizeStaffRecord = (staff = {}) => ({
   signature_url: text(staff?.signature_url ?? staff?.signatureUrl ?? staff?.signature),
 });
 
-const hasMeaningfulResultPayload = (value) => {
-  if (value === null || value === undefined) return false;
-  if (typeof value === "string") return text(value) !== "";
-  if (typeof value === "number" || typeof value === "boolean") return true;
-  if (Array.isArray(value)) return value.length > 0;
+const parsePersistedResultPayload = (value) => {
+  if (value === null || value === undefined || value === "") {
+    return null;
+  }
+
   if (typeof value === "object") {
-    return Object.entries(value).some(([key, item]) => {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const raw = value.trim();
+    if (!raw) return null;
+
+    try {
+      const parsed = JSON.parse(raw);
+      return parsed ?? raw;
+    } catch {
+      return raw;
+    }
+  }
+
+  return value;
+};
+
+const hasMeaningfulResultPayload = (value) => {
+  const parsed = parsePersistedResultPayload(value);
+
+  if (parsed === null || parsed === undefined) return false;
+
+  if (typeof parsed === "string") {
+    return text(parsed) !== "";
+  }
+
+  if (typeof parsed === "number" || typeof parsed === "boolean") {
+    return true;
+  }
+
+  if (Array.isArray(parsed)) {
+    return parsed.length > 0;
+  }
+
+  if (typeof parsed === "object") {
+    return Object.entries(parsed).some(([key, item]) => {
       if (key.startsWith("__pefa")) return false;
-      if (item === null || item === undefined) return false;
-      if (typeof item === "string") return text(item) !== "";
-      if (typeof item === "object") return hasMeaningfulResultPayload(item);
-      return true;
+      return hasMeaningfulResultPayload(item);
     });
   }
+
   return false;
 };
 
@@ -2048,6 +2263,11 @@ export default function LaboratoryResultEntry() {
   ] = useState("");
 
   const [
+    hasSearched,
+    setHasSearched,
+  ] = useState(Boolean(initialLabNumber));
+
+  const [
     registrations,
     setRegistrations,
   ] = useState([]);
@@ -2066,6 +2286,18 @@ export default function LaboratoryResultEntry() {
     selectedResult,
     setSelectedResult,
   ] = useState(null);
+
+  const [
+    hydrationState,
+    setHydrationState,
+  ] = useState({
+    loading: false,
+    found: false,
+    payloadFound: false,
+    resultId: null,
+    source: "none",
+    error: "",
+  });
 
   /*
    * Current unsaved panel form.
@@ -2333,15 +2565,28 @@ export default function LaboratoryResultEntry() {
         requestedLabNumber = "",
         requestedSearch = "",
       } = {}) => {
+        const requestedLab = text(requestedLabNumber);
+
+        if (!requestedLab) {
+          setHasSearched(false);
+          setRegistrations([]);
+          setSelectedRegistration(null);
+          setSelectedTest(null);
+          setSelectedResult(null);
+          setPanelForm(null);
+          return;
+        }
+
         setLoading(true);
+        setHasSearched(true);
         setError("");
         setSuccess("");
 
         try {
           const normalized =
             await searchRegistrationsDirectly({
-              requestedLabNumber,
-              requestedSearch,
+              requestedLabNumber: requestedLab,
+              requestedSearch: "",
             });
 
           setRegistrations(
@@ -2411,16 +2656,20 @@ export default function LaboratoryResultEntry() {
      ======================================================== */
 
   useEffect(() => {
+    if (!initialLabNumber) {
+      setHasSearched(false);
+      setRegistrations([]);
+      return;
+    }
+
     loadRegistrations({
-      requestedLabNumber:
-        initialLabNumber,
+      requestedLabNumber: initialLabNumber,
       requestedSearch: "",
     });
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     initialLabNumber,
-    initialRegistrationId,
   ]);
 
 
@@ -2443,10 +2692,48 @@ export default function LaboratoryResultEntry() {
      PanelLaboratoryResultEntryResolver owns panel identity.
      ======================================================== */
 
-  const resolveMasterTest =
+  
+/**
+ * PEFA FBS REFERENCE RANGE
+ * Canonical laboratory reference interval for FBS:
+ * 70 - 110 mg/dL
+ *
+ * This applies to FBS and FBS (GLUCOMETER), and RBS and RBS (GLUCOMETER)
+ * because the glucometer variants resolve to their canonical master tests.
+ */
+const getCanonicalQuantitativeReferenceRange = (test = {}, fallback = "") => {
+  const normalized = normalizeText(
+    normalizeQuantitativeSingleTestName(
+      test?.test_name || test?.testName || test?.name || ""
+    )
+  );
+
+  if (
+    normalized === "fbs" ||
+    normalized === "fasting blood sugar" ||
+    normalized === "fasting blood glucose" ||
+    normalized === "fasting plasma glucose"
+  ) {
+    return "70 - 110 mg/dL";
+  }
+
+  if (
+    normalized === "rbs" ||
+    normalized === "random blood sugar" ||
+    normalized === "random blood glucose" ||
+    normalized === "random plasma glucose"
+  ) {
+    return "90.0 - 180.0 mg/dL";
+  }
+
+  return fallback || "";
+};
+
+const resolveMasterTest =
     useCallback(
       async (test) => {
-        const testName = getTestName(test);
+        const originalTestName = getTestName(test);
+        const testName = normalizeQuantitativeSingleTestName(originalTestName);
         const testCode = getTestCode(test);
 
         if (!testName && !testCode) {
@@ -2485,12 +2772,27 @@ export default function LaboratoryResultEntry() {
             );
           }
 
-          if (["fbs", "fasting blood sugar", "fasting blood glucose", "fasting plasma glucose"].includes(n)) {
-            values.push("FBS", "Fasting Blood Sugar", "Fasting Blood Glucose");
+          if (["fbs", "fasting blood sugar", "fasting blood glucose", "fasting plasma glucose", "fbs glucometer", "fasting blood sugar glucometer", "fasting blood glucose glucometer", "fasting plasma glucose glucometer"].includes(n)) {
+            values.push(
+              "FBS",
+              "FBS (GLUCOMETER)",
+              "Fasting Blood Sugar",
+              "Fasting Blood Sugar (GLUCOMETER)",
+              "Fasting Blood Glucose",
+              "Fasting Blood Glucose (GLUCOMETER)"
+            );
           }
 
-          if (["rbs", "random blood sugar", "random blood glucose", "random plasma glucose"].includes(n)) {
-            values.push("RBS", "Random Blood Sugar", "Random Blood Glucose");
+          if (["rbs", "random blood sugar", "random blood glucose", "random plasma glucose", "rbs glucometer", "random blood sugar glucometer", "random blood glucose glucometer", "random plasma glucose glucometer"].includes(n)) {
+            values.push(
+              "RBS",
+              "RBS (GLUCOMETER)",
+              "Random Blood Sugar",
+              "Random Blood Sugar (GLUCOMETER)",
+              "Random Blood Glucose",
+              "Random Blood Glucose (GLUCOMETER)",
+              "Random Plasma Glucose (GLUCOMETER)"
+            );
           }
 
           if (["tsh", "thyrotropin", "thyroid stimulating hormone"].includes(n)) {
@@ -2694,19 +2996,27 @@ export default function LaboratoryResultEntry() {
         test?.master_test ||
         await resolveMasterTest(test);
 
-      if (!masterTest?.id) {
-        throw new Error(
-          `Unable to resolve the master panel for "${getTestName(test)}".`
-        );
-      }
-
+      /*
+       * A canonical panel must have a usable panel identity, but the
+       * parent master_tests.id is not required for routing. Some legacy
+       * registrations contain the correct panel name while their
+       * master_test_id is stale/null. In that case the panel children
+       * are still authoritative and can be resolved by parent_panel.
+       */
       const panelName = text(
         masterTest?.is_panel === true
           ? masterTest.test_name
-          : masterTest.panel_name ||
+          : masterTest?.panel_name ||
             test?.panel_name ||
-            test?.panelName
+            test?.panelName ||
+            getTestName(test)
       );
+
+      if (!panelName) {
+        throw new Error(
+          `Unable to resolve the panel identity for "${getTestName(test)}".`
+        );
+      }
 
       if (!panelName) {
         throw new Error(
@@ -2745,7 +3055,7 @@ export default function LaboratoryResultEntry() {
         masterTest: child,
         master_test: child,
         _panelChild: true,
-        _panelParentId: masterTest.id,
+        _panelParentId: masterTest?.id ?? null,
         _panelParentName: panelName,
         display_order: Number(child.display_order ?? child.id ?? index + 1),
       }));
@@ -2753,7 +3063,7 @@ export default function LaboratoryResultEntry() {
       return {
         masterTest,
         panelName,
-        panelId: masterTest.id,
+        panelId: masterTest?.id ?? null,
         children: normalizedChildren,
       };
     },
@@ -3028,17 +3338,55 @@ export default function LaboratoryResultEntry() {
             .eq("registration_id", registrationId)
             .eq("test_id", laboratoryResultTestId)
             .order("id", {
-              ascending: true,
-            })
-            .limit(1)
-            .maybeSingle();
+              ascending: false,
+            });
 
           if (error) {
             throw error;
           }
 
-          if (data?.id) {
-            return data;
+          const rows = Array.isArray(data) ? data : [];
+
+          /*
+           * NEVER accept the first matching row blindly.
+           * Registration creation can leave a Pending/blank row while
+           * another row already contains the actual saved payload.
+           */
+          if (rows.length) {
+            const meaningful = rows.filter(
+              (row) =>
+                hasMeaningfulResultPayload(row?.result) ||
+                ["performed", "verified", "authorized", "released"].includes(
+                  normalizeText(row?.result_status)
+                )
+            );
+
+            const preferred =
+              (meaningful.length ? meaningful : rows)
+                .sort((a, b) => {
+                  const aDate =
+                    new Date(
+                      a?.updated_at ||
+                      a?.created_at ||
+                      0
+                    ).getTime() || 0;
+                  const bDate =
+                    new Date(
+                      b?.updated_at ||
+                      b?.created_at ||
+                      0
+                    ).getTime() || 0;
+
+                  if (aDate !== bDate) {
+                    return bDate - aDate;
+                  }
+
+                  return Number(b?.id || 0) - Number(a?.id || 0);
+                })[0];
+
+            if (preferred?.id) {
+              return preferred;
+            }
           }
         }
 
@@ -3052,13 +3400,44 @@ export default function LaboratoryResultEntry() {
             registrationId
           );
 
-        const registrationMatch =
-          registrationRows.find(
+        const registrationMatches =
+          registrationRows.filter(
             matchesRow
           );
 
-        if (registrationMatch?.id) {
-          return registrationMatch;
+        if (registrationMatches.length) {
+          const preferred =
+            [...registrationMatches].sort((a, b) => {
+              const aMeaningful =
+                hasMeaningfulResultPayload(a?.result) ||
+                ["performed", "verified", "authorized", "released"].includes(
+                  normalizeText(a?.result_status)
+                );
+              const bMeaningful =
+                hasMeaningfulResultPayload(b?.result) ||
+                ["performed", "verified", "authorized", "released"].includes(
+                  normalizeText(b?.result_status)
+                );
+
+              if (aMeaningful !== bMeaningful) {
+                return bMeaningful ? 1 : -1;
+              }
+
+              const aDate =
+                new Date(a?.updated_at || a?.created_at || 0).getTime() || 0;
+              const bDate =
+                new Date(b?.updated_at || b?.created_at || 0).getTime() || 0;
+
+              if (aDate !== bDate) {
+                return bDate - aDate;
+              }
+
+              return Number(b?.id || 0) - Number(a?.id || 0);
+            })[0];
+
+          if (preferred?.id) {
+            return preferred;
+          }
         }
 
         /* ----------------------------------------------------
@@ -3074,13 +3453,44 @@ export default function LaboratoryResultEntry() {
               labNumber
             );
 
-          const labMatch =
-            labRows.find(
+          const labMatches =
+            labRows.filter(
               matchesRow
             );
 
-          if (labMatch?.id) {
-            return labMatch;
+          if (labMatches.length) {
+            const preferred =
+              [...labMatches].sort((a, b) => {
+                const aMeaningful =
+                  hasMeaningfulResultPayload(a?.result) ||
+                  ["performed", "verified", "authorized", "released"].includes(
+                    normalizeText(a?.result_status)
+                  );
+                const bMeaningful =
+                  hasMeaningfulResultPayload(b?.result) ||
+                  ["performed", "verified", "authorized", "released"].includes(
+                    normalizeText(b?.result_status)
+                  );
+
+                if (aMeaningful !== bMeaningful) {
+                  return bMeaningful ? 1 : -1;
+                }
+
+                const aDate =
+                  new Date(a?.updated_at || a?.created_at || 0).getTime() || 0;
+                const bDate =
+                  new Date(b?.updated_at || b?.created_at || 0).getTime() || 0;
+
+                if (aDate !== bDate) {
+                  return bDate - aDate;
+                }
+
+                return Number(b?.id || 0) - Number(a?.id || 0);
+              })[0];
+
+            if (preferred?.id) {
+              return preferred;
+            }
           }
         }
 
@@ -3157,21 +3567,14 @@ export default function LaboratoryResultEntry() {
             test
           );
 
-        const coombsTest =
-          isCoombsTest(test);
-
         const specialTest =
-          !coombsTest &&
           isLocalSpecialTest(
             test
           );
 
         const panelTest =
-          !coombsTest &&
-          (
-            isCanonicalPanelTest(test) ||
-            isPanelLaboratoryResultEntry(test)
-          );
+          isCanonicalPanelTest(test) ||
+          isPanelLaboratoryResultEntry(test);
 
 
         /* ====================================================
@@ -3358,6 +3761,14 @@ export default function LaboratoryResultEntry() {
 
         setSelectedTest(null);
         setSelectedResult(null);
+        setHydrationState({
+          loading: false,
+          found: false,
+          payloadFound: false,
+          resultId: null,
+          source: "none",
+          error: "",
+        });
         setPanelForm(null);
         setSingleValue("");
 
@@ -3384,6 +3795,14 @@ export default function LaboratoryResultEntry() {
     setError("");
     setSuccess("");
     setSelectedResult(null);
+    setHydrationState({
+      loading: false,
+      found: false,
+      payloadFound: false,
+      resultId: null,
+      source: "none",
+      error: "",
+    });
     setPanelForm(null);
     setPanelParameters([]);
     setPanelParameterSource(null);
@@ -3392,8 +3811,6 @@ export default function LaboratoryResultEntry() {
 
     try {
       const routineUrinalysis = isRoutineUrinalysis(test);
-      const coombsType = getCoombsType(test);
-      const coombsTest = Boolean(coombsType);
 
       let resolvedTest = { ...test };
       let masterTest = null;
@@ -3407,7 +3824,7 @@ export default function LaboratoryResultEntry() {
          fix: the raw registration row is no longer trusted to
          decide whether the selected test is a panel.
          ------------------------------------------------------ */
-      if (!routineUrinalysis && !coombsTest && !specialTest) {
+      if (!routineUrinalysis && !specialTest) {
         if (test?.masterTest || test?.master_test) {
           masterTest = test.masterTest || test.master_test;
         } else if (isKnownCanonicalPanelName(test)) {
@@ -3482,50 +3899,6 @@ export default function LaboratoryResultEntry() {
       }
 
       /* ------------------------------------------------------
-         COOMBS / ANTIGLOBULIN METADATA OVERRIDE
-         ------------------------------------------------------ */
-      if (coombsTest) {
-        const coombsName =
-          coombsType === "IAT"
-            ? "Indirect Coombs Test (IAT)"
-            : "Direct Coombs Test (DAT)";
-
-        const coombsSpecimen =
-          coombsType === "IAT"
-            ? "Serum/Plasma"
-            : "EDTA Whole Blood";
-
-        resolvedTest = {
-          ...resolvedTest,
-          test_name: getTestName(test) || coombsName,
-          test_code: getTestCode(test) || coombsType,
-          department: getDepartment(test) || "Blood Bank",
-          category: test?.category || "Immunohematology",
-          test_type: "Single",
-          result_type: "Qualitative",
-          specimen: getSpecimen(test) || coombsSpecimen,
-          is_panel: false,
-          panel_name: "",
-          coombs_type: coombsType,
-          coombsType,
-          _coombsType: coombsType,
-          masterTest: {
-            ...(resolvedTest.masterTest || {}),
-            test_name: getTestName(test) || coombsName,
-            test_code: getTestCode(test) || coombsType,
-            department: getDepartment(test) || "Blood Bank",
-            category: test?.category || "Immunohematology",
-            test_type: "Single",
-            result_type: "Qualitative",
-            specimen: getSpecimen(test) || coombsSpecimen,
-            is_panel: false,
-            panel_name: "",
-            coombs_type: coombsType,
-          },
-        };
-      }
-
-      /* ------------------------------------------------------
          CANONICAL QUANTITATIVE METADATA OVERRIDE
          ------------------------------------------------------ */
       if (isCanonicalQuantitativeSingleTest(resolvedTest)) {
@@ -3552,30 +3925,78 @@ export default function LaboratoryResultEntry() {
        */
       specialTest =
         !routineUrinalysis &&
-        !coombsTest &&
         !isCanonicalQuantitativeSingleTest(resolvedTest) &&
         !isCanonicalPanelTest(resolvedTest) &&
         isLocalSpecialTest(resolvedTest);
 
       const panelTest =
         !routineUrinalysis &&
-        !coombsTest &&
         !specialTest &&
         (Boolean(panelInfo) || isCanonicalPanelTest(resolvedTest));
 
       /* ------------------------------------------------------
          INITIALIZE/REUSE THE AUTHORITATIVE RESULT ROW.
          ------------------------------------------------------ */
-      const result = await initializeLaboratoryResult(
+      const databaseResult = await initializeLaboratoryResult(
         selectedRegistration,
         resolvedTest
       );
 
-      if (!result?.id) {
+      if (!databaseResult?.id) {
         throw new Error(
           "Laboratory result initialization returned no authoritative result ID."
         );
       }
+
+      /*
+       * LAST-SAVED RESULT RETENTION
+       * ------------------------------------------------------
+       * The database row is authoritative whenever it contains
+       * a meaningful saved result. If an older/legacy row returns
+       * a blank result, recover the last verified successful save
+       * from the browser cache for this exact laboratory_results.id.
+       *
+       * This NEVER creates a second laboratory result row and NEVER
+       * replaces a meaningful database result with stale cache data.
+       */
+      const cachedResult = getCachedLaboratoryResultEntry(
+        databaseResult.id
+      );
+
+      const authoritativeResult =
+        hasMeaningfulResultPayload(databaseResult.result) ||
+        ["performed", "verified", "authorized", "released"].includes(
+          normalizeText(databaseResult.result_status)
+        )
+          ? {
+              ...databaseResult,
+              result: parsePersistedResultPayload(
+                databaseResult.result
+              ),
+            }
+          : cachedResult
+          ? {
+              ...databaseResult,
+              result: parsePersistedResultPayload(
+                cachedResult.result
+              ),
+              result_status:
+                databaseResult.result_status ||
+                cachedResult.result_status ||
+                "Performed",
+              updated_at:
+                databaseResult.updated_at ||
+                cachedResult.updated_at ||
+                null,
+            }
+          : {
+              ...databaseResult,
+              result: parsePersistedResultPayload(
+                databaseResult.result
+              ),
+            };
+
+      const result = authoritativeResult;
 
       setSelectedTest(resolvedTest);
       setSelectedResult(result);
@@ -3601,17 +4022,24 @@ export default function LaboratoryResultEntry() {
       const storedResultValue = getStoredResultValue(result);
       setSingleValue(storedResultValue);
 
+      const persistedResultPayload =
+        hasMeaningfulResultPayload(result?.result)
+          ? parsePersistedResultPayload(result.result)
+          : parsePersistedResultPayload(
+              getCachedLaboratoryResultEntry(result?.id)?.result
+            );
+
       if (
-        result?.result &&
-        typeof result.result === "object" &&
-        !Array.isArray(result.result)
+        persistedResultPayload &&
+        typeof persistedResultPayload === "object" &&
+        !Array.isArray(persistedResultPayload)
       ) {
-        setPanelForm(result.result);
+        setPanelForm(persistedResultPayload);
 
         if (isRoutineUrinalysis(resolvedTest)) {
           setUrinalysisData({
             ...EMPTY_URINALYSIS_RESULT,
-            ...result.result,
+            ...persistedResultPayload,
           });
         }
       } else {
@@ -3621,14 +4049,7 @@ export default function LaboratoryResultEntry() {
         }
       }
 
-      window.setTimeout(() => {
-        document
-          .getElementById("laboratory-result-entry-form")
-          ?.scrollIntoView({
-            behavior: "smooth",
-            block: "start",
-          });
-      }, 50);
+      /* Result entry is presented in the modal below. */
     } catch (err) {
       console.error(
         "LaboratoryResultEntry result initialization/routing failed:",
@@ -3653,23 +4074,32 @@ export default function LaboratoryResultEntry() {
     async (event) => {
       event?.preventDefault();
 
-      setSelectedRegistration(
-        null
-      );
+      const requestedLabNumber = text(labNumber);
 
+      if (!requestedLabNumber) {
+        setHasSearched(false);
+        setRegistrations([]);
+        setSelectedRegistration(null);
+        setSelectedTest(null);
+        setSelectedResult(null);
+        setPanelForm(null);
+        setSingleValue("");
+        setError("Enter the patient's Lab Number to search.");
+        return;
+      }
+
+      setSearch("");
+      setSelectedRegistration(null);
       setSelectedTest(null);
       setSelectedResult(null);
       setPanelForm(null);
       setSingleValue("");
 
       await loadRegistrations({
-        requestedLabNumber:
-          labNumber,
-        requestedSearch:
-          search,
+        requestedLabNumber,
+        requestedSearch: "",
       });
     };
-
 
   /* ========================================================
      RESET
@@ -3679,6 +4109,7 @@ export default function LaboratoryResultEntry() {
     async () => {
       setLabNumber("");
       setSearch("");
+      setHasSearched(false);
 
       setSelectedRegistration(
         null
@@ -3711,14 +4142,15 @@ export default function LaboratoryResultEntry() {
 
   const handleRefresh =
     async () => {
+      const requestedLabNumber = text(labNumber);
+
+      if (!requestedLabNumber) return;
+
       await loadRegistrations({
-        requestedLabNumber:
-          labNumber,
-        requestedSearch:
-          search,
+        requestedLabNumber,
+        requestedSearch: "",
       });
     };
-
 
   /* ========================================================
      SPECIAL RESOLUTION
@@ -3748,7 +4180,6 @@ export default function LaboratoryResultEntry() {
         }
 
         if (
-          isCoombsTest(selectedTest) ||
           isQuantitativeResultType(getResultType(selectedTest)) ||
           isCanonicalPanelTest(selectedTest)
         ) {
@@ -3765,31 +4196,27 @@ export default function LaboratoryResultEntry() {
     );
 
 
-  const selectedCoombsType =
-    useMemo(
-      () =>
-        selectedTest
-          ? getCoombsType(selectedTest)
-          : "",
-      [selectedTest]
-    );
-
-  const selectedTestIsCoombs =
-    Boolean(selectedCoombsType);
-
-
   const selectedTestIsSpecial =
     useMemo(
       () =>
         selectedTest
-          ? !selectedTestIsCoombs &&
-            !isCanonicalQuantitativeSingleTest(selectedTest) &&
+          ? !isCanonicalQuantitativeSingleTest(selectedTest) &&
             isLocalSpecialTest(selectedTest)
           : false,
       [
         selectedTest,
-        selectedTestIsCoombs,
       ]
+    );
+
+
+  const selectedTestIsGroupingCrossMatching =
+    useMemo(
+      () =>
+        Boolean(
+          selectedTest &&
+          isGroupingCrossMatchingTest(selectedTest)
+        ),
+      [selectedTest]
     );
 
 
@@ -3994,7 +4421,6 @@ export default function LaboratoryResultEntry() {
       () =>
         Boolean(
           selectedTest &&
-          !selectedTestIsCoombs &&
           !selectedTestIsPanel &&
           !selectedTestIsRoutineUrinalysis &&
           (
@@ -4066,7 +4492,21 @@ export default function LaboratoryResultEntry() {
    * range and live calculated flag without changing the database
    * row until the user explicitly saves.
    */
-  const selectedSingleDisplayResult =
+  const effectiveSavedPanelParameters =
+    useMemo(
+      () =>
+        buildSavedParameterBridge(
+          selectedResult,
+          panelParameters
+        ),
+      [
+        selectedResult,
+        panelParameters,
+      ]
+    );
+
+
+const selectedSingleDisplayResult =
     useMemo(
       () => ({
         ...(selectedResult || {}),
@@ -4211,6 +4651,17 @@ export default function LaboratoryResultEntry() {
       }
     }
 
+    /*
+     * DURABLE FORM RETENTION
+     * ------------------------------------------------------
+     * Cache only AFTER every mandatory save/audit operation has
+     * succeeded. If audit logging fails and the database is rolled
+     * back, the failed edit is therefore never cached.
+     *
+     * Supabase remains the authoritative source of truth.
+     */
+    cacheLaboratoryResultEntry(savedResult);
+
     setSelectedResult(savedResult);
     if (typeof afterSaved === "function") await afterSaved(savedResult);
     return savedResult;
@@ -4292,70 +4743,6 @@ export default function LaboratoryResultEntry() {
     } catch (err) { setError(err?.message || "Unable to save Routine Urinalysis result."); }
     finally { setSavingUrinalysis(false); }
   }, [selectedResult, urinalysisData, requestResultPersistence, navigate]);
-
-
-  /* ========================================================
-     COOMBS SAVE CALLBACK
-     --------------------------------------------------------
-     The dedicated Coombs form is UI-only. LaboratoryResultEntry
-     remains responsible for laboratory_results persistence, edit
-     justification, staff identity and mandatory audit logging.
-     ======================================================== */
-  const handleCoombsSaved = useCallback(async (coombsResultData) => {
-    const authoritativeResultId = selectedResult?.id;
-
-    if (!authoritativeResultId) {
-      setError("No laboratory result record is available.");
-      return;
-    }
-
-    if (
-      !coombsResultData ||
-      typeof coombsResultData !== "object" ||
-      Array.isArray(coombsResultData)
-    ) {
-      setError("No Coombs laboratory result data was supplied.");
-      return;
-    }
-
-    setError("");
-    setSuccess("");
-
-    try {
-      const outcome = await requestResultPersistence({
-        resultId: authoritativeResultId,
-        resultPayload: coombsResultData,
-        resultStatus: "Performed",
-        previousResult: selectedResult?.result ?? null,
-        previousStatus: selectedResult?.result_status || "Pending",
-        action: "Result Edited",
-      });
-
-      if (outcome?.queued) return;
-
-      if (outcome?.saved) {
-        const message =
-          `${getTestName(selectedTest)} result successfully saved/updated.`;
-        setSuccess(message);
-        window.alert(message);
-        navigate(-1);
-      }
-    } catch (err) {
-      console.error(
-        "[PEFA RESULT ENTRY] Coombs result save failed:",
-        err
-      );
-      setError(
-        err?.message ||
-          "Unable to save or update Coombs result."
-      );
-    }
-  }, [
-    selectedResult,
-    selectedTest,
-    requestResultPersistence,
-    navigate,
-  ]);
 
 
   /* ========================================================
@@ -4594,11 +4981,7 @@ export default function LaboratoryResultEntry() {
      ======================================================== */
 
   const entryModeLabel =
-    selectedTestIsCoombs
-      ? selectedCoombsType === "IAT"
-        ? "Indirect Coombs Test (IAT)"
-        : "Direct Coombs Test (DAT)"
-      : selectedTestIsRoutineUrinalysis
+    selectedTestIsRoutineUrinalysis
       ? "Routine Urinalysis"
       : selectedTestIsSpecial
       ? selectedTestResolution?.label ||
@@ -4616,7 +4999,7 @@ export default function LaboratoryResultEntry() {
      ======================================================== */
 
   return (
-    <div className="laboratory-result-entry">
+    <div className="laboratory-result-entry pefa-result-entry-premium">
 
       {/* ==================================================
           HEADER
@@ -4699,96 +5082,64 @@ export default function LaboratoryResultEntry() {
          ================================================== */}
 
       <form
-        className="laboratory-result-entry__search"
-        onSubmit={
-          handleSearch
-        }
+        className="laboratory-result-entry__search laboratory-result-entry__search--lab-only"
+        onSubmit={handleSearch}
       >
+        <div className="laboratory-result-entry__search-box">
 
-        <div className="laboratory-result-entry__field">
-
-          <label htmlFor="lab-number">
-            Lab Number
-          </label>
-
-          <input
-            id="lab-number"
-            type="text"
-            value={
-              labNumber
-            }
-            placeholder="e.g. LAB260862"
-            onChange={(event) =>
-              setLabNumber(
-                event.target.value
-              )
-            }
-          />
-
-        </div>
-
-
-        <div className="laboratory-result-entry__field laboratory-result-entry__field--search">
-
-          <label htmlFor="registration-search">
-            Search Registration
-          </label>
-
-          <div className="laboratory-result-entry__search-control">
-
-            <Search
-              size={17}
-            />
-
-            <input
-              id="registration-search"
-              type="text"
-              value={
-                search
-              }
-              placeholder="Patient name, patient ID, registration or test"
-              onChange={(event) =>
-                setSearch(
-                  event.target.value
-                )
-              }
-            />
-
+          <div className="laboratory-result-entry__search-icon">
+            <Search size={21} />
           </div>
 
+          <div className="laboratory-result-entry__search-content">
+            <label htmlFor="lab-number">
+              SEARCH BY LAB NUMBER
+            </label>
+
+            <input
+              id="lab-number"
+              type="text"
+              value={labNumber}
+              autoComplete="off"
+              spellCheck="false"
+              placeholder="Enter Lab Number e.g. LAB260996"
+              onChange={(event) =>
+                setLabNumber(event.target.value)
+              }
+            />
+
+            <span>
+              Only the exact Lab Number is used to retrieve the patient's
+              registration and its registered tests.
+            </span>
+          </div>
+
+          <button
+            type="submit"
+            className="laboratory-result-entry__button laboratory-result-entry__button--primary laboratory-result-entry__search-button"
+            disabled={loading}
+          >
+            {loading ? (
+              <Loader2
+                size={18}
+                className="laboratory-result-entry__spin"
+              />
+            ) : (
+              <Search size={18} />
+            )}
+            Search Lab Number
+          </button>
+
+          <button
+            type="button"
+            className="laboratory-result-entry__button laboratory-result-entry__button--secondary"
+            onClick={handleReset}
+            disabled={loading}
+          >
+            Reset
+          </button>
+
         </div>
-
-
-        <button
-          type="submit"
-          className="laboratory-result-entry__button laboratory-result-entry__button--primary laboratory-result-entry__search-button"
-          disabled={
-            loading
-          }
-        >
-
-          <Search
-            size={17}
-          />
-
-          Search
-
-        </button>
-
-
-        <button
-          type="button"
-          className="laboratory-result-entry__button laboratory-result-entry__button--secondary"
-          onClick={
-            handleReset
-          }
-          disabled={
-            loading
-          }
-        >
-          Reset
-        </button>
-
       </form>
 
 
@@ -4841,7 +5192,8 @@ export default function LaboratoryResultEntry() {
           REGISTRATION LIST
          ================================================== */}
 
-      {!loading &&
+      {hasSearched &&
+        !loading &&
         registrations.length >
           0 && (
         <section className="laboratory-result-entry__registrations">
@@ -4997,7 +5349,8 @@ export default function LaboratoryResultEntry() {
           EMPTY
          ================================================== */}
 
-      {!loading &&
+      {hasSearched &&
+        !loading &&
         registrations.length ===
           0 && (
         <div className="laboratory-result-entry__empty">
@@ -5015,11 +5368,8 @@ export default function LaboratoryResultEntry() {
           </h2>
 
           <p>
-            Search using the
-            patient's Lab Number,
-            Patient ID,
-            registration number,
-            patient name or test.
+            No registration was found for this Lab Number.
+            Confirm the Lab Number and search again.
           </p>
 
         </div>
@@ -5223,15 +5573,8 @@ export default function LaboratoryResultEntry() {
                         test
                       );
 
-                    const coombsType =
-                      getCoombsType(test);
-
-                    const coombs =
-                      Boolean(coombsType);
-
                     const special =
                       !routine &&
-                      !coombs &&
                       !isCanonicalQuantitativeSingleTest(test) &&
                       isSpecialLaboratoryResultEntry(
                         test
@@ -5239,7 +5582,6 @@ export default function LaboratoryResultEntry() {
 
                     const panel =
                       !routine &&
-                      !coombs &&
                       !special &&
                       (isCanonicalPanelTest(test) ||
                         isPanelLaboratoryResultEntry(test));
@@ -5281,17 +5623,6 @@ export default function LaboratoryResultEntry() {
 
                       typeClass =
                         "special";
-
-                    } else if (
-                      coombs
-                    ) {
-                      typeLabel =
-                        coombsType === "IAT"
-                          ? "IAT"
-                          : "DAT";
-
-                      typeClass =
-                        "coombs";
 
                     } else if (
                       special
@@ -5401,9 +5732,6 @@ export default function LaboratoryResultEntry() {
                               "special"
                                 ? "special"
                                 : typeClass ===
-                                  "coombs"
-                                ? "coombs"
-                                : typeClass ===
                                   "panel"
                                 ? "panel"
                                 : "generic"
@@ -5456,10 +5784,130 @@ export default function LaboratoryResultEntry() {
          ================================================== */}
 
       {selectedTest && (
-        <section
-          id="laboratory-result-entry-form"
-          className="laboratory-result-entry__form-section"
+        <div
+          className="laboratory-result-entry__result-modal"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="laboratory-result-entry-modal-title"
         >
+          <div
+            className="laboratory-result-entry__result-modal-backdrop"
+            onMouseDown={(event) => {
+              if (event.target === event.currentTarget) {
+                handleSpecialCancel();
+              }
+            }}
+          />
+
+          <section
+            id="laboratory-result-entry-form"
+            className="laboratory-result-entry__form-section laboratory-result-entry__form-section--modal"
+          >
+
+          <div className="laboratory-result-entry__modal-topbar">
+            <div className="laboratory-result-entry__modal-identity">
+              <div className="laboratory-result-entry__modal-icon">
+                <FlaskConical size={20} />
+              </div>
+
+              <div>
+                <span>LABORATORY RESULT ENTRY</span>
+                <strong id="laboratory-result-entry-modal-title">
+                  {getTestName(selectedTest)}
+                </strong>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              className="laboratory-result-entry__modal-close"
+              aria-label="Close result entry"
+              title="Close result entry"
+              onClick={handleSpecialCancel}
+            >
+              <X size={20} />
+            </button>
+          </div>
+
+          <div className="laboratory-result-entry__modal-body">
+
+            <SavedResultHydrator
+              key={`saved-hydrator-${selectedRegistration?.id || "none"}-${selectedTest?._entryKey || selectedTest?.test_id || selectedTest?.id || getTestName(selectedTest) || "test"}-${selectedResult?.id || "none"}`}
+              registration={selectedRegistration}
+              test={selectedTest}
+              result={selectedResult}
+              onStateChange={setHydrationState}
+              onHydrated={(hydrated) => {
+                setSelectedResult((previous) => {
+                  const a = [
+                    previous?.id || "",
+                    JSON.stringify(previous?.result ?? null),
+                    previous?.result_status || "",
+                  ].join("|");
+
+                  const b = [
+                    hydrated?.id || "",
+                    JSON.stringify(hydrated?.result ?? null),
+                    hydrated?.result_status || "",
+                  ].join("|");
+
+                  return a === b ? previous : hydrated;
+                });
+
+                const payload = hydrated?.result;
+
+                if (
+                  payload &&
+                  typeof payload === "object" &&
+                  !Array.isArray(payload)
+                ) {
+                  setPanelForm(payload);
+
+                  if (isRoutineUrinalysis(selectedTest)) {
+                    setUrinalysisData({
+                      ...EMPTY_URINALYSIS_RESULT,
+                      ...payload,
+                    });
+                  }
+                }
+
+                setSingleValue(getStoredResultValue(hydrated));
+              }}
+            />
+
+            {!hydrationState.loading &&
+              selectedTestIsPanel &&
+              hydrationState.payloadFound &&
+              panelParameters.length === 0 &&
+              effectiveSavedPanelParameters.length > 0 && (
+                <div className="pefa-saved-parameter-bridge">
+                  <Database size={16} />
+                  <div>
+                    <strong>Saved result restored</strong>
+                    <span>
+                      {effectiveSavedPanelParameters.length} saved parameter
+                      {effectiveSavedPanelParameters.length === 1 ? "" : "s"} loaded
+                      directly from the saved laboratory result.
+                    </span>
+                  </div>
+                </div>
+              )}
+
+            {hydrationState.loading && (
+              <div className="pefa-hydration-loading">
+                <Loader2 size={17} className="pefa-hydrator-spin" />
+                Retrieving the last saved result…
+              </div>
+            )}
+            {hydrationState.error && (
+              <div className="pefa-hydration-error">
+                <AlertCircle size={17} />
+                <div>
+                  <strong>Result hydration problem</strong>
+                  <span>{hydrationState.error}</span>
+                </div>
+              </div>
+            )}
 
           <div className="laboratory-result-entry__form-header">
 
@@ -5533,33 +5981,35 @@ export default function LaboratoryResultEntry() {
 
 
           {/* ==================================================
-              COOMBS / ANTIGLOBULIN RESULT ENTRY
+              BLOOD BANK — GROUPING & CROSSMATCHING
               --------------------------------------------------
-              Dedicated Blood Bank route for DAT and IAT.
-
-              The child form never writes to Supabase. The parent
-              owns the authoritative laboratory_results.id and
-              the complete persistence/audit workflow.
+              Dedicated structured route for the PEFA
+              "Grouping & Cross Matching" test.
              ================================================== */}
 
-          {selectedTestIsCoombs &&
+          {selectedTestIsGroupingCrossMatching &&
           selectedResult ? (
 
-            <div className="laboratory-result-entry__coombs-wrapper">
+            <div className="laboratory-result-entry__special-wrapper">
 
-              <CoombsResultEntry
-                key={`coombs-${selectedResult?.id || "new"}-${selectedCoombsType}`}
+              <BloodGroupingCrossmatchingResultEntry
+                key={`blood-bank-grouping-${selectedResult?.id || "new"}-${selectedTest?._entryKey || "test"}`}
                 test={selectedTest}
                 registration={selectedRegistration}
                 patient={selectedRegistration}
                 result={selectedResult}
-                mode={selectedCoombsType}
-                editMode={isPreviouslySavedLaboratoryResult(selectedResult)}
+                initialResult={selectedResult}
+                existingResult={selectedResult}
+
+                onSave={handleSpecialSaved}
+                onSaved={handleSpecialSaved}
+                onCancel={handleSpecialCancel}
+                onBack={handleSpecialBack}
+
                 readOnly={false}
                 disabled={initializingResult}
-                onSaved={handleCoombsSaved}
-                onCancel={handlePanelCancel}
-                onBack={handlePanelBack}
+                editMode={Boolean(selectedResult?.id)}
+                saving={initializingResult}
               />
 
             </div>
@@ -5578,16 +6028,20 @@ export default function LaboratoryResultEntry() {
               a second Routine Urinalysis implementation.
              ================================================== */}
 
-          {selectedTestIsSpecial &&
+          {!selectedTestIsGroupingCrossMatching &&
+          selectedTestIsSpecial &&
           selectedResult ? (
 
             <div className="laboratory-result-entry__special-wrapper">
 
               <SpecialLaboratoryResultEntryResolver
+                key={`special-${selectedResult?.id || "new"}-${selectedTest?._entryKey || "test"}`}
                 test={selectedTest}
                 registration={selectedRegistration}
                 patient={selectedRegistration}
                 result={selectedResult}
+                initialResult={selectedResult}
+                existingResult={selectedResult}
 
                 onSaved={handleSpecialSaved}
                 onCancel={handleSpecialCancel}
@@ -5615,7 +6069,6 @@ export default function LaboratoryResultEntry() {
 
           {!selectedTestIsRoutineUrinalysis &&
           !selectedTestIsSpecial &&
-          !selectedTestIsCoombs &&
           selectedTestIsPanel &&
           selectedResult ? (
 
@@ -5632,6 +6085,14 @@ export default function LaboratoryResultEntry() {
                   selectedResult
                 }
 
+                initialResult={
+                  selectedResult
+                }
+
+                existingResult={
+                  selectedResult
+                }
+
                 registration={
                   selectedRegistration
                 }
@@ -5641,11 +6102,11 @@ export default function LaboratoryResultEntry() {
                 }
 
                 parameters={
-                  panelParameters
+                  effectiveSavedPanelParameters
                 }
 
                 analytes={
-                  panelParameters
+                  effectiveSavedPanelParameters
                 }
 
                 parameterSource={
@@ -5735,8 +6196,8 @@ export default function LaboratoryResultEntry() {
              ================================================== */}
 
           {!selectedTestIsRoutineUrinalysis &&
+          !selectedTestIsGroupingCrossMatching &&
           !selectedTestIsSpecial &&
-          !selectedTestIsCoombs &&
           !selectedTestIsPanel &&
           selectedTestIsQuantitative &&
           selectedResult ? (
@@ -5796,8 +6257,11 @@ export default function LaboratoryResultEntry() {
               </div>
 
               <ChemistrySingleResultEntry
+                key={`single-${selectedResult?.id || "new"}-${selectedTest?._entryKey || "test"}`}
                 test={selectedTest}
                 result={selectedSingleDisplayResult}
+                initialResult={selectedResult}
+                existingResult={selectedResult}
                 registration={selectedRegistration}
                 patient={selectedRegistration}
                 grouped={false}
@@ -5830,8 +6294,8 @@ export default function LaboratoryResultEntry() {
              ================================================== */}
 
           {!selectedTestIsRoutineUrinalysis &&
+          !selectedTestIsGroupingCrossMatching &&
           !selectedTestIsSpecial &&
-          !selectedTestIsCoombs &&
           !selectedTestIsPanel &&
           !selectedTestIsQuantitative &&
           selectedTest && (
@@ -5921,7 +6385,9 @@ export default function LaboratoryResultEntry() {
 
           )}
 
+          </div>
         </section>
+        </div>
       )}
 
 

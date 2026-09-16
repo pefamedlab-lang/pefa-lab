@@ -1,21 +1,15 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { supabase } from "../supabase";
 import "../styles/finance.css";
+import "../styles/financePremium.css";
 
-export default function FinanceAnalytics() {
+const money = (v) => `₦${Number(v || 0).toLocaleString("en-NG")}`;
+const startFor = (period) => { const n=new Date(); if(period==="today") return new Date(n.getFullYear(),n.getMonth(),n.getDate()); if(period==="week"){const d=new Date(n);d.setDate(d.getDate()-6);d.setHours(0,0,0,0);return d;} if(period==="month") return new Date(n.getFullYear(),n.getMonth(),1); if(period==="year") return new Date(n.getFullYear(),0,1); return null; };
 
-  return (
-
-    <div className="page">
-
-      <h1>
-        Finance Analytics
-      </h1>
-
-      <p>
-        Analytics Module Working
-      </p>
-
-    </div>
-
-  );
-
+export default function FinanceAnalytics(){
+  const [period,setPeriod]=useState("month"); const [payments,setPayments]=useState([]); const [expenses,setExpenses]=useState([]); const [orders,setOrders]=useState([]); const [loading,setLoading]=useState(true); const [error,setError]=useState("");
+  const load=useCallback(async()=>{setLoading(true);const [p,e,o]=await Promise.all([supabase.from("payment_transactions").select("*").order("created_at",{ascending:false}),supabase.from("expenses").select("*").order("created_at",{ascending:false}),supabase.from("service_orders").select("*").order("created_at",{ascending:false})]); if(p.error) setError(p.error.message); setPayments(p.data||[]);setExpenses(e.data||[]);setOrders(o.data||[]);setLoading(false);},[]); useEffect(()=>{load();},[load]);
+  const filtered=useMemo(()=>{const s=startFor(period); return {payments:payments.filter(x=>!s||new Date(x.created_at)>=s),expenses:expenses.filter(x=>!s||new Date(x.expense_date||x.created_at)>=s),orders:orders.filter(x=>!s||new Date(x.created_at)>=s)};},[payments,expenses,orders,period]);
+  const metrics=useMemo(()=>{const income=filtered.payments.reduce((s,x)=>s+Number(x.amount||0),0);const expense=filtered.expenses.reduce((s,x)=>s+Number(x.amount||0),0);const cash=filtered.payments.filter(x=>String(x.payment_method||"").toLowerCase()==="cash").reduce((s,x)=>s+Number(x.amount||0),0);const transfer=filtered.payments.filter(x=>String(x.payment_method||"").toLowerCase()==="transfer").reduce((s,x)=>s+Number(x.amount||0),0);const outstanding=filtered.orders.reduce((s,x)=>s+Number(x.balance||0),0);return {income,expense,net:income-expense,cash,transfer,outstanding,transactions:filtered.payments.length};},[filtered]);
+  return <div className="page pefa-finance-page"><div className="pefa-finance-header"><div><span className="pefa-eyebrow">FINANCIAL INTELLIGENCE</span><h1>Finance Analytics</h1><p>Analytics are driven by actual payment transactions, service-order balances and recorded expenses.</p></div><button type="button" className="pefa-finance-refresh" onClick={load}>Refresh</button></div><div className="pefa-finance-toolbar"><select value={period} onChange={e=>setPeriod(e.target.value)}><option value="today">Today</option><option value="week">Last 7 Days</option><option value="month">This Month</option><option value="year">This Year</option><option value="all">All Time</option></select></div>{error&&<div className="pefa-finance-alert">Some finance data could not be loaded: {error}</div>}<div className="pefa-finance-cards"><div><span>Income</span><strong>{money(metrics.income)}</strong></div><div><span>Expenses</span><strong>{money(metrics.expense)}</strong></div><div><span>Net</span><strong>{money(metrics.net)}</strong></div><div><span>Outstanding</span><strong>{money(metrics.outstanding)}</strong></div><div><span>Cash</span><strong>{money(metrics.cash)}</strong></div><div><span>Transfer</span><strong>{money(metrics.transfer)}</strong></div><div><span>Transactions</span><strong>{metrics.transactions}</strong></div></div><div className="pefa-finance-section"><h2>Reconciliation View</h2><p className="pefa-muted">Income is based on recorded payment transactions, not registration totals. Outstanding is based on service-order balances.</p>{loading&&<p>Loading analytics…</p>}</div></div>;
 }

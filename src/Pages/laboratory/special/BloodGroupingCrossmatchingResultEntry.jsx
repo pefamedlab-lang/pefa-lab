@@ -1,100 +1,184 @@
-
-/* ==========================================================
-   PEFA LAB
-   BLOOD GROUPING & CROSSMATCHING RESULT ENTRY
-   ----------------------------------------------------------
-   PURPOSE:
-   - ABO Blood Grouping
-   - Rh(D) Typing
-   - Forward Grouping
-   - Reverse Grouping
-   - Antibody Screen
-   - Crossmatching
-   - Compatibility interpretation
-   - Blood unit / donor details
-   - Independent special-test result entry
-   - Supports NEW RESULT and EDIT EXISTING RESULT
-   ----------------------------------------------------------
-   IMPORTANT:
-   - Existing database payload structure is preserved.
-   - No direct Supabase persistence.
-   - Parent controls persistence through onSave().
-   ========================================================== */
-
 import React, { useMemo, useState } from "react";
-import {
-  Save,
-  Loader2,
-  Droplets,
-  CheckCircle2,
-  AlertCircle,
-  Plus,
-  Trash2,
-  Pencil,
-  X,
-  RotateCcw,
-} from "lucide-react";
+import { Save, Loader2, Pencil, X, CheckCircle2, AlertCircle } from "lucide-react";
 
-/* ==========================================================
-   CONSTANTS
-   ========================================================== */
+/*
+  PEFA LAB — SIMPLE GROUPING & CROSS MATCHING RESULT ENTRY
 
-const INITIAL_CROSSMATCH = {
-  donorUnit: "",
-  donorBloodGroup: "",
-  donorRh: "",
-  majorPhase: "",
-  minorPhase: "",
-  immediateSpin: "",
-  antiglobulin: "",
-  compatibility: "",
-  remarks: "",
+  Designed to match the simple PEFA report format:
+  - Recipient blood group
+  - HIV status
+  - Donor blood group
+  - Donor blood bag number
+  - HBsAg
+  - HCV
+  - VDRL
+  - RVS
+  - Expiry date
+  - Crossmatching compatibility
+
+  IMPORTANT:
+  - Parent component remains responsible for database persistence through onSave().
+  - Existing detailed Blood Bank payload fields are preserved when an older
+    result is edited.
+  - Simple fields are added without removing the existing payload fields.
+*/
+
+const BLOOD_GROUP_OPTIONS = [
+  { value: "A Positive", abo: "A", rh: "Positive" },
+  { value: "A Negative", abo: "A", rh: "Negative" },
+  { value: "B Positive", abo: "B", rh: "Positive" },
+  { value: "B Negative", abo: "B", rh: "Negative" },
+  { value: "AB Positive", abo: "AB", rh: "Positive" },
+  { value: "AB Negative", abo: "AB", rh: "Negative" },
+  { value: "O Positive", abo: "O", rh: "Positive" },
+  { value: "O Negative", abo: "O", rh: "Negative" },
+];
+
+const SCREENING_OPTIONS = ["Negative", "Positive", "Reactive", "Non-Reactive"];
+const COMPATIBILITY_OPTIONS = ["Compatible", "Incompatible", "Not Tested"];
+
+const firstNonEmpty = (...values) =>
+  values.find(
+    (value) =>
+      value !== null &&
+      value !== undefined &&
+      String(value).trim() !== ""
+  ) ?? "";
+
+const normalizeBloodGroup = (abo, rh) => {
+  const group = String(abo || "").trim().toUpperCase();
+  const rhesus = String(rh || "").trim().toLowerCase();
+
+  if (!group) return "";
+
+  if (rhesus === "positive" || rhesus === "pos" || rhesus === "+") {
+    return `${group} Positive`;
+  }
+
+  if (rhesus === "negative" || rhesus === "neg" || rhesus === "−" || rhesus === "-") {
+    return `${group} Negative`;
+  }
+
+  return group;
 };
 
-const BLOOD_GROUPS = [
-  "A",
-  "B",
-  "AB",
-  "O",
-];
+const parseBloodGroup = (value) => {
+  const raw = String(value || "").trim().toUpperCase();
 
-const RH_OPTIONS = [
-  "Positive",
-  "Negative",
-];
+  const option = BLOOD_GROUP_OPTIONS.find(
+    (item) => item.value.toUpperCase() === raw
+  );
 
-const REACTION_OPTIONS = [
-  "Negative",
-  "1+",
-  "2+",
-  "3+",
-  "4+",
-];
+  if (option) return { abo: option.abo, rh: option.rh };
 
-const COMPATIBILITY_OPTIONS = [
-  "Compatible",
-  "Incompatible",
-  "Not Tested",
-];
+  const aboMatch = raw.match(/^(AB|A|B|O)\b/);
+  const abo = aboMatch?.[1] || "";
 
-const RESULT_OPTIONS = [
-  "Negative",
-  "Positive",
-  "Reactive",
-  "Non-Reactive",
-];
+  let rh = "";
+  if (raw.includes("POSITIVE") || raw.includes("POS") || raw.endsWith("+")) {
+    rh = "Positive";
+  } else if (
+    raw.includes("NEGATIVE") ||
+    raw.includes("NEG") ||
+    raw.endsWith("-") ||
+    raw.endsWith("−")
+  ) {
+    rh = "Negative";
+  }
 
-/* ==========================================================
-   HELPERS
-   ========================================================== */
+  return { abo, rh };
+};
 
-const createEmptyCrossmatch = () => ({
-  ...INITIAL_CROSSMATCH,
-});
+const extractNestedResult = (result) => {
+  const nested = result?.result;
 
-/* ==========================================================
-   COMPONENT
-   ========================================================== */
+  if (nested && typeof nested === "object" && !Array.isArray(nested)) {
+    return nested;
+  }
+
+  return {};
+};
+
+const buildInitialForm = (resultData) => {
+  const crossmatches = Array.isArray(resultData?.crossmatches)
+    ? resultData.crossmatches
+    : [];
+
+  const firstCrossmatch = crossmatches[0] || {};
+
+  const recipientAbo = firstNonEmpty(
+    resultData?.recipient_abo_group,
+    resultData?.abo_group
+  );
+
+  const recipientRh = firstNonEmpty(
+    resultData?.recipient_rh_type,
+    resultData?.rh_type
+  );
+
+  const donorAbo = firstNonEmpty(
+    resultData?.donor_abo_group,
+    firstCrossmatch?.donorBloodGroup
+  );
+
+  const donorRh = firstNonEmpty(
+    resultData?.donor_rh_type,
+    firstCrossmatch?.donorRh
+  );
+
+  return {
+    recipientBloodGroup: normalizeBloodGroup(recipientAbo, recipientRh),
+
+    hivStatus: firstNonEmpty(
+      resultData?.hiv_status,
+      resultData?.hiv,
+      resultData?.HIV_status
+    ),
+
+    donorBloodGroup: normalizeBloodGroup(donorAbo, donorRh),
+
+    donorBagNo: firstNonEmpty(
+      resultData?.donor_bag_no,
+      resultData?.donor_blood_bag_no,
+      firstCrossmatch?.donorUnit
+    ),
+
+    hbsag: firstNonEmpty(
+      resultData?.hbsag,
+      resultData?.HBsAg,
+      resultData?.hbsAg
+    ),
+
+    hcv: firstNonEmpty(resultData?.hcv, resultData?.HCV),
+
+    vdrl: firstNonEmpty(resultData?.vdrl, resultData?.VDRL),
+
+    rvs: firstNonEmpty(
+      resultData?.rvs,
+      resultData?.RVS,
+      resultData?.hiv_status_rvs
+    ),
+
+    expiryDate: firstNonEmpty(
+      resultData?.expiry_date,
+      resultData?.expiryDate,
+      firstCrossmatch?.expiryDate
+    ),
+
+    crossmatching: firstNonEmpty(
+      resultData?.crossmatching,
+      resultData?.cross_match,
+      firstCrossmatch?.compatibility
+    ),
+
+    remarks: firstNonEmpty(resultData?.remarks),
+  };
+};
+
+const hasMeaningfulValue = (value) =>
+  value !== null &&
+  value !== undefined &&
+  String(value).trim() !== "";
 
 export default function BloodGroupingCrossmatchingResultEntry({
   registration = null,
@@ -102,144 +186,97 @@ export default function BloodGroupingCrossmatchingResultEntry({
   onSave,
   saving: externalSaving = false,
 }) {
-  /* ========================================================
-     PATIENT INFORMATION
-     ======================================================== */
+  /*
+    The saved Blood Bank values may arrive either directly on the laboratory
+    result row or inside laboratory_results.result JSON.
+  */
+  const resultData = useMemo(() => {
+    const nested = extractNestedResult(result);
+
+    return {
+      ...nested,
+      ...result,
+      ...nested,
+    };
+  }, [result]);
 
   const patient = useMemo(
     () => ({
-      patientId:
-        registration?.patient_id ||
-        result?.patient_id ||
-        "",
+      patientId: firstNonEmpty(
+        registration?.patient_id,
+        resultData?.patient_id
+      ),
 
-      labNumber:
-        registration?.lab_number ||
-        result?.lab_number ||
-        "",
+      labNumber: firstNonEmpty(
+        registration?.lab_number,
+        resultData?.lab_number
+      ),
 
-      patientName:
-        registration?.full_name ||
-        registration?.patient_name ||
-        result?.patient_name ||
-        "",
+      patientName: firstNonEmpty(
+        registration?.full_name,
+        registration?.patient_name,
+        resultData?.patient_name
+      ),
 
-      sex:
-        registration?.sex ||
-        result?.sex ||
-        "",
+      sex: firstNonEmpty(registration?.sex, resultData?.sex),
 
-      age:
-        registration?.age ||
-        result?.age ||
-        "",
+      age: firstNonEmpty(registration?.age, resultData?.age),
 
-      clinicalHistory:
-        registration?.clinical_history ||
-        result?.clinical_history ||
-        "",
+      clinicalHistory: firstNonEmpty(
+        registration?.clinical_history,
+        resultData?.clinical_history
+      ),
     }),
-    [registration, result]
+    [registration, resultData]
   );
 
-  /* ========================================================
-     INITIAL FORM STATE
-     ======================================================== */
-
-  const getInitialForm = () => ({
-    aboGroup:
-      result?.abo_group || "",
-
-    rhType:
-      result?.rh_type || "",
-
-    forwardAntiA:
-      result?.forward_anti_a || "",
-
-    forwardAntiB:
-      result?.forward_anti_b || "",
-
-    forwardAntiAB:
-      result?.forward_anti_ab || "",
-
-    forwardAntiD:
-      result?.forward_anti_d || "",
-
-    reverseA1Cells:
-      result?.reverse_a1_cells || "",
-
-    reverseBCells:
-      result?.reverse_b_cells || "",
-
-    reverseOCells:
-      result?.reverse_o_cells || "",
-
-    antibodyScreen:
-      result?.antibody_screen || "",
-
-    directAntiglobulinTest:
-      result?.direct_antiglobulin_test || "",
-
-    autoControl:
-      result?.auto_control || "",
-
-    crossmatches:
-      Array.isArray(result?.crossmatches) &&
-      result.crossmatches.length
-        ? result.crossmatches.map((item) => ({
-            ...INITIAL_CROSSMATCH,
-            ...item,
-          }))
-        : [
-            createEmptyCrossmatch(),
-          ],
-
-    generalRemarks:
-      result?.remarks || "",
-  });
-
-  /* ========================================================
-     STATE
-     ======================================================== */
-
-  const [form, setForm] = useState(
-    getInitialForm
+  const initialForm = useMemo(
+    () => buildInitialForm(resultData),
+    [resultData]
   );
 
-  /*
-   * Existing results begin in VIEW MODE.
-   * New results are editable immediately.
-   */
-  const [isEditing, setIsEditing] = useState(
-    !result
-  );
+  const hasSavedPayload = useMemo(() => {
+    const crossmatches = Array.isArray(resultData?.crossmatches)
+      ? resultData.crossmatches
+      : [];
 
-  const [localSaving, setLocalSaving] =
-    useState(false);
+    const firstCrossmatch = crossmatches[0] || {};
 
-  const [success, setSuccess] =
-    useState("");
+    return Boolean(
+      result &&
+        (
+          hasMeaningfulValue(resultData?.abo_group) ||
+          hasMeaningfulValue(resultData?.rh_type) ||
+          hasMeaningfulValue(resultData?.recipient_abo_group) ||
+          hasMeaningfulValue(resultData?.recipient_rh_type) ||
+          hasMeaningfulValue(resultData?.hiv_status) ||
+          hasMeaningfulValue(resultData?.hiv) ||
+          hasMeaningfulValue(resultData?.donor_abo_group) ||
+          hasMeaningfulValue(resultData?.donor_rh_type) ||
+          hasMeaningfulValue(resultData?.donor_bag_no) ||
+          hasMeaningfulValue(resultData?.hbsag) ||
+          hasMeaningfulValue(resultData?.hcv) ||
+          hasMeaningfulValue(resultData?.vdrl) ||
+          hasMeaningfulValue(resultData?.rvs) ||
+          hasMeaningfulValue(resultData?.expiry_date) ||
+          hasMeaningfulValue(resultData?.crossmatching) ||
+          hasMeaningfulValue(resultData?.remarks) ||
+          hasMeaningfulValue(firstCrossmatch?.donorUnit) ||
+          hasMeaningfulValue(firstCrossmatch?.compatibility)
+        )
+    );
+  }, [result, resultData]);
 
-  const [error, setError] =
-    useState("");
+  const [form, setForm] = useState(initialForm);
+  const [isEditing, setIsEditing] = useState(!hasSavedPayload);
+  const [localSaving, setLocalSaving] = useState(false);
+  const [success, setSuccess] = useState("");
+  const [error, setError] = useState("");
 
-  const saving =
-    externalSaving || localSaving;
+  const saving = externalSaving || localSaving;
 
-  const hasExistingResult =
-    Boolean(result);
-
-  /* ========================================================
-     UPDATE FIELD
-     ======================================================== */
-
-  const updateField = (
-    field,
-    value
-  ) => {
-    if (!isEditing) {
-      return;
-    }
+  const updateField = (field, value) => {
+    if (!isEditing) return;
 
     setForm((current) => ({
       ...current,
@@ -250,304 +287,172 @@ export default function BloodGroupingCrossmatchingResultEntry({
     setError("");
   };
 
-  /* ========================================================
-     ADD CROSSMATCH
-     ======================================================== */
-
-  const addCrossmatch = () => {
-    if (!isEditing) {
-      return;
-    }
-
-    setForm((current) => ({
-      ...current,
-
-      crossmatches: [
-        ...(current.crossmatches || []),
-        createEmptyCrossmatch(),
-      ],
-    }));
-
-    setSuccess("");
-    setError("");
-  };
-
-  /* ========================================================
-     REMOVE CROSSMATCH
-     ======================================================== */
-
-  const removeCrossmatch = (
-    index
-  ) => {
-    if (!isEditing) {
-      return;
-    }
-
-    setForm((current) => {
-      const currentItems =
-        current.crossmatches || [];
-
-      if (currentItems.length === 1) {
-        return current;
-      }
-
-      return {
-        ...current,
-
-        crossmatches:
-          currentItems.filter(
-            (_, itemIndex) =>
-              itemIndex !== index
-          ),
-      };
-    });
-
-    setSuccess("");
-    setError("");
-  };
-
-  /* ========================================================
-     UPDATE CROSSMATCH
-     ======================================================== */
-
-  const updateCrossmatch = (
-    index,
-    field,
-    value
-  ) => {
-    if (!isEditing) {
-      return;
-    }
-
-    setForm((current) => ({
-      ...current,
-
-      crossmatches:
-        (current.crossmatches || []).map(
-          (item, itemIndex) =>
-            itemIndex === index
-              ? {
-                  ...item,
-                  [field]: value,
-                }
-              : item
-        ),
-    }));
-
-    setSuccess("");
-    setError("");
-  };
-
-  /* ========================================================
-     EDIT RESULT
-     ======================================================== */
-
   const handleEdit = () => {
-    if (!hasExistingResult) {
-      return;
-    }
-
     setError("");
     setSuccess("");
     setIsEditing(true);
   };
 
-  /* ========================================================
-     CANCEL EDIT
-     ======================================================== */
-
   const handleCancelEdit = () => {
-    /*
-     * Restore the exact result received
-     * from the parent.
-     */
-    setForm({
-      aboGroup:
-        result?.abo_group || "",
-
-      rhType:
-        result?.rh_type || "",
-
-      forwardAntiA:
-        result?.forward_anti_a || "",
-
-      forwardAntiB:
-        result?.forward_anti_b || "",
-
-      forwardAntiAB:
-        result?.forward_anti_ab || "",
-
-      forwardAntiD:
-        result?.forward_anti_d || "",
-
-      reverseA1Cells:
-        result?.reverse_a1_cells || "",
-
-      reverseBCells:
-        result?.reverse_b_cells || "",
-
-      reverseOCells:
-        result?.reverse_o_cells || "",
-
-      antibodyScreen:
-        result?.antibody_screen || "",
-
-      directAntiglobulinTest:
-        result?.direct_antiglobulin_test ||
-        "",
-
-      autoControl:
-        result?.auto_control || "",
-
-      crossmatches:
-        Array.isArray(
-          result?.crossmatches
-        ) &&
-        result.crossmatches.length
-          ? result.crossmatches.map(
-              (item) => ({
-                ...INITIAL_CROSSMATCH,
-                ...item,
-              })
-            )
-          : [
-              createEmptyCrossmatch(),
-            ],
-
-      generalRemarks:
-        result?.remarks || "",
-    });
-
+    setForm(buildInitialForm(resultData));
     setIsEditing(false);
     setError("");
     setSuccess("");
   };
 
-  /* ========================================================
-     COMPATIBILITY CLASS
-     ======================================================== */
-
-  const getCompatibilityClass =
-    (value) => {
-      if (
-        value === "Compatible"
-      ) {
-        return "is-compatible";
-      }
-
-      if (
-        value === "Incompatible"
-      ) {
-        return "is-incompatible";
-      }
-
-      return "";
-    };
-
-  /* ========================================================
-     SAVE
-     ======================================================== */
-
   const handleSave = async () => {
     setError("");
     setSuccess("");
 
-    if (!form.aboGroup) {
-      setError(
-        "Please select the ABO blood group."
-      );
+    if (!form.recipientBloodGroup) {
+      setError("Please select the recipient's blood group.");
       return;
     }
 
-    if (!form.rhType) {
-      setError(
-        "Please select the Rh(D) type."
-      );
+    if (!form.hivStatus) {
+      setError("Please enter/select the HIV status.");
       return;
     }
+
+    if (!form.donorBloodGroup) {
+      setError("Please select the donor's blood group.");
+      return;
+    }
+
+    if (!form.donorBagNo.trim()) {
+      setError("Please enter the donor blood bag number.");
+      return;
+    }
+
+    if (!form.hbsag) {
+      setError("Please enter/select the HBsAg result.");
+      return;
+    }
+
+    if (!form.hcv) {
+      setError("Please enter/select the HCV result.");
+      return;
+    }
+
+    if (!form.vdrl) {
+      setError("Please enter/select the VDRL result.");
+      return;
+    }
+
+    if (!form.rvs) {
+      setError("Please enter/select the RVS result.");
+      return;
+    }
+
+    if (!form.expiryDate) {
+      setError("Please enter the blood unit expiry date.");
+      return;
+    }
+
+    if (!form.crossmatching) {
+      setError("Please select the crossmatching result.");
+      return;
+    }
+
+    const recipient = parseBloodGroup(form.recipientBloodGroup);
+    const donor = parseBloodGroup(form.donorBloodGroup);
+
+    const oldCrossmatches = Array.isArray(resultData?.crossmatches)
+      ? resultData.crossmatches
+      : [];
+
+    const oldFirstCrossmatch = oldCrossmatches[0] || {};
+
+    const updatedFirstCrossmatch = {
+      ...oldFirstCrossmatch,
+      donorUnit: form.donorBagNo.trim(),
+      donorBloodGroup: donor.abo,
+      donorRh: donor.rh,
+      compatibility: form.crossmatching,
+      expiryDate: form.expiryDate,
+    };
+
+    const crossmatches =
+      oldCrossmatches.length > 0
+        ? [updatedFirstCrossmatch, ...oldCrossmatches.slice(1)]
+        : [updatedFirstCrossmatch];
 
     /*
-     * IMPORTANT:
-     * This payload intentionally preserves
-     * the existing database structure.
-     */
+      Keep the existing detailed payload fields while adding the simple
+      report fields required by PEFA's current Grouping & Cross Matching form.
+    */
+    /*
+      CRITICAL DATABASE PERSISTENCE RULE
+      ----------------------------------
+      The PEFA dashboard determines whether a laboratory result is saved by
+      reading laboratory_results.result (or one of the scalar result columns).
+
+      This is a structured Blood Bank result, so ALL Blood Bank fields must be
+      stored inside the `result` JSON column. Sending these fields only as
+      top-level columns can make the save callback succeed while the dashboard
+      still sees result = null and therefore hides the record.
+
+      Keep the existing detailed payload fields, but make the structured object
+      the actual `result` value.
+    */
+    const structuredResult = {
+      ...resultData,
+
+      patient_id: patient.patientId || null,
+      lab_number: patient.labNumber || null,
+      patient_name: patient.patientName || null,
+      sex: patient.sex || null,
+      age: patient.age || null,
+      clinical_history: patient.clinicalHistory || null,
+
+      abo_group: recipient.abo,
+      rh_type: recipient.rh,
+
+      recipient_abo_group: recipient.abo,
+      recipient_rh_type: recipient.rh,
+
+      hiv_status: form.hivStatus,
+      donor_abo_group: donor.abo,
+      donor_rh_type: donor.rh,
+      donor_bag_no: form.donorBagNo.trim(),
+
+      hbsag: form.hbsag,
+      hcv: form.hcv,
+      vdrl: form.vdrl,
+      rvs: form.rvs,
+
+      expiry_date: form.expiryDate,
+      crossmatching: form.crossmatching,
+
+      crossmatches,
+
+      remarks: form.remarks.trim(),
+    };
+
+    /* Never nest the previous laboratory_results.result inside itself. */
+    delete structuredResult.result;
+
     const payload = {
-      patient_id:
-        patient.patientId || null,
-
-      lab_number:
-        patient.labNumber || null,
-
-      patient_name:
-        patient.patientName || null,
-
-      abo_group:
-        form.aboGroup,
-
-      rh_type:
-        form.rhType,
-
-      forward_anti_a:
-        form.forwardAntiA,
-
-      forward_anti_b:
-        form.forwardAntiB,
-
-      forward_anti_ab:
-        form.forwardAntiAB,
-
-      forward_anti_d:
-        form.forwardAntiD,
-
-      reverse_a1_cells:
-        form.reverseA1Cells,
-
-      reverse_b_cells:
-        form.reverseBCells,
-
-      reverse_o_cells:
-        form.reverseOCells,
-
-      antibody_screen:
-        form.antibodyScreen,
-
-      direct_antiglobulin_test:
-        form.directAntiglobulinTest,
-
-      auto_control:
-        form.autoControl,
-
-      crossmatches:
-        form.crossmatches,
-
-      remarks:
-        form.generalRemarks,
-
-      result_status:
-        "Entered",
+      result: structuredResult,
+      result_value: null,
+      result_numeric: null,
+      value: null,
     };
 
     try {
       setLocalSaving(true);
 
-      if (
-        typeof onSave ===
-        "function"
-      ) {
+      if (typeof onSave === "function") {
         await onSave(payload);
       }
 
       setSuccess(
-        hasExistingResult
-          ? "Blood grouping and crossmatching result updated successfully."
-          : "Blood grouping and crossmatching result saved successfully."
+        hasSavedPayload
+          ? "Grouping and crossmatching result updated successfully."
+          : "Grouping and crossmatching result saved successfully."
       );
 
-      /*
-       * After a successful save/update,
-       * return existing results to VIEW MODE.
-       */
-      if (hasExistingResult) {
+      if (hasSavedPayload) {
         setIsEditing(false);
       }
     } catch (saveError) {
@@ -558,1132 +463,536 @@ export default function BloodGroupingCrossmatchingResultEntry({
 
       setError(
         saveError?.message ||
-          "Unable to save blood grouping and crossmatching result."
+          "Unable to save grouping and crossmatching result."
       );
     } finally {
       setLocalSaving(false);
     }
   };
 
-  /* ========================================================
-     RENDER SELECT
-     ======================================================== */
+  const selectStyle = {
+    width: "100%",
+    minHeight: 42,
+    border: "1px solid #cbd5e1",
+    borderRadius: 8,
+    padding: "8px 11px",
+    background: isEditing ? "#ffffff" : "#f8fafc",
+    color: "#0f172a",
+    fontSize: 14,
+    fontWeight: 600,
+    outline: "none",
+    boxSizing: "border-box",
+  };
 
-  const renderSelect = (
-    value,
-    onChange,
-    options,
-    placeholder = "Select"
-  ) => (
-    <select
-      value={value || ""}
-      disabled={!isEditing || saving}
-      onChange={(event) =>
-        onChange(
-          event.target.value
-        )
-      }
-    >
-      <option value="">
-        {placeholder}
-      </option>
+  const inputStyle = {
+    ...selectStyle,
+  };
 
-      {options.map(
-        (option) => (
-          <option
-            key={option}
-            value={option}
-          >
-            {option}
-          </option>
-        )
-      )}
-    </select>
-  );
+  const labelStyle = {
+    display: "block",
+    marginBottom: 6,
+    fontSize: 12,
+    fontWeight: 800,
+    color: "#334155",
+    textTransform: "uppercase",
+    letterSpacing: ".02em",
+  };
 
-  /* ========================================================
-     RENDER
-     ======================================================== */
+  const fieldStyle = {
+    minWidth: 0,
+  };
+
+  const cardStyle = {
+    background: "#ffffff",
+    border: "1px solid #dbe3ec",
+    borderRadius: 10,
+    overflow: "hidden",
+    marginBottom: 14,
+  };
+
+  const sectionTitleStyle = {
+    padding: "10px 14px",
+    background: "#f1f5f9",
+    borderBottom: "1px solid #dbe3ec",
+    fontSize: 14,
+    fontWeight: 900,
+    color: "#0f172a",
+  };
 
   return (
-    <div className="blood-grouping-crossmatch">
-
-      {/* ====================================================
-          HEADER
-         ==================================================== */}
-
-      <div className="blood-grouping-crossmatch__header">
-
-        <div className="blood-grouping-crossmatch__header-icon">
-          <Droplets size={24} />
-        </div>
-
-        <div className="blood-grouping-crossmatch__header-content">
-          <div className="blood-grouping-crossmatch__eyebrow">
+    <div
+      style={{
+        width: "100%",
+        maxWidth: 900,
+        margin: "0 auto",
+        padding: 16,
+        boxSizing: "border-box",
+        background: "#f8fafc",
+        color: "#0f172a",
+        fontFamily:
+          'Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      }}
+    >
+      {/* HEADER */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 12,
+          marginBottom: 14,
+          padding: "14px 16px",
+          borderRadius: 10,
+          background: "#ffffff",
+          border: "1px solid #dbe3ec",
+        }}
+      >
+        <div>
+          <div
+            style={{
+              fontSize: 11,
+              fontWeight: 900,
+              color: "#64748b",
+              letterSpacing: ".08em",
+            }}
+          >
             PEFA LABORATORY
           </div>
 
-          <h1>
-            Blood Grouping & Crossmatching
+          <h1
+            style={{
+              margin: "3px 0 0",
+              fontSize: 21,
+              lineHeight: 1.2,
+              fontWeight: 900,
+            }}
+          >
+            GROUPING AND CROSS MATCHING
           </h1>
-
-          <p>
-            ABO/Rh typing, antibody
-            screening and compatibility
-            testing
-          </p>
         </div>
 
-        {/* ==================================================
-            EDITING CONTROLS
-           ================================================== */}
+        {hasSavedPayload && !isEditing && (
+          <button
+            type="button"
+            onClick={handleEdit}
+            disabled={saving}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 7,
+              border: 0,
+              borderRadius: 8,
+              padding: "9px 12px",
+              background: "#0f766e",
+              color: "#fff",
+              fontWeight: 800,
+              cursor: saving ? "not-allowed" : "pointer",
+            }}
+          >
+            <Pencil size={15} />
+            Edit
+          </button>
+        )}
 
-        <div className="blood-grouping-crossmatch__header-actions">
+        {hasSavedPayload && isEditing && (
+          <button
+            type="button"
+            onClick={handleCancelEdit}
+            disabled={saving}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 7,
+              border: "1px solid #cbd5e1",
+              borderRadius: 8,
+              padding: "9px 12px",
+              background: "#fff",
+              color: "#334155",
+              fontWeight: 800,
+              cursor: saving ? "not-allowed" : "pointer",
+            }}
+          >
+            <X size={15} />
+            Cancel
+          </button>
+        )}
+      </div>
 
-          {hasExistingResult &&
-            !isEditing && (
-              <button
-                type="button"
-                className="blood-grouping-crossmatch__edit-button"
-                onClick={
-                  handleEdit
-                }
-                disabled={saving}
-              >
-                <Pencil
-                  size={17}
-                />
-                Edit Result
-              </button>
-            )}
+      {/* PATIENT INFORMATION */}
+      <div style={cardStyle}>
+        <div style={sectionTitleStyle}>Patient Information</div>
 
-          {hasExistingResult &&
-            isEditing && (
-              <button
-                type="button"
-                className="blood-grouping-crossmatch__cancel-edit-button"
-                onClick={
-                  handleCancelEdit
-                }
-                disabled={saving}
-              >
-                <X size={17} />
-                Cancel Edit
-              </button>
-            )}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(145px, 1fr))",
+            gap: 12,
+            padding: 14,
+          }}
+        >
+          <div style={fieldStyle}>
+            <label style={labelStyle}>Patient Name</label>
+            <strong>{patient.patientName || "—"}</strong>
+          </div>
 
+          <div style={fieldStyle}>
+            <label style={labelStyle}>Lab Number</label>
+            <strong>{patient.labNumber || "—"}</strong>
+          </div>
+
+          <div style={fieldStyle}>
+            <label style={labelStyle}>Sex</label>
+            <strong>{patient.sex || "—"}</strong>
+          </div>
+
+          <div style={fieldStyle}>
+            <label style={labelStyle}>Age</label>
+            <strong>{patient.age || "—"}</strong>
+          </div>
+
+          <div
+            style={{
+              ...fieldStyle,
+              gridColumn: "1 / -1",
+            }}
+          >
+            <label style={labelStyle}>Clinical History</label>
+            <strong>{patient.clinicalHistory || "—"}</strong>
+          </div>
         </div>
       </div>
 
-      {/* ====================================================
-          EDIT MODE INDICATOR
-         ==================================================== */}
-
-      {hasExistingResult && (
-        <div
-          className={`blood-grouping-crossmatch__mode ${
-            isEditing
-              ? "blood-grouping-crossmatch__mode--editing"
-              : "blood-grouping-crossmatch__mode--viewing"
-          }`}
-        >
-          {isEditing ? (
-            <>
-              <Pencil
-                size={15}
-              />
-              <span>
-                EDIT MODE — You are modifying the saved result.
-              </span>
-            </>
-          ) : (
-            <>
-              <CheckCircle2
-                size={15}
-              />
-              <span>
-                SAVED RESULT — Click "Edit Result" to make changes.
-              </span>
-            </>
-          )}
-        </div>
-      )}
-
-      {/* ====================================================
-          PATIENT INFORMATION
-         ==================================================== */}
-
-      <section className="blood-grouping-crossmatch__card">
-
-        <div className="blood-grouping-crossmatch__section-title">
-          <span>
-            Patient Information
-          </span>
-        </div>
-
-        <div className="blood-grouping-crossmatch__patient-grid">
-
-          <div>
-            <label>
-              Patient Name
-            </label>
-
-            <strong>
-              {patient.patientName ||
-                "—"}
-            </strong>
-          </div>
-
-          <div>
-            <label>
-              Patient ID
-            </label>
-
-            <strong>
-              {patient.patientId ||
-                "—"}
-            </strong>
-          </div>
-
-          <div>
-            <label>
-              Lab Number
-            </label>
-
-            <strong>
-              {patient.labNumber ||
-                "—"}
-            </strong>
-          </div>
-
-          <div>
-            <label>
-              Sex
-            </label>
-
-            <strong>
-              {patient.sex ||
-                "—"}
-            </strong>
-          </div>
-
-          <div>
-            <label>
-              Age
-            </label>
-
-            <strong>
-              {patient.age ||
-                "—"}
-            </strong>
-          </div>
-
-          <div className="blood-grouping-crossmatch__patient-history">
-            <label>
-              Clinical History
-            </label>
-
-            <strong>
-              {patient.clinicalHistory ||
-                "—"}
-            </strong>
-          </div>
-
-        </div>
-      </section>
-
-      {/* ====================================================
-          MESSAGES
-         ==================================================== */}
-
+      {/* MESSAGES */}
       {error && (
-        <div className="blood-grouping-crossmatch__message blood-grouping-crossmatch__message--error">
-          <AlertCircle size={18} />
-          <span>
-            {error}
-          </span>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            marginBottom: 12,
+            padding: "10px 12px",
+            borderRadius: 8,
+            background: "#fef2f2",
+            border: "1px solid #fecaca",
+            color: "#b91c1c",
+            fontWeight: 700,
+            fontSize: 13,
+          }}
+        >
+          <AlertCircle size={17} />
+          {error}
         </div>
       )}
 
       {success && (
-        <div className="blood-grouping-crossmatch__message blood-grouping-crossmatch__message--success">
-          <CheckCircle2 size={18} />
-          <span>
-            {success}
-          </span>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            marginBottom: 12,
+            padding: "10px 12px",
+            borderRadius: 8,
+            background: "#ecfdf5",
+            border: "1px solid #a7f3d0",
+            color: "#047857",
+            fontWeight: 700,
+            fontSize: 13,
+          }}
+        >
+          <CheckCircle2 size={17} />
+          {success}
         </div>
       )}
 
-      {/* ====================================================
-          ABO / RH
-         ==================================================== */}
-
-      <section className="blood-grouping-crossmatch__card">
-
-        <div className="blood-grouping-crossmatch__section-heading">
-
-          <div>
-            <span className="blood-grouping-crossmatch__section-number">
-              01
-            </span>
-
-            <div>
-              <h2>
-                ABO & Rh(D) Blood Grouping
-              </h2>
-
-              <p>
-                Determine the patient's ABO
-                and Rh blood group.
-              </p>
-            </div>
-          </div>
-
-        </div>
-
-        <div className="blood-grouping-crossmatch__primary-result">
-
-          <div className="blood-grouping-crossmatch__result-box">
-            <label>
-              ABO Group
-            </label>
-
-            {renderSelect(
-              form.aboGroup,
-              (value) =>
-                updateField(
-                  "aboGroup",
-                  value
-                ),
-              BLOOD_GROUPS,
-              "Select ABO group"
-            )}
-          </div>
-
-          <div className="blood-grouping-crossmatch__result-box">
-            <label>
-              Rh(D)
-            </label>
-
-            {renderSelect(
-              form.rhType,
-              (value) =>
-                updateField(
-                  "rhType",
-                  value
-                ),
-              RH_OPTIONS,
-              "Select Rh type"
-            )}
-          </div>
-
-          <div className="blood-grouping-crossmatch__blood-group-display">
-
-            <span>
-              FINAL BLOOD GROUP
-            </span>
-
-            <strong>
-              {form.aboGroup
-                ? `${form.aboGroup}${
-                    form.rhType ===
-                    "Positive"
-                      ? "+"
-                      : form.rhType ===
-                          "Negative"
-                        ? "−"
-                        : ""
-                  }`
-                : "—"}
-            </strong>
-
-          </div>
-
-        </div>
-      </section>
-
-      {/* ====================================================
-          FORWARD GROUPING
-         ==================================================== */}
-
-      <section className="blood-grouping-crossmatch__card">
-
-        <div className="blood-grouping-crossmatch__section-heading">
-
-          <div>
-            <span className="blood-grouping-crossmatch__section-number">
-              02
-            </span>
-
-            <div>
-              <h2>
-                Forward Grouping
-              </h2>
-
-              <p>
-                Cell grouping using antisera.
-              </p>
-            </div>
-          </div>
-
-        </div>
-
-        <div className="blood-grouping-crossmatch__table-wrapper">
-
-          <table className="blood-grouping-crossmatch__table">
-
-            <thead>
-              <tr>
-                <th>
-                  REAGENT
-                </th>
-
-                <th>
-                  REACTION
-                </th>
-
-                <th>
-                  INTERPRETATION
-                </th>
-              </tr>
-            </thead>
-
-            <tbody>
-
-              <tr>
-                <td>
-                  <strong>
-                    Anti-A
-                  </strong>
-                </td>
-
-                <td>
-                  {renderSelect(
-                    form.forwardAntiA,
-                    (value) =>
-                      updateField(
-                        "forwardAntiA",
-                        value
-                      ),
-                    REACTION_OPTIONS
-                  )}
-                </td>
-
-                <td>
-                  {form.forwardAntiA ||
-                    "—"}
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <strong>
-                    Anti-B
-                  </strong>
-                </td>
-
-                <td>
-                  {renderSelect(
-                    form.forwardAntiB,
-                    (value) =>
-                      updateField(
-                        "forwardAntiB",
-                        value
-                      ),
-                    REACTION_OPTIONS
-                  )}
-                </td>
-
-                <td>
-                  {form.forwardAntiB ||
-                    "—"}
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <strong>
-                    Anti-AB
-                  </strong>
-                </td>
-
-                <td>
-                  {renderSelect(
-                    form.forwardAntiAB,
-                    (value) =>
-                      updateField(
-                        "forwardAntiAB",
-                        value
-                      ),
-                    REACTION_OPTIONS
-                  )}
-                </td>
-
-                <td>
-                  {form.forwardAntiAB ||
-                    "—"}
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <strong>
-                    Anti-D
-                  </strong>
-                </td>
-
-                <td>
-                  {renderSelect(
-                    form.forwardAntiD,
-                    (value) =>
-                      updateField(
-                        "forwardAntiD",
-                        value
-                      ),
-                    REACTION_OPTIONS
-                  )}
-                </td>
-
-                <td>
-                  {form.forwardAntiD ||
-                    "—"}
-                </td>
-              </tr>
-
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      {/* ====================================================
-          REVERSE GROUPING
-         ==================================================== */}
-
-      <section className="blood-grouping-crossmatch__card">
-
-        <div className="blood-grouping-crossmatch__section-heading">
-
-          <div>
-            <span className="blood-grouping-crossmatch__section-number">
-              03
-            </span>
-
-            <div>
-              <h2>
-                Reverse Grouping
-              </h2>
-
-              <p>
-                Serum/plasma testing with
-                reagent red cells.
-              </p>
-            </div>
-          </div>
-
-        </div>
-
-        <div className="blood-grouping-crossmatch__table-wrapper">
-
-          <table className="blood-grouping-crossmatch__table">
-
-            <thead>
-              <tr>
-                <th>
-                  REAGENT CELLS
-                </th>
-
-                <th>
-                  REACTION
-                </th>
-              </tr>
-            </thead>
-
-            <tbody>
-
-              <tr>
-                <td>
-                  <strong>
-                    A1 Cells
-                  </strong>
-                </td>
-
-                <td>
-                  {renderSelect(
-                    form.reverseA1Cells,
-                    (value) =>
-                      updateField(
-                        "reverseA1Cells",
-                        value
-                      ),
-                    REACTION_OPTIONS
-                  )}
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <strong>
-                    B Cells
-                  </strong>
-                </td>
-
-                <td>
-                  {renderSelect(
-                    form.reverseBCells,
-                    (value) =>
-                      updateField(
-                        "reverseBCells",
-                        value
-                      ),
-                    REACTION_OPTIONS
-                  )}
-                </td>
-              </tr>
-
-              <tr>
-                <td>
-                  <strong>
-                    O Cells
-                  </strong>
-                </td>
-
-                <td>
-                  {renderSelect(
-                    form.reverseOCells,
-                    (value) =>
-                      updateField(
-                        "reverseOCells",
-                        value
-                      ),
-                    REACTION_OPTIONS
-                  )}
-                </td>
-              </tr>
-
-            </tbody>
-          </table>
-        </div>
-      </section>
-
-      {/* ====================================================
-          ANTIBODY TESTING
-         ==================================================== */}
-
-      <section className="blood-grouping-crossmatch__card">
-
-        <div className="blood-grouping-crossmatch__section-heading">
-
-          <div>
-            <span className="blood-grouping-crossmatch__section-number">
-              04
-            </span>
-
-            <div>
-              <h2>
-                Antibody Testing
-              </h2>
-
-              <p>
-                Record antibody screening and
-                antiglobulin findings.
-              </p>
-            </div>
-          </div>
-
-        </div>
-
-        <div className="blood-grouping-crossmatch__form-grid">
-
-          <div className="blood-grouping-crossmatch__field">
-            <label>
-              Antibody Screen
-            </label>
-
-            {renderSelect(
-              form.antibodyScreen,
-              (value) =>
-                updateField(
-                  "antibodyScreen",
-                  value
-                ),
-              RESULT_OPTIONS
-            )}
-          </div>
-
-          <div className="blood-grouping-crossmatch__field">
-            <label>
-              Direct Antiglobulin Test (DAT)
-            </label>
-
-            {renderSelect(
-              form.directAntiglobulinTest,
-              (value) =>
-                updateField(
-                  "directAntiglobulinTest",
-                  value
-                ),
-              RESULT_OPTIONS
-            )}
-          </div>
-
-          <div className="blood-grouping-crossmatch__field">
-            <label>
-              Auto Control
-            </label>
-
-            {renderSelect(
-              form.autoControl,
-              (value) =>
-                updateField(
-                  "autoControl",
-                  value
-                ),
-              RESULT_OPTIONS
-            )}
-          </div>
-
-        </div>
-      </section>
-
-      {/* ====================================================
-          CROSSMATCHING
-         ==================================================== */}
-
-      <section className="blood-grouping-crossmatch__card">
-
-        <div className="blood-grouping-crossmatch__section-heading">
-
-          <div>
-            <span className="blood-grouping-crossmatch__section-number">
-              05
-            </span>
-
-            <div>
-              <h2>
-                Crossmatching
-              </h2>
-
-              <p>
-                Record donor unit testing and
-                compatibility.
-              </p>
-            </div>
-          </div>
-
-          <button
-            type="button"
-            className="blood-grouping-crossmatch__add-button"
-            onClick={
-              addCrossmatch
-            }
-            disabled={
-              !isEditing ||
-              saving
-            }
-          >
-            <Plus size={16} />
-            Add Blood Unit
-          </button>
-
-        </div>
-
-        {(
-          form.crossmatches ||
-          []
-        ).map(
-          (
-            crossmatch,
-            index
-          ) => (
-            <div
-              className="blood-grouping-crossmatch__crossmatch"
-              key={`crossmatch-${index}`}
+      {/* RECIPIENT */}
+      <div style={cardStyle}>
+        <div style={sectionTitleStyle}>Recipient</div>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "minmax(0, 1fr) minmax(0, 1fr)",
+            gap: 14,
+            padding: 14,
+          }}
+        >
+          <div style={fieldStyle}>
+            <label style={labelStyle}>Recipient's Blood Group</label>
+            <select
+              value={form.recipientBloodGroup}
+              disabled={!isEditing || saving}
+              onChange={(e) =>
+                updateField("recipientBloodGroup", e.target.value)
+              }
+              style={selectStyle}
             >
-
-              <div className="blood-grouping-crossmatch__crossmatch-header">
-
-                <div>
-                  <span>
-                    BLOOD UNIT{" "}
-                    {index + 1}
-                  </span>
-
-                  <strong>
-                    {crossmatch.donorUnit ||
-                      "Unassigned Unit"}
-                  </strong>
-                </div>
-
-                {(
-                  form.crossmatches ||
-                  []
-                ).length > 1 && (
-                  <button
-                    type="button"
-                    className="blood-grouping-crossmatch__remove-button"
-                    onClick={() =>
-                      removeCrossmatch(
-                        index
-                      )
-                    }
-                    disabled={
-                      !isEditing ||
-                      saving
-                    }
-                    title="Remove blood unit"
-                  >
-                    <Trash2
-                      size={16}
-                    />
-                  </button>
-                )}
-
-              </div>
-
-              <div className="blood-grouping-crossmatch__form-grid">
-
-                <div className="blood-grouping-crossmatch__field">
-                  <label>
-                    Donor Unit Number
-                  </label>
-
-                  <input
-                    type="text"
-                    value={
-                      crossmatch.donorUnit ||
-                      ""
-                    }
-                    placeholder="Enter unit number"
-                    disabled={
-                      !isEditing ||
-                      saving
-                    }
-                    onChange={(
-                      event
-                    ) =>
-                      updateCrossmatch(
-                        index,
-                        "donorUnit",
-                        event.target.value
-                      )
-                    }
-                  />
-                </div>
-
-                <div className="blood-grouping-crossmatch__field">
-                  <label>
-                    Donor ABO Group
-                  </label>
-
-                  {renderSelect(
-                    crossmatch.donorBloodGroup,
-                    (value) =>
-                      updateCrossmatch(
-                        index,
-                        "donorBloodGroup",
-                        value
-                      ),
-                    BLOOD_GROUPS
-                  )}
-                </div>
-
-                <div className="blood-grouping-crossmatch__field">
-                  <label>
-                    Donor Rh(D)
-                  </label>
-
-                  {renderSelect(
-                    crossmatch.donorRh,
-                    (value) =>
-                      updateCrossmatch(
-                        index,
-                        "donorRh",
-                        value
-                      ),
-                    RH_OPTIONS
-                  )}
-                </div>
-
-                <div className="blood-grouping-crossmatch__field">
-                  <label>
-                    Immediate Spin
-                  </label>
-
-                  {renderSelect(
-                    crossmatch.immediateSpin,
-                    (value) =>
-                      updateCrossmatch(
-                        index,
-                        "immediateSpin",
-                        value
-                      ),
-                    REACTION_OPTIONS
-                  )}
-                </div>
-
-                <div className="blood-grouping-crossmatch__field">
-                  <label>
-                    Major Phase
-                  </label>
-
-                  {renderSelect(
-                    crossmatch.majorPhase,
-                    (value) =>
-                      updateCrossmatch(
-                        index,
-                        "majorPhase",
-                        value
-                      ),
-                    REACTION_OPTIONS
-                  )}
-                </div>
-
-                <div className="blood-grouping-crossmatch__field">
-                  <label>
-                    Minor Phase
-                  </label>
-
-                  {renderSelect(
-                    crossmatch.minorPhase,
-                    (value) =>
-                      updateCrossmatch(
-                        index,
-                        "minorPhase",
-                        value
-                      ),
-                    REACTION_OPTIONS
-                  )}
-                </div>
-
-                <div className="blood-grouping-crossmatch__field">
-                  <label>
-                    Antiglobulin Phase
-                  </label>
-
-                  {renderSelect(
-                    crossmatch.antiglobulin,
-                    (value) =>
-                      updateCrossmatch(
-                        index,
-                        "antiglobulin",
-                        value
-                      ),
-                    REACTION_OPTIONS
-                  )}
-                </div>
-
-                <div className="blood-grouping-crossmatch__field">
-                  <label>
-                    Compatibility
-                  </label>
-
-                  <select
-                    className={getCompatibilityClass(
-                      crossmatch.compatibility
-                    )}
-                    value={
-                      crossmatch.compatibility ||
-                      ""
-                    }
-                    disabled={
-                      !isEditing ||
-                      saving
-                    }
-                    onChange={(
-                      event
-                    ) =>
-                      updateCrossmatch(
-                        index,
-                        "compatibility",
-                        event.target.value
-                      )
-                    }
-                  >
-                    <option value="">
-                      Select compatibility
-                    </option>
-
-                    {COMPATIBILITY_OPTIONS.map(
-                      (
-                        option
-                      ) => (
-                        <option
-                          key={
-                            option
-                          }
-                          value={
-                            option
-                          }
-                        >
-                          {option}
-                        </option>
-                      )
-                    )}
-                  </select>
-                </div>
-
-              </div>
-
-              <div className="blood-grouping-crossmatch__field blood-grouping-crossmatch__field--full">
-
-                <label>
-                  Unit Remarks
-                </label>
-
-                <textarea
-                  rows="2"
-                  value={
-                    crossmatch.remarks ||
-                    ""
-                  }
-                  placeholder="Enter relevant crossmatching remarks"
-                  disabled={
-                    !isEditing ||
-                    saving
-                  }
-                  onChange={(
-                    event
-                  ) =>
-                    updateCrossmatch(
-                      index,
-                      "remarks",
-                      event.target.value
-                    )
-                  }
-                />
-
-              </div>
-
-            </div>
-          )
-        )}
-      </section>
-
-      {/* ====================================================
-          REMARKS
-         ==================================================== */}
-
-      <section className="blood-grouping-crossmatch__card">
-
-        <div className="blood-grouping-crossmatch__section-heading">
-
-          <div>
-            <span className="blood-grouping-crossmatch__section-number">
-              06
-            </span>
-
-            <div>
-              <h2>
-                Final Remarks
-              </h2>
-
-              <p>
-                Additional laboratory comments.
-              </p>
-            </div>
+              <option value="">Select blood group</option>
+              {BLOOD_GROUP_OPTIONS.map((item) => (
+                <option key={item.value} value={item.value}>
+                  {item.value}
+                </option>
+              ))}
+            </select>
           </div>
 
+          <div style={fieldStyle}>
+            <label style={labelStyle}>HIV Status</label>
+            <select
+              value={form.hivStatus}
+              disabled={!isEditing || saving}
+              onChange={(e) => updateField("hivStatus", e.target.value)}
+              style={selectStyle}
+            >
+              <option value="">Select result</option>
+              {SCREENING_OPTIONS.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
+      </div>
 
-        <textarea
-          className="blood-grouping-crossmatch__remarks"
-          rows="4"
-          value={
-            form.generalRemarks ||
-            ""
-          }
-          placeholder="Enter final laboratory remarks..."
-          disabled={
-            !isEditing ||
-            saving
-          }
-          onChange={(
-            event
-          ) =>
-            updateField(
-              "generalRemarks",
-              event.target.value
-            )
-          }
-        />
+      {/* DONOR */}
+      <div style={cardStyle}>
+        <div style={sectionTitleStyle}>Donor / Blood Unit</div>
 
-      </section>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
+            gap: 14,
+            padding: 14,
+          }}
+        >
+          <div style={fieldStyle}>
+            <label style={labelStyle}>Donor's Blood Group</label>
+            <select
+              value={form.donorBloodGroup}
+              disabled={!isEditing || saving}
+              onChange={(e) =>
+                updateField("donorBloodGroup", e.target.value)
+              }
+              style={selectStyle}
+            >
+              <option value="">Select blood group</option>
+              {BLOOD_GROUP_OPTIONS.map((item) => (
+                <option key={item.value} value={item.value}>
+                  {item.value}
+                </option>
+              ))}
+            </select>
+          </div>
 
-      {/* ====================================================
-          ACTIONS
-         ==================================================== */}
+          <div style={fieldStyle}>
+            <label style={labelStyle}>Donor's Blood Bag No.</label>
+            <input
+              type="text"
+              value={form.donorBagNo}
+              disabled={!isEditing || saving}
+              onChange={(e) => updateField("donorBagNo", e.target.value)}
+              placeholder="e.g. GSD 035"
+              style={inputStyle}
+            />
+          </div>
 
-      <div className="blood-grouping-crossmatch__actions">
+          <div style={fieldStyle}>
+            <label style={labelStyle}>HBsAg</label>
+            <select
+              value={form.hbsag}
+              disabled={!isEditing || saving}
+              onChange={(e) => updateField("hbsag", e.target.value)}
+              style={selectStyle}
+            >
+              <option value="">Select result</option>
+              {SCREENING_OPTIONS.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
+          </div>
 
-        <div className="blood-grouping-crossmatch__status">
+          <div style={fieldStyle}>
+            <label style={labelStyle}>HCV</label>
+            <select
+              value={form.hcv}
+              disabled={!isEditing || saving}
+              onChange={(e) => updateField("hcv", e.target.value)}
+              style={selectStyle}
+            >
+              <option value="">Select result</option>
+              {SCREENING_OPTIONS.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
+          </div>
 
-          <span>
-            Result Status
-          </span>
+          <div style={fieldStyle}>
+            <label style={labelStyle}>VDRL</label>
+            <select
+              value={form.vdrl}
+              disabled={!isEditing || saving}
+              onChange={(e) => updateField("vdrl", e.target.value)}
+              style={selectStyle}
+            >
+              <option value="">Select result</option>
+              {SCREENING_OPTIONS.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
+          </div>
 
-          <strong>
-            {isEditing
-              ? hasExistingResult
-                ? "Editing"
-                : "New Result"
-              : "Entered"}
-          </strong>
+          <div style={fieldStyle}>
+            <label style={labelStyle}>RVS</label>
+            <select
+              value={form.rvs}
+              disabled={!isEditing || saving}
+              onChange={(e) => updateField("rvs", e.target.value)}
+              style={selectStyle}
+            >
+              <option value="">Select result</option>
+              {SCREENING_OPTIONS.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
+          </div>
 
+          <div style={fieldStyle}>
+            <label style={labelStyle}>Expiry Date</label>
+            <input
+              type="date"
+              value={form.expiryDate}
+              disabled={!isEditing || saving}
+              onChange={(e) => updateField("expiryDate", e.target.value)}
+              style={inputStyle}
+            />
+          </div>
         </div>
+      </div>
 
-        <div className="blood-grouping-crossmatch__action-buttons">
+      {/* CROSSMATCH */}
+      <div style={cardStyle}>
+        <div style={sectionTitleStyle}>Cross Matching</div>
 
-          {hasExistingResult &&
-            isEditing && (
-              <button
-                type="button"
-                className="blood-grouping-crossmatch__cancel-button"
-                onClick={
-                  handleCancelEdit
-                }
-                disabled={saving}
-              >
-                <RotateCcw
-                  size={17}
-                />
-                Cancel Edit
-              </button>
-            )}
+        <div style={{ padding: 14 }}>
+          <div style={{ maxWidth: 360 }}>
+            <label style={labelStyle}>Cross Matching Result</label>
 
-          {isEditing && (
+            <select
+              value={form.crossmatching}
+              disabled={!isEditing || saving}
+              onChange={(e) =>
+                updateField("crossmatching", e.target.value)
+              }
+              style={{
+                ...selectStyle,
+                fontSize: 16,
+                fontWeight: 900,
+              }}
+            >
+              <option value="">Select result</option>
+              {COMPATIBILITY_OPTIONS.map((item) => (
+                <option key={item} value={item}>
+                  {item}
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      {/* OPTIONAL REMARKS */}
+      <div style={cardStyle}>
+        <div style={sectionTitleStyle}>Remarks (Optional)</div>
+
+        <div style={{ padding: 14 }}>
+          <textarea
+            value={form.remarks}
+            disabled={!isEditing || saving}
+            onChange={(e) => updateField("remarks", e.target.value)}
+            rows={2}
+            placeholder="Optional laboratory remark"
+            style={{
+              ...inputStyle,
+              resize: "vertical",
+              fontFamily: "inherit",
+            }}
+          />
+        </div>
+      </div>
+
+      {/* ACTION */}
+      {isEditing && (
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            gap: 10,
+            paddingTop: 2,
+          }}
+        >
+          {hasSavedPayload && (
             <button
               type="button"
-              className="blood-grouping-crossmatch__save"
-              onClick={
-                handleSave
-              }
-              disabled={
-                saving
-              }
+              onClick={handleCancelEdit}
+              disabled={saving}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 7,
+                minHeight: 44,
+                padding: "0 16px",
+                borderRadius: 8,
+                border: "1px solid #cbd5e1",
+                background: "#fff",
+                color: "#334155",
+                fontWeight: 800,
+                cursor: saving ? "not-allowed" : "pointer",
+              }}
             >
-              {saving ? (
-                <Loader2
-                  size={18}
-                  className="blood-grouping-crossmatch__spin"
-                />
-              ) : (
-                <Save
-                  size={18}
-                />
-              )}
-
-              {saving
-                ? "Saving..."
-                : hasExistingResult
-                  ? "Save Changes"
-                  : "Save Result"}
+              <X size={17} />
+              Cancel
             </button>
           )}
 
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={saving}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 8,
+              minHeight: 44,
+              padding: "0 18px",
+              borderRadius: 8,
+              border: 0,
+              background: "#0f766e",
+              color: "#fff",
+              fontWeight: 900,
+              cursor: saving ? "not-allowed" : "pointer",
+              boxShadow: "0 3px 10px rgba(15, 118, 110, .18)",
+            }}
+          >
+            {saving ? <Loader2 size={18} /> : <Save size={18} />}
+            {saving
+              ? "Saving..."
+              : hasSavedPayload
+                ? "Save Changes"
+                : "Save Result"}
+          </button>
         </div>
-
-      </div>
-
+      )}
     </div>
   );
 }

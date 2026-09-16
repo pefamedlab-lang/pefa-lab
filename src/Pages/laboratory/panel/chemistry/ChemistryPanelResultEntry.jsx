@@ -2111,6 +2111,20 @@ const BUILTIN_PANEL_PARAMETERS = {
     { key: "non_ionized_calcium", name: "Non-ionized Calcium (NCA)", test_name: "Non-ionized Calcium (NCA)", unit: "mmol/L", calculated: false },
   ],
 
+  "serum electrolyte": [
+    { key: "sodium", name: "Sodium", test_name: "Sodium", unit: "mmol/L", reference_value: "135 - 145", calculated: false },
+    { key: "potassium", name: "Potassium", test_name: "Potassium", unit: "mmol/L", reference_value: "3.5 - 5.1", calculated: false },
+    { key: "chloride", name: "Chloride", test_name: "Chloride", unit: "mmol/L", reference_value: "98 - 107", calculated: false },
+    { key: "bicarbonate", name: "Bicarbonate", test_name: "Bicarbonate", unit: "mmol/L", reference_value: "22 - 29", calculated: false },
+  ],
+
+  "serum electrolytes": [
+    { key: "sodium", name: "Sodium", test_name: "Sodium", unit: "mmol/L", reference_value: "135 - 145", calculated: false },
+    { key: "potassium", name: "Potassium", test_name: "Potassium", unit: "mmol/L", reference_value: "3.5 - 5.1", calculated: false },
+    { key: "chloride", name: "Chloride", test_name: "Chloride", unit: "mmol/L", reference_value: "98 - 107", calculated: false },
+    { key: "bicarbonate", name: "Bicarbonate", test_name: "Bicarbonate", unit: "mmol/L", reference_value: "22 - 29", calculated: false },
+  ],
+
   "lipid profile": [    { key: "total_cholesterol", name: "Total Cholesterol", test_name: "Total Cholesterol", unit: "mg/dL", reference_value: "0 - 200", calculated: false },
     { key: "triglycerides", name: "Triglycerides", test_name: "Triglycerides", unit: "mg/dL", reference_value: "0 - 150", calculated: false },
     { key: "hdl", name: "HDL Cholesterol", test_name: "HDL Cholesterol", unit: "mg/dL", reference_value: "> 40", calculated: false },
@@ -2311,9 +2325,7 @@ export default function ChemistryPanelResultEntry({
         }
 
         if (
-          n.includes(
-            "serum electrolytes"
-          ) ||
+          n.includes("serum electrolyte") ||
           n === "ue" ||
           n === "ues" ||
           n === "uecs"
@@ -2599,6 +2611,21 @@ export default function ChemistryPanelResultEntry({
               ...suppliedParameters,
             ]
           );
+
+        if (!normalized.length) {
+          const builtin =
+            getBuiltinPanelParameters(lookupName);
+
+          if (builtin.length) {
+            return builtin;
+          }
+
+          return normalizeAnalytes(
+            Array.isArray(suppliedParameters)
+              ? suppliedParameters
+              : []
+          );
+        }
 
         if (
           isRenalFunctionPanel(

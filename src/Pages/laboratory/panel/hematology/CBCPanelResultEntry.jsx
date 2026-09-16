@@ -524,52 +524,28 @@ const findExistingParameter = (
   parameters,
   parameter
 ) => {
-  if (
-    !isObject(parameters)
-  ) {
+  if (!isObject(parameters)) {
     return {};
   }
 
-  const candidates = [
-    parameter.key,
-    parameter.id,
-    parameter.test_id,
-    parameter.test_name,
-    parameter.name,
-  ].filter(Boolean);
+  const wantedKey = semanticCBCKey(parameter);
 
-  for (
-    const candidate of candidates
-  ) {
-    if (
-      isObject(
-        parameters[candidate]
-      )
-    ) {
-      return parameters[candidate];
-    }
+  /* First try the canonical key directly. */
+  if (isObject(parameters[wantedKey])) {
+    return parameters[wantedKey];
   }
 
-  const wanted =
-    normalize(
-      getParameterName(parameter)
-    );
+  /* Then collapse legacy/alias keys from previously saved results. */
+  for (const [key, value] of Object.entries(parameters)) {
+    if (!isObject(value)) continue;
 
-  for (
-    const [key, value]
-    of Object.entries(parameters)
-  ) {
-    if (
-      !isObject(value)
-    ) {
-      continue;
-    }
-
-    if (
-      normalize(key) === wanted ||
-      normalize(value.name) === wanted ||
-      normalize(value.test_name) === wanted
-    ) {
+    if (semanticCBCKey({
+      key,
+      name: value.name,
+      test_name: value.test_name,
+      parameter_key: value.parameter_key,
+      test_id: value.test_id,
+    }) === wantedKey) {
       return value;
     }
   }
@@ -586,13 +562,13 @@ const normalizeParameter = (
   existing = {}
 ) => {
   const key =
-    getParameterKey(
-      parameter
-    );
+    semanticCBCKey(parameter);
 
   const name =
-    getParameterName(
-      parameter
+    firstValue(
+      parameter.name,
+      parameter.test_name,
+      key
     );
 
   const fallback =
@@ -914,6 +890,157 @@ const buildCBCInterpretation = (rows) => buildCBCIntegratedInterpretation(rows);
    COMPONENT
    ========================================================== */
 
+
+/* ==========================================================
+   CBC SEMANTIC PARAMETER ALIASES
+   ----------------------------------------------------------
+   Different database/test catalogue labels can refer to the
+   same CBC analyte. Always collapse them to one canonical key.
+   ========================================================== */
+
+const CBC_SEMANTIC_ALIASES = {
+  haemoglobin: [
+    "haemoglobin", "hemoglobin", "haemoglobin hb", "hemoglobin hb",
+    "hb", "hgb", "haemoglobin (hb)", "hemoglobin (hb)"
+  ],
+  haematocrit: [
+    "haematocrit", "hematocrit", "packed cell volume", "pcv", "hct",
+    "packed cell volume pcv", "packed cell volume hct",
+    "pcv hct", "pcv/hct", "haematocrit hct", "hematocrit hct"
+  ],
+  rbc: [
+    "rbc", "red blood cell count", "red blood cell", "erythrocyte count",
+    "red cell count", "red blood cell count rbc", "red blood cell (rbc)"
+  ],
+  wbc: [
+    "wbc", "white blood cell count", "white blood cell",
+    "white blood cell count wbc", "white blood cell (wbc)",
+    "leucocyte count", "leukocyte count", "total white blood cell count"
+  ],
+  platelets: [
+    "platelets", "platelet", "platelet count", "plt",
+    "platelets count", "platelet count plt"
+  ],
+  mcv: [
+    "mcv", "mean cell volume", "mean corpuscular volume",
+    "mean cell volume mcv", "mean corpuscular volume mcv"
+  ],
+  mch: [
+    "mch", "mean cell haemoglobin", "mean cell hemoglobin",
+    "mean corpuscular haemoglobin", "mean corpuscular hemoglobin",
+    "mean cell haemoglobin mch", "mean cell hemoglobin mch"
+  ],
+  mchc: [
+    "mchc", "mean cell haemoglobin concentration",
+    "mean cell hemoglobin concentration",
+    "mean corpuscular haemoglobin concentration",
+    "mean corpuscular hemoglobin concentration"
+  ],
+  rdw_cv: [
+    "rdw", "rdw cv", "rdw-cv", "rdw cv%", "red cell distribution width",
+    "red cell distribution width cv", "red cell distribution width rdw"
+  ],
+  rdw_sd: [
+    "rdw sd", "rdw-sd", "red cell distribution width sd",
+    "red cell distribution width sd rdw-sd"
+  ],
+  neutrophils: [
+    "neutrophils", "neutrophil", "neutrophils %", "neutrophil %",
+    "neutrophils percentage", "neutrophil percentage"
+  ],
+  lymphocytes: [
+    "lymphocytes", "lymphocyte", "lymphocytes %", "lymphocyte %",
+    "lymphocytes percentage", "lymphocyte percentage"
+  ],
+  monocytes: [
+    "monocytes", "monocyte", "monocytes %", "monocyte %",
+    "monocytes percentage", "monocyte percentage"
+  ],
+  eosinophils: [
+    "eosinophils", "eosinophil", "eosinophils %", "eosinophil %",
+    "eosinophils percentage", "eosinophil percentage"
+  ],
+  basophils: [
+    "basophils", "basophil", "basophils %", "basophil %",
+    "basophils percentage", "basophil percentage"
+  ],
+  neutrophils_absolute: [
+    "neutrophils absolute", "absolute neutrophils",
+    "absolute neutrophil count", "anc", "neutrophil absolute"
+  ],
+  lymphocytes_absolute: [
+    "lymphocytes absolute", "absolute lymphocytes",
+    "absolute lymphocyte count", "alc", "lymphocyte absolute"
+  ],
+  monocytes_absolute: [
+    "monocytes absolute", "absolute monocytes",
+    "absolute monocyte count", "monocyte absolute"
+  ],
+  eosinophils_absolute: [
+    "eosinophils absolute", "absolute eosinophils",
+    "absolute eosinophil count", "eosinophil absolute"
+  ],
+  basophils_absolute: [
+    "basophils absolute", "absolute basophils",
+    "absolute basophil count", "basophil absolute"
+  ],
+  mpv: [
+    "mpv", "mean platelet volume", "mean platelet volume mpv"
+  ],
+};
+
+const CBC_ALIAS_TO_KEY = Object.fromEntries(
+  Object.entries(CBC_SEMANTIC_ALIASES).flatMap(([key, aliases]) =>
+    aliases.map((alias) => [normalize(alias), key])
+  )
+);
+
+const semanticCBCKey = (parameter = {}) => {
+  const candidates = [
+    parameter.key,
+    parameter.parameter_key,
+    parameter.id,
+    parameter.test_id,
+    parameter.test_name,
+    parameter.testName,
+    parameter.name,
+    parameter.parameter_name,
+    parameter.label,
+  ].filter((value) => text(value) !== "");
+
+  for (const candidate of candidates) {
+    const normalized = normalize(candidate);
+    if (CBC_ALIAS_TO_KEY[normalized]) {
+      return CBC_ALIAS_TO_KEY[normalized];
+    }
+
+    /* Handle labels containing a canonical alias, e.g.
+       "Platelet Count (PLT)" or "Haemoglobin (Hb)". */
+    for (const [alias, key] of Object.entries(CBC_ALIAS_TO_KEY)) {
+      if (
+        normalized.includes(alias) &&
+        (
+          normalized.startsWith(alias + " ") ||
+          normalized.endsWith(" " + alias) ||
+          normalized.includes("(" + alias + ")")
+        )
+      ) {
+        return key;
+      }
+    }
+  }
+
+  return normalize(
+    firstValue(
+      parameter.key,
+      parameter.parameter_key,
+      parameter.test_id,
+      parameter.test_name,
+      parameter.name
+    )
+  ).replace(/\s+/g, "_");
+};
+
 export default function CBCPanelResultEntry({
   title =
     "CBC / Full Blood Count",
@@ -990,27 +1117,63 @@ export default function CBCPanelResultEntry({
   { key: "monocytes_absolute", name: "Monocytes Absolute", test_name: "Monocytes Absolute", unit: "×10⁹/L", calculated: true, readOnly: true },
   { key: "eosinophils_absolute", name: "Eosinophils Absolute", test_name: "Eosinophils Absolute", unit: "×10⁹/L", calculated: true, readOnly: true },
   { key: "basophils_absolute", name: "Basophils Absolute", test_name: "Basophils Absolute", unit: "×10⁹/L", calculated: true, readOnly: true },
+  { key: "mpv", name: "MPV", test_name: "MPV", unit: "fL", reference_value: "7.0 - 12.0", calculated: false, readOnly: false },
 ];
 
-const canonicalKey = (parameter = {}) => normalize(getParameterKey(parameter));
+const canonicalKey = (parameter = {}) =>
+  semanticCBCKey(parameter);
 
 const mergeCanonicalCBCStructure = (supplied, database) => {
   const map = new Map();
-  for (const item of CBC_CANONICAL_STRUCTURE) map.set(canonicalKey(item), item);
-  for (const item of supplied || []) {
-    if (!item) continue;
-    const key = canonicalKey(item);
-    if (!key) continue;
-    map.set(key, { ...(map.get(key) || {}), ...item });
+
+  /*
+   * Seed only canonical CBC rows. This guarantees the final visible
+   * structure can never grow because the database contains aliases.
+   */
+  for (const item of CBC_CANONICAL_STRUCTURE) {
+    map.set(item.key, { ...item });
   }
-  for (const item of database || []) {
-    if (!item) continue;
-    const key = canonicalKey(item);
-    if (!key) continue;
-    map.set(key, { ...(map.get(key) || {}), ...item });
-  }
-  return CBC_CANONICAL_STRUCTURE.map((fallback) => map.get(canonicalKey(fallback)) || fallback)
-    .concat(Array.from(map.values()).filter((item) => !CBC_CANONICAL_STRUCTURE.some((base) => canonicalKey(base) === canonicalKey(item))));
+
+  const merge = (item) => {
+    if (!item) return;
+
+    const key = semanticCBCKey(item);
+    if (!key) return;
+
+    const existing = map.get(key) || {};
+
+    /*
+     * Preserve the canonical key/name even when the incoming database
+     * record is named "White Blood Cell Count (WBC)", etc.
+     */
+    map.set(key, {
+      ...existing,
+      ...item,
+      key,
+      name: existing.name || item.name || item.test_name || key,
+      test_name: existing.test_name || item.test_name || item.name || key,
+    });
+  };
+
+  (supplied || []).forEach(merge);
+  (database || []).forEach(merge);
+
+  /*
+   * IMPORTANT:
+   * Return ONLY the canonical CBC structure.
+   * Never concatenate unknown/alias rows onto it.
+   */
+  return CBC_CANONICAL_STRUCTURE
+    .map((fallback) => {
+      const merged = map.get(fallback.key) || {};
+      return {
+        ...fallback,
+        ...merged,
+        key: fallback.key,
+        name: fallback.name,
+        test_name: fallback.test_name,
+      };
+    });
 };
 
 const suppliedAnalytes =
@@ -1265,9 +1428,14 @@ const suppliedAnalytes =
       return displayAnalytes.map(
         (parameter) => {
           const key =
-            getParameterKey(
+            semanticCBCKey(
               parameter
             );
+
+          const canonicalDefinition =
+            CBC_CANONICAL_STRUCTURE.find(
+              (item) => item.key === key
+            ) || parameter;
 
           const current =
             form.parameters?.[key] ||
@@ -1300,6 +1468,7 @@ const suppliedAnalytes =
 
             key,
             name:
+              canonicalDefinition.name ||
               getParameterName(
                 parameter
               ),
@@ -1412,7 +1581,7 @@ const suppliedAnalytes =
           effectiveAnalytes.map(
             (parameter) => {
               const key =
-                getParameterKey(
+                semanticCBCKey(
                   parameter
                 );
 

@@ -1708,7 +1708,7 @@ export default function StaffManagement() {
 
   if (!canManage) {
     return (
-      <div className="staff-management">
+      <div className="page">
         <h2>
           Access Denied
         </h2>
@@ -1727,13 +1727,13 @@ export default function StaffManagement() {
      ========================================================= */
 
   return (
-    <div className="staff-management">
+    <div className="page">
 
       {/* =====================================================
           HEADER
           ===================================================== */}
 
-      <div className="staff-management-header">
+      <div className="test-header">
 
         <div>
           <h1>
@@ -1752,7 +1752,7 @@ export default function StaffManagement() {
 
 
         <button
-          className="staff-btn staff-btn-primary"
+          className="save-test-btn"
           onClick={openCreate}
           disabled={loading}
         >
@@ -1810,11 +1810,10 @@ export default function StaffManagement() {
           SEARCH
           ===================================================== */}
 
-      <div className="staff-toolbar">
-        <div className="staff-search-wrapper">
+      <div className="search-box">
+
         <input
           type="text"
-          className="staff-search"
           placeholder="Search staff by name, username, role, department or branch..."
           value={search}
           onChange={(e) =>
@@ -1823,7 +1822,7 @@ export default function StaffManagement() {
             )
           }
         />
-        </div>
+
       </div>
 
 
@@ -1831,9 +1830,9 @@ export default function StaffManagement() {
           STATISTICS
           ===================================================== */}
 
-      <div className="staff-stat-grid">
+      <div className="stats-grid">
 
-        <div className="staff-stat-card">
+        <div className="stat-card">
           <h3>
             Total Staff
           </h3>
@@ -1844,7 +1843,7 @@ export default function StaffManagement() {
         </div>
 
 
-        <div className="staff-stat-card">
+        <div className="stat-card">
           <h3>
             Active Staff
           </h3>
@@ -1855,7 +1854,7 @@ export default function StaffManagement() {
         </div>
 
 
-        <div className="staff-stat-card">
+        <div className="stat-card">
           <h3>
             Managers
           </h3>
@@ -1866,7 +1865,7 @@ export default function StaffManagement() {
         </div>
 
 
-        <div className="staff-stat-card">
+        <div className="stat-card">
           <h3>
             Scientists
           </h3>
@@ -1877,7 +1876,7 @@ export default function StaffManagement() {
         </div>
 
 
-        <div className="staff-stat-card">
+        <div className="stat-card">
           <h3>
             Radiology Team
           </h3>
@@ -2093,7 +2092,7 @@ export default function StaffManagement() {
 
                     {/* AUTHENTICATION */}
 
-                    <td data-label="Authentication">
+                    <td>
                       {item.auth_user_id ? (
                         <span style={{ color: "#047857", fontWeight: 700 }}>
                           Linked
@@ -2108,9 +2107,9 @@ export default function StaffManagement() {
 
                     {/* ACTIONS */}
 
-                    <td data-label="Actions">
+                    <td>
 
-                      <div className="staff-actions"
+                      <div
                         style={{
                           display:
                             "flex",
@@ -2121,7 +2120,7 @@ export default function StaffManagement() {
                       >
 
                         <button
-                          className="staff-action-btn"
+                          className="edit-btn"
                           onClick={() =>
                             openEdit(
                               item
@@ -2133,7 +2132,7 @@ export default function StaffManagement() {
 
 
                         <button
-                          className="staff-action-btn"
+                          className="action-btn"
                           onClick={() =>
                             toggleStatus(
                               item
@@ -2150,7 +2149,7 @@ export default function StaffManagement() {
 
 
                         <button
-                          className="staff-action-btn"
+                          className="action-btn"
                           onClick={() =>
                             resetPassword(
                               item
@@ -2162,7 +2161,7 @@ export default function StaffManagement() {
 
 
                         <button
-                          className="staff-action-btn staff-action-btn-danger"
+                          className="delete-btn"
                           onClick={() =>
                             deleteStaff(
                               item
@@ -2196,10 +2195,10 @@ export default function StaffManagement() {
 
       {showModal && (
 
-        <div className="staff-modal-overlay">
+        <div className="result-record-modal-overlay">
 
           <div
-            className="staff-modal"
+            className="result-record-modal"
             style={{
               maxWidth: 980,
             }}
@@ -2209,7 +2208,7 @@ export default function StaffManagement() {
                 MODAL HEADER
                 ================================================= */}
 
-            <div className="staff-modal-header">
+            <div className="modal-header">
 
               <div>
 
@@ -2237,7 +2236,8 @@ export default function StaffManagement() {
 
 
               <button
-                className="staff-modal-close"
+                type="button"
+                className="close-btn"
                 onClick={
                   closeModal
                 }
@@ -2257,7 +2257,7 @@ export default function StaffManagement() {
                 FORM
                 ================================================= */}
 
-            <div className="staff-form">
+            <div className="test-grid">
 
               {/* ROLE */}
 
@@ -2600,7 +2600,7 @@ export default function StaffManagement() {
                 MODAL ACTIONS
                 ================================================= */}
 
-            <div className="staff-modal-footer"
+            <div
               style={{
                 display:
                   "flex",
@@ -2612,7 +2612,7 @@ export default function StaffManagement() {
             >
 
               <button
-                className="staff-modal-close"
+                className="close-btn"
                 onClick={
                   closeModal
                 }
@@ -2627,18 +2627,24 @@ export default function StaffManagement() {
 
 
               <button
-  type="button"
-  className="staff-btn staff-btn-primary"
-  onClick={saveStaff}
-  disabled={loading}
-  aria-busy={loading}
->
-  {loading
-    ? "Saving…"
-    : editingStaff
-      ? "Update Staff"
-      : "Create Staff"}
-</button>
+                type="button"
+                className="save-test-btn"
+                onClick={(event) => {
+                  event.preventDefault();
+                  event.stopPropagation();
+                  saveStaff();
+                }}
+                disabled={loading}
+                aria-busy={loading}
+              >
+                {
+                  loading
+                    ? "Saving…"
+                    : editingStaff
+                      ? "Update Staff"
+                      : "Create Staff"
+                }
+              </button>
 
             </div>
 

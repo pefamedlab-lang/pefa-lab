@@ -1,161 +1,121 @@
-import { Link, useLocation } from "react-router-dom";
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Link, NavLink } from "react-router-dom";
+import {
+  Menu,
+  X,
+  FileText,
+  ClipboardList,
+  ShieldCheck,
+  HeartPulse,
+  ChevronRight,
+} from "lucide-react";
 
 export default function HomeNavbar() {
-  const location = useLocation();
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const [open, setOpen] = useState(false);
+
+  const closeMenu = () => setOpen(false);
 
   const navItems = [
-    {
-      label: "Home",
-      to: "/",
-    },
-    {
-      label: "Check Result",
-      to: "/patient-results",
-    },
-    {
-      label: "Patient Registration",
-      to: "/registration",
-    },
-    {
-      label: "Dashboard Access",
-      to: "/login",
-    },
+    { label: "Home", to: "/" },
+    { label: "About", href: "#about" },
+    { label: "Services", href: "#services" },
+    { label: "Wellness", to: "/wellness-packages", accent: true },
+    { label: "Contact", href: "#contact" },
   ];
-
-  const isActive = (path) => {
-    if (path === "/") {
-      return location.pathname === "/";
-    }
-
-    return location.pathname.startsWith(path);
-  };
 
   return (
     <header className="home-navbar">
+      <div className="navbar-shell">
+        <Link to="/" className="navbar-brand" onClick={closeMenu}>
+          <span className="brand-mark">
+            <img
+              src="/logo.png"
+              alt="PEFA Medical Diagnostic Services"
+            />
+          </span>
 
-      <div className="home-navbar-container">
-
-        {/* =====================================================
-            LOGO / BRAND
-        ===================================================== */}
-
-        <Link
-          to="/"
-          className="home-brand"
-          onClick={() => setMobileOpen(false)}
-        >
-
-          <img
-            src="/logo.png"
-            alt="PEFA Medical Diagnostic Services"
-            className="home-brand-logo"
-          />
-
-          <div className="home-brand-name">
-
-            <div className="brand-line">
-              <span className="brand-blue">
-                PEFA MEDICAL
-              </span>
-
-              <span className="brand-red">
-                {" "}DIAGNOSTIC
-              </span>
-            </div>
-
-            <div className="brand-services">
-              SERVICES
-            </div>
-
-          </div>
-
+          <span className="brand-copy">
+            <strong>PEFA</strong>
+            <span>MEDICAL DIAGNOSTIC SERVICES</span>
+          </span>
         </Link>
 
+        <nav className={`navbar-nav ${open ? "is-open" : ""}`}>
+          <div className="nav-links">
+            {navItems.map((item) =>
+              item.to ? (
+                <NavLink
+                  key={item.label}
+                  to={item.to}
+                  onClick={closeMenu}
+                  className={({ isActive }) =>
+                    `nav-link ${item.accent ? "nav-link-accent" : ""} ${
+                      isActive ? "active" : ""
+                    }`
+                  }
+                >
+                  {item.label}
+                  {item.accent && <HeartPulse size={15} />}
+                </NavLink>
+              ) : (
+                <a
+                  key={item.label}
+                  href={item.href}
+                  className="nav-link"
+                  onClick={closeMenu}
+                >
+                  {item.label}
+                </a>
+              )
+            )}
+          </div>
 
-        {/* =====================================================
-            DESKTOP NAVIGATION
-        ===================================================== */}
-
-        <nav className="home-navigation">
-
-          {navItems.map((item) => (
+          <div className="navbar-actions">
             <Link
-              key={item.label}
-              to={item.to}
-              className={`home-nav-link ${
-                isActive(item.to)
-                  ? "active"
-                  : ""
-              }`}
+              to="/patient-results"
+              className="nav-action nav-result"
+              onClick={closeMenu}
             >
-              {item.label}
+              <FileText size={16} />
+              Check Result
             </Link>
-          ))}
 
+            <Link
+              to="/login"
+              className="nav-action nav-staff"
+              onClick={closeMenu}
+            >
+              <ShieldCheck size={16} />
+              Staff Login
+            </Link>
+          </div>
         </nav>
-
-
-        {/* =====================================================
-            MOBILE MENU BUTTON
-        ===================================================== */}
 
         <button
           type="button"
           className="mobile-menu-button"
-          onClick={() =>
-            setMobileOpen((previous) => !previous)
-          }
-          aria-label={
-            mobileOpen
-              ? "Close navigation"
-              : "Open navigation"
-          }
-          aria-expanded={mobileOpen}
+          aria-label={open ? "Close navigation menu" : "Open navigation menu"}
+          aria-expanded={open}
+          onClick={() => setOpen((value) => !value)}
         >
-          {mobileOpen ? (
-            <X size={25} />
-          ) : (
-            <Menu size={25} />
-          )}
+          {open ? <X size={24} /> : <Menu size={24} />}
         </button>
-
       </div>
 
-
-      {/* =====================================================
-          MOBILE NAVIGATION
-      ===================================================== */}
-
-      <div
-        className={`mobile-navigation ${
-          mobileOpen
-            ? "open"
-            : ""
-        }`}
-      >
-
-        {navItems.map((item) => (
-          <Link
-            key={item.label}
-            to={item.to}
-            className={`mobile-nav-link ${
-              isActive(item.to)
-                ? "active"
-                : ""
-            }`}
-            onClick={() =>
-              setMobileOpen(false)
-            }
-          >
-            {item.label}
+      {open && (
+        <div className="mobile-quick-actions">
+          <Link to="/test-request" onClick={closeMenu}>
+            <ClipboardList size={17} />
+            Submit Test Request
+            <ChevronRight size={16} />
           </Link>
-        ))}
 
-      </div>
-
+          <a href="https://wa.me/2348086618621" target="_blank" rel="noopener noreferrer" onClick={closeMenu}>
+            Book via WhatsApp
+            <ChevronRight size={16} />
+          </a>
+        </div>
+      )}
     </header>
   );
 }

@@ -519,6 +519,46 @@ export default function ReferralDashboard() {
         newReferral.name
       );
 
+      // =====================================================
+      // WHATSAPP REFERRAL REGISTRATION NOTIFICATION
+      // -----------------------------------------------------
+      // The referral is already saved. WhatsApp failure must
+      // never undo the successful referral registration.
+      // =====================================================
+      try {
+        const { data: whatsappData, error: whatsappError } =
+          await supabase.functions.invoke(
+            "send-registration-whatsapp",
+            {
+              body: {
+                event_type: "referral_registration",
+                referral_id: payload.id || null,
+                referral_name: newReferral.name?.trim() || "Referral",
+                phone: newReferral.phone || "",
+                email: newReferral.email || "",
+                referral_code: code,
+              },
+            }
+          );
+
+        if (whatsappError) {
+          console.warn(
+            "Referral saved, but WhatsApp notification failed:",
+            whatsappError
+          );
+        } else {
+          console.log(
+            "WhatsApp referral registration notification:",
+            whatsappData
+          );
+        }
+      } catch (whatsappError) {
+        console.warn(
+          "Referral saved, but WhatsApp notification could not be sent:",
+          whatsappError
+        );
+      }
+
       alert(
         `${newReferral.name} added successfully.`
       );

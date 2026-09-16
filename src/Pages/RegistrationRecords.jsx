@@ -72,16 +72,102 @@ export default function RegistrationRecords() {
       const { data, error } = await supabase
         .from("registrations")
         .select("*")
-        .order("created_at", {
-          ascending: false,
-        });
+        .order("created_at", { ascending: false });
 
       if (error) {
         console.error("[REGISTRATION RECORDS] Load error:", error);
         return;
       }
 
-      setRecords(data || []);
+      const registrationRows = Array.isArray(data) ? data : [];
+      const labNumbers = [...new Set(
+        registrationRows
+          .map((row) => String(row?.lab_number || "").trim())
+          .filter(Boolean)
+      )];
+
+      /*
+       * registrations is the patient master record. Billing is owned by
+       * service_orders, so payment status must be resolved from the linked
+       * service order instead of trusting a stale registration snapshot.
+       */
+      let orderRows = [];
+      if (labNumbers.length) {
+        const { data: orders, error: orderError } = await supabase
+          .from("service_orders")
+          .select(`
+            id,
+            order_number,
+            patient_id,
+            patient_name,
+            lab_number,
+            service_type,
+            subtotal,
+            discount_amount,
+            total_amount,
+            amount_paid,
+            balance,
+            payment_status,
+            status,
+            payment_mode,
+            invoice_no,
+            created_at,
+            updated_at
+          `)
+          .in("lab_number", labNumbers)
+          .order("created_at", { ascending: false });
+
+        if (orderError) {
+          console.warn("[REGISTRATION RECORDS] Service-order sync failed:", orderError);
+        } else {
+          orderRows = Array.isArray(orders) ? orders : [];
+        }
+      }
+
+      const latestOrderByLab = new Map();
+      orderRows.forEach((order) => {
+        const lab = String(order?.lab_number || "").trim();
+        if (!lab || latestOrderByLab.has(lab)) return;
+        latestOrderByLab.set(lab, order);
+      });
+
+      const enriched = registrationRows.map((registration) => {
+        const order = latestOrderByLab.get(
+          String(registration?.lab_number || "").trim()
+        );
+
+        if (!order) return registration;
+
+        const total = Number(order.total_amount ?? registration.total_amount ?? 0);
+        const paid = Number(order.amount_paid ?? 0);
+        const balance = Math.max(0, Number(order.balance ?? total - paid));
+        const normalizedStatus =
+          balance <= 0 && total > 0
+            ? "Paid"
+            : paid > 0
+              ? "Part Payment"
+              : order.payment_status || "Unpaid";
+
+        return {
+          ...registration,
+          service_order_id: order.id,
+          order_id: order.id,
+          order_number: order.order_number,
+          invoice_no: order.invoice_no,
+          service_type: order.service_type,
+          payment_mode: order.payment_mode,
+          total_amount: total,
+          amount_paid: paid,
+          balance,
+          payment_status: normalizedStatus,
+          payment_status_source: "service_orders",
+          service_order_status: order.status,
+          service_order_created_at: order.created_at,
+          service_order_updated_at: order.updated_at,
+        };
+      });
+
+      setRecords(enriched);
     } catch (error) {
       console.error(
         "[REGISTRATION RECORDS] Unexpected load error:",
@@ -156,10 +242,16 @@ export default function RegistrationRecords() {
     });
   };
 
-  const getRecordStatus = (item) =>
-    item?.payment_status ||
-    item?.registration_status ||
-    "Pending";
+  const getRecordStatus = (item) => {
+    const balance = Number(item?.balance);
+    const paid = Number(item?.amount_paid);
+    const total = Number(item?.total_amount);
+
+    if (Number.isFinite(balance) && balance <= 0 && total > 0) return "Paid";
+    if (Number.isFinite(paid) && paid > 0) return "Part Payment";
+
+    return item?.payment_status || item?.registration_status || "Unpaid";
+  };
 
   const getOrderId = (item) =>
     item?.service_order_id ||
@@ -430,11 +522,17 @@ export default function RegistrationRecords() {
   const continuePayment = (patient) => {
     if (!patient) return;
 
-    navigate("/payment-portal", {
-      state: {
-        patient,
-      },
-    });
+    const orderId = getOrderId(patient);
+    const params = new URLSearchParams();
+
+    if (orderId) params.set("order_id", orderId);
+    if (patient.lab_number) params.set("lab_number", patient.lab_number);
+    if (patient.patient_id) params.set("patient_id", patient.patient_id);
+
+    navigate(
+      `/payment-portal${params.toString() ? `?${params.toString()}` : ""}`,
+      { state: { patient } }
+    );
   };
 
   /* =====================================================
@@ -1813,9 +1911,7 @@ export default function RegistrationRecords() {
               ) : (
                 filteredRecords.map(
                   (item) => {
-                    const status =
-                      item.payment_status ||
-                      "Pending";
+                    const status = getRecordStatus(item);
 
                     return (
                       <div

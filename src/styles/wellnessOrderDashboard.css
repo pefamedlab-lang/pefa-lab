@@ -1,0 +1,51 @@
+/* PEFA Wellness Order Dashboard */
+.wod-page { min-height:100vh; background:#f4f7fa; color:#17212b; padding:30px; }
+.wod-header { max-width:1400px; margin:0 auto 24px; }
+.wod-header > div > span { font-size:11px; font-weight:900; letter-spacing:1.4px; color:#087f63; }
+.wod-header h1 { margin:7px 0; color:#063b68; }
+.wod-header p { margin:0; color:#687782; }
+.wod-stats { max-width:1400px; margin:0 auto 22px; display:grid; grid-template-columns:repeat(5,1fr); gap:14px; }
+.wod-stats div { background:white; border:1px solid #e2e9ee; border-radius:12px; padding:17px; }
+.wod-stats b { display:block; font-size:26px; color:#063b68; }
+.wod-stats span { color:#6b7882; font-size:12px; }
+.wod-toolbar { max-width:1400px; margin:0 auto 18px; display:flex; gap:10px; flex-wrap:wrap; }
+.wod-search,.wod-filter { background:white; border:1px solid #dce5eb; border-radius:9px; display:flex; align-items:center; gap:8px; padding:0 12px; }
+.wod-search { flex:1; min-width:280px; }
+.wod-search input,.wod-filter select { border:0; outline:0; padding:12px 5px; background:transparent; font:inherit; }
+.wod-filter select { min-width:170px; }
+.wod-table-wrap { max-width:1400px; margin:auto; background:white; border:1px solid #e0e7ec; border-radius:14px; overflow:auto; }
+.wod-table { width:100%; border-collapse:collapse; min-width:1000px; }
+.wod-table th,.wod-table td { padding:14px 13px; text-align:left; border-bottom:1px solid #edf1f4; font-size:13px; vertical-align:middle; }
+.wod-table th { background:#f7fafb; color:#5c6a75; font-size:11px; text-transform:uppercase; letter-spacing:.5px; }
+.wod-table td strong,.wod-table td small { display:block; }
+.wod-table td small { color:#77848e; margin-top:3px; }
+.wod-badge { display:inline-block; padding:5px 8px; border-radius:20px; background:#edf5f2; color:#087f63; font-size:11px; font-weight:800; }
+.wod-view-btn { border:0; border-radius:7px; padding:8px 10px; background:#063b68; color:white; display:flex; gap:5px; align-items:center; cursor:pointer; }
+.wod-empty,.wod-loading { text-align:center!important; padding:50px!important; color:#6c7983; }
+.wod-error { max-width:1400px; margin:0 auto 15px; padding:12px; border-radius:8px; background:#fff0f0; color:#a52c2c; }
+.wod-modal-backdrop { position:fixed; inset:0; z-index:99999; background:rgba(3,15,25,.68); display:flex; justify-content:center; align-items:center; padding:20px; }
+.wod-modal { width:min(800px,100%); max-height:92vh; overflow:auto; background:white; border-radius:16px; position:relative; box-shadow:0 25px 80px rgba(0,0,0,.3); }
+.wod-close { position:absolute; right:15px; top:15px; border:0; width:37px; height:37px; border-radius:50%; background:#edf2f5; cursor:pointer; display:grid; place-items:center; }
+.wod-modal-title { padding:25px 28px; background:#f3faf7; border-bottom:1px solid #e0ece8; }
+.wod-modal-title span { color:#087f63; font-size:11px; font-weight:900; }
+.wod-modal-title h2 { margin:7px 45px 5px 0; color:#063b68; }
+.wod-modal-title strong { font-size:21px; color:#087f63; }
+.wod-patient-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:15px; padding:22px 28px; }
+.wod-patient-grid label,.wod-note label { display:block; color:#75828c; font-size:11px; text-transform:uppercase; margin-bottom:4px; }
+.wod-patient-grid b { font-size:13px; overflow-wrap:anywhere; }
+.wod-included { padding:0 28px 20px; }
+.wod-included h3 { display:flex; gap:8px; align-items:center; color:#063b68; font-size:15px; }
+.wod-items { display:grid; grid-template-columns:1fr 1fr; gap:8px 20px; }
+.wod-items div { display:flex; gap:7px; align-items:flex-start; font-size:13px; color:#46545e; }
+.wod-items svg { color:#087f63; flex:0 0 auto; }
+.wod-note { padding:0 28px 20px; }
+.wod-note textarea { width:100%; box-sizing:border-box; border:1px solid #d7e0e6; border-radius:8px; padding:10px; font:inherit; }
+.wod-actions { display:flex; gap:9px; flex-wrap:wrap; padding:0 28px 25px; }
+.wod-actions button { border:0; border-radius:8px; padding:11px 14px; background:#063b68; color:white; font-weight:800; cursor:pointer; }
+.wod-actions button:nth-child(3) { background:#a52c2c; }
+.wod-actions button:disabled { opacity:.45; cursor:not-allowed; }
+.wod-hint { display:block; padding:0 28px 25px; color:#8a6a20; }
+.spin { animation:wodSpin 1s linear infinite; }
+@keyframes wodSpin { to { transform:rotate(360deg); } }
+@media(max-width:800px){ .wod-page{padding:18px 12px}.wod-stats{grid-template-columns:repeat(2,1fr)}.wod-patient-grid{grid-template-columns:1fr 1fr}.wod-items{grid-template-columns:1fr} }
+@media(max-width:520px){ .wod-stats{grid-template-columns:1fr 1fr}.wod-patient-grid{grid-template-columns:1fr}.wod-modal-backdrop{padding:8px} }

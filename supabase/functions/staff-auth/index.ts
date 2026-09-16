@@ -308,6 +308,17 @@ async function createStaff(payload: any) {
     throw new Error(error?.message || "Unable to create staff profile.");
   }
 
+  if (!data.auth_user_id || data.auth_user_id !== authUser.id) {
+    try {
+      await supabaseAdmin.from("staff_users").delete().eq("id", data.id);
+      await deleteAuthUser(authUser.id);
+    } catch (rollbackError) {
+      console.error("[STAFF AUTH] Rollback failed after link verification:", rollbackError);
+    }
+
+    throw new Error("Staff profile was created without a valid Authentication link. The operation was rolled back.");
+  }
+
   return data;
 }
 
@@ -406,6 +417,146 @@ async function updateStaff(payload: any) {
     }
 
     throw new Error(error?.message || "Unable to update staff profile.");
+  }
+
+  return data;
+}
+
+async function repairAuthentication(payload: any) {
+  const staffId = payload.staff_id;
+  const password = payload.password;
+
+  if (staffId === null || staffId === undefined || staffId === "") {
+    throw new Error("Staff ID is required.");
+  }
+
+  if (!validPassword(password)) {
+    throw new Error("Password must contain at least 6 characters.");
+  }
+
+  const { data: staff, error: staffError } = await supabaseAdmin
+    .from("staff_users")
+    .select("*")
+    .eq("id", staffId)
+    .single();
+
+  if (staffError || !staff) {
+    throw new Error(staffError?.message || "Staff record was not found.");
+  }
+
+  const email = normalizeEmail(staff.email);
+  const fullName = cleanText(staff.full_name);
+
+  if (!email) throw new Error("This staff record does not have a valid email address.");
+  if (!fullName) throw new Error("This staff record does not have a valid full name.");
+
+  // If the row is already linked, repair the existing Auth credentials instead
+  // of creating a duplicate account.
+  if (staff.auth_user_id) {
+    await updateAuthUser(staff.auth_user_id, {
+      email,
+      email_confirm: true,
+      password,
+      user_metadata: {
+        full_name: fullName,
+        source: "PEFA Staff Management",
+      },
+    });
+
+    const { data, error } = await supabaseAdmin
+      .from("staff_users")
+      .update({
+        email,
+        password: null,
+      })
+      .eq("id", staffId)
+      .select("*")
+      .single();
+
+    if (error || !data) {
+      throw new Error(error?.message || "Unable to refresh the staff authentication link.");
+    }
+
+    return data;
+  }
+
+  // First look for an Auth account with the same email. This handles a
+  // partially completed provisioning attempt without creating duplicates.
+  let matchingAuthUser: any = null;
+  let page = 1;
+  const perPage = 1000;
+
+  while (!matchingAuthUser) {
+    const { data: usersPage, error: listError } =
+      await supabaseAdmin.auth.admin.listUsers({ page, perPage });
+
+    if (listError) {
+      throw new Error(listError.message || "Unable to inspect Supabase Authentication users.");
+    }
+
+    matchingAuthUser = (usersPage?.users || []).find(
+      (user: any) => normalizeEmail(user.email) === email
+    ) || null;
+
+    if (!usersPage?.users || usersPage.users.length < perPage) break;
+    page += 1;
+  }
+
+  let authUserId = matchingAuthUser?.id || null;
+  let newlyCreatedAuthUserId: string | null = null;
+
+  if (authUserId) {
+    await updateAuthUser(authUserId, {
+      email,
+      email_confirm: true,
+      password,
+      user_metadata: {
+        full_name: fullName,
+        source: "PEFA Staff Management",
+      },
+    });
+  } else {
+    const authUser = await createAuthUser(email, password, fullName);
+    if (!authUser?.id) {
+      throw new Error("Supabase Authentication returned no user ID. Staff record was not linked.");
+    }
+    authUserId = authUser.id;
+    newlyCreatedAuthUserId = authUser.id;
+  }
+
+  const { data, error } = await supabaseAdmin
+    .from("staff_users")
+    .update({
+      email,
+      auth_user_id: authUserId,
+      password: null,
+    })
+    .eq("id", staffId)
+    .select("*")
+    .single();
+
+  if (error || !data) {
+    if (newlyCreatedAuthUserId) {
+      try {
+        await deleteAuthUser(newlyCreatedAuthUserId);
+      } catch (rollbackError) {
+        console.error("[STAFF AUTH] Auth rollback failed after repair:", rollbackError);
+      }
+    }
+
+    throw new Error(error?.message || "Unable to link the staff record to Supabase Authentication.");
+  }
+
+  if (!data.auth_user_id || data.auth_user_id !== authUserId) {
+    if (newlyCreatedAuthUserId) {
+      try {
+        await deleteAuthUser(newlyCreatedAuthUserId);
+      } catch (rollbackError) {
+        console.error("[STAFF AUTH] Auth rollback failed after link verification:", rollbackError);
+      }
+    }
+
+    throw new Error("Authentication account was created but the staff link could not be verified.");
   }
 
   return data;
@@ -596,6 +747,10 @@ Deno.serve(async (req: Request) => {
         staff = await updateStaff(payload);
         break;
 
+      case "repair":
+        staff = await repairAuthentication(payload);
+        break;
+
       case "reset_password":
         staff = await resetPassword(payload);
         break;
@@ -613,7 +768,7 @@ Deno.serve(async (req: Request) => {
           {
             success: false,
             error:
-              "Unsupported staff authentication action. Use create, update, reset_password, set_status or delete.",
+              "Unsupported staff authentication action. Use create, update, repair, reset_password, set_status or delete.",
           },
           400
         );

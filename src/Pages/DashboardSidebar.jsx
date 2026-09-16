@@ -6,6 +6,7 @@ import {
 import {
   Link,
   useLocation,
+  useNavigate,
 } from "react-router-dom";
 
 import {
@@ -23,8 +24,10 @@ import {
   Settings,
   LogOut,
   X,
+  ClipboardList,
 } from "lucide-react";
 
+import { supabase } from "../supabase";
 import "../styles/sidebar.css";
 
 export default function DashboardSidebar({
@@ -32,6 +35,7 @@ export default function DashboardSidebar({
   onClose = () => {},
 }) {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const user =
     JSON.parse(
@@ -59,13 +63,29 @@ export default function DashboardSidebar({
     }));
   };
 
-  const logout = () => {
-    localStorage.removeItem("pefa_user");
-    window.location.href = "/login";
+  const logout = async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch (error) {
+      console.warn(
+        "[PEFA LOGOUT] Supabase sign-out failed:",
+        error
+      );
+    } finally {
+      localStorage.removeItem("pefa_user");
+
+      navigate("/login", {
+        replace: true,
+      });
+    }
   };
 
   const menuData = useMemo(
     () => [
+      // ======================================================
+      // RECEPTION
+      // ======================================================
+
       {
         section: "Reception",
         key: "reception",
@@ -82,6 +102,14 @@ export default function DashboardSidebar({
             path: "/registration",
           },
           {
+            label: "Test Request Dashboard",
+            path: "/test-requests",
+          },
+          {
+            label: "Wellness Order Dashboard",
+            path: "/wellness-orders",
+          },
+          {
             label: "Payment Portal",
             path: "/payment-portal",
           },
@@ -91,6 +119,11 @@ export default function DashboardSidebar({
           },
         ],
       },
+
+      // ======================================================
+      // LABORATORY
+      // ======================================================
+
       {
         section: "Laboratory",
         key: "laboratory",
@@ -124,6 +157,11 @@ export default function DashboardSidebar({
           },
         ],
       },
+
+      // ======================================================
+      // QUALITY & MONITORING
+      // ======================================================
+
       {
         section: "Quality & Monitoring",
         key: "quality",
@@ -153,6 +191,11 @@ export default function DashboardSidebar({
           },
         ],
       },
+
+      // ======================================================
+      // RADIOLOGY
+      // ======================================================
+
       {
         section: "Radiology",
         key: "radiology",
@@ -186,6 +229,11 @@ export default function DashboardSidebar({
           },
         ],
       },
+
+      // ======================================================
+      // FINANCE
+      // ======================================================
+
       {
         section: "Finance",
         key: "finance",
@@ -226,6 +274,11 @@ export default function DashboardSidebar({
           },
         ],
       },
+
+      // ======================================================
+      // INVENTORY
+      // ======================================================
+
       {
         section: "Inventory",
         key: "inventory",
@@ -246,6 +299,11 @@ export default function DashboardSidebar({
           },
         ],
       },
+
+      // ======================================================
+      // REFERRALS
+      // ======================================================
+
       {
         section: "Referrals",
         key: "referrals",
@@ -262,6 +320,11 @@ export default function DashboardSidebar({
           },
         ],
       },
+
+      // ======================================================
+      // ADMINISTRATION
+      // ======================================================
+
       {
         section: "Administration",
         key: "admin",
@@ -309,6 +372,10 @@ export default function DashboardSidebar({
       }`}
       aria-label="PEFA navigation"
     >
+      {/* ======================================================
+          MOBILE HEADER
+      ====================================================== */}
+
       <div className="sidebar-mobile-header">
         <div>
           <strong>PEFA LIS</strong>
@@ -326,6 +393,10 @@ export default function DashboardSidebar({
         </button>
       </div>
 
+      {/* ======================================================
+          LOGO / BRAND
+      ====================================================== */}
+
       <div className="sidebar-logo">
         <img
           src="/logo.png"
@@ -339,6 +410,10 @@ export default function DashboardSidebar({
 
         <h2>PEFA Enterprise LIS</h2>
       </div>
+
+      {/* ======================================================
+          USER CARD
+      ====================================================== */}
 
       <div className="sidebar-user-card">
         {user.profile_photo ? (
@@ -356,12 +431,17 @@ export default function DashboardSidebar({
         )}
 
         <h4>{user.full_name}</h4>
+
         <p>{user.role}</p>
 
         <span className="user-status">
           ● Active
         </span>
       </div>
+
+      {/* ======================================================
+          SEARCH
+      ====================================================== */}
 
       <div className="sidebar-search">
         <Search size={16} />
@@ -377,23 +457,46 @@ export default function DashboardSidebar({
         />
       </div>
 
+      {/* ======================================================
+          NAVIGATION
+      ====================================================== */}
+
       <div className="sidebar-content">
-        <Link
-          to="/dashboard"
-          onClick={closeAfterNavigation}
-          className={`sidebar-link ${
-            location.pathname === "/dashboard"
-              ? "active-sidebar-link"
-              : ""
-          }`}
-        >
-          <LayoutDashboard size={18} />
-          <span>Dashboard</span>
-        </Link>
+
+        {/* ====================================================
+            MAIN DASHBOARD
+        ==================================================== */}
+
+        {["Manager", "Director"].includes(
+          user.role
+        ) && (
+          <Link
+            to="/dashboard"
+            onClick={closeAfterNavigation}
+            className={`sidebar-link ${
+              location.pathname ===
+              "/dashboard"
+                ? "active-sidebar-link"
+                : ""
+            }`}
+          >
+            <LayoutDashboard size={18} />
+
+            <span>
+              Dashboard
+            </span>
+          </Link>
+        )}
+
+        {/* ====================================================
+            MENU GROUPS
+        ==================================================== */}
 
         {menuData.map((group) => {
           if (
-            !group.roles.includes(user.role)
+            !group.roles.includes(
+              user.role
+            )
           ) {
             return null;
           }
@@ -425,51 +528,66 @@ export default function DashboardSidebar({
                 type="button"
                 className="sidebar-group"
                 onClick={() =>
-                  toggleSection(group.key)
+                  toggleSection(
+                    group.key
+                  )
                 }
                 aria-expanded={
-                  !!sections[group.key]
+                  !!sections[
+                    group.key
+                  ]
                 }
               >
                 <div>
                   {group.icon}
+
                   <span>
                     {group.section}
                   </span>
                 </div>
 
-                {sections[group.key] ? (
+                {sections[
+                  group.key
+                ] ? (
                   <ChevronDown size={16} />
                 ) : (
                   <ChevronRight size={16} />
                 )}
               </button>
 
-              {sections[group.key] && (
+              {sections[
+                group.key
+              ] && (
                 <div className="sidebar-submenu">
-                  {visibleItems.map((item) => (
-                    <Link
-                      key={item.path}
-                      to={item.path}
-                      onClick={
-                        closeAfterNavigation
-                      }
-                      className={
-                        location.pathname ===
-                        item.path
-                          ? "active-sidebar-link"
-                          : ""
-                      }
-                    >
-                      {item.label}
-                    </Link>
-                  ))}
+                  {visibleItems.map(
+                    (item) => (
+                      <Link
+                        key={item.path}
+                        to={item.path}
+                        onClick={
+                          closeAfterNavigation
+                        }
+                        className={
+                          location.pathname ===
+                          item.path
+                            ? "active-sidebar-link"
+                            : ""
+                        }
+                      >
+                        {item.label}
+                      </Link>
+                    )
+                  )}
                 </div>
               )}
             </div>
           );
         })}
       </div>
+
+      {/* ======================================================
+          FOOTER
+      ====================================================== */}
 
       <div className="sidebar-footer">
         <button

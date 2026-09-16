@@ -256,8 +256,10 @@ export default function LaboratoryRegistrationPortal({
     const keyword =
       search.trim().toLowerCase();
 
+    // Keep the complete catalogue hidden until the user searches.
+    // Selected tests remain visible in the Selected Tests section below.
     if (!keyword) {
-      return primaryTests;
+      return [];
     }
 
     return primaryTests.filter(
@@ -1042,6 +1044,13 @@ export default function LaboratoryRegistrationPortal({
               tests are available.
             </div>
 
+          ) : !search.trim() ? (
+
+            <div className="empty-text">
+              Start typing to search
+              laboratory tests.
+            </div>
+
           ) : (
 
             <>
@@ -1062,10 +1071,8 @@ export default function LaboratoryRegistrationPortal({
                 {filteredTests.length !==
                 1
                   ? "s"
-                  : ""}
-                {search
-                  ? ` found for "${search}"`
-                  : " available"}
+                  : ""}{" "}
+                found for "{search}"
               </div>
 
               {filteredTests.length ===

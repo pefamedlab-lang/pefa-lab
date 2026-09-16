@@ -1,0 +1,950 @@
+/* PEFA Wellness Packages Public Page */
+.wellness-page {
+  min-height: 100vh;
+  background: #f5f8fb;
+  color: #17212b;
+}
+
+.wellness-hero {
+  padding: 72px 6vw 52px;
+  background: linear-gradient(135deg, #063b68, #087f63);
+  color: white;
+}
+
+.wellness-hero > div {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.wellness-eyebrow {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  opacity: .85;
+}
+
+.wellness-hero h1 {
+  margin: 10px 0 12px;
+  font-size: clamp(34px, 5vw, 58px);
+}
+
+.wellness-hero p {
+  max-width: 720px;
+  margin: 0;
+  font-size: 17px;
+  line-height: 1.7;
+  opacity: .94;
+}
+
+.wellness-content {
+  max-width: 1250px;
+  margin: 0 auto;
+  padding: 42px 22px 70px;
+}
+
+.wellness-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(330px, 1fr));
+  gap: 24px;
+}
+
+.wellness-card {
+  background: white;
+  border: 1px solid #e3eaf0;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(20, 47, 67, .08);
+  display: flex;
+  flex-direction: column;
+}
+
+.wellness-card-top {
+  padding: 25px 25px 20px;
+  border-bottom: 1px solid #edf1f4;
+}
+
+.wellness-code {
+  display: inline-flex;
+  padding: 5px 9px;
+  border-radius: 20px;
+  background: #e9f6f1;
+  color: #087f63;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.wellness-card h2 {
+  margin: 13px 0 8px;
+  font-size: 23px;
+}
+
+.wellness-card-top p {
+  margin: 0;
+  color: #66737e;
+  line-height: 1.55;
+}
+
+.wellness-price {
+  margin-top: 17px;
+  font-size: 28px;
+  font-weight: 900;
+  color: #063b68;
+}
+
+.wellness-meta {
+  display: grid;
+  gap: 8px;
+  padding: 16px 25px;
+  background: #fafcfd;
+}
+
+.wellness-meta div {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  color: #52606b;
+  font-size: 13px;
+}
+
+.included-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 18px 25px 8px;
+  font-weight: 800;
+  color: #063b68;
+}
+
+.wellness-items {
+  padding: 8px 25px 25px;
+  flex: 1;
+}
+
+.wellness-department + .wellness-department {
+  margin-top: 15px;
+}
+
+.wellness-department h3 {
+  margin: 0 0 7px;
+  font-size: 13px;
+  color: #087f63;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+
+.wellness-department ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.wellness-department li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 14px;
+  color: #3f4c56;
+}
+
+.wellness-department li svg {
+  flex: 0 0 auto;
+  color: #087f63;
+  margin-top: 2px;
+}
+
+.wellness-order-btn,
+.wellness-submit-btn,
+.wellness-success button,
+.wellness-error button {
+  border: 0;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.wellness-order-btn {
+  margin: 0 25px 25px;
+  padding: 14px 18px;
+  border-radius: 10px;
+  background: #087f63;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 15px;
+}
+
+.wellness-order-btn:hover,
+.wellness-submit-btn:hover {
+  filter: brightness(.94);
+}
+
+.wellness-state {
+  min-height: 250px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #61707c;
+}
+
+.wellness-error,
+.wellness-form-error {
+  padding: 15px;
+  border-radius: 10px;
+  background: #fff0f0;
+  color: #a52c2c;
+  margin-bottom: 20px;
+}
+
+.wellness-error button {
+  margin-left: 12px;
+  padding: 8px 12px;
+  border-radius: 7px;
+  background: #a52c2c;
+  color: white;
+}
+
+.wellness-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(4, 17, 28, .68);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.wellness-modal {
+  width: min(620px, 100%);
+  max-height: 92vh;
+  overflow: auto;
+  background: white;
+  border-radius: 18px;
+  position: relative;
+  box-shadow: 0 25px 80px rgba(0,0,0,.3);
+}
+
+.wellness-close {
+  position: absolute;
+  right: 15px;
+  top: 15px;
+  width: 38px;
+  height: 38px;
+  border: 0;
+  border-radius: 50%;
+  background: #edf2f5;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+
+.wellness-modal-header {
+  padding: 28px 28px 18px;
+  background: #f4faf8;
+  border-bottom: 1px solid #e3eeea;
+}
+
+.wellness-modal-header span {
+  color: #087f63;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1.3px;
+}
+
+.wellness-modal-header h2 {
+  margin: 8px 0;
+  padding-right: 40px;
+}
+
+.wellness-modal-header strong {
+  color: #063b68;
+  font-size: 22px;
+}
+
+.wellness-order-summary {
+  margin: 20px 28px 0;
+  padding: 12px 14px;
+  border-radius: 9px;
+  background: #f6f8fa;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.wellness-form {
+  padding: 20px 28px 28px;
+  display: grid;
+  gap: 15px;
+}
+
+.wellness-form label {
+  display: grid;
+  gap: 7px;
+  font-size: 13px;
+  font-weight: 750;
+  color: #3f4d58;
+}
+
+.wellness-form label > svg {
+  display: none;
+}
+
+.wellness-form input,
+.wellness-form select,
+.wellness-form textarea {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid #d6e0e6;
+  border-radius: 9px;
+  padding: 12px;
+  font: inherit;
+  outline: none;
+}
+
+.wellness-form input:focus,
+.wellness-form select:focus,
+.wellness-form textarea:focus {
+  border-color: #087f63;
+}
+
+.wellness-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.wellness-submit-btn {
+  min-height: 48px;
+  border-radius: 10px;
+  background: #087f63;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 15px;
+}
+
+.wellness-submit-btn:disabled {
+  opacity: .65;
+  cursor: wait;
+}
+
+.wellness-success {
+  padding: 55px 35px;
+  text-align: center;
+}
+
+.wellness-success > svg {
+  color: #087f63;
+}
+
+.wellness-success h2 {
+  margin: 18px 0 10px;
+  color: #063b68;
+}
+
+.wellness-success p {
+  color: #5d6a74;
+  line-height: 1.65;
+}
+
+.wellness-success button {
+  margin-top: 15px;
+  padding: 12px 25px;
+  border-radius: 9px;
+  background: #063b68;
+  color: white;
+}
+
+.spin {
+  animation: wellnessSpin 1s linear infinite;
+}
+
+@keyframes wellnessSpin {
+  to { transform: rotate(360deg); }
+}
+
+@media (max-width: 600px) {
+  .wellness-content {
+    padding: 25px 14px 50px;
+  }
+
+  .wellness-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .wellness-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .wellness-modal-backdrop {
+    padding: 8px;
+  }
+
+  .wellness-modal {
+    max-height: 96vh;
+  }
+
+  .wellness-form,
+  .wellness-modal-header {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .wellness-order-summary {
+    margin-left: 18px;
+    margin-right: 18px;
+  }
+}
+
+
+/* ============================================================
+   PEFA WELLNESS — PATIENT INFORMATION MODAL FIX
+   This section intentionally overrides the older modal styles.
+   ============================================================ */
+
+.wellness-patient-form-backdrop {
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.wellness-patient-form-modal {
+  width: min(940px, 100%);
+  max-width: 940px;
+  max-height: calc(100vh - 40px);
+  overflow: hidden;
+  padding: 0;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 24px 70px rgba(15, 23, 42, 0.25);
+  display: flex;
+  flex-direction: column;
+}
+
+.wellness-patient-form-modal > .wellness-close {
+  z-index: 20;
+  top: 14px;
+  right: 14px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  background: rgba(255, 255, 255, 0.92);
+  color: #334155;
+  box-shadow: 0 5px 16px rgba(15, 23, 42, 0.10);
+}
+
+.wellness-form-header {
+  flex: 0 0 auto;
+  padding: 24px 32px 20px;
+  background: linear-gradient(135deg, #eff6ff 0%, #ffffff 58%, #f0fdf4 100%);
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.wellness-form-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding-right: 48px;
+}
+
+.wellness-form-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.wellness-form-brand-mark {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 12px;
+  background: #0f766e;
+  color: #ffffff;
+}
+
+.wellness-form-brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.wellness-form-brand-text strong {
+  color: #0f172a;
+  font-size: 17px;
+  letter-spacing: 0.04em;
+}
+
+.wellness-form-brand-text span {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.wellness-form-step {
+  color: #0f766e;
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  border-radius: 999px;
+  padding: 7px 12px;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.wellness-form-title {
+  margin-top: 18px;
+}
+
+.wellness-form-title > span {
+  display: block;
+  color: #2563eb;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.11em;
+}
+
+.wellness-form-title h2 {
+  margin: 5px 0 4px;
+  color: #0f172a;
+  font-size: clamp(24px, 3vw, 32px);
+  line-height: 1.1;
+}
+
+.wellness-form-title p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+}
+
+.wellness-form-package-summary {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 15px;
+  border: 1px solid #dbeafe;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.wellness-form-package-summary div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.wellness-form-package-summary span {
+  color: #64748b;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 800;
+}
+
+.wellness-form-package-summary div strong {
+  color: #0f172a;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.wellness-form-package-summary > strong {
+  flex: 0 0 auto;
+  color: #047857;
+  font-size: 16px;
+}
+
+.wellness-patient-form {
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.wellness-patient-form-body {
+  min-height: 0;
+  overflow-y: auto;
+  padding: 22px 32px 12px;
+}
+
+.wellness-patient-section {
+  margin-bottom: 18px;
+  padding: 18px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #ffffff;
+}
+
+.wellness-patient-section.partner-two {
+  border-color: #bbf7d0;
+  background: #f7fee7;
+}
+
+.wellness-patient-section-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.wellness-patient-section-number {
+  width: 31px;
+  height: 31px;
+  flex: 0 0 31px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #0f766e;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.wellness-patient-section-header > div {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.wellness-patient-section-header strong {
+  color: #0f172a;
+  font-size: 15px;
+}
+
+.wellness-patient-section-header span {
+  color: #64748b;
+  font-size: 11px;
+}
+
+.wellness-patient-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.wellness-patient-field {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.wellness-patient-field-full {
+  grid-column: 1 / -1;
+}
+
+.wellness-patient-field > span {
+  color: #334155;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.wellness-patient-field > span b {
+  color: #dc2626;
+}
+
+.wellness-patient-field input,
+.wellness-patient-field select,
+.wellness-patient-field textarea {
+  width: 100%;
+  min-height: 44px;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  outline: none;
+  background: #ffffff;
+  color: #0f172a;
+  font: inherit;
+  font-size: 13px;
+  padding: 10px 12px;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.wellness-patient-field textarea {
+  resize: vertical;
+  min-height: 82px;
+}
+
+.wellness-patient-field input:focus,
+.wellness-patient-field select:focus,
+.wellness-patient-field textarea:focus {
+  border-color: #0f766e;
+  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.10);
+}
+
+.wellness-patient-field input[readonly] {
+  background: #f8fafc;
+  color: #475569;
+}
+
+.wellness-input-wrap {
+  position: relative;
+}
+
+.wellness-input-wrap svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #64748b;
+  pointer-events: none;
+}
+
+.wellness-input-wrap input {
+  padding-left: 39px;
+}
+
+.wellness-form-error {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin: 0 0 14px;
+  padding: 12px 14px;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  background: #fef2f2;
+  color: #991b1b;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.wellness-form-error strong {
+  font-size: 12px;
+}
+
+.wellness-patient-form-actions {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 32px 20px;
+  border-top: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+.wellness-secondary-btn,
+.wellness-patient-form-actions .wellness-submit-btn {
+  min-height: 44px;
+  border-radius: 10px;
+  padding: 0 18px;
+  font-weight: 800;
+}
+
+.wellness-secondary-btn {
+  border: 1px solid #cbd5e1;
+  background: #ffffff;
+  color: #334155;
+  cursor: pointer;
+}
+
+.wellness-secondary-btn:hover {
+  background: #f8fafc;
+}
+
+.wellness-patient-form-actions .wellness-submit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  background: #0f766e;
+  color: #ffffff;
+  cursor: pointer;
+}
+
+.wellness-patient-form-actions .wellness-submit-btn:hover:not(:disabled) {
+  background: #115e59;
+}
+
+.wellness-patient-form-actions button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.wellness-summary-partners {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 8px;
+  color: #047857;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.wellness-confirm-text {
+  margin: 18px 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.wellness-success {
+  min-height: 430px;
+  padding: 55px 30px 45px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.wellness-success > svg {
+  color: #059669;
+  margin-bottom: 18px;
+}
+
+.wellness-success-kicker {
+  color: #047857;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+}
+
+.wellness-success h2 {
+  margin: 7px 0 10px;
+  color: #0f172a;
+  font-size: 29px;
+}
+
+.wellness-success p {
+  max-width: 600px;
+  margin: 5px 0;
+  color: #64748b;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.wellness-success .wellness-submit-btn {
+  margin-top: 20px;
+  min-width: 130px;
+  min-height: 44px;
+  border: 0;
+  border-radius: 10px;
+  background: #0f766e;
+  color: #ffffff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* Keep unavailable services hidden even if the RPC returns them. */
+.wellness-card .wellness-department li:has(span) {
+  /* intentionally neutral; filtering is handled in JSX */
+}
+
+@media (max-width: 700px) {
+  .wellness-patient-form-backdrop {
+    padding: 8px;
+    align-items: flex-start;
+  }
+
+  .wellness-patient-form-modal {
+    width: 100%;
+    max-height: calc(100vh - 16px);
+    border-radius: 15px;
+  }
+
+  .wellness-form-header {
+    padding: 19px 18px 16px;
+  }
+
+  .wellness-form-header-top {
+    padding-right: 42px;
+  }
+
+  .wellness-form-step {
+    font-size: 9px;
+    padding: 6px 8px;
+  }
+
+  .wellness-form-title {
+    margin-top: 14px;
+  }
+
+  .wellness-form-title h2 {
+    font-size: 24px;
+  }
+
+  .wellness-form-package-summary {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .wellness-form-package-summary > strong {
+    font-size: 15px;
+  }
+
+  .wellness-patient-form-body {
+    padding: 16px 12px 8px;
+  }
+
+  .wellness-patient-section {
+    padding: 14px;
+    border-radius: 13px;
+  }
+
+  .wellness-patient-form-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .wellness-patient-field-full {
+    grid-column: auto;
+  }
+
+  .wellness-patient-form-actions {
+    padding: 12px;
+    display: grid;
+    grid-template-columns: 0.75fr 1.25fr;
+  }
+
+  .wellness-secondary-btn,
+  .wellness-patient-form-actions .wellness-submit-btn {
+    width: 100%;
+    padding: 0 10px;
+    font-size: 12px;
+  }
+
+  .wellness-success {
+    min-height: 420px;
+    padding: 42px 20px 35px;
+  }
+}
+
+@media (max-width: 390px) {
+  .wellness-form-header {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .wellness-form-brand-text span {
+    display: none;
+  }
+
+  .wellness-form-step {
+    font-size: 8px;
+  }
+
+  .wellness-patient-form-body {
+    padding-left: 8px;
+    padding-right: 8px;
+  }
+
+  .wellness-patient-section {
+    padding: 12px;
+  }
+
+  .wellness-patient-form-actions {
+    grid-template-columns: 1fr;
+  }
+}

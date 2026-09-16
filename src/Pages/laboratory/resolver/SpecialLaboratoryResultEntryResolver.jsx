@@ -58,6 +58,7 @@ import WidalResultEntry from "../special/WidalResultEntry";
 import DrugPanelResultEntry from "../special/DrugPanelResultEntry";
 import HepatitisBPanelResultEntry from "../special/HepatitisBPanelResultEntry";
 import QualitativeResultEntry from "../special/QualitativeResultEntry";
+import BloodGroupingCrossmatchingResultEntry from "../special/BloodGroupingCrossmatchingResultEntry";
 
 /* ==========================================================
    TEXT HELPERS
@@ -301,6 +302,31 @@ const isExplicitQualitativeTest = (test, name) => {
    ========================================================== */
 
 const SPECIAL_TESTS = [
+  /* ========================================================
+     BLOOD GROUPING & CROSSMATCHING
+     --------------------------------------------------------
+     Database metadata may classify this as Single/Text, but it
+     has a dedicated structured Blood Bank result-entry form.
+     This MUST be resolved before generic Blood Group matching.
+     ======================================================== */
+
+  {
+    key: "blood_grouping_crossmatching",
+    label: "Blood Grouping & Crossmatching",
+
+    matches: (name) =>
+      name === "grouping & cross matching" ||
+      name === "grouping and cross matching" ||
+      name === "grouping cross matching" ||
+      name === "blood grouping & cross matching" ||
+      name === "blood grouping and cross matching" ||
+      name === "blood grouping cross matching" ||
+      name.includes("grouping & cross matching") ||
+      name.includes("grouping and cross matching"),
+
+    Component: BloodGroupingCrossmatchingResultEntry,
+  },
+
   /* ========================================================
      ABO BLOOD GROUP & RHESUS
      ======================================================== */

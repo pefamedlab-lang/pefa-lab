@@ -13,6 +13,7 @@ import {
 } from "react";
 
 import {
+  useLocation,
   useNavigate,
   useSearchParams,
 } from "react-router-dom";
@@ -108,19 +109,18 @@ export default function PaymentPortal() {
   // ROUTER
   // ==========================================================
 
-  const [searchParams] =
-    useSearchParams();
-
-  const navigate =
-    useNavigate();
-
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   // ==========================================================
-  // ORDER ID
+  // ORDER CONTEXT
   // ==========================================================
 
-  const orderId =
-    searchParams.get("order_id");
+  const statePatient = location.state?.patient || null;
+  const orderId = searchParams.get("order_id") || statePatient?.service_order_id || statePatient?.order_id || null;
+  const requestedLabNumber = searchParams.get("lab_number") || statePatient?.lab_number || null;
+  const requestedPatientId = searchParams.get("patient_id") || statePatient?.patient_id || null;
 
 
   // ==========================================================
@@ -149,6 +149,8 @@ export default function PaymentPortal() {
 
   const [paymentMethod, setPaymentMethod] =
     useState("Cash");
+
+  const referenceRequired = ["POS", "Transfer", "Online"].includes(paymentMethod);
 
   const [reference, setReference] =
     useState("");
@@ -351,47 +353,81 @@ export default function PaymentPortal() {
         // SERVICE ORDER
         // ====================================================
 
-        const {
-          data: orderData,
-          error: orderError,
-        } =
-          await supabase
+        const orderSelect = `
+          id,
+          order_number,
+          patient_name,
+          patient_id,
+          lab_number,
+          sex,
+          dob,
+          age,
+          phone,
+          address,
+          branch,
+          referral_id,
+          referral_name,
+          referring_doctor,
+          clinical_history,
+          service_type,
+          subtotal,
+          discount_amount,
+          total_amount,
+          amount_paid,
+          balance,
+          payment_status,
+          status,
+          payment_mode,
+          invoice_no,
+          created_at,
+          updated_at
+        `;
+
+        let orderData = null;
+        let orderError = null;
+
+        if (orderId) {
+          const response = await supabase
             .from("service_orders")
-            .select(`
-              id,
-              order_number,
-              patient_name,
-              patient_id,
-              lab_number,
-              sex,
-              dob,
-              age,
-              phone,
-              address,
-              branch,
-              referral_id,
-              referral_name,
-              referring_doctor,
-              clinical_history,
-              service_type,
-              subtotal,
-              discount_amount,
-              total_amount,
-              amount_paid,
-              balance,
-              payment_status,
-              status,
-              payment_mode,
-              invoice_no,
-              created_at,
-              updated_at
-            `)
+            .select(orderSelect)
             .eq("id", orderId)
-            .single();
+            .maybeSingle();
+          orderData = response.data;
+          orderError = response.error;
+        }
 
+        // Registration Records may not have stored service_order_id on legacy rows.
+        // Resolve the latest service order by lab number or patient ID instead of
+        // sending the user to a dead "Service order not found" screen.
+        if (!orderData && !orderError && requestedLabNumber) {
+          const response = await supabase
+            .from("service_orders")
+            .select(orderSelect)
+            .eq("lab_number", requestedLabNumber)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          orderData = response.data;
+          orderError = response.error;
+        }
 
-        if (orderError) {
-          throw orderError;
+        if (!orderData && !orderError && requestedPatientId) {
+          const response = await supabase
+            .from("service_orders")
+            .select(orderSelect)
+            .eq("patient_id", requestedPatientId)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          orderData = response.data;
+          orderError = response.error;
+        }
+
+        if (orderError) throw orderError;
+        if (!orderData) {
+          throw new Error(
+            "No service order is linked to this registration. Please refresh Registration Records or open the original registration before continuing payment."
+          );
         }
 
 
@@ -406,7 +442,7 @@ export default function PaymentPortal() {
           await supabase
             .from("service_order_items")
             .select("*")
-            .eq("order_id", orderId)
+            .eq("order_id", orderData.id)
             .order(
               "created_at",
               {
@@ -720,6 +756,15 @@ export default function PaymentPortal() {
       }
 
 
+      const normalizedReference = cleanText(reference);
+
+      if (referenceRequired && !normalizedReference) {
+        alert(
+          `Payment reference is required for ${paymentMethod} payments. Enter the transaction/reference number before receiving the payment.`
+        );
+        return;
+      }
+
       try {
 
         setProcessing(true);
@@ -880,9 +925,7 @@ export default function PaymentPortal() {
                 rpcPaymentMethod,
 
               p_payment_reference:
-                cleanText(
-                  reference
-                ),
+                normalizedReference,
 
               p_notes:
                 cleanText(
@@ -948,6 +991,11 @@ export default function PaymentPortal() {
             paymentMode === "Referral"
               ? "Referral"
               : paymentMethod,
+
+          payment_reference:
+            result.payment_reference ||
+            normalizedReference ||
+            null,
         };
 
 
@@ -977,6 +1025,26 @@ export default function PaymentPortal() {
 
         await loadOrder();
 
+        // Record the financial event in the enterprise audit trail.
+        const auditUserName =
+          user.user_metadata?.full_name ||
+          user.user_metadata?.name ||
+          user.email ||
+          "Authenticated User";
+
+        const { error: auditError } = await supabase
+          .from("audit_logs")
+          .insert([{
+            user_name: auditUserName,
+            user_role: user.user_metadata?.role || "",
+            action: "Payment Recorded",
+            module: "Payment Portal",
+            description: `${order.patient_name || "Patient"} (${order.lab_number || "No Lab No."}) — ${formatCurrency(numericAmount)} received via ${paymentMode === "Referral" ? "Referral Billing" : paymentMethod}. Invoice: ${result.invoice_no || "-"}; Receipt: ${result.receipt_number || "-"}.`,
+          }]);
+
+        if (auditError) {
+          console.warn("[PAYMENT PORTAL] Audit log failed:", auditError);
+        }
 
         // ====================================================
         // SUCCESS
@@ -2041,13 +2109,14 @@ export default function PaymentPortal() {
               <div className="form-group">
 
                 <label>
-                  Payment Reference
+                  Payment Reference{referenceRequired ? " *" : ""}
                 </label>
 
 
                 <input
                   type="text"
                   value={reference}
+                  required={referenceRequired}
                   onChange={(event) =>
                     setReference(
                       event.target.value
@@ -2061,10 +2130,18 @@ export default function PaymentPortal() {
                       : paymentMethod ===
                         "Transfer"
                         ? "Bank transfer reference"
-                        : "Optional"
+                        : paymentMethod ===
+                          "Online"
+                          ? "Online payment reference"
+                          : "Optional"
                   }
                 />
 
+                <small className="payment-reference-help">
+                  {referenceRequired
+                    ? "Required for electronic payments."
+                    : "Optional for cash payments."}
+                </small>
               </div>
 
 
@@ -2172,6 +2249,10 @@ export default function PaymentPortal() {
                 numericAmount <= 0 ||
                 numericAmount >
                   currentBalance ||
+                (
+                  referenceRequired &&
+                  !cleanText(reference)
+                ) ||
                 (
                   paymentMode ===
                     "Referral" &&

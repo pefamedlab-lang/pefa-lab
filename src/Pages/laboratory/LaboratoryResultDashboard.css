@@ -1,79 +1,25 @@
 /* =========================================================
-   PEFA LAB — PREMIUM LABORATORY RESULT DASHBOARD
-   =========================================================
-   SCREEN + MODAL + A4 PRINT ENGINE
-
-   PRINT ARCHITECTURE
-   ------------------
-   Browser page:
-       210mm × 297mm
-
-   Print area:
-       210mm × 297mm
-
-   Report document:
-       210mm × 297mm
-
-   Report content:
-       198mm wide after 6mm side padding
-
-   IMPORTANT
-   ----------
-   Do NOT add another @media print override below this file.
-   This stylesheet intentionally contains one final print system.
-   ========================================================= */
-
-
-/* =========================================================
-   BASE DASHBOARD
+   PEFA LAB — PREMIUM RESULT DASHBOARD
    ========================================================= */
 
 .pefa-result-dashboard {
   min-height: 100vh;
   padding: 28px;
-  box-sizing: border-box;
-
   color: #172033;
-
   background:
-    radial-gradient(
-      circle at 10% 0%,
-      rgba(30, 136, 229, 0.08),
-      transparent 28%
-    ),
-    radial-gradient(
-      circle at 90% 5%,
-      rgba(20, 184, 166, 0.07),
-      transparent 26%
-    ),
+    radial-gradient(circle at 10% 0%, rgba(30, 136, 229, .08), transparent 28%),
+    radial-gradient(circle at 90% 5%, rgba(20, 184, 166, .07), transparent 26%),
     #f5f8fc;
-
-  font-family:
-    Inter,
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 .pefa-dashboard-header,
 .pefa-search-panel,
 .pefa-results-shell,
-.pefa-modal,
-.pefa-alert,
-.pefa-summary-grid,
-.pefa-dashboard-footer {
+.pefa-modal {
   width: min(1440px, 100%);
   margin-inline: auto;
-  box-sizing: border-box;
 }
-
-
-/* =========================================================
-   DASHBOARD HEADER
-   ========================================================= */
 
 .pefa-dashboard-header {
   display: flex;
@@ -92,59 +38,35 @@
 .pefa-brand-mark {
   width: 48px;
   height: 48px;
-
   display: grid;
   place-items: center;
-  flex: 0 0 auto;
-
   border-radius: 14px;
-
   color: #fff;
-
-  background:
-    linear-gradient(
-      145deg,
-      #1769aa,
-      #0f8f88
-    );
-
-  box-shadow:
-    0 12px 26px rgba(23, 105, 170, 0.22);
+  background: linear-gradient(145deg, #1769aa, #0f8f88);
+  box-shadow: 0 12px 26px rgba(23, 105, 170, .22);
 }
 
 .pefa-eyebrow {
   margin-bottom: 4px;
-
   font-size: 10px;
   line-height: 1;
-  letter-spacing: 0.14em;
+  letter-spacing: .14em;
   font-weight: 800;
-
   color: #63809b;
 }
 
 .pefa-dashboard-header h1 {
   margin: 0;
-
   font-size: clamp(24px, 3vw, 34px);
-  line-height: 1.1;
-  letter-spacing: -0.035em;
+  letter-spacing: -.035em;
 }
 
 .pefa-dashboard-header p,
 .pefa-results-toolbar p {
   margin: 6px 0 0;
-
   color: #6b7c90;
-
   font-size: 13px;
-  line-height: 1.4;
 }
-
-
-/* =========================================================
-   BUTTONS
-   ========================================================= */
 
 .pefa-btn,
 .pefa-view-btn,
@@ -160,40 +82,28 @@
 .pefa-btn {
   min-height: 42px;
   padding: 0 16px;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-
   border-radius: 10px;
-
   font-weight: 750;
-
-  transition:
-    transform 0.18s ease,
-    background 0.18s ease,
-    border-color 0.18s ease;
+  transition: .18s ease;
 }
 
 .pefa-btn:disabled,
 .pefa-action:disabled {
-  opacity: 0.48;
+  opacity: .48;
   cursor: not-allowed;
 }
 
 .pefa-btn--primary {
   color: #fff;
   background: #1769aa;
-
-  box-shadow:
-    0 9px 20px rgba(23, 105, 170, 0.18);
+  box-shadow: 0 9px 20px rgba(23, 105, 170, .18);
 }
 
-.pefa-btn--primary:hover:not(:disabled) {
-  transform: translateY(-1px);
-  background: #125b95;
-}
+.pefa-btn--primary:hover:not(:disabled) { transform: translateY(-1px); background: #125b95; }
 
 .pefa-btn--ghost {
   color: #24405a;
@@ -201,252 +111,143 @@
   border: 1px solid #d9e3ee;
 }
 
-.pefa-btn--ghost:hover:not(:disabled) {
-  background: #f8fbfe;
-  border-color: #b9cad9;
-}
-
-
-/* =========================================================
-   SEARCH PANEL
-   ========================================================= */
+.pefa-btn--ghost:hover:not(:disabled) { background: #f8fbfe; border-color: #b9cad9; }
 
 .pefa-search-panel {
   display: grid;
-  grid-template-columns:
-    minmax(210px, 0.85fr)
-    minmax(260px, 1.4fr)
-    auto
-    auto;
-
+  grid-template-columns: minmax(210px, .85fr) minmax(260px, 1.4fr) auto auto;
   gap: 12px;
   align-items: end;
-
   padding: 16px;
   margin-bottom: 16px;
-
   border: 1px solid #dce5ee;
   border-radius: 16px;
-
-  background: rgba(255, 255, 255, 0.92);
-
-  box-shadow:
-    0 12px 35px rgba(30, 54, 78, 0.06);
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 12px 35px rgba(30, 54, 78, .06);
 }
 
 .pefa-search-field label,
 .pefa-output-panel label {
   display: block;
-
   margin: 0 0 7px;
-
   font-size: 11px;
   font-weight: 800;
-
   color: #61758a;
-
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: .07em;
 }
 
 .pefa-input-wrap {
   height: 44px;
-
   display: flex;
   align-items: center;
   gap: 9px;
-
   padding: 0 12px;
-
-  box-sizing: border-box;
-
   border: 1px solid #d6e1eb;
   border-radius: 10px;
-
   background: #fbfdff;
   color: #7890a6;
 }
 
 .pefa-input-wrap:focus-within {
   border-color: #5196c7;
-
-  box-shadow:
-    0 0 0 3px rgba(81, 150, 199, 0.11);
+  box-shadow: 0 0 0 3px rgba(81,150,199,.11);
 }
 
 .pefa-input-wrap input {
   width: 100%;
   min-width: 0;
-
   border: 0;
   outline: 0;
-
   background: transparent;
   color: #172033;
-
   font-size: 14px;
 }
 
-
-/* =========================================================
-   ALERTS
-   ========================================================= */
-
 .pefa-alert {
-  margin-bottom: 16px;
-
+  width: min(1440px, 100%);
+  margin: 0 auto 16px;
   padding: 11px 13px;
-
   display: flex;
   align-items: center;
   gap: 10px;
-
   border-radius: 10px;
-
   font-size: 13px;
 }
 
 .pefa-alert button {
   margin-left: auto;
-
   border: 0;
-
   background: transparent;
-
   cursor: pointer;
-
   color: inherit;
 }
 
-.pefa-alert--error {
-  color: #9d2f3d;
-  background: #fff1f3;
-  border: 1px solid #ffd5db;
-}
-
-.pefa-alert--success {
-  color: #176c52;
-  background: #effbf6;
-  border: 1px solid #cbeedf;
-}
-
-
-/* =========================================================
-   SUMMARY CARDS
-   ========================================================= */
+.pefa-alert--error { color: #9d2f3d; background: #fff1f3; border: 1px solid #ffd5db; }
+.pefa-alert--success { color: #176c52; background: #effbf6; border: 1px solid #cbeedf; }
 
 .pefa-summary-grid {
-  margin-bottom: 18px;
-
+  width: min(1440px, 100%);
+  margin: 0 auto 18px;
   display: grid;
-  grid-template-columns:
-    repeat(5, minmax(0, 1fr));
-
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 11px;
 }
 
 .pefa-summary-card {
   min-height: 78px;
-
   padding: 13px;
-
   display: flex;
   align-items: center;
   gap: 11px;
-
   text-align: left;
-
   border: 1px solid #dfe7ef;
   border-radius: 14px;
-
   background: #fff;
   color: #22364a;
-
-  box-shadow:
-    0 7px 20px rgba(30, 54, 78, 0.045);
-
-  transition:
-    transform 0.18s ease,
-    border-color 0.18s ease,
-    box-shadow 0.18s ease;
+  box-shadow: 0 7px 20px rgba(30,54,78,.045);
+  transition: .18s ease;
 }
 
-.pefa-summary-card:hover {
-  transform: translateY(-1px);
-  border-color: #c2d4e3;
-}
-
-.pefa-summary-card.is-active {
-  border-color: #4f94c3;
-
-  box-shadow:
-    0 0 0 2px rgba(79, 148, 195, 0.1);
-}
+.pefa-summary-card:hover { transform: translateY(-1px); border-color: #c2d4e3; }
+.pefa-summary-card.is-active { border-color: #4f94c3; box-shadow: 0 0 0 2px rgba(79,148,195,.10); }
 
 .pefa-summary-icon {
   width: 35px;
   height: 35px;
-
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-
   border-radius: 10px;
-
   color: #1769aa;
   background: #eef7fd;
 }
 
-.pefa-summary-copy {
-  display: grid;
-  gap: 3px;
-}
-
-.pefa-summary-copy small {
-  color: #72869a;
-  font-size: 11px;
-  font-weight: 700;
-}
-
-.pefa-summary-copy strong {
-  font-size: 23px;
-  line-height: 1;
-}
-
-
-/* =========================================================
-   RESULT SHELL
-   ========================================================= */
+.pefa-summary-copy { display: grid; gap: 3px; }
+.pefa-summary-copy small { color: #72869a; font-size: 11px; font-weight: 700; }
+.pefa-summary-copy strong { font-size: 23px; line-height: 1; }
 
 .pefa-results-shell {
   overflow: hidden;
-
   border: 1px solid #dce5ee;
   border-radius: 18px;
-
   background: #fff;
-
-  box-shadow:
-    0 18px 50px rgba(30, 54, 78, 0.065);
+  box-shadow: 0 18px 50px rgba(30,54,78,.065);
 }
 
 .pefa-results-toolbar {
   padding: 20px 22px;
-
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-
   gap: 20px;
-
   border-bottom: 1px solid #e6edf3;
 }
 
 .pefa-results-toolbar h2 {
   margin: 5px 0 0;
-
   font-size: 20px;
-  letter-spacing: -0.02em;
+  letter-spacing: -.02em;
 }
 
 .pefa-toolbar-filters {
@@ -458,26 +259,16 @@
 .pefa-toolbar-filters select,
 .pefa-output-panel select {
   height: 40px;
-
   padding: 0 34px 0 11px;
-
   border: 1px solid #d6e1eb;
   border-radius: 9px;
-
   background: #fbfdff;
   color: #263d53;
-
   outline: none;
-
   font: inherit;
   font-size: 12px;
   font-weight: 700;
 }
-
-
-/* =========================================================
-   REPORT LIST
-   ========================================================= */
 
 .pefa-report-list {
   display: grid;
@@ -485,40 +276,25 @@
 
 .pefa-report-card {
   position: relative;
-
   min-width: 0;
-
   display: grid;
-  grid-template-columns:
-    minmax(0, 1fr)
-    auto;
-
+  grid-template-columns: minmax(0, 1fr) auto;
   border-bottom: 1px solid #e9eef4;
-
-  transition:
-    background 0.18s ease;
+  transition: background .18s ease;
 }
 
-.pefa-report-card:last-child {
-  border-bottom: 0;
-}
-
-.pefa-report-card:hover {
-  background: #fbfdff;
-}
+.pefa-report-card:last-child { border-bottom: 0; }
+.pefa-report-card:hover { background: #fbfdff; }
 
 .pefa-report-accent {
   width: 3px;
-
   position: absolute;
   inset: 0 auto 0 0;
-
   background: #c9d7e4;
 }
 
 .pefa-report-main {
   min-width: 0;
-
   padding: 18px 20px 17px 23px;
 }
 
@@ -535,97 +311,52 @@
   gap: 14px;
 }
 
-.pefa-report-title-wrap {
-  gap: 7px;
-  flex-wrap: wrap;
-}
+.pefa-report-title-wrap { gap: 7px; flex-wrap: wrap; }
 
 .pefa-type-badge,
 .pefa-status {
   min-height: 23px;
-
   display: inline-flex;
   align-items: center;
   gap: 5px;
-
   padding: 0 8px;
-
   border-radius: 999px;
-
   font-size: 10px;
   font-weight: 850;
-
-  letter-spacing: 0.03em;
+  letter-spacing: .03em;
   text-transform: uppercase;
 }
 
-.pefa-type-badge--panel {
-  color: #754b0b;
-  background: #fff5dc;
-}
+.pefa-type-badge--panel { color: #754b0b; background: #fff5dc; }
+.pefa-type-badge--special { color: #75437e; background: #faeffc; }
+.pefa-type-badge--quantitative { color: #1769aa; background: #edf7fd; }
+.pefa-type-badge--qualitative { color: #256b55; background: #edf9f4; }
 
-.pefa-type-badge--special {
-  color: #75437e;
-  background: #faeffc;
-}
-
-.pefa-type-badge--quantitative {
-  color: #1769aa;
-  background: #edf7fd;
-}
-
-.pefa-type-badge--qualitative {
-  color: #256b55;
-  background: #edf9f4;
-}
-
-.pefa-status--entered {
-  color: #53687d;
-  background: #f0f4f8;
-}
-
-.pefa-status--verified {
-  color: #24639b;
-  background: #eaf5fd;
-}
-
-.pefa-status--authorized {
-  color: #6b4f96;
-  background: #f4effc;
-}
-
-.pefa-status--released {
-  color: #1c7154;
-  background: #eaf8f2;
-}
+.pefa-status--entered { color: #53687d; background: #f0f4f8; }
+.pefa-status--verified { color: #24639b; background: #eaf5fd; }
+.pefa-status--authorized { color: #6b4f96; background: #f4effc; }
+.pefa-status--released { color: #1c7154; background: #eaf8f2; }
 
 .pefa-report-date {
   flex: 0 0 auto;
-
   color: #8495a6;
-
   font-size: 11px;
 }
 
 .pefa-report-main h3 {
   margin: 10px 0 7px;
-
   font-size: 17px;
-  letter-spacing: -0.015em;
+  letter-spacing: -.015em;
 }
 
 .pefa-report-meta {
   gap: 14px;
   flex-wrap: wrap;
-
   color: #73869a;
-
   font-size: 11px;
 }
 
-.pefa-report-meta strong {
-  color: #3e556b;
-}
+.pefa-report-meta strong { color: #3e556b; }
 
 .pefa-patient-line {
   gap: 9px;
@@ -637,7 +368,6 @@
   display: grid;
   place-items: center;
   flex: 0 0 auto;
-
   color: #1769aa;
   background: #eef7fd;
 }
@@ -645,7 +375,6 @@
 .pefa-mini-avatar {
   width: 29px;
   height: 29px;
-
   border-radius: 9px;
 }
 
@@ -654,252 +383,108 @@
   gap: 2px;
 }
 
-.pefa-patient-line strong {
-  font-size: 12px;
-}
-
-.pefa-patient-line span {
-  color: #7b8d9f;
-  font-size: 10px;
-}
+.pefa-patient-line strong { font-size: 12px; }
+.pefa-patient-line span { color: #7b8d9f; font-size: 10px; }
 
 .pefa-report-action {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-
   padding: 16px 20px 16px 10px;
 }
 
 .pefa-view-btn {
   min-height: 39px;
-
   display: inline-flex;
   align-items: center;
   gap: 7px;
-
   padding: 0 11px 0 13px;
-
   border: 1px solid #d7e2ec;
   border-radius: 9px;
-
   background: #fff;
   color: #245270;
-
   font-size: 12px;
   font-weight: 800;
-
   white-space: nowrap;
 }
 
-.pefa-view-btn:hover {
-  border-color: #a8c2d6;
-  background: #f7fbfe;
-}
-
-
-/* =========================================================
-   EMPTY STATE
-   ========================================================= */
+.pefa-view-btn:hover { border-color: #a8c2d6; background: #f7fbfe; }
 
 .pefa-empty-state {
   min-height: 280px;
-
   display: grid;
   place-items: center;
   align-content: center;
   gap: 7px;
-
   padding: 35px;
-
   color: #718499;
-
   text-align: center;
 }
 
-.pefa-empty-state h3 {
-  margin: 3px 0 0;
-  color: #30465a;
-}
-
-.pefa-empty-state p {
-  margin: 0;
-  font-size: 12px;
-}
-
-
-/* =========================================================
-   MODAL
-   ========================================================= */
+.pefa-empty-state h3 { margin: 3px 0 0; color: #30465a; }
+.pefa-empty-state p { margin: 0; font-size: 12px; }
 
 .pefa-modal-backdrop {
   position: fixed;
-
   inset: 0;
-
-  z-index: 2147483000;
-
-  width: 100vw;
-  height: 100dvh;
-
-  padding: 20px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  box-sizing: border-box;
-
-  background: rgba(12, 25, 39, 0.68);
-
+  z-index: 1000;
+  padding: 24px;
+  display: grid;
+  place-items: center;
+  background: rgba(13, 26, 40, .58);
   backdrop-filter: blur(5px);
-
-  overflow: hidden;
 }
 
 .pefa-modal {
-  position: relative;
-
-  width: min(1180px, calc(100vw - 40px));
-  height: min(900px, calc(100dvh - 40px));
-
-  max-width: 1180px;
-  max-height: calc(100dvh - 40px);
-
-  min-height: 0;
-
-  margin: 0;
-  padding: 0;
-
-  display: flex;
-  flex-direction: column;
-
-  overflow: hidden;
-
-  box-sizing: border-box;
-
+  max-height: calc(100vh - 48px);
+  overflow: auto;
   border-radius: 18px;
-
   background: #fff;
-
-  box-shadow:
-    0 30px 100px rgba(0, 0, 0, 0.32);
+  box-shadow: 0 30px 90px rgba(5,20,35,.28);
 }
 
 .pefa-modal-header {
   position: sticky;
-
   top: 0;
-
   z-index: 2;
-
-  flex: 0 0 auto;
-
   padding: 19px 22px;
-
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-
   gap: 20px;
-
   border-bottom: 1px solid #e3eaf1;
-
-  background: rgba(255, 255, 255, 0.96);
-
+  background: rgba(255,255,255,.96);
   backdrop-filter: blur(8px);
 }
 
 .pefa-modal-header h2 {
   margin: 5px 0 3px;
-
   font-size: 21px;
-  letter-spacing: -0.025em;
+  letter-spacing: -.025em;
 }
 
-.pefa-modal-header p {
-  margin: 0;
-
-  color: #74879a;
-
-  font-size: 12px;
-}
+.pefa-modal-header p { margin: 0; color: #74879a; font-size: 12px; }
 
 .pefa-modal-close {
   width: 36px;
   height: 36px;
-
   display: grid;
   place-items: center;
-
-  flex: 0 0 auto;
-
   border-radius: 9px;
-
   color: #60758a;
   background: #f3f6f9;
 }
 
-.pefa-modal-close:hover {
-  background: #e9eff4;
-}
+.pefa-modal-close:hover { background: #e9eff4; }
 
-.pefa-modal-body {
-  flex: 1 1 auto;
-
-  min-height: 0;
-
-  height: auto;
-  max-height: none;
-
-  overflow-y: auto;
-  overflow-x: hidden;
-
-  -webkit-overflow-scrolling: touch;
-
-  overscroll-behavior: contain;
-
-  scrollbar-width: thin;
-}
-
-.pefa-modal-report-preview {
-  width: 100%;
-
-  padding: 18px;
-
-  box-sizing: border-box;
-
-  background: #eef3f8;
-
-  overflow: visible;
-}
-
-.pefa-modal-report-preview .pefa-report-preview {
-  width: 100%;
-  min-width: 0;
-
-  overflow: visible;
-}
-
-
-/* =========================================================
-   MODAL PATIENT INFORMATION
-   ========================================================= */
+.pefa-modal-body { padding: 20px 22px 24px; }
 
 .pefa-patient-grid {
   display: grid;
-
-  grid-template-columns:
-    minmax(230px, 0.8fr)
-    1.7fr;
-
+  grid-template-columns: minmax(230px, .8fr) 1.7fr;
   gap: 16px;
-
   padding: 14px;
-
   border: 1px solid #dce6ef;
   border-radius: 13px;
-
   background: #f8fbfd;
 }
 
@@ -912,7 +497,6 @@
 .pefa-avatar {
   width: 43px;
   height: 43px;
-
   border-radius: 12px;
 }
 
@@ -924,67 +508,38 @@
 .pefa-patient-primary span,
 .pefa-meta span {
   color: #75899d;
-
   font-size: 9px;
   font-weight: 800;
-
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: .07em;
 }
 
-.pefa-patient-primary strong {
-  font-size: 14px;
-}
-
-.pefa-patient-primary small {
-  color: #718497;
-  font-size: 10px;
-}
+.pefa-patient-primary strong { font-size: 14px; }
+.pefa-patient-primary small { color: #718497; font-size: 10px; }
 
 .pefa-meta {
   display: grid;
-
-  grid-template-columns:
-    repeat(4, minmax(0, 1fr));
-
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
 }
 
-.pefa-meta div {
-  display: grid;
-  gap: 3px;
-}
-
-.pefa-meta strong {
-  color: #263e54;
-  font-size: 11px;
-}
-
-
-/* =========================================================
-   MODAL RESULT SECTIONS
-   ========================================================= */
+.pefa-meta div { display: grid; gap: 3px; }
+.pefa-meta strong { font-size: 11px; color: #263e54; }
 
 .pefa-modal-status {
   padding: 13px 2px;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   gap: 10px;
-
   color: #788b9d;
-
   font-size: 11px;
 }
 
 .pefa-result-section,
 .pefa-workflow {
   margin-top: 12px;
-
   padding: 16px;
-
   border: 1px solid #dfe7ee;
   border-radius: 13px;
 }
@@ -993,173 +548,96 @@
   display: flex;
   align-items: center;
   gap: 9px;
-
   margin-bottom: 14px;
-
   color: #1769aa;
 }
 
-.pefa-section-heading > div {
-  display: grid;
-  gap: 2px;
-}
+.pefa-section-heading > div { display: grid; gap: 2px; }
+.pefa-section-heading small { color: #8293a4; font-size: 9px; font-weight: 850; letter-spacing: .1em; }
+.pefa-section-heading strong { color: #263e54; font-size: 13px; }
 
-.pefa-section-heading small {
-  color: #8293a4;
-
-  font-size: 9px;
-  font-weight: 850;
-
-  letter-spacing: 0.1em;
-}
-
-.pefa-section-heading strong {
-  color: #263e54;
-  font-size: 13px;
-}
-
-.pefa-result-table-wrap {
-  overflow-x: auto;
-}
-
-.pefa-result-table {
-  width: 100%;
-
-  border-collapse: collapse;
-
-  font-size: 11px;
-}
-
+.pefa-result-table-wrap { overflow-x: auto; }
+.pefa-result-table { width: 100%; border-collapse: collapse; font-size: 11px; }
 .pefa-result-table th {
   padding: 9px 10px;
-
   text-align: left;
-
   color: #62778b;
-
   background: #f4f7fa;
-
   border-bottom: 1px solid #dfe7ee;
-
   font-size: 9px;
   text-transform: uppercase;
-  letter-spacing: 0.07em;
+  letter-spacing: .07em;
 }
-
 .pefa-result-table td {
   padding: 10px;
-
   border-bottom: 1px solid #edf1f5;
-
   color: #51677b;
 }
-
-.pefa-result-table tbody tr:last-child td {
-  border-bottom: 0;
-}
-
-.pefa-result-table td strong {
-  color: #293f53;
-}
-
-.pefa-result-value {
-  color: #142d44 !important;
-  font-weight: 850;
-}
+.pefa-result-table tbody tr:last-child td { border-bottom: 0; }
+.pefa-result-table td strong { color: #293f53; }
+.pefa-result-value { color: #142d44 !important; font-weight: 850; }
 
 .pefa-flag {
   display: inline-flex;
-
   padding: 3px 7px;
-
   border-radius: 999px;
-
   background: #f1f4f7;
   color: #66798b;
-
   font-size: 9px;
   font-weight: 800;
 }
 
 .pefa-results-empty {
   padding: 25px;
-
   display: flex;
   justify-content: center;
   align-items: center;
-
   gap: 8px;
-
   color: #7c8e9f;
-
   font-size: 12px;
 }
 
-
-/* =========================================================
-   WORKFLOW
-   ========================================================= */
-
 .pefa-workflow-track {
   display: grid;
-
-  grid-template-columns:
-    repeat(4, 1fr);
-
+  grid-template-columns: repeat(4, 1fr);
   gap: 8px;
 }
 
 .pefa-workflow-track > div {
   position: relative;
-
   min-height: 56px;
-
   display: grid;
   place-items: center;
   align-content: center;
-
   gap: 4px;
-
   border-radius: 10px;
-
   background: #f2f5f8;
   color: #8393a3;
 }
 
 .pefa-workflow-track > div:not(:last-child)::after {
   content: "";
-
   position: absolute;
-
   top: 19px;
   right: -8px;
-
   width: 8px;
   height: 2px;
-
   background: #d6e0e8;
 }
 
 .pefa-workflow-track span {
   width: 22px;
   height: 22px;
-
   display: grid;
   place-items: center;
-
   border-radius: 50%;
-
   background: #dfe6ec;
   color: #63778a;
-
   font-size: 9px;
   font-weight: 850;
 }
 
-.pefa-workflow-track label {
-  font-size: 10px;
-  font-weight: 800;
-}
+.pefa-workflow-track label { font-size: 10px; font-weight: 800; }
 
 .pefa-workflow-track > div.is-complete {
   color: #1d6c55;
@@ -1171,85 +649,43 @@
   background: #248b6d;
 }
 
-
-/* =========================================================
-   ACTIONS
-   ========================================================= */
-
 .pefa-action-row {
   display: grid;
-
-  grid-template-columns:
-    repeat(3, 1fr);
-
+  grid-template-columns: repeat(3, 1fr);
   gap: 9px;
-
   margin-top: 12px;
 }
 
 .pefa-action {
   min-height: 42px;
-
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   gap: 7px;
-
   border-radius: 9px;
-
   color: #fff;
-
   font-size: 12px;
   font-weight: 800;
 }
 
-.pefa-action--verify {
-  background: #2b78a9;
-}
-
-.pefa-action--authorize {
-  background: #7256a1;
-}
-
-.pefa-action--release {
-  background: #218363;
-}
-
-
-/* =========================================================
-   OUTPUT PANEL
-   ========================================================= */
+.pefa-action--verify { background: #2b78a9; }
+.pefa-action--authorize { background: #7256a1; }
+.pefa-action--release { background: #218363; }
 
 .pefa-output-panel {
   margin-top: 12px;
-
   padding: 15px;
-
   display: grid;
-
-  grid-template-columns:
-    1fr auto;
-
+  grid-template-columns: 1fr auto;
   align-items: end;
-
   gap: 18px;
-
   border: 1px solid #dfe7ee;
   border-radius: 13px;
-
   background: #f8fbfd;
 }
 
-.pefa-output-panel > div:first-child {
-  display: grid;
-  gap: 5px;
-}
-
-.pefa-output-panel small {
-  color: #8292a3;
-  font-size: 10px;
-}
+.pefa-output-panel > div:first-child { display: grid; gap: 5px; }
+.pefa-output-panel small { color: #8292a3; font-size: 10px; }
 
 .pefa-output-buttons {
   display: flex;
@@ -1265,1495 +701,37 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-
   padding: 6px 2px;
-
   color: #3c6888;
   background: transparent;
-
   font-size: 11px;
   font-weight: 800;
 }
-
-
-/* =========================================================
-   PRINT SURFACE — SCREEN STATE
-   ========================================================= */
 
 .pefa-print-surface {
   position: absolute !important;
-
   left: -100000px !important;
   top: 0 !important;
-
   width: 210mm !important;
-
   display: block !important;
-
   opacity: 0 !important;
-
   pointer-events: none !important;
-
   z-index: -1 !important;
-
-  box-sizing: border-box !important;
 }
-
-
-/* =========================================================
-   DASHBOARD FOOTER
-   ========================================================= */
 
 .pefa-dashboard-footer {
-  margin-top: 17px;
-
+  width: min(1440px, 100%);
+  margin: 17px auto 0;
   display: flex;
   justify-content: space-between;
-
   gap: 12px;
-
   color: #8495a5;
-
   font-size: 9px;
-
-  letter-spacing: 0.06em;
+  letter-spacing: .06em;
   text-transform: uppercase;
 }
 
-
-/* =========================================================
-   SAVED REPORT DOCUMENT
-   ========================================================= */
-
-.pefa-report-document {
-  width: 210mm;
-  max-width: 100%;
-
-  margin: 0 auto;
-
-  padding: 4mm 6mm 5mm;
-
-  box-sizing: border-box;
-
-  background: #fff;
-  color: #111827;
-
-  font-family:
-    Arial,
-    Helvetica,
-    sans-serif;
-
-  box-shadow:
-    0 14px 40px rgba(15, 23, 42, 0.12);
-
-  overflow: visible;
-}
-
-.pefa-report-letterhead {
-  width: 100%;
-
-  margin: 0;
-
-  border-bottom: 0;
-}
-
-
-/* =========================================================
-   LETTERHEAD
-   ========================================================= */
-
-.pefa-letterhead-top {
-  width: 100%;
-
-  display: grid;
-
-  grid-template-columns:
-    78px
-    minmax(0, 1fr)
-    70px;
-
-  gap: 12px;
-
-  align-items: center;
-
-  box-sizing: border-box;
-}
-
-.pefa-letterhead-logo-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.pefa-letterhead-logo {
-  width: 70px;
-  height: 70px;
-
-  object-fit: contain;
-}
-
-.pefa-letterhead-title {
-  min-width: 0;
-
-  text-align: center;
-}
-
-.pefa-letterhead-title h1 {
-  margin: 0;
-
-  font-size: 25px;
-  line-height: 1.05;
-  font-weight: 900;
-
-  letter-spacing: 0.02em;
-}
-
-.pefa-letterhead-title h2 {
-  margin: 3px 0 4px;
-
-  font-size: 14px;
-  line-height: 1;
-
-  font-weight: 800;
-
-  letter-spacing: 0.08em;
-}
-
-.pefa-letterhead-title p {
-  margin: 0;
-
-  font-size: 8.5px;
-  line-height: 1.4;
-}
-
-.pefa-letterhead-qr {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.pefa-service-strip {
-  width: 100%;
-
-  display: flex;
-
-  justify-content: center;
-  align-items: center;
-
-  gap: 5px;
-
-  flex-wrap: wrap;
-
-  margin-top: 4px;
-}
-
-.pefa-service-strip span,
-.pefa-service-strip b {
-  padding: 3px 6px;
-
-  border-radius: 4px;
-
-  font-size: 7.5px;
-  line-height: 1;
-
-  border: 1px solid #dbe5ef;
-}
-
-.pefa-service-strip b {
-  font-weight: 800;
-}
-
-.pefa-office-row {
-  width: 100%;
-
-  display: grid;
-
-  grid-template-columns:
-    repeat(3, minmax(0, 1fr));
-
-  gap: 5px;
-
-  margin-top: 3px;
-}
-
-.pefa-office-row > div {
-  min-width: 0;
-
-  padding: 4px 6px;
-
-  border: 1px solid #dbe5ef;
-  border-radius: 5px;
-
-  box-sizing: border-box;
-}
-
-.pefa-office-row strong {
-  display: block;
-
-  margin-bottom: 2px;
-
-  font-size: 7.5px;
-
-  letter-spacing: 0.05em;
-}
-
-.pefa-office-row span {
-  display: block;
-
-  font-size: 7.5px;
-  line-height: 1.35;
-
-  color: #475569;
-}
-
-.pefa-contact-strip {
-  display: flex;
-
-  justify-content: center;
-
-  flex-wrap: wrap;
-
-  gap: 4px;
-
-  margin-top: 3px;
-
-  font-size: 7.5px;
-
-  color: #334155;
-}
-
-.pefa-header-ribbon {
-  width: 100%;
-
-  display: grid;
-
-  grid-template-columns:
-    repeat(3, 1fr);
-
-  height: 4px;
-
-  margin-top: 4px;
-
-  overflow: hidden;
-
-  border-radius: 2px;
-}
-
-.pefa-header-ribbon i:nth-child(1) {
-  background: #1769aa;
-}
-
-.pefa-header-ribbon i:nth-child(2) {
-  background: #f59e0b;
-}
-
-.pefa-header-ribbon i:nth-child(3) {
-  background: #16a34a;
-}
-
-
-/* =========================================================
-   PATIENT INFORMATION
-   ========================================================= */
-
-.pefa-report-patient {
-  width: 100%;
-
-  margin-top: 10px;
-
-  border: 1px solid #cfd9e5;
-
-  font-size: 12px;
-
-  box-sizing: border-box;
-}
-
-.pefa-report-patient-title {
-  padding: 5px 7px;
-
-  color: #1769aa;
-
-  font-size: 10px;
-  font-weight: 900;
-
-  letter-spacing: 0.08em;
-}
-
-.pefa-report-patient-grid {
-  width: 100%;
-
-  display: grid;
-
-  grid-template-columns:
-    repeat(4, minmax(0, 1fr));
-
-  box-sizing: border-box;
-}
-
-.pefa-report-patient-grid > div {
-  min-width: 0;
-  min-height: 37px;
-
-  padding: 5px 7px;
-
-  border-right: 1px solid #e2e8f0;
-  border-bottom: 1px solid #e2e8f0;
-
-  box-sizing: border-box;
-}
-
-.pefa-report-patient-grid > div:nth-child(4n) {
-  border-right: 0;
-}
-
-.pefa-report-patient-grid label,
-.pefa-clinical-history label {
-  display: block;
-
-  font-size: 10px;
-
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-
-  color: #64748b;
-
-  font-weight: 800;
-}
-
-.pefa-report-patient-grid strong {
-  display: block;
-
-  margin-top: 2px;
-
-  font-size: 12px;
-  line-height: 1.3;
-
-  font-weight: 750;
-
-  overflow-wrap: anywhere;
-}
-
-.pefa-clinical-history {
-  padding: 6px 7px;
-
-  border-top: 0;
-}
-
-.pefa-clinical-history span {
-  display: block;
-
-  margin-top: 2px;
-
-  font-size: 12px;
-  line-height: 1.45;
-
-  overflow-wrap: anywhere;
-}
-
-
-/* =========================================================
-   REPORT BODY
-   ========================================================= */
-
-.pefa-report-body {
-  width: 100%;
-
-  margin-top: 8px;
-
-  box-sizing: border-box;
-}
-
-.pefa-report-heading {
-  width: 100%;
-
-  text-align: center;
-
-  margin-bottom: 6px;
-
-  box-sizing: border-box;
-}
-
-.pefa-report-heading span {
-  font-size: 8px;
-
-  font-weight: 900;
-
-  letter-spacing: 0.14em;
-}
-
-.pefa-report-heading h2 {
-  margin: 3px 0 2px;
-
-  font-size: 17px;
-  line-height: 1.15;
-
-  font-weight: 900;
-}
-
-.pefa-report-heading small {
-  font-size: 8px;
-
-  color: #64748b;
-}
-
-.pefa-router-body {
-  width: 100%;
-
-  min-width: 0;
-  min-height: 20px;
-
-  margin: 0;
-  padding: 0;
-
-  box-sizing: border-box;
-
-  overflow: visible;
-}
-
-
-/* =========================================================
-   NEUTRALIZE NESTED PRINT COMPONENTS
-   ========================================================= */
-
-.pefa-router-body .report-page,
-.pefa-router-body #print-root {
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: none !important;
-
-  margin: 0 !important;
-  padding: 0 !important;
-
-  box-sizing: border-box !important;
-
-  box-shadow: none !important;
-
-  border: 0 !important;
-
-  background: transparent !important;
-
-  transform: none !important;
-
-  overflow: visible !important;
-}
-
-.pefa-router-body .report-header,
-.pefa-router-body .report-header-v2,
-.pefa-router-body .patient-info,
-.pefa-router-body .signature-wrapper,
-.pefa-router-body .verification-section,
-.pefa-router-body .report-footer,
-.pefa-router-body .confidential-notice,
-.pefa-router-body .report-watermark {
-  display: none !important;
-}
-
-
-/* PEFA shell owns visible title. */
-
-.pefa-router-body .malaria-parasite-print > div:first-child {
-  display: none !important;
-}
-
-
-/* =========================================================
-   RESULT TABLES
-   ========================================================= */
-
-.pefa-router-body table,
-.pefa-saved-result-table {
-  width: 100% !important;
-
-  max-width: none !important;
-
-  border-collapse: collapse;
-
-  table-layout: auto;
-
-  font-family:
-    Arial,
-    Helvetica,
-    sans-serif;
-
-  box-sizing: border-box;
-}
-
-.pefa-router-body th,
-.pefa-router-body td {
-  box-sizing: border-box;
-
-  word-break: normal;
-
-  overflow-wrap: anywhere;
-}
-
-.pefa-router-body th {
-  font-size: 12px;
-
-  font-weight: 900;
-}
-
-.pefa-router-body td {
-  font-size: 12px;
-
-  font-weight: 500;
-}
-
-.pefa-router-body td:nth-child(2),
-.pefa-router-body td:nth-child(2) strong {
-  font-weight: 900;
-}
-
-
-/* =========================================================
-   FORMAL RESULT FLAGS
-   ========================================================= */
-
-.pefa-router-body .flag-high,
-.pefa-router-body .result-row-high td:nth-child(5) span {
-  color: #dc2626 !important;
-
-  font-weight: 900 !important;
-}
-
-.pefa-router-body .flag-low,
-.pefa-router-body .result-row-low td:nth-child(5) span {
-  color: #2563eb !important;
-
-  font-weight: 900 !important;
-}
-
-.pefa-router-body .flag-normal,
-.pefa-router-body .result-row-normal td:nth-child(5) span {
-  color: #15803d !important;
-
-  font-weight: 800 !important;
-}
-
-.pefa-router-body tr.result-row-high td:nth-child(2) {
-  color: #dc2626 !important;
-
-  font-weight: 900 !important;
-
-  background: #fff1f2 !important;
-}
-
-.pefa-router-body tr.result-row-low td:nth-child(2) {
-  color: #2563eb !important;
-
-  font-weight: 900 !important;
-
-  background: #eff6ff !important;
-}
-
-.pefa-router-body tr.result-row-critical td:nth-child(2) {
-  color: #b91c1c !important;
-
-  font-weight: 900 !important;
-
-  background: #fee2e2 !important;
-}
-
-
-/* =========================================================
-   SAVED RESULT TABLE
-   ========================================================= */
-
-.pefa-saved-result {
-  width: 100%;
-
-  margin: 0;
-  padding: 0;
-
-  box-sizing: border-box;
-}
-
-.pefa-saved-result-header {
-  width: 100%;
-
-  display: flex;
-
-  justify-content: space-between;
-  align-items: center;
-
-  gap: 16px;
-
-  padding: 8px 10px;
-
-  margin: 0 0 5px;
-
-  border: 1px solid #dbe3ec;
-  border-radius: 7px;
-
-  background: #f8fafc;
-
-  box-sizing: border-box;
-}
-
-.pefa-saved-result-header div {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.pefa-saved-result-header span {
-  font-size: 9px;
-
-  font-weight: 800;
-
-  letter-spacing: 0.08em;
-
-  color: #64748b;
-}
-
-.pefa-saved-result-header strong {
-  font-size: 14px;
-
-  color: #0f172a;
-}
-
-.pefa-saved-result-header small {
-  font-size: 10px;
-
-  color: #64748b;
-
-  font-weight: 700;
-}
-
-.pefa-saved-result-table-wrap {
-  width: 100%;
-
-  overflow: visible;
-
-  box-sizing: border-box;
-}
-
-.pefa-saved-result-table {
-  width: 100% !important;
-
-  background: #fff;
-}
-
-.pefa-special-malaria-table th,
-.pefa-special-malaria-table td {
-  width: 50%;
-}
-
-.pefa-saved-result-table th {
-  padding: 7px 9px;
-
-  background: #f1f5f9;
-
-  border: 1px solid #dbe3ec;
-
-  color: #334155;
-
-  font-size: 10.5px;
-
-  font-weight: 900;
-
-  text-align: left;
-
-  white-space: nowrap;
-}
-
-.pefa-saved-result-table td {
-  padding: 7px 9px;
-
-  border: 1px solid #e2e8f0;
-
-  color: #172033;
-
-  font-size: 12px;
-
-  line-height: 1.25;
-
-  vertical-align: middle;
-}
-
-.pefa-saved-result-table td strong {
-  font-weight: 900;
-
-  color: #0f172a;
-}
-
-
-/* =========================================================
-   SAVED RESULT FLAGS
-   ========================================================= */
-
-.pefa-saved-result-table tr:has(.pefa-result-flag--high) td:nth-child(2),
-.pefa-saved-result-table tr:has(.pefa-result-flag--high) td:nth-child(2) strong {
-  color: #dc2626 !important;
-
-  font-weight: 900 !important;
-
-  background: #fff1f2 !important;
-}
-
-.pefa-saved-result-table tr:has(.pefa-result-flag--low) td:nth-child(2),
-.pefa-saved-result-table tr:has(.pefa-result-flag--low) td:nth-child(2) strong {
-  color: #2563eb !important;
-
-  font-weight: 900 !important;
-
-  background: #eff6ff !important;
-}
-
-.pefa-saved-result-table tr:has(.pefa-result-flag--critical) td:nth-child(2),
-.pefa-saved-result-table tr:has(.pefa-result-flag--critical) td:nth-child(2) strong {
-  color: #b91c1c !important;
-
-  font-weight: 900 !important;
-
-  background: #fee2e2 !important;
-}
-
-.pefa-widal-table th,
-.pefa-widal-table td {
-  text-align: left;
-}
-
-
-/* =========================================================
-   RESULT FLAG BADGES
-   ========================================================= */
-
-.pefa-result-flag {
-  display: inline-flex;
-
-  align-items: center;
-  justify-content: center;
-
-  min-width: 42px;
-
-  padding: 3px 7px;
-
-  border-radius: 999px;
-
-  font-size: 9px;
-
-  font-weight: 900;
-
-  line-height: 1;
-
-  white-space: nowrap;
-}
-
-.pefa-result-flag--normal {
-  background: #dcfce7;
-  color: #166534;
-}
-
-.pefa-result-flag--low {
-  background: #dbeafe;
-  color: #2563eb;
-}
-
-.pefa-result-flag--high {
-  background: #fee2e2;
-  color: #dc2626;
-}
-
-.pefa-result-flag--critical {
-  background: #fecaca;
-  color: #b91c1c;
-}
-
-.pefa-result-flag--none {
-  background: #f1f5f9;
-  color: #64748b;
-}
-
-
-/* =========================================================
-   SAVED NARRATIVE
-   ========================================================= */
-
-.pefa-saved-narrative {
-  width: 100%;
-
-  margin-top: 7px;
-
-  padding: 7px 9px;
-
-  border: 1px solid #dbe3ec;
-  border-radius: 7px;
-
-  background: #f8fafc;
-
-  box-sizing: border-box;
-}
-
-.pefa-saved-narrative label {
-  display: block;
-
-  margin-bottom: 3px;
-
-  font-size: 9px;
-
-  font-weight: 900;
-
-  text-transform: uppercase;
-
-  letter-spacing: 0.06em;
-
-  color: #1769aa;
-}
-
-.pefa-saved-narrative p {
-  margin: 0;
-
-  font-size: 11px;
-
-  line-height: 1.45;
-
-  color: #334155;
-}
-
-.pefa-result-detail-row td {
-  background: #fafafa;
-
-  font-size: 10px;
-
-  line-height: 1.5;
-}
-
-.pefa-result-detail-row td div + div {
-  margin-top: 3px;
-}
-
-.pefa-saved-mp {
-  margin-top: 10px;
-
-  padding-top: 2px;
-}
-
-
-/* =========================================================
-   SIGNATURES
-   ========================================================= */
-
-.pefa-report-signatures {
-  width: 100%;
-
-  display: grid;
-
-  grid-template-columns:
-    repeat(2, minmax(0, 1fr));
-
-  gap: 80px;
-
-  margin-top: 14px;
-
-  padding-top: 4px;
-
-  box-sizing: border-box;
-}
-
-.pefa-signature-card {
-  text-align: center;
-}
-
-.pefa-signature-space {
-  height: 25px;
-}
-
-.pefa-signature-line {
-  width: 190px;
-  max-width: 90%;
-
-  height: 1px;
-
-  background: #111827;
-
-  margin: 0 auto 5px;
-}
-
-.pefa-signature-card strong {
-  display: block;
-
-  font-size: 9px;
-
-  text-transform: uppercase;
-}
-
-.pefa-signature-card span {
-  display: block;
-
-  margin-top: 2px;
-
-  font-size: 7px;
-
-  font-weight: 900;
-
-  color: #15803d;
-
-  letter-spacing: 0.06em;
-}
-
-
-/* =========================================================
-   VERIFICATION
-   ========================================================= */
-
-.pefa-report-verification {
-  width: 100%;
-
-  display: grid;
-
-  grid-template-columns:
-    70px
-    repeat(5, minmax(0, 1fr));
-
-  gap: 7px;
-
-  align-items: center;
-
-  margin-top: 8px;
-
-  padding: 5px 0;
-
-  border-top: 1px solid #dbeafe;
-  border-bottom: 1px solid #dbeafe;
-
-  box-sizing: border-box;
-}
-
-.pefa-verification-qr {
-  display: flex;
-  justify-content: center;
-}
-
-.pefa-verification-item {
-  min-width: 0;
-}
-
-.pefa-verification-item label {
-  display: block;
-
-  font-size: 6.5px;
-
-  font-weight: 800;
-
-  text-transform: uppercase;
-
-  letter-spacing: 0.04em;
-
-  color: #64748b;
-}
-
-.pefa-verification-item strong {
-  display: block;
-
-  margin-top: 1px;
-
-  font-size: 7.5px;
-
-  line-height: 1.3;
-
-  overflow-wrap: anywhere;
-}
-
-.pefa-confidential-notice {
-  margin-top: 4px;
-
-  padding: 3px 6px;
-
-  text-align: center;
-
-  font-size: 7px;
-
-  line-height: 1.35;
-
-  color: #64748b;
-}
-
-
-/* =========================================================
-   REPORT FOOTER
-   ========================================================= */
-
-.pefa-report-footer {
-  width: 100%;
-
-  margin-top: 4px;
-
-  padding: 4px 0 0;
-
-  box-sizing: border-box;
-
-  border-top: 2px solid #1769aa;
-
-  text-align: center;
-
-  font-size: 8px;
-
-  font-weight: 700;
-
-  line-height: 1.25;
-
-  color: #475569;
-}
-
-.pefa-print-surface .pefa-report-document {
-  box-shadow: none;
-}
-
-
-/* =========================================================
-   RESPONSIVE DASHBOARD
-   ========================================================= */
-
-@media (max-width: 1050px) {
-
-  .pefa-search-panel {
-    grid-template-columns:
-      1fr
-      1fr;
-  }
-
-  .pefa-summary-grid {
-    grid-template-columns:
-      repeat(3, 1fr);
-  }
-
-  .pefa-patient-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .pefa-meta {
-    grid-template-columns:
-      repeat(2, 1fr);
-  }
-}
-
-
-@media (max-width: 800px) {
-
-  .pefa-modal-report-preview {
-    padding: 8px;
-  }
-
-  .pefa-report-document {
-    width: 100%;
-    padding: 14px;
-  }
-
-  .pefa-letterhead-top {
-    grid-template-columns:
-      55px
-      minmax(0, 1fr)
-      52px;
-
-    gap: 7px;
-  }
-
-  .pefa-letterhead-logo {
-    width: 50px;
-    height: 50px;
-  }
-
-  .pefa-letterhead-title h1 {
-    font-size: 18px;
-  }
-
-  .pefa-letterhead-title h2 {
-    font-size: 10px;
-  }
-
-  .pefa-letterhead-title p {
-    font-size: 6.5px;
-  }
-
-  .pefa-office-row {
-    grid-template-columns: 1fr;
-  }
-
-  .pefa-report-patient-grid {
-    grid-template-columns:
-      repeat(2, 1fr);
-  }
-
-  .pefa-report-patient-grid > div:nth-child(4n) {
-    border-right: 1px solid #e2e8f0;
-  }
-
-  .pefa-report-patient-grid > div:nth-child(2n) {
-    border-right: 0;
-  }
-
-  .pefa-report-verification {
-    grid-template-columns:
-      60px
-      repeat(2, 1fr);
-  }
-
-  .pefa-signature-line {
-    width: 150px;
-  }
-}
-
-
-@media (max-width: 760px) {
-
-  .pefa-result-dashboard {
-    padding: 15px;
-  }
-
-  .pefa-dashboard-header {
-    align-items: flex-start;
-  }
-
-  .pefa-dashboard-header p {
-    max-width: 500px;
-  }
-
-  .pefa-search-panel {
-    grid-template-columns: 1fr;
-  }
-
-  .pefa-summary-grid {
-    grid-template-columns:
-      repeat(2, 1fr);
-  }
-
-  .pefa-results-toolbar {
-    align-items: stretch;
-
-    flex-direction: column;
-  }
-
-  .pefa-toolbar-filters {
-    display: grid;
-
-    grid-template-columns:
-      repeat(2, 1fr);
-  }
-
-  .pefa-report-card {
-    grid-template-columns: 1fr;
-  }
-
-  .pefa-report-action {
-    padding: 0 20px 17px 23px;
-  }
-
-  .pefa-view-btn {
-    width: 100%;
-  }
-
-  .pefa-report-topline {
-    align-items: flex-start;
-  }
-
-  .pefa-output-panel {
-    grid-template-columns: 1fr;
-  }
-
-  .pefa-output-buttons {
-    display: grid;
-
-    grid-template-columns:
-      repeat(2, 1fr);
-  }
-
-  .pefa-dashboard-footer {
-    flex-direction: column;
-  }
-
-  .pefa-modal-backdrop {
-    padding: 8px;
-  }
-
-  .pefa-modal {
-    width: calc(100vw - 16px);
-    height: calc(100dvh - 16px);
-
-    max-height: calc(100dvh - 16px);
-
-    border-radius: 14px;
-  }
-}
-
-
-@media (max-width: 520px) {
-
-  .pefa-summary-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .pefa-meta {
-    grid-template-columns:
-      repeat(2, 1fr);
-  }
-
-  .pefa-action-row {
-    grid-template-columns: 1fr;
-  }
-
-  .pefa-toolbar-filters {
-    grid-template-columns: 1fr;
-  }
-
-  .pefa-modal-header,
-  .pefa-modal-body {
-    padding-inline: 14px;
-  }
-
-  .pefa-report-date {
-    display: none;
-  }
-}
-
-
-/* =========================================================
-   FINAL PEFA A4 PRINT / DOWNLOAD ENGINE
-   ---------------------------------------------------------
-   ONE output layout for:
-     1. Browser Print
-     2. PDF Download
-
-   Important:
-   - The report is always 210mm wide.
-   - Browser print is allowed to flow to additional pages.
-   - No print-time zoom is used.
-   - Responsive dashboard rules must never collapse the
-     report's letterhead or patient grid.
-   ========================================================= */
-
-/* ---------------------------------------------------------
-   PDF EXPORT
-   --------------------------------------------------------- */
-
-body.pefa-pdf-exporting {
-  background: #fff !important;
-}
-
-body.pefa-pdf-exporting .pefa-print-surface,
-body.pefa-pdf-exporting #pefa-result-print-area {
-  position: fixed !important;
-  left: 0 !important;
-  top: 0 !important;
-  right: auto !important;
-  bottom: auto !important;
-
-  width: 210mm !important;
-  min-width: 210mm !important;
-  max-width: 210mm !important;
-
-  min-height: 297mm !important;
-  height: auto !important;
-
-  margin: 0 !important;
-  padding: 0 !important;
-
-  display: block !important;
-  visibility: visible !important;
-  opacity: 1 !important;
-
-  overflow: visible !important;
-  transform: none !important;
-  box-sizing: border-box !important;
-
-  background: #fff !important;
-  pointer-events: none !important;
-  z-index: 2147483647 !important;
-}
-
-body.pefa-pdf-exporting .pefa-print-surface *,
-body.pefa-pdf-exporting #pefa-result-print-area * {
-  visibility: visible !important;
-}
-
-body.pefa-pdf-exporting .pefa-print-a4 {
-  width: 210mm !important;
-  min-width: 210mm !important;
-  max-width: 210mm !important;
-  min-height: 297mm !important;
-  height: auto !important;
-
-  margin: 0 !important;
-  padding: 0 !important;
-
-  display: block !important;
-  overflow: visible !important;
-  transform: none !important;
-  box-sizing: border-box !important;
-}
-
-body.pefa-pdf-exporting .pefa-report-document {
-  width: 210mm !important;
-  min-width: 210mm !important;
-  max-width: 210mm !important;
-
-  height: auto !important;
-  min-height: 297mm !important;
-
-  margin: 0 !important;
-  box-sizing: border-box !important;
-
-  opacity: 1 !important;
-  visibility: visible !important;
-  transform: none !important;
-
-  background: #fff !important;
-  box-shadow: none !important;
-}
-
-/* Never allow dashboard UI to participate in the PDF canvas. */
-body.pefa-pdf-exporting .pefa-dashboard-header,
-body.pefa-pdf-exporting .pefa-search-panel,
-body.pefa-pdf-exporting .pefa-alert,
-body.pefa-pdf-exporting .pefa-summary-grid,
-body.pefa-pdf-exporting .pefa-results-shell,
-body.pefa-pdf-exporting .pefa-dashboard-footer,
-body.pefa-pdf-exporting .pefa-modal-backdrop {
-  display: none !important;
-}
-
-/* ---------------------------------------------------------
-   OUTPUT WIDTH RESET
-   --------------------------------------------------------- */
-
-body.pefa-pdf-exporting .pefa-report-document > *,
-body.pefa-pdf-exporting .pefa-report-letterhead,
-body.pefa-pdf-exporting .pefa-report-patient,
-body.pefa-pdf-exporting .pefa-report-body,
-body.pefa-pdf-exporting .pefa-router-body,
-body.pefa-pdf-exporting .pefa-saved-result,
-body.pefa-pdf-exporting .pefa-saved-result-table-wrap {
-  box-sizing: border-box !important;
-  max-width: none !important;
-  transform: none !important;
-}
-
-body.pefa-pdf-exporting .pefa-report-letterhead,
-body.pefa-pdf-exporting .pefa-report-patient,
-body.pefa-pdf-exporting .pefa-report-body,
-body.pefa-pdf-exporting .pefa-router-body,
-body.pefa-pdf-exporting .pefa-saved-result,
-body.pefa-pdf-exporting .pefa-saved-result-table-wrap {
-  width: 100% !important;
-  min-width: 0 !important;
-  overflow: visible !important;
-}
-
-/* ---------------------------------------------------------
-   PDF LETTERHEAD — NEVER COLLAPSE
-   --------------------------------------------------------- */
-
-body.pefa-pdf-exporting .pefa-letterhead-top {
-  width: 100% !important;
-  display: grid !important;
-  grid-template-columns: 78px minmax(0, 1fr) 70px !important;
-  gap: 12px !important;
-  align-items: center !important;
-}
-
-body.pefa-pdf-exporting .pefa-letterhead-logo {
-  width: 70px !important;
-  height: 70px !important;
-  object-fit: contain !important;
-}
-
-body.pefa-pdf-exporting .pefa-letterhead-title {
-  min-width: 0 !important;
-  text-align: center !important;
-}
-
-body.pefa-pdf-exporting .pefa-letterhead-title h1 {
-  font-size: 25px !important;
-  line-height: 1.05 !important;
-}
-
-body.pefa-pdf-exporting .pefa-letterhead-title h2 {
-  font-size: 14px !important;
-  line-height: 1 !important;
-}
-
-body.pefa-pdf-exporting .pefa-letterhead-title p {
-  font-size: 8.5px !important;
-  line-height: 1.35 !important;
-}
-
-body.pefa-pdf-exporting .pefa-office-row {
-  width: 100% !important;
-  display: grid !important;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-  gap: 5px !important;
-}
-
-body.pefa-pdf-exporting .pefa-office-row > div {
-  min-width: 0 !important;
-}
-
-body.pefa-pdf-exporting .pefa-contact-strip {
-  width: 100% !important;
-  display: flex !important;
-  justify-content: center !important;
-  flex-wrap: wrap !important;
-}
-
-/* ---------------------------------------------------------
-   PDF PATIENT INFORMATION — ALWAYS 4 COLUMNS
-   --------------------------------------------------------- */
-
-body.pefa-pdf-exporting .pefa-report-patient-grid {
-  width: 100% !important;
-  display: grid !important;
-  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-  box-sizing: border-box !important;
-}
-
-body.pefa-pdf-exporting .pefa-report-patient-grid > div {
-  min-width: 0 !important;
-  box-sizing: border-box !important;
-}
-
-/* ---------------------------------------------------------
-   PDF RESULT CONTENT
-   --------------------------------------------------------- */
-
-body.pefa-pdf-exporting .pefa-report-body,
-body.pefa-pdf-exporting .pefa-router-body {
-  width: 100% !important;
-  min-width: 0 !important;
-  margin-left: 0 !important;
-  margin-right: 0 !important;
-  overflow: visible !important;
-}
-
-body.pefa-pdf-exporting .pefa-router-body .report-page,
-body.pefa-pdf-exporting .pefa-router-body #print-root {
-  width: 100% !important;
-  min-width: 0 !important;
-  max-width: none !important;
-  margin: 0 !important;
-  padding: 0 !important;
-  transform: none !important;
-  overflow: visible !important;
-  box-sizing: border-box !important;
-}
-
-body.pefa-pdf-exporting .pefa-router-body table,
-body.pefa-pdf-exporting .pefa-saved-result-table {
-  width: 100% !important;
-  min-width: 100% !important;
-  max-width: none !important;
-  table-layout: auto !important;
-  border-collapse: collapse !important;
-  box-sizing: border-box !important;
-}
-
-body.pefa-pdf-exporting img,
-body.pefa-pdf-exporting svg,
-body.pefa-pdf-exporting canvas {
-  visibility: visible !important;
-}
-
-/* ---------------------------------------------------------
-   BROWSER PRINT
-   --------------------------------------------------------- */
+/* ---------------- PRINT ---------------- */
 
 @media print {
   @page {
@@ -2763,635 +741,889 @@ body.pefa-pdf-exporting canvas {
 
   html,
   body {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-
-    height: auto !important;
-    min-height: 0 !important;
-    max-height: none !important;
-
+    width: 210mm !important;
+    min-width: 210mm !important;
     margin: 0 !important;
     padding: 0 !important;
-
-    overflow: visible !important;
     background: #fff !important;
-    box-sizing: border-box !important;
   }
 
-  body.pefa-printing-result > * {
+  body.pefa-printing-result {
+    overflow: hidden !important;
+  }
+
+  body.pefa-printing-result * {
     visibility: hidden !important;
   }
 
-  body.pefa-printing-result
-  #pefa-result-print-area,
-  body.pefa-printing-result
-  #pefa-result-print-area * {
+  body.pefa-printing-result #pefa-result-print-area,
+  body.pefa-printing-result #pefa-result-print-area * {
     visibility: visible !important;
   }
 
-  body.pefa-printing-result
-  #pefa-result-print-area {
+  body.pefa-printing-result #pefa-result-print-area {
     position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
-
+    inset: 0 auto auto 0 !important;
     width: 210mm !important;
-    min-width: 210mm !important;
-    max-width: 210mm !important;
-
-    height: auto !important;
+    height: 297mm !important;
     min-height: 297mm !important;
-    max-height: none !important;
-
+    max-height: 297mm !important;
     margin: 0 !important;
     padding: 0 !important;
-
     display: block !important;
-    overflow: visible !important;
-
+    overflow: hidden !important;
     opacity: 1 !important;
     background: #fff !important;
-    transform: none !important;
-
-    box-sizing: border-box !important;
+    z-index: 2147483647 !important;
   }
 
-  body.pefa-printing-result
-  .pefa-print-surface {
-    position: static !important;
-
+  body.pefa-printing-result .pefa-print-a4 {
     width: 210mm !important;
-    min-width: 210mm !important;
-    max-width: 210mm !important;
-
-    height: auto !important;
+    height: 297mm !important;
     min-height: 297mm !important;
-    max-height: none !important;
-
+    max-height: 297mm !important;
     margin: 0 !important;
     padding: 0 !important;
-
     display: block !important;
-    overflow: visible !important;
-
-    opacity: 1 !important;
+    overflow: hidden !important;
     background: #fff !important;
-    transform: none !important;
-
     box-sizing: border-box !important;
   }
 
-  body.pefa-printing-result
-  .pefa-print-a4 {
+  body.pefa-printing-result .pefa-report-document {
     width: 210mm !important;
-    min-width: 210mm !important;
-    max-width: 210mm !important;
-
     height: auto !important;
-    min-height: 297mm !important;
-    max-height: none !important;
-
+    max-width: none !important;
     margin: 0 !important;
-    padding: 0 !important;
-
-    overflow: visible !important;
-    transform: none !important;
+    padding: 4mm 6mm 5mm !important;
     box-sizing: border-box !important;
-  }
-
-  /* -------------------------------------------------------
-     MASTER REPORT
-     ------------------------------------------------------- */
-
-  body.pefa-printing-result
-  .pefa-report-document {
-    position: relative !important;
-
-    width: 210mm !important;
-    min-width: 210mm !important;
-    max-width: 210mm !important;
-
-    height: auto !important;
-    min-height: 297mm !important;
-    max-height: none !important;
-
-    margin: 0 !important;
-    padding: 4mm 6mm 3mm !important;
-
-    display: block !important;
-    overflow: visible !important;
-
+    box-shadow: none !important;
+    border: 0 !important;
+    outline: 0 !important;
     background: #fff !important;
     color: #111827 !important;
-    box-shadow: none !important;
-    border: 0 !important;
-    transform: none !important;
-
-    box-sizing: border-box !important;
-
-    font-family: Arial, Helvetica, sans-serif !important;
-
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
+    break-before: avoid !important;
+    break-after: avoid !important;
+    page-break-before: avoid !important;
+    page-break-after: avoid !important;
   }
 
-  /* -------------------------------------------------------
-     WIDTH RESET
-     ------------------------------------------------------- */
-
-  body.pefa-printing-result
-  .pefa-report-document > *,
-  body.pefa-printing-result
-  .pefa-report-letterhead,
-  body.pefa-printing-result
-  .pefa-report-patient,
-  body.pefa-printing-result
-  .pefa-report-body,
-  body.pefa-printing-result
-  .pefa-router-body,
-  body.pefa-printing-result
-  .pefa-saved-result,
-  body.pefa-printing-result
-  .pefa-saved-result-table-wrap {
-    box-sizing: border-box !important;
-    max-width: none !important;
-    transform: none !important;
-  }
-
-  body.pefa-printing-result
-  .pefa-report-letterhead,
-  body.pefa-printing-result
-  .pefa-report-patient,
-  body.pefa-printing-result
-  .pefa-report-body,
-  body.pefa-printing-result
-  .pefa-router-body,
-  body.pefa-printing-result
-  .pefa-saved-result,
-  body.pefa-printing-result
-  .pefa-saved-result-table-wrap {
-    width: 100% !important;
-    min-width: 0 !important;
-    overflow: visible !important;
-  }
-
-  /* -------------------------------------------------------
-     DIGITAL LETTERHEAD — FULL A4 WIDTH
-     ------------------------------------------------------- */
-
-  body.pefa-printing-result
-  .pefa-report-document.is-digital
-  > .pefa-report-letterhead {
-    width: calc(100% + 12mm) !important;
-    max-width: none !important;
-
-    margin-left: -6mm !important;
-    margin-right: -6mm !important;
-
+  /*
+   * The digital letterhead itself is preserved. These rules only
+   * remove unnecessary print spacing below/around it.
+   */
+  body.pefa-printing-result .pefa-report-letterhead {
+    margin: 0 !important;
     padding: 0 !important;
-
     break-inside: avoid !important;
     page-break-inside: avoid !important;
   }
 
-  body.pefa-printing-result
-  .pefa-letterhead-top {
-    width: 100% !important;
-    display: grid !important;
-    grid-template-columns: 78px minmax(0, 1fr) 70px !important;
-    gap: 12px !important;
-    align-items: center !important;
+  body.pefa-printing-result .pefa-service-strip {
+    margin-top: 4px !important;
+    margin-bottom: 0 !important;
   }
 
-  body.pefa-printing-result
-  .pefa-letterhead-logo {
-    width: 70px !important;
-    height: 70px !important;
-    object-fit: contain !important;
-  }
-
-  body.pefa-printing-result
-  .pefa-letterhead-title {
-    min-width: 0 !important;
-    text-align: center !important;
-  }
-
-  body.pefa-printing-result
-  .pefa-letterhead-title h1 {
-    font-size: 25px !important;
-    line-height: 1.05 !important;
-  }
-
-  body.pefa-printing-result
-  .pefa-letterhead-title h2 {
-    font-size: 14px !important;
-    line-height: 1 !important;
-  }
-
-  body.pefa-printing-result
-  .pefa-letterhead-title p {
-    font-size: 8.5px !important;
-    line-height: 1.35 !important;
-  }
-
-  body.pefa-printing-result
-  .pefa-office-row {
-    width: 100% !important;
-    display: grid !important;
-    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  body.pefa-printing-result .pefa-office-row {
     gap: 5px !important;
-    margin-top: 1px !important;
+    margin-top: 3px !important;
   }
 
-  body.pefa-printing-result
-  .pefa-office-row > div {
-    min-width: 0 !important;
-    padding: 3px 6px !important;
-  }
-
-  body.pefa-printing-result
-  .pefa-office-row strong,
-  body.pefa-printing-result
-  .pefa-office-row span {
-    font-size: 8px !important;
-  }
-
-  body.pefa-printing-result
-  .pefa-contact-strip {
-    width: 100% !important;
-    display: flex !important;
-    justify-content: center !important;
-    flex-wrap: wrap !important;
+  body.pefa-printing-result .pefa-contact-strip {
     gap: 4px !important;
-    margin-top: 1px !important;
-    font-size: 8px !important;
+    margin-top: 3px !important;
   }
 
-  body.pefa-printing-result
-  .pefa-header-ribbon {
-    width: 100% !important;
-    margin-top: 2px !important;
+  body.pefa-printing-result .pefa-header-ribbon {
+    margin-top: 4px !important;
   }
 
-  /* -------------------------------------------------------
-     PRE-PRINTED LETTERHEAD
-     ------------------------------------------------------- */
-
-  body.pefa-printing-result
-  .pefa-report-document.is-preprinted {
-    padding-top: 40mm !important;
-    padding-bottom: 3mm !important;
-  }
-
-  body.pefa-printing-result
-  .pefa-report-document.is-preprinted
-  .pefa-report-letterhead {
-    display: none !important;
-  }
-
-  body.pefa-printing-result
-  .pefa-report-document.is-preprinted
-  .pefa-report-patient {
-    margin-top: 0 !important;
-  }
-
-  /* -------------------------------------------------------
-     PATIENT INFORMATION — ALWAYS 4 COLUMNS
-     ------------------------------------------------------- */
-
-  body.pefa-printing-result
-  .pefa-report-patient {
-    width: 100% !important;
-    margin-top: 2mm !important;
-
-    border: 0 !important;
+  /*
+   * Clean report body: no coloured boxes, cards or shadows.
+   * Patient INFORMATION heading retains the PEFA blue accent.
+   */
+  body.pefa-printing-result .pefa-report-patient,
+  body.pefa-printing-result .pefa-report-patient-grid,
+  body.pefa-printing-result .pefa-report-patient-grid > div,
+  body.pefa-printing-result .pefa-clinical-history,
+  body.pefa-printing-result .pefa-result-section,
+  body.pefa-printing-result .pefa-workflow,
+  body.pefa-printing-result .pefa-output-panel,
+  body.pefa-printing-result .pefa-modal-report-preview {
     background: transparent !important;
     box-shadow: none !important;
-
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
   }
 
-  body.pefa-printing-result
-  .pefa-report-patient-title {
-    padding: 2px 0 !important;
+  body.pefa-printing-result .pefa-report-patient {
+    margin-top: 5px !important;
+    border: 0 !important;
+  }
 
+  body.pefa-printing-result .pefa-report-patient-title {
+    padding: 3px 0 2px !important;
     color: #1769aa !important;
     background: transparent !important;
     border: 0 !important;
-
-    font-size: 10px !important;
   }
 
-  body.pefa-printing-result
-  .pefa-report-patient-grid {
-    width: 100% !important;
-    display: grid !important;
-    grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-
-    box-sizing: border-box !important;
+  body.pefa-printing-result .pefa-report-patient-grid {
     border: 0 !important;
   }
 
-  body.pefa-printing-result
-  .pefa-report-patient-grid > div {
-    min-width: 0 !important;
-    min-height: 26px !important;
-
-    padding: 2px 5px !important;
-
-    box-sizing: border-box !important;
+  body.pefa-printing-result .pefa-report-patient-grid > div {
+    min-height: 28px !important;
+    padding: 3px 5px !important;
     border: 0 !important;
   }
 
-  body.pefa-printing-result
-  .pefa-report-patient-grid label {
-    font-size: 8.5px !important;
+  body.pefa-printing-result .pefa-report-patient-grid label,
+  body.pefa-printing-result .pefa-clinical-history label {
+    font-size: 8px !important;
     line-height: 1.05 !important;
   }
 
-  body.pefa-printing-result
-  .pefa-report-patient-grid strong {
+  body.pefa-printing-result .pefa-report-patient-grid strong {
     margin-top: 1px !important;
-    font-size: 11px !important;
-    line-height: 1.1 !important;
+    font-size: 10px !important;
+    line-height: 1.15 !important;
   }
 
-  body.pefa-printing-result
-  .pefa-clinical-history {
-    padding: 2px 0 0 !important;
+  body.pefa-printing-result .pefa-clinical-history {
+    padding: 3px 0 0 !important;
   }
 
-  /* -------------------------------------------------------
-     REPORT BODY / TABLES
-     ------------------------------------------------------- */
-
-  body.pefa-printing-result
-  .pefa-report-body {
-    width: 100% !important;
-    margin-top: 3px !important;
-    overflow: visible !important;
+  body.pefa-printing-result .pefa-clinical-history span {
+    margin-top: 1px !important;
+    font-size: 9px !important;
+    line-height: 1.2 !important;
   }
 
-  body.pefa-printing-result
-  .pefa-report-heading {
-    width: 100% !important;
-    margin-bottom: 3px !important;
+  body.pefa-printing-result .pefa-report-body {
+    margin-top: 5px !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
 
+  body.pefa-printing-result .pefa-report-heading {
+    margin-bottom: 4px !important;
     break-after: avoid !important;
     page-break-after: avoid !important;
   }
 
-  body.pefa-printing-result
-  .pefa-router-body {
-    width: 100% !important;
-    min-width: 0 !important;
-
-    margin: 0 !important;
-    padding: 0 !important;
-
-    overflow: visible !important;
+  body.pefa-printing-result .pefa-report-heading h2 {
+    margin: 2px 0 1px !important;
+    font-size: 13px !important;
   }
 
-  body.pefa-printing-result
-  .pefa-router-body .report-page,
-  body.pefa-printing-result
-  .pefa-router-body #print-root {
-    width: 100% !important;
-    min-width: 0 !important;
-    max-width: none !important;
-
+  body.pefa-printing-result .pefa-router-body {
     margin: 0 !important;
     padding: 0 !important;
-
-    border: 0 !important;
-    box-shadow: none !important;
-    background: transparent !important;
-
-    transform: none !important;
-    overflow: visible !important;
+    min-height: 0 !important;
   }
 
-  body.pefa-printing-result
-  .pefa-router-body table,
-  body.pefa-printing-result
-  .pefa-saved-result-table {
+  body.pefa-printing-result table {
     width: 100% !important;
-    min-width: 100% !important;
-    max-width: none !important;
-
-    margin-left: 0 !important;
-    margin-right: 0 !important;
-
+    max-width: 100% !important;
     border-collapse: collapse !important;
-    table-layout: auto !important;
-
-    box-sizing: border-box !important;
-
-    break-inside: auto !important;
-    page-break-inside: auto !important;
+    box-shadow: none !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
   }
 
-  body.pefa-printing-result
-  .pefa-router-body thead {
+  body.pefa-printing-result thead {
     display: table-header-group !important;
   }
 
-  body.pefa-printing-result
-  .pefa-router-body tr {
+  body.pefa-printing-result tr,
+  body.pefa-printing-result td,
+  body.pefa-printing-result th {
     break-inside: avoid !important;
     page-break-inside: avoid !important;
   }
 
-  body.pefa-printing-result
-  .pefa-router-body th {
-    padding: 6px 8px !important;
-    font-size: 10px !important;
-    line-height: 1.15 !important;
-    font-weight: 900 !important;
-    box-sizing: border-box !important;
-  }
-
-  body.pefa-printing-result
-  .pefa-router-body td {
-    padding: 6px 8px !important;
-    font-size: 12px !important;
-    line-height: 1.2 !important;
-    box-sizing: border-box !important;
-  }
-
-  body.pefa-printing-result
-  .pefa-saved-result-table th {
-    padding: 6px 8px !important;
-    font-size: 10.5px !important;
-  }
-
-  body.pefa-printing-result
-  .pefa-saved-result-table td {
-    padding: 6px 8px !important;
-    font-size: 12px !important;
-    line-height: 1.2 !important;
-  }
-
-  /* Keep compact report sections together where possible. */
-  body.pefa-printing-result
-  .interpretation-section,
-  body.pefa-printing-result
-  .impression-section,
-  body.pefa-printing-result
-  .pefa-saved-narrative,
-  body.pefa-printing-result
-  .pefa-report-signatures,
-  body.pefa-printing-result
-  .pefa-report-verification {
+  body.pefa-printing-result .pefa-report-signatures {
+    margin-top: 7px !important;
+    padding-top: 2px !important;
+    gap: 45px !important;
     break-inside: avoid !important;
     page-break-inside: avoid !important;
   }
 
-  /* -------------------------------------------------------
-     FOOTER
-     ------------------------------------------------------- */
+  body.pefa-printing-result .pefa-signature-space {
+    height: 18px !important;
+  }
 
-  body.pefa-printing-result
-  .pefa-report-footer {
-    width: calc(100% + 12mm) !important;
-    max-width: none !important;
+  body.pefa-printing-result .pefa-signature-line {
+    margin-bottom: 4px !important;
+  }
 
-    margin-left: -6mm !important;
-    margin-right: -6mm !important;
+  body.pefa-printing-result .pefa-report-verification {
+    margin-top: 6px !important;
+    padding: 4px 0 !important;
+    gap: 5px !important;
+    border-top: 0 !important;
+    border-bottom: 0 !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
 
+  body.pefa-printing-result .pefa-confidential-notice {
     margin-top: 3px !important;
-    padding: 3px 6mm 0 !important;
-
-    box-sizing: border-box !important;
-
-    border-top: 2px solid #1769aa !important;
-
-    font-size: 8px !important;
-    line-height: 1.25 !important;
-
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
+    padding: 2px 0 !important;
   }
 
-  /* -------------------------------------------------------
-     REMOVE SCREEN EFFECTS / SHRINKING
-     ------------------------------------------------------- */
-
-  body.pefa-printing-result
-  .pefa-report-document,
-  body.pefa-printing-result
-  .pefa-report-patient,
-  body.pefa-printing-result
-  .pefa-report-patient-grid {
-    box-shadow: none !important;
-    transform: none !important;
-  }
-
-  body.pefa-printing-result
-  .pefa-print-surface,
-  body.pefa-printing-result
-  .pefa-print-surface > div,
-  body.pefa-printing-result
-  .pefa-report-document,
-  body.pefa-printing-result
-  .pefa-report-body,
-  body.pefa-printing-result
-  .pefa-router-body {
-    flex: none !important;
-    align-self: flex-start !important;
-    justify-self: start !important;
-  }
-
-  body.pefa-printing-result img,
-  body.pefa-printing-result svg,
-  body.pefa-printing-result canvas {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-}
-
-
-/* =========================================================
-   COMPACT CLINICAL INTERPRETATION
-   ---------------------------------------------------------
-   One narrative block only. The FLAG column already states
-   direction (High/Low), so the narrative goes directly to
-   the biochemical condition / relevant causes.
-   ========================================================= */
-
-.pefa-compact-interpretation {
-  width: 100%;
-  margin: 5px 0 0;
-  padding: 6px 8px;
-
-  border: 1px solid #dbe3ec;
-  border-radius: 6px;
-
-  background: #f8fafc;
-  box-sizing: border-box;
-}
-
-.pefa-compact-interpretation-label {
-  margin-bottom: 2px;
-
-  font-size: 8px;
-  line-height: 1.1;
-  font-weight: 900;
-  letter-spacing: .07em;
-
-  color: #475569;
-}
-
-.pefa-compact-interpretation p {
-  margin: 0;
-
-  font-size: 10px;
-  line-height: 1.3;
-
-  color: #334155;
-}
-
-@media print {
-  body.pefa-printing-result .pefa-compact-interpretation {
+  body.pefa-printing-result .pefa-report-footer {
     margin-top: 3px !important;
-    padding: 4px 6px !important;
-
-    border: 1px solid #dbe3ec !important;
-    border-radius: 4px !important;
-
-    background: #f8fafc !important;
-
-    break-inside: avoid !important;
-    page-break-inside: avoid !important;
+    padding-top: 3px !important;
+    border-top: 0 !important;
   }
 
-  body.pefa-printing-result .pefa-compact-interpretation-label {
-    margin-bottom: 1px !important;
-    font-size: 7.5px !important;
-  }
-
-  body.pefa-printing-result .pefa-compact-interpretation p {
-    font-size: 9.5px !important;
-    line-height: 1.25 !important;
+  /* Never print dashboard UI or the review modal. */
+  body.pefa-printing-result .pefa-modal-backdrop,
+  body.pefa-printing-result .pefa-dashboard-header,
+  body.pefa-printing-result .pefa-search-panel,
+  body.pefa-printing-result .pefa-alert,
+  body.pefa-printing-result .pefa-summary-grid,
+  body.pefa-printing-result .pefa-results-shell,
+  body.pefa-printing-result .pefa-dashboard-footer {
+    display: none !important;
   }
 
   /*
-   * If an older renderer supplies its own separate Impression block,
-   * suppress that duplicate in the final report. The dashboard's
-   * compact interpretation is the single narrative output.
+   * The print surface is already prepared by the dashboard.
+   * No additional coloured print box is introduced.
    */
-  body.pefa-printing-result .impression-section {
-    display: none !important;
+  body.pefa-printing-result .pefa-print-surface {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 210mm !important;
+    height: 297mm !important;
+    opacity: 1 !important;
+    overflow: hidden !important;
+    background: #fff !important;
+  }
+}
+
+@media (max-width: 1050px) {
+  .pefa-search-panel { grid-template-columns: 1fr 1fr; }
+  .pefa-summary-grid { grid-template-columns: repeat(3, 1fr); }
+  .pefa-patient-grid { grid-template-columns: 1fr; }
+  .pefa-meta { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 760px) {
+  .pefa-result-dashboard { padding: 15px; }
+  .pefa-dashboard-header { align-items: flex-start; }
+  .pefa-dashboard-header p { max-width: 500px; }
+  .pefa-search-panel { grid-template-columns: 1fr; }
+  .pefa-summary-grid { grid-template-columns: 1fr 1fr; }
+  .pefa-results-toolbar { align-items: stretch; flex-direction: column; }
+  .pefa-toolbar-filters { display: grid; grid-template-columns: 1fr 1fr; }
+  .pefa-report-card { grid-template-columns: 1fr; }
+  .pefa-report-action { padding: 0 20px 17px 23px; }
+  .pefa-view-btn { width: 100%; }
+  .pefa-report-topline { align-items: flex-start; }
+  .pefa-output-panel { grid-template-columns: 1fr; }
+  .pefa-output-buttons { display: grid; grid-template-columns: 1fr 1fr; }
+  .pefa-dashboard-footer { flex-direction: column; }
+}
+
+@media (max-width: 520px) {
+  .pefa-summary-grid { grid-template-columns: 1fr; }
+  .pefa-meta { grid-template-columns: 1fr 1fr; }
+  .pefa-action-row { grid-template-columns: 1fr; }
+  .pefa-toolbar-filters { grid-template-columns: 1fr; }
+  .pefa-modal-backdrop { padding: 8px; }
+  .pefa-modal { max-height: calc(100vh - 16px); }
+  .pefa-modal-header,
+  .pefa-modal-body { padding-inline: 14px; }
+  .pefa-report-date { display: none; }
+}
+
+/* ==========================================================
+   PEFA LAB — RESULT REVIEW MODAL OVERRIDES
+   The review window is a true viewport-level modal.
+   The dashboard underneath must never receive the result preview.
+   ========================================================== */
+.pefa-modal-backdrop {
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 2147483000 !important;
+  width: 100vw !important;
+  height: 100dvh !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 20px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box !important;
+  background: rgba(12, 25, 39, .68) !important;
+  overflow: hidden !important;
+}
+
+.pefa-modal {
+  position: relative !important;
+  width: min(1180px, calc(100vw - 40px)) !important;
+  height: min(900px, calc(100dvh - 40px)) !important;
+  max-width: 1180px !important;
+  max-height: calc(100dvh - 40px) !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+  border-radius: 18px !important;
+  background: #fff !important;
+  box-shadow: 0 30px 100px rgba(0,0,0,.32) !important;
+}
+
+.pefa-modal-header {
+  flex: 0 0 auto !important;
+}
+
+.pefa-modal-body {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: auto !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  overscroll-behavior: contain !important;
+  scrollbar-width: thin;
+}
+
+.pefa-modal-report-preview {
+  width: 100% !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+
+.pefa-modal-report-preview .pefa-report-preview {
+  width: 100% !important;
+  min-width: 0 !important;
+  overflow: visible !important;
+}
+
+/* The hidden print surface is never part of the dashboard view. */
+#pefa-result-print-area.pefa-print-surface {
+  display: block !important;
+  position: absolute !important;
+  left: -100000px !important;
+  top: 0 !important;
+  width: 210mm !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Only the View button belongs on a saved-report card. */
+.pefa-report-card .pefa-report-action {
+  justify-content: flex-end;
+}
+
+/* Modal action area remains inside the modal scroll context. */
+.pefa-modal .pefa-action-row,
+.pefa-modal .pefa-output-panel,
+.pefa-modal .pefa-entry-link {
+  flex-shrink: 0 !important;
+}
+
+@media (max-width: 760px) {
+  .pefa-modal-backdrop {
+    padding: 8px !important;
   }
 
-  body.pefa-printing-result .impression-title,
-  body.pefa-printing-result .impression-body {
-    display: none !important;
+  .pefa-modal {
+    width: calc(100vw - 16px) !important;
+    height: calc(100dvh - 16px) !important;
+    max-height: calc(100dvh - 16px) !important;
+    border-radius: 14px !important;
   }
 }
 
 /* =========================================================
-   END OF PEFA A4 PRINT / DOWNLOAD ENGINE
+   SAVED REPORT DOCUMENT — OLD PEFA RESULT RECORD SHELL
+   Used only inside View / print surface.
    ========================================================= */
+.pefa-modal-report-preview {
+  background: #eef3f8;
+  padding: 18px;
+}
+
+.pefa-report-document {
+  width: 210mm;
+  max-width: 100%;
+  margin: 0 auto;
+  padding: 4mm 6mm 5mm;
+  box-sizing: border-box;
+  background: #fff;
+  color: #111827;
+  font-family: Arial, Helvetica, sans-serif;
+  box-shadow: 0 14px 40px rgba(15, 23, 42, .12);
+  overflow: hidden;
+}
+
+.pefa-report-letterhead { border-bottom: 0; }
+.pefa-letterhead-top {
+  display: grid;
+  grid-template-columns: 78px 1fr 70px;
+  gap: 12px;
+  align-items: center;
+}
+.pefa-letterhead-logo-wrap { display: flex; align-items: center; justify-content: center; }
+.pefa-letterhead-logo { width: 70px; height: 70px; object-fit: contain; }
+.pefa-letterhead-title { text-align: center; }
+.pefa-letterhead-title h1 { margin: 0; font-size: 25px; line-height: 1.05; font-weight: 900; letter-spacing: .02em; }
+.pefa-letterhead-title h2 { margin: 3px 0 4px; font-size: 14px; line-height: 1; font-weight: 800; letter-spacing: .08em; }
+.pefa-letterhead-title p { margin: 0; font-size: 8.5px; line-height: 1.4; }
+.pefa-letterhead-qr { display: flex; justify-content: flex-end; }
+.pefa-service-strip { display: flex; justify-content: center; align-items: center; gap: 5px; flex-wrap: wrap; margin-top: 4px; margin-bottom: 0; }
+.pefa-service-strip span, .pefa-service-strip b {
+  padding: 3px 6px; border-radius: 4px; font-size: 7.5px; line-height: 1; border: 1px solid #dbe5ef;
+}
+.pefa-service-strip b { font-weight: 800; }
+.pefa-office-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin-top: 3px; }
+.pefa-office-row > div { padding: 4px 6px; border: 1px solid #dbe5ef; border-radius: 5px; }
+.pefa-office-row strong { display: block; font-size: 7.5px; letter-spacing: .05em; margin-bottom: 2px; }
+.pefa-office-row span { display: block; font-size: 7.5px; line-height: 1.35; color: #475569; }
+.pefa-contact-strip { display: flex; justify-content: center; flex-wrap: wrap; gap: 4px; margin-top: 3px; font-size: 7.5px; color: #334155; }
+.pefa-header-ribbon { display: grid; grid-template-columns: 1fr 1fr 1fr; height: 4px; margin-top: 4px; overflow: hidden; border-radius: 2px; }
+.pefa-header-ribbon i:nth-child(1) { background: #1769aa; }
+.pefa-header-ribbon i:nth-child(2) { background: #f59e0b; }
+.pefa-header-ribbon i:nth-child(3) { background: #16a34a; }
+
+.pefa-report-patient { margin-top: 12px; border: 1px solid #cfd9e5; font-size: 12px; }
+.pefa-report-patient-title { padding: 5px 7px; background: transparent; border-bottom: 0; color: #1769aa; font-size: 9px; font-weight: 900; letter-spacing: .08em; }
+.pefa-report-patient-grid { display: grid; grid-template-columns: repeat(4, 1fr); }
+.pefa-report-patient-grid > div { min-height: 37px; padding: 5px 7px; border-right: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; box-sizing: border-box; }
+.pefa-report-patient-grid > div:nth-child(4n) { border-right: 0; }
+.pefa-report-patient-grid label, .pefa-clinical-history label { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: #64748b; font-weight: 800; }
+.pefa-report-patient-grid strong { display: block; margin-top: 2px; font-size: 12px; line-height: 1.3; font-weight: 750; }
+.pefa-clinical-history { padding: 6px 7px; border-top: 0; }
+.pefa-clinical-history span { display: block; margin-top: 2px; font-size: 12px; line-height: 1.45; }
+
+.pefa-report-body { margin-top: 12px; }
+.pefa-report-heading { text-align: center; margin-bottom: 8px; }
+.pefa-report-heading span { font-size: 8px; font-weight: 900; letter-spacing: .14em; }
+.pefa-report-heading h2 { margin: 3px 0 2px; font-size: 15px; line-height: 1.2; }
+.pefa-report-heading small { font-size: 8px; color: #64748b; }
+.pefa-router-body { min-height: 20px; }
+.pefa-router-body .report-page,
+.pefa-router-body #print-root { width: 100% !important; min-height: 0 !important; max-width: none !important; margin: 0 !important; padding: 0 !important; box-shadow: none !important; border: 0 !important; background: transparent !important; }
+.pefa-router-body .report-header,
+.pefa-router-body .report-header-v2,
+.pefa-router-body .patient-info,
+.pefa-router-body .signature-wrapper,
+.pefa-router-body .verification-section,
+.pefa-router-body .report-footer,
+.pefa-router-body .confidential-notice,
+.pefa-router-body .report-watermark { display: none !important; }
+
+/* PEFAReportShell owns the single visible test title. The dedicated malaria
+   print template has its own title, so suppress only that inner title. */
+.pefa-router-body .malaria-parasite-print > div:first-child { display: none !important; }
+
+.pefa-report-signatures { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; margin-top: 24px; padding-top: 8px; }
+.pefa-signature-card { text-align: center; }
+.pefa-signature-space { height: 34px; }
+.pefa-signature-line { width: 190px; max-width: 90%; height: 1px; background: #111827; margin: 0 auto 7px; }
+.pefa-signature-card strong { display: block; font-size: 9px; text-transform: uppercase; }
+.pefa-signature-card span { display: block; margin-top: 3px; font-size: 7px; font-weight: 900; color: #15803d; letter-spacing: .06em; }
+
+.pefa-report-verification { display: grid; grid-template-columns: 70px repeat(5, 1fr); gap: 8px; align-items: center; margin-top: 14px; padding: 8px 0; border-top: 1px solid #dbeafe; border-bottom: 1px solid #dbeafe; }
+.pefa-verification-qr { display: flex; justify-content: center; }
+.pefa-verification-item { min-width: 0; }
+.pefa-verification-item label { display: block; font-size: 6.5px; font-weight: 800; text-transform: uppercase; letter-spacing: .04em; color: #64748b; }
+.pefa-verification-item strong { display: block; margin-top: 2px; font-size: 7.5px; line-height: 1.3; overflow-wrap: anywhere; }
+.pefa-confidential-notice { margin-top: 9px; padding: 6px 8px; text-align: center; font-size: 7px; line-height: 1.4; color: #64748b; }
+.pefa-report-footer { margin-top: 8px; padding-top: 6px; border-top: 2px solid #1769aa; text-align: center; font-size: 7.5px; font-weight: 700; color: #475569; }
+
+.pefa-print-surface .pefa-report-document { box-shadow: none; max-width: none; }
+
+@media (max-width: 800px) {
+  .pefa-modal-report-preview { padding: 8px; }
+  .pefa-report-document { width: 100%; padding: 14px; }
+  .pefa-letterhead-top { grid-template-columns: 55px 1fr 52px; gap: 7px; }
+  .pefa-letterhead-logo { width: 50px; height: 50px; }
+  .pefa-letterhead-title h1 { font-size: 18px; }
+  .pefa-letterhead-title h2 { font-size: 10px; }
+  .pefa-letterhead-title p { font-size: 6.5px; }
+  .pefa-office-row { grid-template-columns: 1fr; }
+  .pefa-report-patient-grid { grid-template-columns: repeat(2, 1fr); }
+  .pefa-report-patient-grid > div:nth-child(4n) { border-right: 1px solid #e2e8f0; }
+  .pefa-report-patient-grid > div:nth-child(2n) { border-right: 0; }
+  .pefa-report-verification { grid-template-columns: 60px repeat(2, 1fr); }
+  .pefa-signature-line { width: 150px; }
+}
+
+
+
+/* =========================================================
+   PEFA LAB — DASHBOARD SCREEN UI ENHANCEMENT ONLY
+   Existing laboratory report + print/PDF CSS remains untouched.
+   ========================================================= */
+@media screen {
+  .pefa-result-dashboard {
+    position: relative;
+    isolation: isolate;
+    padding: clamp(12px, 2.5vw, 30px);
+    background:
+      radial-gradient(circle at 8% 0%, rgba(37,99,235,.16), transparent 25%),
+      radial-gradient(circle at 92% 4%, rgba(16,185,129,.15), transparent 24%),
+      radial-gradient(circle at 50% 100%, rgba(245,158,11,.08), transparent 30%),
+      linear-gradient(145deg,#f4f8ff 0%,#f7fbfa 48%,#f8fafc 100%);
+  }
+
+  .pefa-dashboard-header {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(16px,3vw,26px);
+    margin-bottom: 18px;
+    border: 1px solid rgba(255,255,255,.7);
+    border-radius: 22px;
+    background: linear-gradient(135deg,#075985 0%,#1769aa 45%,#0f8f88 100%);
+    box-shadow: 0 20px 45px rgba(15,70,110,.18),inset 0 1px 0 rgba(255,255,255,.25);
+    color:#fff;
+  }
+
+  .pefa-dashboard-header::before {
+    content:"";
+    position:absolute;
+    width:240px;height:240px;
+    right:-80px;top:-120px;
+    border-radius:50%;
+    background:rgba(255,255,255,.10);
+    pointer-events:none;
+  }
+
+  .pefa-dashboard-header::after {
+    content:"";
+    position:absolute;
+    width:150px;height:150px;
+    left:38%;bottom:-105px;
+    border-radius:50%;
+    background:rgba(255,255,255,.07);
+    pointer-events:none;
+  }
+
+  .pefa-dashboard-header > *,
+  .pefa-brand { position:relative;z-index:1; }
+
+  .pefa-brand-mark {
+    width:52px;height:52px;border-radius:16px;
+    background:linear-gradient(145deg,#fff,#dff7ff);
+    color:#1769aa;
+    box-shadow:0 12px 25px rgba(0,0,0,.16);
+  }
+
+  .pefa-eyebrow { color:rgba(255,255,255,.76); }
+  .pefa-dashboard-header h1 { color:#fff;text-shadow:0 2px 10px rgba(0,0,0,.12); }
+  .pefa-dashboard-header p { color:rgba(255,255,255,.82); }
+
+  .pefa-btn--primary {
+    background:linear-gradient(135deg,#16a34a,#0f8f88);
+    box-shadow:0 10px 24px rgba(6,95,70,.25);
+  }
+
+  .pefa-btn--primary:hover:not(:disabled) {
+    background:linear-gradient(135deg,#15803d,#087f78);
+  }
+
+  .pefa-search-panel {
+    border:1px solid #d7e6f2;
+    border-radius:18px;
+    background:rgba(255,255,255,.95);
+    box-shadow:0 14px 35px rgba(23,74,110,.08);
+  }
+
+  .pefa-input-wrap:focus-within {
+    border-color:#1769aa;
+    box-shadow:0 0 0 4px rgba(23,105,170,.12);
+  }
+
+  .pefa-summary-card {
+    position:relative;
+    overflow:hidden;
+    border:1px solid #dbe8f2;
+    border-radius:16px;
+    background:linear-gradient(145deg,#fff,#f8fbff);
+    box-shadow:0 10px 25px rgba(30,54,78,.07);
+  }
+
+  .pefa-summary-card::after {
+    content:"";
+    position:absolute;
+    width:74px;height:74px;
+    right:-28px;bottom:-32px;
+    border-radius:50%;
+    background:rgba(23,105,170,.06);
+    pointer-events:none;
+  }
+
+  .pefa-summary-card:nth-child(1) .pefa-summary-icon { color:#1769aa;background:#e7f4ff; }
+  .pefa-summary-card:nth-child(2) .pefa-summary-icon { color:#2563eb;background:#eaf1ff; }
+  .pefa-summary-card:nth-child(3) .pefa-summary-icon { color:#7c3aed;background:#f1eaff; }
+  .pefa-summary-card:nth-child(4) .pefa-summary-icon { color:#d97706;background:#fff4dd; }
+  .pefa-summary-card:nth-child(5) .pefa-summary-icon { color:#15803d;background:#e8f8ef; }
+
+  .pefa-summary-card:hover {
+    transform:translateY(-2px);
+    border-color:#a9cde5;
+    box-shadow:0 15px 30px rgba(30,54,78,.10);
+  }
+
+  .pefa-summary-card.is-active {
+    border-color:#1769aa;
+    box-shadow:0 0 0 3px rgba(23,105,170,.10),0 12px 28px rgba(23,105,170,.10);
+  }
+
+  .pefa-results-shell {
+    border:1px solid #d7e4ee;
+    border-radius:20px;
+    box-shadow:0 20px 55px rgba(30,54,78,.08);
+  }
+
+  .pefa-results-toolbar {
+    background:linear-gradient(135deg,#fff,#f4faff);
+    border-bottom-color:#dce8f1;
+  }
+
+  .pefa-results-toolbar h2 { color:#123a59; }
+
+  .pefa-report-card:hover {
+    background:linear-gradient(90deg,#f8fcff 0%,#fff 70%);
+  }
+
+  .pefa-report-card:nth-child(3n+1) .pefa-report-accent {
+    background:linear-gradient(180deg,#1769aa,#38bdf8);
+  }
+
+  .pefa-report-card:nth-child(3n+2) .pefa-report-accent {
+    background:linear-gradient(180deg,#7c3aed,#c084fc);
+  }
+
+  .pefa-report-card:nth-child(3n) .pefa-report-accent {
+    background:linear-gradient(180deg,#16a34a,#34d399);
+  }
+
+  .pefa-type-badge--panel { color:#7c4a03;background:#fff3d6;border:1px solid #f8d98b; }
+  .pefa-type-badge--special { color:#713f7b;background:#faedff;border:1px solid #e7c7ef; }
+  .pefa-type-badge--quantitative { color:#075985;background:#e5f5ff;border:1px solid #b7e0f7; }
+  .pefa-type-badge--qualitative { color:#166534;background:#e9f9ef;border:1px solid #bde9cb; }
+
+  .pefa-status--entered { color:#475569;background:#eef2f6; }
+  .pefa-status--verified { color:#075985;background:#e6f5ff; }
+  .pefa-status--authorized { color:#6d28d9;background:#f1eaff; }
+  .pefa-status--released { color:#166534;background:#e8f8ee; }
+
+  .pefa-view-btn {
+    color:#075985;
+    border-color:#bcd8e9;
+    background:#f6fbff;
+  }
+
+  .pefa-view-btn:hover {
+    color:#fff;
+    border-color:#1769aa;
+    background:linear-gradient(135deg,#1769aa,#0f8f88);
+  }
+
+  @media (max-width:760px) {
+    .pefa-result-dashboard { padding:10px; }
+
+    .pefa-dashboard-header {
+      padding:16px;
+      border-radius:18px;
+      flex-direction:column;
+      align-items:stretch;
+      gap:14px;
+    }
+
+    .pefa-dashboard-header .pefa-btn,
+    .pefa-dashboard-header button { width:100%; }
+
+    .pefa-brand { align-items:flex-start; }
+    .pefa-brand-mark { width:44px;height:44px;border-radius:13px; }
+    .pefa-dashboard-header h1 { font-size:24px; }
+
+    .pefa-search-panel {
+      padding:12px;
+      gap:9px;
+      border-radius:15px;
+    }
+
+    .pefa-search-panel .pefa-btn { width:100%; }
+
+    .pefa-summary-grid {
+      gap:8px;
+      margin-bottom:12px;
+    }
+
+    .pefa-summary-card {
+      min-height:70px;
+      padding:10px;
+      border-radius:13px;
+    }
+
+    .pefa-summary-copy strong { font-size:20px; }
+
+    .pefa-results-shell { border-radius:16px; }
+
+    .pefa-results-toolbar { padding:15px; }
+
+    .pefa-toolbar-filters {
+      width:100%;
+      gap:7px;
+    }
+
+    .pefa-toolbar-filters select {
+      width:100%;
+      min-width:0;
+    }
+
+    .pefa-report-main { padding:15px 15px 13px 18px; }
+
+    .pefa-report-topline {
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
+    .pefa-report-title-wrap { width:100%; }
+
+    .pefa-report-date {
+      width:100%;
+      text-align:left;
+    }
+
+    .pefa-report-main h3 {
+      font-size:16px;
+      line-height:1.25;
+    }
+
+    .pefa-report-meta { gap:7px 12px; }
+
+    .pefa-report-action { padding:0 15px 15px 18px; }
+
+    .pefa-view-btn {
+      width:100%;
+      min-height:43px;
+    }
+
+    .pefa-dashboard-footer {
+      padding:4px;
+      font-size:8px;
+      line-height:1.5;
+    }
+  }
+
+  @media (max-width:520px) {
+    .pefa-result-dashboard { padding:7px; }
+
+    .pefa-dashboard-header {
+      padding:14px;
+      border-radius:16px;
+    }
+
+    .pefa-dashboard-header h1 { font-size:21px; }
+    .pefa-dashboard-header p { font-size:11px; }
+
+    .pefa-summary-grid { grid-template-columns:1fr 1fr; }
+
+    .pefa-summary-card {
+      min-height:66px;
+      gap:8px;
+      padding:9px;
+    }
+
+    .pefa-summary-icon {
+      width:31px;
+      height:31px;
+      border-radius:9px;
+    }
+
+    .pefa-summary-copy small { font-size:9px; }
+    .pefa-summary-copy strong { font-size:18px; }
+
+    .pefa-report-main { padding:13px 12px 12px 16px; }
+
+    .pefa-type-badge,
+    .pefa-status {
+      min-height:21px;
+      padding-inline:7px;
+      font-size:9px;
+    }
+
+    .pefa-report-meta { font-size:10px; }
+    .pefa-patient-line { margin-top:10px; }
+    .pefa-report-action { padding:0 12px 13px 16px; }
+  }
+
+  @media (max-width:380px) {
+    .pefa-summary-grid { grid-template-columns:1fr; }
+    .pefa-summary-card { min-height:62px; }
+    .pefa-report-meta {
+      display:grid;
+      grid-template-columns:1fr;
+      gap:4px;
+    }
+  }
+}
+
+
+
+/* =========================================================
+   PEFA LAB — PRE-PRINTED LETTERHEAD PRINT SPACE
+   ---------------------------------------------------------
+   Digital/full-letterhead reports are untouched.
+   Screen/dashboard styling is untouched.
+   Only pre-printed print output receives the reserved
+   physical letterhead space on the FIRST A4 PAGE.
+   ========================================================= */
+
+@media print {
+  /*
+   * The report renderer marks pre-printed reports with
+   * .is-preprinted. Reserve the physical stationery area
+   * only for that report.
+   */
+  body.pefa-printing-result .pefa-report-document.is-preprinted {
+    padding-top: 42mm !important;
+    box-sizing: border-box !important;
+  }
+
+  /*
+   * Keep the first-page content below the physical letterhead.
+   * Do not add this spacing to digital/full-letterhead reports.
+   */
+  body.pefa-printing-result
+    .pefa-report-document.is-preprinted
+    .pefa-report-patient {
+    margin-top: 0 !important;
+  }
+
+  /*
+   * Do not reserve letterhead space on subsequent pages.
+   * The browser may paginate naturally after the first page.
+   */
+  body.pefa-printing-result
+    .pefa-report-document.is-preprinted
+    .pefa-report-body,
+  body.pefa-printing-result
+    .pefa-report-document.is-preprinted
+    .pefa-report-signatures,
+  body.pefa-printing-result
+    .pefa-report-document.is-preprinted
+    .pefa-report-verification,
+  body.pefa-printing-result
+    .pefa-report-document.is-preprinted
+    .pefa-confidential-notice,
+  body.pefa-printing-result
+    .pefa-report-document.is-preprinted
+    .pefa-report-footer {
+    break-inside: auto !important;
+  }
+}

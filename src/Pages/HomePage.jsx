@@ -3,626 +3,663 @@ import "../styles/homepage.css";
 import { Link } from "react-router-dom";
 
 import {
-  Microscope,
-  FlaskConical,
   Activity,
-  ShieldCheck,
-  Phone,
-  MapPin,
-  Mail,
-  Droplets,
-  ScanLine,
-  HeartPulse,
+  ArrowRight,
+  Award,
+  Beaker,
   Brain,
-  Stethoscope,
-  HeartHandshake,
-  Search,
-  Target,
-  Eye,
-  Users,
-  TestTube,
-  Dna,
-CheckCircle2,
   Building2,
-  MessageCircle,
+  CheckCircle2,
+  ChevronRight,
+  Clock3,
+  Dna,
+  Droplets,
   FileText,
-  UserRound,
+  FlaskConical,
+  HeartHandshake,
+  HeartPulse,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Microscope,
+  Phone,
+  ScanLine,
+  Search,
+  ShieldCheck,
+  Stethoscope,
+  Target,
+  TestTube,
+  Users,
 } from "lucide-react";
 
 import HomeNavbar from "../components/HomeNavbar";
 
+const services = [
+  {
+    title: "Hematology",
+    description: "Comprehensive blood and haematological investigations.",
+    icon: <TestTube size={24} />,
+    color: "blue",
+  },
+  {
+    title: "Clinical Chemistry",
+    description: "Biochemical testing supporting diagnosis and monitoring.",
+    icon: <FlaskConical size={24} />,
+    color: "green",
+  },
+  {
+    title: "Microbiology",
+    description: "Laboratory investigation of infectious conditions.",
+    icon: <Microscope size={24} />,
+    color: "red",
+  },
+  {
+    title: "Serology & Immunology",
+    description: "Serological and immune-related diagnostic testing.",
+    icon: <ShieldCheck size={24} />,
+    color: "blue",
+  },
+  {
+    title: "Hormonal Assay",
+    description: "Hormonal and endocrine laboratory investigations.",
+    icon: <Dna size={24} />,
+    color: "green",
+  },
+  {
+    title: "Parasitology",
+    description: "Laboratory examination for parasitic infections.",
+    icon: <Search size={24} />,
+    color: "red",
+  },
+  {
+    title: "Blood Banking",
+    description: "Blood grouping, compatibility and blood bank services.",
+    icon: <Droplets size={24} />,
+    color: "blue",
+  },
+  {
+    title: "Ultrasound Scan",
+    description: "Diagnostic ultrasound imaging services.",
+    icon: <ScanLine size={24} />,
+    color: "green",
+  },
+  {
+    title: "Wellness Packages",
+    description: "Convenient preventive health screening packages.",
+    icon: <HeartPulse size={24} />,
+    color: "red",
+    link: "/wellness-packages",
+  },
+  {
+    title: "Research Services",
+    description: "Laboratory support for medical and scientific research.",
+    icon: <Brain size={24} />,
+    color: "blue",
+  },
+];
+
+const standards = [
+  {
+    icon: <Target size={21} />,
+    title: "Precision",
+    text: "Focused on dependable diagnostic information for informed clinical decisions.",
+  },
+  {
+    icon: <Clock3 size={21} />,
+    title: "Timely Service",
+    text: "Efficient workflows designed around practical turnaround expectations.",
+  },
+  {
+    icon: <Award size={21} />,
+    title: "Professional Expertise",
+    text: "Laboratory and diagnostic services delivered with professional care.",
+  },
+  {
+    icon: <HeartHandshake size={21} />,
+    title: "Patient Focus",
+    text: "A patient-centred approach from request to result delivery.",
+  },
+];
+
 export default function HomePage() {
-  const services = [
-    {
-      title: "Hematology",
-      icon: <TestTube size={22} />,
-      color: "blue",
-    },
-    {
-      title: "Clinical Chemistry",
-      icon: <FlaskConical size={22} />,
-      color: "green",
-    },
-    {
-      title: "Microbiology",
-      icon: <Microscope size={22} />,
-      color: "red",
-    },
-    {
-      title: "Serology",
-      icon: <ShieldCheck size={22} />,
-      color: "blue",
-    },
-    {
-      title: "Hormonal Assay",
-      icon: <Dna size={22} />,
-      color: "green",
-    },
-    {
-      title: "Parasitology",
-      icon: <Microscope size={22} />,
-      color: "red",
-    },
-    {
-      title: "Blood Banking",
-      icon: <Droplets size={22} />,
-      color: "blue",
-    },
-    {
-      title: "Ultrasound Scan",
-      icon: <ScanLine size={22} />,
-      color: "green",
-    },
-    {
-      title: "Wellness Package",
-      icon: <HeartPulse size={22} />,
-      color: "red",
-    },
-    {
-      title: "Research Services",
-      icon: <Search size={22} />,
-      color: "blue",
-    },
-  ];
-
   return (
-    <div className="homepage" id="home">
-
-      {/* =====================================================
-          NAVBAR
-      ===================================================== */}
-
+    <div className="homepage">
       <HomeNavbar />
 
-   {/* =====================================================
-    HERO
-===================================================== */}
-
-<section className="hero">
-
-  {/* Laboratory background */}
-  <div className="hero-background" />
-
-  {/* Soft readability overlay */}
-  <div className="hero-overlay" />
-
-  {/* Right-side microscope */}
-  <div className="hero-microscope-wrapper">
-
-    <img
-      src="/microscope.png"
-      alt="Laboratory microscope"
-      className="hero-microscope"
-    />
-
-  </div>
-
-  <div className="hero-container">
-
-    {/* =================================================
-        MAIN TITLE
-    ================================================= */}
-
-    <div className="hero-title">
-
-      <h1>
-        PEFA MEDICAL{" "}
-        <span>DIAGNOSTIC</span>
-      </h1>
-
-      <h2>
-        SERVICES
-      </h2>
-
-      <div className="hero-title-line" />
-
-    </div>
-
-
-    {/* =================================================
-        TAGLINE
-    ================================================= */}
-
-    <p className="hero-subtitle">
-      Leading The Way In Medical Excellence
-      <br />
-      through timely, affordable, accurate and
-      precision testing.
-    </p>
-
-
-    {/* =================================================
-        ACTION BUTTONS
-    ================================================= */}
-
-    <div className="hero-actions">
-
-      {/* CHECK RESULT */}
-
-      <Link
-        to="/patient-results"
-        className="hero-action green"
-      >
-
-        <FileText size={25} />
-
-        <span>
-          Check Result
-        </span>
-
-      </Link>
-
-
-      {/* PATIENT REGISTRATION */}
-
-      <Link
-        to="/registration"
-        className="hero-action red"
-      >
-
-        <UserRound size={25} />
-
-        <span>
-          Patient Registration
-        </span>
-
-      </Link>
-
-
-      {/* WHATSAPP */}
-
-      <a
-        href="https://wa.me/2348086618621"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="hero-action whatsapp"
-      >
-
-        <MessageCircle size={26} />
-
-        <span>
-          Book Via
-          <small>WhatsApp</small>
-        </span>
-
-      </a>
-
-    </div>
-
-
-    {/* =================================================
-        HERO FEATURES
-    ================================================= */}
-
-    <div className="hero-features">
-
-      {/* ACCURATE */}
-
-      <div className="hero-feature">
-
-        <div className="feature-icon blue">
-          <Target size={25} />
-        </div>
-
-        <div>
-          <strong>
-            Accurate
-          </strong>
-
-          <span>
-            Results
-          </span>
-        </div>
-
-      </div>
-
-
-      <div className="feature-divider" />
-
-
-      {/* FAST */}
-
-      <div className="hero-feature">
-
-        <div className="feature-icon green">
-          <Activity size={25} />
-        </div>
-
-        <div>
-          <strong>
-            Fast
-          </strong>
-
-          <span>
-            Turnaround
-          </span>
-        </div>
-
-      </div>
-
-
-      <div className="feature-divider" />
-
-
-      {/* TECHNOLOGY */}
-
-      <div className="hero-feature">
-
-        <div className="feature-icon blue">
-          <Microscope size={25} />
-        </div>
-
-        <div>
-          <strong>
-            Advanced
-          </strong>
-
-          <span>
-            Technology
-          </span>
-        </div>
-
-      </div>
-
-
-      <div className="feature-divider" />
-
-
-      {/* AFFORDABLE */}
-
-      <div className="hero-feature">
-
-        <div className="feature-icon green">
-          <ShieldCheck size={25} />
-        </div>
-
-        <div>
-          <strong>
-            Affordable
-          </strong>
-
-          <span>
-            Services
-          </span>
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-</section>
-
-      {/* =====================================================
-          ABOUT / MISSION / VISION
-      ===================================================== */}
-
-      <section
-        className="about-section"
-        id="about"
-      >
-
-        <div className="information-grid">
-
-          {/* ABOUT */}
-
-          <div className="information-card about-card">
-
-            <div className="information-heading">
-
-              <div className="information-icon blue">
-                <Users size={25} />
+      <main>
+        {/* =========================================================
+            HERO
+        ========================================================= */}
+        <section className="premium-hero" id="home">
+          <div className="hero-grid-glow" />
+          <div className="hero-orb hero-orb-one" />
+          <div className="hero-orb hero-orb-two" />
+
+          <div className="hero-container">
+            <div className="hero-content">
+              <div className="hero-eyebrow">
+                <span className="eyebrow-dot" />
+                PEFA MEDICAL DIAGNOSTIC SERVICES
               </div>
 
-              <div>
-                <h2>ABOUT US</h2>
-                <div className="heading-line blue-line" />
+              <h1>
+                Diagnostic excellence
+                <span>you can trust.</span>
+              </h1>
+
+              <p className="hero-lead">
+                Accurate laboratory diagnostics, ultrasound imaging,
+                blood banking, wellness screening and research support —
+                delivered with professionalism, precision and patient care.
+              </p>
+
+              <div className="hero-cta-row">
+                <Link to="/test-request" className="primary-cta">
+                  Submit Test Request
+                  <ArrowRight size={18} />
+                </Link>
+
+                <Link to="/patient-results" className="secondary-cta">
+                  <FileText size={18} />
+                  Patient Result Portal
+                </Link>
               </div>
 
-            </div>
-
-            <p>
-              PEFA Medical Diagnostic Services is a
-              modern and patient-focused diagnostic
-              center committed to delivering timely,
-              affordable, accurate and precision-based
-              laboratory and diagnostic services using
-              professional expertise, advanced medical
-              technology and internationally accepted
-              laboratory practices.
-            </p>
-
-          </div>
-
-          {/* MISSION */}
-
-          <div className="information-card mission-card">
-
-            <div className="information-heading">
-
-              <div className="information-icon green">
-                <Target size={25} />
-              </div>
-
-              <div>
-                <h2>OUR MISSION</h2>
-                <div className="heading-line green-line" />
-              </div>
-
-            </div>
-
-            <p>
-              To provide timely, affordable, accurate
-              and reliable diagnostic services using
-              modern laboratory technology and
-              professional expertise.
-            </p>
-
-          </div>
-
-          {/* VISION */}
-
-          <div className="information-card vision-card">
-
-            <div className="information-heading">
-
-              <div className="information-icon red">
-                <Eye size={25} />
-              </div>
-
-              <div>
-                <h2>OUR VISION</h2>
-                <div className="heading-line red-line" />
-              </div>
-
-            </div>
-
-            <p>
-              To become one of the leading private
-              healthcare providers in Nigeria through
-              quality, precision and patient-focused
-              diagnostic services.
-            </p>
-
-          </div>
-
-        </div>
-
-      </section>
-
-      {/* =====================================================
-          SERVICES
-      ===================================================== */}
-
-      <section
-        className="services-section"
-        id="services"
-      >
-
-        <div className="section-heading">
-
-          <div className="section-line" />
-
-          <h2>OUR SERVICES</h2>
-
-          <div className="section-line" />
-
-        </div>
-
-        <div className="services-grid">
-
-          {services.map((service, index) => (
-            <div
-              key={`${service.title}-${index}`}
-              className="service-card"
-            >
-
-              <div
-                className={`service-icon ${service.color}`}
-              >
-                {service.icon}
-              </div>
-
-              <h3>
-                {service.title}
-              </h3>
-
-            </div>
-          ))}
-
-        </div>
-
-      </section>
-
-      {/* =====================================================
-          CONTACT
-      ===================================================== */}
-
-      <section
-        className="contact-section"
-        id="contact"
-      >
-
-        <div className="contact-inner">
-
-          <div className="section-heading contact-heading">
-
-            <div className="section-line" />
-
-            <h2>CONTACT INFORMATION</h2>
-
-            <div className="section-line" />
-
-          </div>
-
-          <div className="contact-grid">
-
-            {/* ADDRESS */}
-
-            <div className="contact-card">
-
-              <div className="contact-icon green">
-                <MapPin size={25} />
-              </div>
-
-              <div>
-
-                <h3>HEAD OFFICE</h3>
-
-                <p>
-                  32, Ogunru-Ori,
-                  <br />
-                  Pakuro Road,
-                  <br />
-                  beside Olaren Filling Station,
-                  <br />
-                  Mowe, Ogun State, Nigeria.
-                </p>
-
-              </div>
-
-            </div>
-
-            {/* PHONE */}
-
-            <div className="contact-card">
-
-              <div className="contact-icon red">
-                <Phone size={25} />
-              </div>
-
-              <div>
-
-                <h3>PHONE NUMBERS</h3>
-
-                <p>
-                  08086618621
-                  <br />
-                  09052853701
-                </p>
-
-              </div>
-
-            </div>
-
-            {/* WHATSAPP */}
-
-            <div className="contact-card">
-
-              <div className="contact-icon green">
-                <MessageCircle size={25} />
-              </div>
-
-              <div>
-
-                <h3>WHATSAPP</h3>
-
-                <p>
-                  08086618621
-                  <br />
-                  08088336440
-                </p>
-
+              <div className="hero-support-row">
                 <a
                   href="https://wa.me/2348086618621"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="contact-whatsapp"
+                  className="hero-whatsapp"
                 >
-                  <MessageCircle size={15} />
-                  Chat on WhatsApp
+                  <MessageCircle size={18} />
+                  Book via WhatsApp
                 </a>
 
-              </div>
+                <span className="hero-support-divider" />
 
+                <span>
+                  <ShieldCheck size={17} />
+                  Patient-focused diagnostic care
+                </span>
+              </div>
             </div>
 
-            {/* EMAIL */}
+            <div className="hero-visual">
+              <div className="hero-panel">
+                <div className="hero-panel-top">
+                  <div>
+                    <span className="panel-kicker">DIAGNOSTIC SERVICES</span>
+                    <h2>Precision at every step.</h2>
+                  </div>
 
-            <div className="contact-card">
+                  <div className="panel-status">
+                    <span />
+                    Professional Care
+                  </div>
+                </div>
 
-              <div className="contact-icon blue">
-                <Mail size={25} />
+                <div className="hero-visual-core">
+                  <div className="core-ring core-ring-one" />
+                  <div className="core-ring core-ring-two" />
+
+                  <div className="diagnostic-emblem">
+                    <div className="emblem-cross">
+                      <span />
+                      <span />
+                    </div>
+                    <ShieldCheck size={30} />
+                  </div>
+
+                  <div className="floating-card floating-card-one">
+                    <div className="floating-icon blue">
+                      <FlaskConical size={18} />
+                    </div>
+                    <div>
+                      <strong>Laboratory</strong>
+                      <span>Advanced testing</span>
+                    </div>
+                  </div>
+
+                  <div className="floating-card floating-card-two">
+                    <div className="floating-icon green">
+                      <ScanLine size={18} />
+                    </div>
+                    <div>
+                      <strong>Ultrasound</strong>
+                      <span>Diagnostic imaging</span>
+                    </div>
+                  </div>
+
+                  <div className="floating-card floating-card-three">
+                    <div className="floating-icon red">
+                      <HeartPulse size={18} />
+                    </div>
+                    <div>
+                      <strong>Wellness</strong>
+                      <span>Health screening</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="hero-panel-bottom">
+                  <div>
+                    <strong>Laboratory</strong>
+                    <span>Hematology · Chemistry · Microbiology</span>
+                  </div>
+                  <div>
+                    <strong>Imaging</strong>
+                    <span>Ultrasound Scan</span>
+                  </div>
+                  <div>
+                    <strong>Wellness</strong>
+                    <span>Preventive screening</span>
+                  </div>
+                </div>
               </div>
 
+              <div className="hero-accent-line" />
+            </div>
+          </div>
+        </section>
+
+        {/* =========================================================
+            TRUST STRIP
+        ========================================================= */}
+        <section className="trust-strip">
+          <div className="page-container trust-strip-inner">
+            <div className="trust-intro">
+              <span>OUR COMMITMENT</span>
+              <strong>Medical diagnostics built around quality.</strong>
+            </div>
+
+            {standards.map((item) => (
+              <div className="trust-item" key={item.title}>
+                <div className="trust-item-icon">{item.icon}</div>
+                <div>
+                  <strong>{item.title}</strong>
+                  <span>{item.text}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* =========================================================
+            ABOUT
+        ========================================================= */}
+        <section className="about-premium section-light" id="about">
+          <div className="page-container about-layout">
+            <div className="section-intro">
+              <span className="section-label">ABOUT PEFA</span>
+              <h2>
+                A modern diagnostic partner for
+                <span>patients, clinicians and organisations.</span>
+              </h2>
+            </div>
+
+            <div className="about-copy">
+              <p className="lead-copy">
+                PEFA Medical Diagnostic Services is a modern, patient-focused
+                diagnostic centre committed to timely, affordable, accurate
+                and precision-based laboratory and diagnostic services.
+              </p>
+
+              <p>
+                Our service model combines professional expertise, modern
+                medical technology and carefully structured diagnostic
+                workflows to support patients and healthcare professionals
+                with dependable laboratory information.
+              </p>
+
+              <div className="about-checks">
+                <div>
+                  <CheckCircle2 size={18} />
+                  Professional diagnostic services
+                </div>
+                <div>
+                  <CheckCircle2 size={18} />
+                  Patient-focused experience
+                </div>
+                <div>
+                  <CheckCircle2 size={18} />
+                  Laboratory and imaging services
+                </div>
+                <div>
+                  <CheckCircle2 size={18} />
+                  Medical research support
+                </div>
+              </div>
+
+              <a href="#services" className="text-link">
+                Explore our services
+                <ChevronRight size={17} />
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* =========================================================
+            SERVICE CATEGORIES
+        ========================================================= */}
+        <section className="services-premium section-light" id="services">
+          <div className="page-container">
+            <div className="section-heading-premium">
               <div>
-
-                <h3>EMAIL</h3>
-
+                <span className="section-label">WHAT WE OFFER</span>
+                <h2>Comprehensive diagnostic services</h2>
                 <p>
-                  pefa.medlab@gmail.com
+                  From routine investigations to specialised diagnostic
+                  support, PEFA brings key services together in one
+                  professional environment.
                 </p>
-
               </div>
 
+              <Link to="/test-request" className="outline-cta">
+                Request a Test
+                <ArrowRight size={17} />
+              </Link>
             </div>
 
+            <div className="service-premium-grid">
+              {services.map((service) => {
+                const card = (
+                  <>
+                    <div className={`service-premium-icon ${service.color}`}>
+                      {service.icon}
+                    </div>
+
+                    <div className="service-card-content">
+                      <span className="service-index">
+                        {String(services.indexOf(service) + 1).padStart(2, "0")}
+                      </span>
+
+                      <h3>{service.title}</h3>
+                      <p>{service.description}</p>
+
+                      {service.link && (
+                        <span className="service-card-link">
+                          Explore package options
+                          <ArrowRight size={15} />
+                        </span>
+                      )}
+                    </div>
+                  </>
+                );
+
+                return service.link ? (
+                  <Link
+                    key={service.title}
+                    to={service.link}
+                    className="service-premium-card service-link-card"
+                  >
+                    {card}
+                  </Link>
+                ) : (
+                  <div key={service.title} className="service-premium-card">
+                    {card}
+                  </div>
+                );
+              })}
+            </div>
           </div>
+        </section>
 
-        </div>
+        {/* =========================================================
+            WELLNESS FEATURE
+        ========================================================= */}
+        <section className="wellness-feature">
+          <div className="wellness-pattern" />
 
-      </section>
+          <div className="page-container wellness-layout">
+            <div className="wellness-content">
+              <span className="section-label light-label">
+                PEFA WELLNESS PACKAGES
+              </span>
 
-      {/* =====================================================
+              <h2>
+                Make preventive health
+                <span>part of your routine.</span>
+              </h2>
+
+              <p>
+                Explore our wellness screening packages, view the tests
+                included in each package and place your request online.
+              </p>
+
+              <div className="wellness-points">
+                <div>
+                  <CheckCircle2 size={18} />
+                  Package-based health screening
+                </div>
+                <div>
+                  <CheckCircle2 size={18} />
+                  Clear list of included tests
+                </div>
+                <div>
+                  <CheckCircle2 size={18} />
+                  Simple online ordering
+                </div>
+              </div>
+
+              <Link to="/wellness-packages" className="wellness-cta">
+                View Wellness Packages
+                <ArrowRight size={18} />
+              </Link>
+            </div>
+
+            <div className="wellness-visual">
+              <div className="wellness-circle wellness-circle-large" />
+              <div className="wellness-circle wellness-circle-small" />
+
+              <div className="wellness-glass-card">
+                <div className="wellness-card-icon">
+                  <HeartPulse size={27} />
+                </div>
+                <span>PREVENTIVE CARE</span>
+                <strong>Know your numbers.</strong>
+                <p>Screen. Understand. Act early.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* =========================================================
+            HOW IT WORKS
+        ========================================================= */}
+        <section className="process-section section-light">
+          <div className="page-container">
+            <div className="section-heading-centre">
+              <span className="section-label">A SIMPLE EXPERIENCE</span>
+              <h2>From request to result</h2>
+              <p>
+                PEFA keeps the patient journey straightforward and
+                professionally organised.
+              </p>
+            </div>
+
+            <div className="process-grid">
+              <div className="process-step">
+                <span>01</span>
+                <div className="process-icon">
+                  <ClipboardListIcon />
+                </div>
+                <h3>Send your request</h3>
+                <p>
+                  Submit a test request online or contact us directly.
+                </p>
+              </div>
+
+              <div className="process-connector" />
+
+              <div className="process-step">
+                <span>02</span>
+                <div className="process-icon green">
+                  <Stethoscope size={23} />
+                </div>
+                <h3>Receive professional service</h3>
+                <p>
+                  Our team reviews your request and guides the next step.
+                </p>
+              </div>
+
+              <div className="process-connector" />
+
+              <div className="process-step">
+                <span>03</span>
+                <div className="process-icon red">
+                  <FileText size={23} />
+                </div>
+                <h3>Access your result</h3>
+                <p>
+                  Use the patient result portal when your report is ready.
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* =========================================================
+            CTA
+        ========================================================= */}
+        <section className="final-cta">
+          <div className="page-container final-cta-inner">
+            <div>
+              <span className="section-label light-label">READY WHEN YOU ARE</span>
+              <h2>Quality diagnostics. Professional service.</h2>
+              <p>
+                Start your request today or speak with our team through
+                WhatsApp.
+              </p>
+            </div>
+
+            <div className="final-cta-actions">
+              <Link to="/test-request" className="final-primary">
+                Submit Test Request
+                <ArrowRight size={18} />
+              </Link>
+
+              <a
+                href="https://wa.me/2348086618621"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="final-secondary"
+              >
+                <MessageCircle size={18} />
+                Book via WhatsApp
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* =========================================================
+            CONTACT
+        ========================================================= */}
+        <section className="contact-premium section-light" id="contact">
+          <div className="page-container">
+            <div className="section-heading-premium contact-title">
+              <div>
+                <span className="section-label">CONTACT PEFA</span>
+                <h2>We are here to help.</h2>
+                <p>
+                  Reach our team for diagnostic enquiries, test requests,
+                  wellness screening and general service information.
+                </p>
+              </div>
+            </div>
+
+            <div className="contact-premium-grid">
+              <div className="contact-premium-card">
+                <div className="contact-premium-icon blue">
+                  <MapPin size={21} />
+                </div>
+                <span>HEAD OFFICE</span>
+                <strong>32, Ogunru-Ori, Pakuro Road</strong>
+                <p>Beside Olaren Filling Station, Mowe, Ogun State, Nigeria.</p>
+              </div>
+
+              <div className="contact-premium-card">
+                <div className="contact-premium-icon red">
+                  <Phone size={21} />
+                </div>
+                <span>PHONE</span>
+                <strong>08086618621</strong>
+                <p>09052853701</p>
+              </div>
+
+              <div className="contact-premium-card">
+                <div className="contact-premium-icon green">
+                  <MessageCircle size={21} />
+                </div>
+                <span>WHATSAPP</span>
+                <strong>08086618621</strong>
+                <a
+                  href="https://wa.me/2348086618621"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Start a conversation <ArrowRight size={15} />
+                </a>
+              </div>
+
+              <div className="contact-premium-card">
+                <div className="contact-premium-icon blue">
+                  <Mail size={21} />
+                </div>
+                <span>EMAIL</span>
+                <strong>pefa.medlab@gmail.com</strong>
+                <p>General enquiries and service information.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      {/* =========================================================
           FOOTER
-      ===================================================== */}
+      ========================================================= */}
+      <footer className="premium-footer">
+        <div className="page-container footer-main">
+          <div className="footer-brand">
+            <img
+              src="/logo.png"
+              alt="PEFA Medical Diagnostic Services"
+            />
 
-      <footer className="footer">
-
-        <div className="footer-left">
-
-          <img
-            src="/logo.png"
-            alt="PEFA Medical Diagnostic Services"
-            className="footer-logo"
-          />
-
-          <div>
-
-            <h2>
-              PEFA MEDICAL{" "}
-              <span>DIAGNOSTIC</span>{" "}
-              SERVICES
-            </h2>
-
-            <p>
-              Leading The Way In Medical Excellence
-            </p>
-
+            <div>
+              <strong>PEFA MEDICAL DIAGNOSTIC SERVICES</strong>
+              <span>Leading The Way In Medical Excellence</span>
+            </div>
           </div>
 
+          <div className="footer-links">
+            <div>
+              <span>QUICK LINKS</span>
+              <Link to="/patient-results">Patient Result Portal</Link>
+              <Link to="/test-request">Test Request</Link>
+              <Link to="/wellness-packages">Wellness Packages</Link>
+              <Link to="/login">Staff Login</Link>
+            </div>
+
+            <div>
+              <span>SERVICES</span>
+              <a href="#services">Laboratory Diagnostics</a>
+              <a href="#services">Ultrasound Scan</a>
+              <a href="#services">Blood Banking</a>
+              <a href="#services">Research Services</a>
+            </div>
+          </div>
         </div>
 
-        <div className="footer-right">
-
-          © 2026 PEFA Medical Diagnostic Services.
-          All Rights Reserved.
-
+        <div className="page-container footer-bottom">
+          <span>© 2026 PEFA Medical Diagnostic Services. All Rights Reserved.</span>
+          <span>Leading The Way In Medical Excellence</span>
         </div>
-
       </footer>
-
     </div>
   );
+}
+
+function ClipboardListIcon() {
+  return <FileText size={23} />;
 }
