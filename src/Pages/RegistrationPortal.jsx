@@ -219,185 +219,400 @@ const resolveTestPrices = async (tests = []) => {
     return [];
   }
 
-  const testIds = [
+  /*
+   * IMPORTANT TEST-REQUEST COMPATIBILITY RULE
+   * ------------------------------------------
+   * A public Test Request may contain an old master_tests.id while
+   * still containing the correct/current test_code.  Therefore:
+   *
+   *   1. Resolve by test_code first (canonical identity).
+   *   2. Fall back to master_tests.id for older requests without a
+   *      usable test_code.
+   *   3. Always take the current name, department, result type and
+   *      price from master_tests.
+   *
+   * This prevents an old request from failing simply because its
+   * numeric test ID no longer matches the current catalogue.
+   */
+
+  const normalizeCode = (value) =>
+    String(value ?? "")
+      .trim()
+      .toUpperCase();
+
+  const requested = tests.map((test) => ({
+    original: test,
+    id: Number(
+      test?.id ??
+      test?.test_id ??
+      0
+    ),
+    code: normalizeCode(
+      test?.test_code ??
+      test?.code ??
+      ""
+    ),
+  }));
+
+  const requestedIds = [
     ...new Set(
-      tests
-        .map((test) =>
-          Number(
-            test?.id ??
-            test?.test_id ??
-            0
-          )
-        )
+      requested
+        .map((item) => item.id)
         .filter(
           (id) =>
-            Number.isInteger(id) && id > 0
+            Number.isInteger(id) &&
+            id > 0
         )
     ),
   ];
 
-  if (testIds.length === 0) {
+  const requestedCodes = [
+    ...new Set(
+      requested
+        .map((item) => item.code)
+        .filter(Boolean)
+    ),
+  ];
+
+  if (
+    requestedIds.length === 0 &&
+    requestedCodes.length === 0
+  ) {
     throw new Error(
       "The requested laboratory tests could not be identified."
     );
   }
 
-  const { data, error } = await supabase
-    .from("master_tests")
-    .select(`
-      id,
-      test_name,
-      test_code,
-      department,
-      test_type,
-      result_type,
-      is_panel,
-      single_test_price,
-      panel_price,
-      active_status,
-      active,
-      is_primary
-    `)
-    .in("id", testIds)
-    .eq("active", true)
-    .eq("active_status", "active");
+  const selectColumns = `
+    id,
+    test_name,
+    test_code,
+    department,
+    test_type,
+    result_type,
+    is_panel,
+    single_test_price,
+    panel_price,
+    active_status,
+    active,
+    is_primary
+  `;
 
-  if (error) {
-    throw error;
-  }
+  const isActiveCatalogueTest = (test) => {
+    const activeStatus = String(
+      test?.active_status ?? ""
+    )
+      .trim()
+      .toLowerCase();
 
-  if (!Array.isArray(data) || data.length === 0) {
-    throw new Error(
-      "Unable to resolve the requested laboratory tests from the current test catalogue."
+    /*
+     * Treat an explicitly inactive record as inactive.
+     * Otherwise accept the catalogue row when active_status is
+     * active, or when the legacy active flag is explicitly true.
+     */
+    if (test?.active === false) {
+      return false;
+    }
+
+    if (
+      activeStatus &&
+      !["active", "enabled"].includes(activeStatus)
+    ) {
+      return false;
+    }
+
+    return (
+      test?.active === true ||
+      ["active", "enabled"].includes(activeStatus)
     );
+  };
+
+  const catalogueRows = [];
+
+  /* ============================================================
+     1. PRIMARY LOOKUP — TEST CODE
+     ============================================================ */
+
+  if (requestedCodes.length > 0) {
+    const { data, error } = await supabase
+      .from("master_tests")
+      .select(selectColumns)
+      .in("test_code", requestedCodes)
+      .eq("active", true)
+      .eq("active_status", "active");
+
+    if (error) {
+      throw error;
+    }
+
+    if (Array.isArray(data)) {
+      catalogueRows.push(...data);
+    }
   }
 
-  const catalogue = new Map(
-    data.map((test) => [
-      Number(test.id),
-      test,
-    ])
+  /* ============================================================
+     2. FALLBACK LOOKUP — NUMERIC ID
+     ============================================================
+     Only fetch IDs that were not already resolved by test_code.
+     ============================================================ */
+
+  const resolvedCodes = new Set(
+    catalogueRows
+      .map((test) => normalizeCode(test?.test_code))
+      .filter(Boolean)
   );
 
-  return tests.map((originalTest) => {
-    const id = Number(
-      originalTest?.id ??
-      originalTest?.test_id ??
-      0
+  const unresolvedIds = requested
+    .filter(
+      (item) =>
+        item.id > 0 &&
+        (!item.code ||
+          !resolvedCodes.has(item.code))
+    )
+    .map((item) => item.id);
+
+  const fallbackIds = [
+    ...new Set(unresolvedIds),
+  ];
+
+  if (fallbackIds.length > 0) {
+    const { data, error } = await supabase
+      .from("master_tests")
+      .select(selectColumns)
+      .in("id", fallbackIds)
+      .eq("active", true)
+      .eq("active_status", "active");
+
+    if (error) {
+      throw error;
+    }
+
+    if (Array.isArray(data)) {
+      catalogueRows.push(...data);
+    }
+  }
+
+  /* ============================================================
+     3. COMPATIBILITY FALLBACK
+     ============================================================
+     Some older catalogue rows may have active_status maintained
+     while the legacy `active` boolean is null/unused.  Retry without
+     the boolean filter, then enforce activity safely in JavaScript.
+     ============================================================ */
+
+  const resolvedIds = new Set(
+    catalogueRows.map((test) => Number(test?.id))
+  );
+
+  const stillMissingIds = requestedIds.filter(
+    (id) => !resolvedIds.has(id)
+  );
+
+  const stillMissingCodes = requestedCodes.filter(
+    (code) => !resolvedCodes.has(code)
+  );
+
+  if (
+    stillMissingIds.length > 0 ||
+    stillMissingCodes.length > 0
+  ) {
+    let compatibilityRows = [];
+
+    if (stillMissingCodes.length > 0) {
+      const { data, error } = await supabase
+        .from("master_tests")
+        .select(selectColumns)
+        .in("test_code", stillMissingCodes);
+
+      if (error) {
+        throw error;
+      }
+
+      if (Array.isArray(data)) {
+        compatibilityRows.push(...data);
+      }
+    }
+
+    if (stillMissingIds.length > 0) {
+      const { data, error } = await supabase
+        .from("master_tests")
+        .select(selectColumns)
+        .in("id", stillMissingIds);
+
+      if (error) {
+        throw error;
+      }
+
+      if (Array.isArray(data)) {
+        compatibilityRows.push(...data);
+      }
+    }
+
+    compatibilityRows = compatibilityRows.filter(
+      isActiveCatalogueTest
     );
 
-    const catalogueTest = catalogue.get(id);
+    catalogueRows.push(...compatibilityRows);
+  }
+
+  /* ============================================================
+     BUILD LOOKUP MAPS
+     ============================================================ */
+
+  const byCode = new Map();
+  const byId = new Map();
+
+  for (const catalogueTest of catalogueRows) {
+    if (!isActiveCatalogueTest(catalogueTest)) {
+      continue;
+    }
+
+    const id = Number(catalogueTest?.id);
+    const code = normalizeCode(
+      catalogueTest?.test_code
+    );
+
+    /*
+     * Prefer the primary row if duplicate catalogue codes ever exist.
+     */
+    if (
+      code &&
+      (!byCode.has(code) ||
+        Boolean(catalogueTest.is_primary))
+    ) {
+      byCode.set(code, catalogueTest);
+    }
+
+    if (
+      Number.isInteger(id) &&
+      id > 0 &&
+      (!byId.has(id) ||
+        Boolean(catalogueTest.is_primary))
+    ) {
+      byId.set(id, catalogueTest);
+    }
+  }
+
+  /* ============================================================
+     RESOLVE EACH REQUESTED TEST
+     ============================================================ */
+
+  return requested.map(({ original, id, code }) => {
+    /*
+     * test_code is the preferred identity because it survives
+     * catalogue ID changes. Numeric ID remains the fallback.
+     */
+    const catalogueTest =
+      (code && byCode.get(code)) ||
+      byId.get(id);
 
     if (!catalogueTest) {
+      const identifier =
+        code
+          ? `code ${code}`
+          : `ID ${id}`;
+
       throw new Error(
-        `Requested test ID ${id} is no longer active or could not be found in the laboratory test catalogue.`
+        `Requested laboratory test (${identifier}) could not be found in the active test catalogue.`
       );
     }
 
     const isPanel =
       Boolean(catalogueTest.is_panel) ||
-      String(catalogueTest.test_type || "")
+      String(
+        catalogueTest.test_type || ""
+      )
+        .trim()
         .toLowerCase() === "panel";
 
     const price = isPanel
-      ? Number(catalogueTest.panel_price ?? 0)
-      : Number(catalogueTest.single_test_price ?? 0);
+      ? Number(
+          catalogueTest.panel_price ??
+          0
+        )
+      : Number(
+          catalogueTest.single_test_price ??
+          0
+        );
 
-    if (!Number.isFinite(price) || price < 0) {
+    if (
+      !Number.isFinite(price) ||
+      price < 0
+    ) {
       throw new Error(
         `Invalid price configured for ${catalogueTest.test_name || "the requested test"}.`
       );
     }
 
+    const quantity =
+      Number(original?.quantity || 1);
+
     return {
-      ...originalTest,
+      ...original,
+
+      /* Current canonical catalogue identity */
       id: catalogueTest.id,
       test_id: catalogueTest.id,
+
+      /* Current canonical test information */
       test_name:
         catalogueTest.test_name ||
-        originalTest.test_name ||
-        originalTest.name ||
+        original?.test_name ||
+        original?.name ||
         "Laboratory Test",
+
       name:
         catalogueTest.test_name ||
-        originalTest.name ||
-        originalTest.test_name ||
+        original?.name ||
+        original?.test_name ||
         "Laboratory Test",
+
       test:
         catalogueTest.test_name ||
-        originalTest.test ||
-        originalTest.name ||
+        original?.test ||
+        original?.name ||
         "Laboratory Test",
+
       test_code:
         catalogueTest.test_code ||
-        originalTest.test_code ||
+        original?.test_code ||
         "",
+
       code:
         catalogueTest.test_code ||
-        originalTest.code ||
-        originalTest.test_code ||
+        original?.code ||
+        original?.test_code ||
         "",
+
       department:
         catalogueTest.department ||
-        originalTest.department ||
+        original?.department ||
         "Other",
+
       test_type:
         catalogueTest.test_type ||
-        originalTest.test_type ||
+        original?.test_type ||
         "",
+
       result_type:
         catalogueTest.result_type ||
-        originalTest.result_type ||
+        original?.result_type ||
         "",
-      is_panel: Boolean(catalogueTest.is_panel),
+
+      is_panel:
+        Boolean(catalogueTest.is_panel),
+
       quantity:
-        Number(originalTest.quantity || 1) > 0
-          ? Number(originalTest.quantity || 1)
+        quantity > 0
+          ? quantity
           : 1,
+
+      /* Always use current master_tests price */
       price,
     };
   });
 };
 
-
-/* ==========================================================
-   WELLNESS ORDER SUPPORT
-   ========================================================== */
-
-const TWO_PARTNER_WELLNESS_PACKAGES = new Set([
-  "Basic Fertility Check",
-  "Comprehensive Fertility",
-  "Premium Pre-Marital Wellness Package",
-  "Premium Fertility & Wellness",
-]);
-
-const UNAVAILABLE_WELLNESS_TERMS = [
-  "pap smear",
-  "x-ray",
-  "x ray",
-  "chest x-ray",
-  "chest x ray",
-];
-
-const isUnavailableWellnessItem = (item) => {
-  const name = String(
-    item?.item_name ??
-    item?.test_name ??
-    item?.name ??
-    ""
-  )
-    .trim()
-    .toLowerCase();
-
-  return UNAVAILABLE_WELLNESS_TERMS.some((term) =>
-    name.includes(term)
-  );
-};
-
-const requiresTwoWellnessPartners = (packageName) =>
-  TWO_PARTNER_WELLNESS_PACKAGES.has(
-    String(packageName || "").trim()
-  );
 
 /* ==========================================================
    EMPTY FORM
@@ -483,11 +698,6 @@ export default function RegistrationPortal() {
       "test_request_id"
     );
 
-  const wellnessOrderId =
-    searchParams.get(
-      "wellness_order_id"
-    );
-
 
   // ==========================================================
   // MODE
@@ -539,21 +749,6 @@ export default function RegistrationPortal() {
     loadedTestRequest,
     setLoadedTestRequest,
   ] = useState(null);
-
-  const [
-    loadingWellnessOrder,
-    setLoadingWellnessOrder,
-  ] = useState(Boolean(wellnessOrderId));
-
-  const [
-    loadedWellnessOrder,
-    setLoadedWellnessOrder,
-  ] = useState(null);
-
-  const [
-    partnerForm,
-    setPartnerForm,
-  ] = useState(EMPTY_FORM);
 
 
   // ==========================================================
@@ -1009,137 +1204,6 @@ export default function RegistrationPortal() {
 
 
   // ==========================================================
-  // LOAD WELLNESS ORDER
-  // ----------------------------------------------------------
-  // Wellness orders are accepted from the Wellness Order
-  // Dashboard and opened directly in this registration portal.
-  // Partner packages display a second independent patient form.
-  // ==========================================================
-
-  useEffect(() => {
-    if (!wellnessOrderId) {
-      setLoadingWellnessOrder(false);
-      return;
-    }
-
-    let cancelled = false;
-
-    const loadWellnessOrder = async () => {
-      try {
-        setLoadingWellnessOrder(true);
-
-        const { data, error } = await supabase
-          .from("wellness_orders")
-          .select("*")
-          .eq("id", wellnessOrderId)
-          .maybeSingle();
-
-        if (error) throw error;
-
-        if (!data) {
-          throw new Error(
-            "The requested Wellness Order could not be found."
-          );
-        }
-
-        if (["Registered", "Completed", "Rejected", "Cancelled"].includes(data.status)) {
-          throw new Error(
-            `This Wellness Order is already ${String(data.status).toLowerCase()} and cannot be registered again.`
-          );
-        }
-
-        if (cancelled) return;
-
-        const rawItems = Array.isArray(data.included_items)
-          ? data.included_items.filter(
-              (item) => !isUnavailableWellnessItem(item)
-            )
-          : [];
-
-        const testItems = rawItems.filter((item) => {
-          const type = String(item?.item_type || "Test").toLowerCase();
-          return type === "test" || Boolean(item?.master_test_id);
-        });
-
-        const testsWithIds = testItems
-          .map((item) => ({
-            ...item,
-            id: Number(item?.master_test_id ?? item?.test_id ?? item?.id),
-            test_id: Number(item?.master_test_id ?? item?.test_id ?? item?.id),
-            test_name: item?.item_name ?? item?.test_name ?? item?.name ?? "",
-            name: item?.item_name ?? item?.test_name ?? item?.name ?? "",
-            quantity: Number(item?.quantity || 1) || 1,
-          }))
-          .filter((item) => Number.isInteger(item.id) && item.id > 0 && item.test_name);
-
-        const pricedTests = testsWithIds.length
-          ? await resolveTestPrices(testsWithIds)
-          : [];
-
-        if (cancelled) return;
-
-        setLoadedWellnessOrder({
-          ...data,
-          included_items: rawItems,
-        });
-
-        setSelectedTests(pricedTests);
-
-        setMode("Laboratory");
-
-        const primaryForm = {
-          ...EMPTY_FORM,
-          patient_name: data.patient_name || "",
-          dob: data.patient_dob || "",
-          age: data.patient_age != null ? String(data.patient_age) : "",
-          sex: data.patient_sex || "",
-          phone: data.patient_phone || "",
-          address: data.patient_address || "",
-          referral_id: data.referral_id || "",
-          referral_name: data.referral_name || "",
-          referring_doctor: data.referring_doctor || "",
-          clinical_history: data.additional_notes ||
-            `Wellness Package: ${data.package_name || ""}`,
-          tests: pricedTests,
-        };
-
-        setForm((previous) => ({
-          ...previous,
-          ...primaryForm,
-        }));
-
-        const storedPartner = data.partner_information?.partner_2 ||
-          data.partner_information?.partner ||
-          null;
-
-        if (requiresTwoWellnessPartners(data.package_name)) {
-          setPartnerForm({
-            ...EMPTY_FORM,
-            ...(storedPartner || {}),
-            tests: pricedTests,
-          });
-        }
-      } catch (error) {
-        console.error("loadWellnessOrder:", error);
-        if (!cancelled) {
-          setTestRequestError(
-            error?.message || "Unable to load the Wellness Order."
-          );
-        }
-      } finally {
-        if (!cancelled) setLoadingWellnessOrder(false);
-      }
-    };
-
-    loadWellnessOrder();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [wellnessOrderId]);
-
-
-  // ==========================================================
   // CALCULATE LABORATORY TOTAL
   // ==========================================================
 
@@ -1536,42 +1600,6 @@ export default function RegistrationPortal() {
         return;
       }
 
-      // ========================================================
-      // WELLNESS PARTNER VALIDATION
-      // ========================================================
-
-      const twoPartnerWellness =
-        wellnessOrderId &&
-        loadedWellnessOrder &&
-        requiresTwoWellnessPartners(
-          loadedWellnessOrder.package_name
-        );
-
-      if (twoPartnerWellness) {
-        const partnerDob = String(partnerForm.dob || "").trim();
-
-        if (!partnerForm.patient_name?.trim()) {
-          alert("Partner 2 name is required.");
-          return;
-        }
-
-        if (!partnerDob) {
-          alert("Partner 2 date of birth is required.");
-          return;
-        }
-
-        const partnerAge = calculateAgeFromDob(partnerDob);
-        if (partnerAge === "") {
-          alert("Please enter a valid Partner 2 date of birth.");
-          return;
-        }
-
-        if (!partnerForm.sex) {
-          alert("Please select Partner 2 sex.");
-          return;
-        }
-      }
-
 
       // ========================================================
       // LAB VALIDATION
@@ -1639,9 +1667,7 @@ export default function RegistrationPortal() {
         ) {
           finalSelectedTests =
             await resolveTestPrices(
-              selectedTests.filter(
-                (test) => !isUnavailableWellnessItem(test)
-              )
+              selectedTests
             );
 
           setSelectedTests(
@@ -2230,39 +2256,6 @@ export default function RegistrationPortal() {
 
 
         // ======================================================
-        // WELLNESS PACKAGE BILLING OVERRIDE
-        // ------------------------------------------------------
-        // Wellness orders are sold at the published package price.
-        // Do not bill the individual package tests again.
-        // ======================================================
-
-        if (
-          wellnessOrderId &&
-          loadedWellnessOrder
-        ) {
-          const packageAmount = Number(
-            loadedWellnessOrder.amount || 0
-          );
-
-          if (!Number.isFinite(packageAmount) || packageAmount < 0) {
-            throw new Error("Invalid Wellness Package amount.");
-          }
-
-          orderTotal = packageAmount;
-          orderItems.length = 0;
-          orderItems.push({
-            service_name: loadedWellnessOrder.package_name || "Wellness Package",
-            service_category: "Wellness Package",
-            quantity: 1,
-            unit_price: packageAmount,
-            total_price: packageAmount,
-          });
-
-          serviceType = "Wellness Package";
-        }
-
-
-        // ======================================================
         // FINAL SERVICE VALIDATION
         // ======================================================
 
@@ -2539,61 +2532,6 @@ export default function RegistrationPortal() {
 
 
         // ======================================================
-        // UPDATE WELLNESS ORDER
-        // ------------------------------------------------------
-        // Registration has succeeded. Mark the accepted wellness
-        // order as Registered and retain Partner 2 information.
-        // ======================================================
-
-        if (wellnessOrderId && loadedWellnessOrder) {
-          const partnerInformation =
-            requiresTwoWellnessPartners(loadedWellnessOrder.package_name)
-              ? {
-                  required: true,
-                  partner_1: {
-                    patient_name: form.patient_name?.trim() || "",
-                    phone: form.phone || "",
-                    email: form.email || "",
-                    dob: form.dob || "",
-                    age: form.age || "",
-                    sex: form.sex || "",
-                    address: form.address || "",
-                  },
-                  partner_2: {
-                    patient_name: partnerForm.patient_name?.trim() || "",
-                    phone: partnerForm.phone || "",
-                    email: partnerForm.email || "",
-                    dob: partnerForm.dob || "",
-                    age: partnerForm.age || "",
-                    sex: partnerForm.sex || "",
-                    address: partnerForm.address || "",
-                  },
-                }
-              : null;
-
-          const { error: wellnessUpdateError } = await supabase
-            .from("wellness_orders")
-            .update({
-              status: "Registered",
-              registered_at: new Date().toISOString(),
-              registration_id: createdRegistrationId,
-              registration_number: registrationNumber,
-              ...(partnerInformation
-                ? { partner_information: partnerInformation }
-                : {}),
-            })
-            .eq("id", wellnessOrderId);
-
-          if (wellnessUpdateError) {
-            console.warn(
-              "Registration succeeded but Wellness Order could not be updated:",
-              wellnessUpdateError
-            );
-          }
-        }
-
-
-        // ======================================================
         // WHATSAPP NOTIFICATION
         // ======================================================
 
@@ -2687,9 +2625,7 @@ export default function RegistrationPortal() {
         alert(
           testRequestId
             ? "Test Request successfully converted to a registration. Proceeding to payment."
-            : wellnessOrderId
-              ? "Wellness Order successfully converted to a registration. Proceeding to payment."
-              : "Registration saved successfully. Proceeding to payment."
+            : "Registration saved successfully. Proceeding to payment."
         );
 
 
@@ -2734,8 +2670,7 @@ export default function RegistrationPortal() {
   // ==========================================================
 
   if (
-    loadingTestRequest ||
-    loadingWellnessOrder
+    loadingTestRequest
   ) {
 
     return (
@@ -2777,7 +2712,7 @@ export default function RegistrationPortal() {
   // ==========================================================
 
   if (
-    (testRequestId || wellnessOrderId) &&
+    testRequestId &&
     testRequestError
   ) {
 
@@ -2964,37 +2899,6 @@ export default function RegistrationPortal() {
         )}
 
 
-      {wellnessOrderId && loadedWellnessOrder && (
-        <div
-          className="registration-card"
-          style={{
-            marginBottom: 18,
-            border: "1px solid #b9dfc5",
-            background: "#f1fbf4",
-          }}
-        >
-          <strong
-            style={{
-              color: "#13773b",
-              display: "block",
-              marginBottom: 5,
-            }}
-          >
-            WELLNESS ORDER REGISTRATION
-          </strong>
-          <div style={{ fontSize: 14, color: "#29465e" }}>
-            Order # <strong>{loadedWellnessOrder.order_number || loadedWellnessOrder.id}</strong>
-          </div>
-          <div style={{ marginTop: 5, fontSize: 14, color: "#29465e" }}>
-            Package: <strong>{loadedWellnessOrder.package_name}</strong>
-          </div>
-          <p style={{ margin: "12px 0 0", fontSize: 12, color: "#607889" }}>
-            Patient information and the available laboratory tests have been pre-filled from the accepted Wellness Order.
-            Unavailable Pap Smear and X-Ray services are excluded.
-          </p>
-        </div>
-      )}
-
       {/* ======================================================
           HEADER
       ======================================================= */}
@@ -3039,7 +2943,9 @@ export default function RegistrationPortal() {
             }
             disabled={
               saving ||
-              Boolean(testRequestId || wellnessOrderId)
+              Boolean(
+                testRequestId
+              )
             }
           >
 
@@ -3058,7 +2964,7 @@ export default function RegistrationPortal() {
 
           </select>
 
-          {(testRequestId || wellnessOrderId) && (
+          {testRequestId && (
             <small
               style={{
                 display:
@@ -3069,7 +2975,9 @@ export default function RegistrationPortal() {
                   "#607889",
               }}
             >
-              Registration type was determined from the incoming request/order.
+              Registration type was
+              determined from the Test
+              Request.
             </small>
           )}
 
@@ -3105,35 +3013,6 @@ export default function RegistrationPortal() {
         setPatient={setForm}
         mode={mode}
       />
-
-      {wellnessOrderId &&
-        loadedWellnessOrder &&
-        requiresTwoWellnessPartners(loadedWellnessOrder.package_name) && (
-          <>
-            <div
-              className="registration-card"
-              style={{
-                marginTop: 18,
-                marginBottom: 18,
-                border: "1px solid #e3c66b",
-                background: "#fffaf0",
-              }}
-            >
-              <strong style={{ color: "#8a5b00" }}>
-                PARTNER 2 / SECONDARY PATIENT
-              </strong>
-              <p style={{ margin: "8px 0 0", color: "#6b5b3e", fontSize: 13 }}>
-                This package requires two different patients. Enter the second partner's information separately.
-              </p>
-            </div>
-
-            <PatientInformation
-              patient={partnerForm}
-              setPatient={setPartnerForm}
-              mode={mode}
-            />
-          </>
-        )}
 
 
       {/* ======================================================
@@ -3201,8 +3080,7 @@ export default function RegistrationPortal() {
           disabled={
             saving ||
             loadingNumbers ||
-            loadingTestRequest ||
-            loadingWellnessOrder
+            loadingTestRequest
           }
           className="primary-btn"
           style={{
