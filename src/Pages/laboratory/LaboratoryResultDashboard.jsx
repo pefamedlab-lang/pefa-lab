@@ -29,9 +29,10 @@ import {
   updateLaboratoryResult,
 } from "../../services/laboratory/laboratoryResultService";
 import FormalResultRenderer from "../../components/printing/FormalResultRenderer";
+import PEFADigitalLetterhead from "../../components/printing/PEFADigitalLetterhead";
+import PEFAReportFooter from "../../components/printing/PEFAReportFooter";
 import { getAgeAwareBilirubinResult } from "../../services/laboratory/neonatalBilirubinReferenceEngine";
 import { QRCodeSVG } from "qrcode.react";
-import logo from "../../assets/logo.png";
 import "./LaboratoryResultDashboard.css";
 
 /*
@@ -56,6 +57,10 @@ import "./LaboratoryResultDashboard.css";
   10. Printing supports exactly two report formats:
         - PRE-PRINTED LETTERHEAD
         - FULL DIGITAL LETTERHEAD
+  11. Full digital reports use the shared PEFA digital letterhead component.
+  12. Full digital reports use the shared PEFA report footer component.
+  13. The footer remains a sibling of the report content so it can anchor
+      to the bottom of the A4 page without becoming part of the header.
 */
 
 const text = (value) => String(value ?? "").trim();
@@ -3354,7 +3359,13 @@ function CompactClinicalInterpretation({ report }) {
 
   return (
     <section className="pefa-compact-interpretation" aria-label="Clinical interpretation">
-      <div className="pefa-compact-interpretation-label">INTERPRETATION</div>
+      <div className="pefa-compact-interpretation-head">
+        <span className="pefa-compact-interpretation-mark" aria-hidden="true">◆</span>
+        <div>
+          <strong>INTERPRETATION</strong>
+          <small>Laboratory assessment</small>
+        </div>
+      </div>
       <p>{interpretation}</p>
     </section>
   );
@@ -3753,6 +3764,20 @@ function ReportSignatureCard({
   );
 }
 
+/*
+  SHARED PEFA REPORT FRAME
+  ------------------------
+  Digital report:
+    PEFADigitalLetterhead
+    Report content
+    PEFAReportFooter
+
+  Pre-printed report:
+    Report content only
+
+  PatientResultPortal imports PEFAReportShell from this file, so it receives
+  the same letterhead/footer automatically without duplicating report markup.
+*/
 function PEFAReportShell({ report, printMode = "full", staffDirectory = [] }) {
   const rows = report?.items || [];
   const first = rows[0] || {};
@@ -3787,39 +3812,17 @@ function PEFAReportShell({ report, printMode = "full", staffDirectory = [] }) {
   const showLetterhead = printMode !== "record";
 
   return (
-    <article className={`pefa-report-document ${showLetterhead ? "is-digital" : "is-preprinted"}`}>
+    <article
+      className={`pefa-report-document ${
+        showLetterhead ? "is-digital" : "is-preprinted"
+      }`}
+    >
       {showLetterhead && (
-        <header className="pefa-report-letterhead">
-          <div className="pefa-letterhead-top">
-            <div className="pefa-letterhead-logo-wrap">
-              <img src={logo} alt="PEFA Logo" className="pefa-letterhead-logo" />
-            </div>
-            <div className="pefa-letterhead-title">
-              <h1>PEFA MEDICAL</h1>
-              <h2>DIAGNOSTIC SERVICES</h2>
-              <p>Leading the way in Medical Excellence through Timely, Affordable &amp; Precision Laboratory Services</p>
-              <div className="pefa-service-strip">
-                <span>Laboratory</span><span>Ultrasound</span><span>Blood Bank</span><span>ECG</span>
-                <b>REG NO: 3450274</b>
-              </div>
-            </div>
-            <div className="pefa-letterhead-qr">
-              <QRCodeSVG value={String(verificationId)} size={64} level="H" />
-            </div>
-          </div>
-          <div className="pefa-office-row">
-            <div><strong>HEAD OFFICE</strong><span>32, Ogunru-Ori, Pakuro Road, Mowe, Ogun State.</span></div>
-            <div><strong>MOWE BRANCH</strong><span>5, Olorombo Street, Imedu-Nla, Mowe, Ogun State.</span></div>
-            <div><strong>ORIMERUNMU</strong><span>Iya-Ijebu Junction, Orimerunmu Road, Ogun State.</span></div>
-          </div>
-          <div className="pefa-contact-strip">
-            <span>+234 808 661 8621</span><span>|</span><span>+234 808 568 1720</span><span>|</span><span>+234 808 833 6440</span><span>|</span><span>pefa.medlab@gmail.com</span><span>|</span><span>www.pefamedlab.com</span>
-          </div>
-          <div className="pefa-header-ribbon"><i /><i /><i /></div>
-        </header>
+        <PEFADigitalLetterhead verificationId={verificationId} />
       )}
 
-      <section className="pefa-report-patient">
+      <div className="pefa-report-content">
+        <section className="pefa-report-patient">
         <div className="pefa-report-patient-title">PATIENT INFORMATION</div>
         <div className="pefa-report-patient-grid">
           <div><label>Patient Name</label><strong>{patient.full_name}</strong></div>
@@ -3916,11 +3919,14 @@ function PEFAReportShell({ report, printMode = "full", staffDirectory = [] }) {
         <div className="pefa-verification-item"><label>Released By</label><strong>{releasedBy}</strong></div>
       </section>
 
-      <div className="pefa-confidential-notice">This report is confidential and intended solely for the patient and attending physician. Unauthorized copying, distribution or disclosure is prohibited.</div>
+        <div className="pefa-confidential-notice">
+          This report is confidential and intended solely for the patient and
+          attending physician. Unauthorized copying, distribution or disclosure
+          is prohibited.
+        </div>
+      </div>
 
-      <footer className="pefa-report-footer">
-        Leading the way in Medical Excellence through Timely, Affordable &amp; Reliable Laboratory Services
-      </footer>
+      {showLetterhead && <PEFAReportFooter />}
     </article>
   );
 }

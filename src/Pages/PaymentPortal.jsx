@@ -1,7 +1,7 @@
 import "../styles/paymentPortal.css";
 import "../styles/paymentPortalPremium.css";
 
-import LetterHeadDocument from "../components/printing/LetterHeadDocument";
+import PEFADocumentFrame from "../components/printing/PEFADocumentFrame";
 import PrintEngine from "../utils/PrintEngine";
 
 import {
@@ -2530,7 +2530,10 @@ export default function PaymentPortal() {
                   id="payment-invoice-print"
                   className="payment-print-target"
                 >
-                  <LetterHeadDocument showHeader={true} showFooter={true}>
+                  <PEFADocumentFrame
+                     verificationId={getInvoiceNumber()}
+                     className="payment-invoice-document-frame"
+                   >
                     <div className="payment-invoice-document">
                       <div className="payment-invoice-title-block">
                         <div>
@@ -2600,7 +2603,7 @@ export default function PaymentPortal() {
                         This invoice is a computer-generated financial document. Official payment receipts are issued separately after payment is successfully recorded.
                       </div>
                     </div>
-                  </LetterHeadDocument>
+                  </PEFADocumentFrame>
                 </div>
               </div>
             </div>

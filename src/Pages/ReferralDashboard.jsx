@@ -2,6 +2,8 @@ import "../styles/referralDashboard.css";
 import "../styles/printing/printing.css";
 import "../styles/LetterHeadPortal.css";
 
+import { createPortal } from "react-dom";
+
 import {
   useCallback,
   useEffect,
@@ -28,6 +30,7 @@ import {
   History,
   BadgePercent,
   Search,
+  Trash2,
 } from "lucide-react";
 
 import { Bar } from "react-chartjs-2";
@@ -45,7 +48,7 @@ import {
 import { supabase } from "../supabase";
 import { logActivity } from "../utils/logActivity";
 
-import LetterHeadDocument from "../components/printing/LetterHeadDocument";
+import PEFADigitalLetterhead from "../components/printing/PEFADigitalLetterhead";
 import PrintEngine from "../utils/PrintEngine";
 
 ChartJS.register(
@@ -56,6 +59,11 @@ ChartJS.register(
   Tooltip,
   Legend
 );
+
+const PEFAModalPortal = ({ children }) => {
+  if (typeof document === "undefined") return null;
+  return createPortal(children, document.body);
+};
 
 
 /* =========================================================
@@ -230,6 +238,25 @@ export default function ReferralDashboard() {
 
   const [selectedInvoice, setSelectedInvoice] =
     useState(null);
+
+  /* =======================================================
+     REMOVE REFERRAL / AUDIT MODAL
+  ======================================================= */
+
+  const [showRemoveReferralModal, setShowRemoveReferralModal] =
+    useState(false);
+
+  const [removeReferralPatient, setRemoveReferralPatient] =
+    useState(null);
+
+  const [removeReferralReason, setRemoveReferralReason] =
+    useState("");
+
+  const [removeReferralDetails, setRemoveReferralDetails] =
+    useState("");
+
+  const [removingReferral, setRemovingReferral] =
+    useState(false);
 
   const [paymentAmount, setPaymentAmount] =
     useState("");
@@ -847,6 +874,116 @@ const viewReferral = async (referral) => {
 
     const invoices = data || [];
 
+    /* =======================================================
+       LOAD REAL TEST / SERVICE NAMES
+       -------------------------------------------------------
+       The referral invoice item contains the patient/order and amount,
+       but the selected laboratory tests are stored in registrations.tests.
+       Load those test details using the patient's identifier so the
+       invoice never falls back to "-" when the registration has tests.
+    ======================================================= */
+    const registrationIdentifiers = Array.from(
+      new Set(
+        invoices
+          .flatMap((invoice) => invoice?.referral_invoice_items || [])
+          .flatMap((item) => [
+            item?.service_order?.patient_id,
+            item?.service_order?.lab_number,
+            item?.patient_id,
+            item?.lab_number,
+          ])
+          .filter(Boolean)
+          .map((value) => String(value).trim())
+      )
+    );
+
+    let registrationMap = new Map();
+
+    if (registrationIdentifiers.length) {
+      const { data: registrationRows, error: registrationError } =
+        await supabase
+          .from("registrations")
+          .select("id, patient_id, lab_number, tests")
+          .in("patient_id", registrationIdentifiers);
+
+      if (registrationError) {
+        console.warn(
+          "Unable to load registration test details for referral invoice:",
+          registrationError
+        );
+      } else {
+        (registrationRows || []).forEach((registration) => {
+          [registration?.patient_id, registration?.lab_number]
+            .filter(Boolean)
+            .forEach((identifier) => {
+              registrationMap.set(
+                String(identifier).trim().toUpperCase(),
+                registration
+              );
+            });
+        });
+      }
+    }
+
+    const normalizeTests = (value) => {
+      if (value == null) return [];
+
+      let tests = value;
+
+      if (typeof tests === "string") {
+        try {
+          tests = JSON.parse(tests);
+        } catch {
+          return tests.trim() ? [tests.trim()] : [];
+        }
+      }
+
+      if (!Array.isArray(tests)) tests = [tests];
+
+      return tests
+        .map((test) => {
+          if (typeof test === "string") return test.trim();
+          return (
+            test?.name ||
+            test?.test_name ||
+            test?.test ||
+            test?.service_name ||
+            test?.service ||
+            test?.label ||
+            ""
+          ).toString().trim();
+        })
+        .filter(Boolean);
+    };
+
+    const getPatientTests = (item, serviceOrder) => {
+      const directTests = normalizeTests(
+        item?.tests ??
+        item?.test_name ??
+        serviceOrder?.tests ??
+        serviceOrder?.test_name
+      );
+
+      if (directTests.length) return directTests.join(", ");
+
+      const identifiers = [
+        serviceOrder?.patient_id,
+        serviceOrder?.lab_number,
+        item?.patient_id,
+        item?.lab_number,
+      ]
+        .filter(Boolean)
+        .map((value) => String(value).trim().toUpperCase());
+
+      for (const identifier of identifiers) {
+        const registration = registrationMap.get(identifier);
+        const registrationTests = normalizeTests(registration?.tests);
+        if (registrationTests.length) return registrationTests.join(", ");
+      }
+
+      return "-";
+    };
+
     const patientRows = [];
 
 
@@ -883,6 +1020,10 @@ const viewReferral = async (referral) => {
 
           order_number:
             getOrderNumber(item),
+
+          /* Real tests / services from the registration record */
+          tests:
+            getPatientTests(item, serviceOrder),
 
 
           /* Service order */
@@ -1082,6 +1223,90 @@ const loadPaymentHistory = async (
     alert(error?.message || "Unable to load payment history.");
     return [];
   } finally {
+    setLoading(false);
+  }
+};
+
+
+/* =======================================================
+   REMOVE / DETACH PATIENT FROM REFERRAL
+======================================================= */
+
+const openRemoveReferralModal = (patient) => {
+  if (!patient?.service_order_id) {
+    alert("This patient record has no service order ID and cannot be detached safely.");
+    return;
+  }
+
+  setRemoveReferralPatient(patient);
+  setRemoveReferralReason("");
+  setRemoveReferralDetails("");
+  setShowRemoveReferralModal(true);
+};
+
+const closeRemoveReferralModal = () => {
+  if (removingReferral) return;
+  setShowRemoveReferralModal(false);
+  setRemoveReferralPatient(null);
+  setRemoveReferralReason("");
+  setRemoveReferralDetails("");
+};
+
+const removePatientFromReferral = async () => {
+  const patient = removeReferralPatient;
+  const serviceOrderId = patient?.service_order_id;
+
+  if (!serviceOrderId) {
+    alert("No service order was selected for removal.");
+    return;
+  }
+  if (!removeReferralReason.trim()) {
+    alert("Please select a reason for removing this patient from the referral account.");
+    return;
+  }
+  if (!removeReferralDetails.trim()) {
+    alert("Please provide an explanation for the removal. This is required for auditing.");
+    return;
+  }
+
+  try {
+    setRemovingReferral(true);
+    setLoading(true);
+
+    const { data, error } = await supabase.rpc(
+      "remove_patient_from_referral_v3",
+      {
+        p_service_order_id: serviceOrderId,
+        p_invoice_id: patient?.referral_invoice_id || patient?.invoice?.id || null,
+        p_reason: removeReferralReason.trim(),
+        p_details: removeReferralDetails.trim(),
+      }
+    );
+
+    if (error) throw error;
+
+    const result = Array.isArray(data) ? data[0] : data;
+    if (!result?.success) {
+      throw new Error(result?.message || "The patient could not be removed from this referral account.");
+    }
+
+    const auditReason = removeReferralReason.trim();
+    const referralSnapshot = selectedReferral;
+    closeRemoveReferralModal();
+    await viewReferral(referralSnapshot);
+
+    alert(
+      `Patient removed from referral successfully.\n\n` +
+      `Patient: ${patient?.patient_name || "Unknown Patient"}\n` +
+      `Referral: ${referralSnapshot?.name || patient?.referral_name || "-"}\n` +
+      `Audit Trail: Recorded\n` +
+      `Reason: ${auditReason}`
+    );
+  } catch (error) {
+    console.error("[PEFA REFERRAL] Remove referral failed:", error);
+    alert(error?.message || "Unable to remove this patient from the referral account.");
+  } finally {
+    setRemovingReferral(false);
     setLoading(false);
   }
 };
@@ -1916,7 +2141,7 @@ const outstandingReferralPatients =
      WAIT FOR PRINT DOM
      
      This prevents the common blank invoice problem where
-     PrintEngine runs before LetterHeadDocument has rendered.
+     PrintEngine runs before PEFADigitalLetterhead has rendered.
   ======================================================= */
 
   const waitForPrintTarget =
@@ -3090,7 +3315,7 @@ const outstandingReferralPatients =
 
         <div className="ranking-card">
           <span>
-            👥 Most Patients
+            ðŸ‘¥ Most Patients
           </span>
 
           <h3>
@@ -3107,7 +3332,7 @@ const outstandingReferralPatients =
 
         <div className="ranking-card">
           <span>
-            💰 Top Commission
+            ðŸ’° Top Commission
           </span>
 
           <h3>
@@ -3125,7 +3350,7 @@ const outstandingReferralPatients =
 
         <div className="ranking-card">
           <span>
-            ⚠ Outstanding
+            âš  Outstanding
           </span>
 
           <h3>
@@ -3155,7 +3380,7 @@ const outstandingReferralPatients =
             exportReferrals
           }
         >
-          📊 Export Referrals
+          ðŸ“Š Export Referrals
         </button>
 
       </div>
@@ -3584,6 +3809,7 @@ const outstandingReferralPatients =
       =================================================== */}
 
       {selectedReferral && (
+        <PEFAModalPortal>
         <div className="modal-overlay">
 
           <div className="modal-content referral-detail-modal">
@@ -3679,6 +3905,35 @@ const outstandingReferralPatients =
                     View Receipt
                   </button>
                 </>
+              )}
+
+
+              {currentReferralInvoice?.id && currentInvoiceNetBalance > 0 && (
+                <button
+                  type="button"
+                  className="payment-btn full-invoice-payment-btn"
+                  disabled={savingPayment}
+                  onPointerDown={(e) => e.stopPropagation()}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (!currentReferralInvoice?.id || currentInvoiceNetBalance <= 0) return;
+
+                    setSelectedInvoice({
+                      ...currentReferralInvoice,
+                      patient_name: `${selectedReferral?.name || "Referral"} — FULL INVOICE`,
+                      final_amount: currentInvoiceTotalPayable,
+                      amount_paid: currentInvoicePaidAmount,
+                      balance: currentInvoiceNetBalance,
+                      tests: "Full referral invoice",
+                    });
+                    setPaymentAmount(String(currentInvoiceNetBalance));
+                    setShowPaymentModal(true);
+                  }}
+                >
+                  <Wallet size={16} />
+                  Pay Full Invoice
+                </button>
               )}
 
 
@@ -3873,6 +4128,22 @@ const outstandingReferralPatients =
                                   Record Payment
                                 </button>
 
+                                <button
+                                  type="button"
+                                  className="remove-referral-btn"
+                                  title="Remove this patient from this referral account"
+                                  onPointerDown={(e) => e.stopPropagation()}
+                                  onMouseDown={(e) => e.stopPropagation()}
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    openRemoveReferralModal(patient);
+                                  }}
+                                >
+                                  <Trash2 size={15} />
+                                  Remove Referral
+                                </button>
+
 
                                 {paid > 0 && (
                                   <>
@@ -3988,6 +4259,7 @@ const outstandingReferralPatients =
 
           </div>
         </div>
+        </PEFAModalPortal>
       )}
 
 
@@ -3997,6 +4269,7 @@ const outstandingReferralPatients =
 
       {showCommissionModal &&
         selectedReferral && (
+        <PEFAModalPortal>
           <div className="modal-overlay">
 
             <div className="modal-content">
@@ -4215,6 +4488,7 @@ const outstandingReferralPatients =
             </div>
 
           </div>
+        </PEFAModalPortal>
         )}
 
 
@@ -4227,6 +4501,7 @@ const outstandingReferralPatients =
       =================================================== */}
 
       {showInvoiceViewer && (
+        <PEFAModalPortal>
         <div className="modal-overlay document-viewer-overlay">
           <div className="modal-content document-viewer-modal">
             <div className="modal-header document-viewer-header">
@@ -4269,6 +4544,7 @@ const outstandingReferralPatients =
             </div>
           </div>
         </div>
+        </PEFAModalPortal>
       )}
 
 
@@ -4280,6 +4556,7 @@ const outstandingReferralPatients =
       =================================================== */}
 
       {showReceiptViewer && (
+        <PEFAModalPortal>
         <div className="modal-overlay document-viewer-overlay">
           <div className="modal-content document-viewer-modal">
             <div className="modal-header document-viewer-header">
@@ -4334,6 +4611,7 @@ const outstandingReferralPatients =
             </div>
           </div>
         </div>
+        </PEFAModalPortal>
       )}
 
 
@@ -4343,6 +4621,7 @@ const outstandingReferralPatients =
 
       {showStatement &&
         selectedReferral && (
+        <PEFAModalPortal>
           <div className="modal-overlay">
 
             <div className="modal-content">
@@ -4456,7 +4735,115 @@ const outstandingReferralPatients =
             </div>
 
           </div>
+        </PEFAModalPortal>
         )}
+
+
+      {/* ===================================================
+          REMOVE REFERRAL / AUDIT MODAL
+      =================================================== */}
+
+      {createPortal(showRemoveReferralModal && removeReferralPatient && (
+        <div
+          className="modal-overlay referral-remove-overlay"
+          onMouseDown={(e) => {
+            if (e.target === e.currentTarget && !removingReferral) closeRemoveReferralModal();
+          }}
+        >
+          <div
+            className="modal-content referral-remove-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="remove-referral-title"
+          >
+            <div className="modal-header referral-remove-header">
+              <div>
+                <span className="remove-referral-eyebrow">REFERRAL ACCOUNT CONTROL</span>
+                <h2 id="remove-referral-title">Remove Patient From Referral</h2>
+                <p>This action is permanently recorded in the PEFA Audit Trail.</p>
+              </div>
+              <button
+                type="button"
+                className="close-btn"
+                onClick={closeRemoveReferralModal}
+                disabled={removingReferral}
+                aria-label="Close remove referral dialog"
+                title="Cancel"
+              >
+                <X size={22} />
+              </button>
+            </div>
+
+            <div className="referral-remove-warning">
+              <strong>Important:</strong> This removes only the patient's referral billing association.
+              The patient registration, laboratory results and service order will remain intact.
+              If payment has already been posted, the paid transaction is preserved in Payment History.
+            </div>
+
+            <div className="referral-remove-patient-card">
+              <div><span>PATIENT</span><strong>{removeReferralPatient.patient_name || "Unknown Patient"}</strong></div>
+              <div><span>LAB NO.</span><strong>{removeReferralPatient.lab_number || "-"}</strong></div>
+              <div><span>REFERRAL</span><strong>{selectedReferral?.name || removeReferralPatient.referral_name || "-"}</strong></div>
+              <div><span>AMOUNT BILLED</span><strong>{naira(removeReferralPatient.patient_amount ?? removeReferralPatient.amount ?? 0)}</strong></div>
+            </div>
+
+            <div className="referral-remove-form">
+              <div className="form-group">
+                <label htmlFor="remove-referral-reason">Reason for Removal <em>*</em></label>
+                <select
+                  id="remove-referral-reason"
+                  value={removeReferralReason}
+                  onChange={(e) => setRemoveReferralReason(e.target.value)}
+                  disabled={removingReferral}
+                >
+                  <option value="">Select a reason</option>
+                  <option value="Patient was assigned to wrong referral">Patient was assigned to wrong referral</option>
+                  <option value="Registration error">Registration error</option>
+                  <option value="Referral changed">Referral changed</option>
+                  <option value="Duplicate referral assignment">Duplicate referral assignment</option>
+                  <option value="Patient requested correction">Patient requested correction</option>
+                  <option value="Administrative correction">Administrative correction</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="remove-referral-details">Detailed Explanation <em>*</em></label>
+                <textarea
+                  id="remove-referral-details"
+                  value={removeReferralDetails}
+                  onChange={(e) => setRemoveReferralDetails(e.target.value)}
+                  disabled={removingReferral}
+                  rows={5}
+                  maxLength={1000}
+                  placeholder="Explain why this patient is being removed from the referral account..."
+                />
+                <small>{removeReferralDetails.length}/1000 characters</small>
+              </div>
+            </div>
+
+            <div className="referral-remove-audit-box">
+              <strong>Audit record will contain:</strong>
+              <span>Staff identity · Role · Patient · Lab No. · Referral · Invoice · Amount · Reason · Explanation · Date/Time</span>
+            </div>
+
+            <div className="referral-remove-actions">
+              <button type="button" className="secondary-modal-btn" onClick={closeRemoveReferralModal} disabled={removingReferral}>
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="danger-confirm-btn"
+                onClick={removePatientFromReferral}
+                disabled={removingReferral || !removeReferralReason.trim() || !removeReferralDetails.trim()}
+              >
+                <Trash2 size={17} />
+                {removingReferral ? "Removing & Auditing..." : "Remove & Record Audit"}
+              </button>
+            </div>
+          </div>
+        </div>
+      ), document.body)}
 
 
       {/* ===================================================
@@ -4465,6 +4852,7 @@ const outstandingReferralPatients =
 
       {showPaymentModal &&
         selectedInvoice && (
+        <PEFAModalPortal>
           <div className="modal-overlay">
 
             <div className="modal-content">
@@ -4576,6 +4964,7 @@ const outstandingReferralPatients =
             </div>
 
           </div>
+        </PEFAModalPortal>
         )}
 
 
@@ -4584,6 +4973,7 @@ const outstandingReferralPatients =
       =================================================== */}
 
       {showModal && (
+        <PEFAModalPortal>
         <div className="modal-overlay">
 
           <div className="modal-content">
@@ -4794,6 +5184,7 @@ const outstandingReferralPatients =
           </div>
 
         </div>
+        </PEFAModalPortal>
       )}
 
 
@@ -4802,6 +5193,7 @@ const outstandingReferralPatients =
       =================================================== */}
 
       {showHistoryModal && (
+        <PEFAModalPortal>
         <div className="modal-overlay">
 
           <div className="modal-content">
@@ -4949,6 +5341,7 @@ const outstandingReferralPatients =
           </div>
 
         </div>
+        </PEFAModalPortal>
       )}
 
 
@@ -4960,7 +5353,7 @@ const outstandingReferralPatients =
           Do NOT use display:none here.
           
           The document remains mounted so PrintEngine can
-          reliably clone/render the complete LetterHeadDocument.
+          reliably clone/render the complete PEFADigitalLetterhead.
           ===================================================
       =================================================== */}
 
@@ -4972,10 +5365,7 @@ const outstandingReferralPatients =
       >
 
         {selectedReferral && currentReferralInvoice && (
-          <LetterHeadDocument
-            showHeader={true}
-            showFooter={true}
-          >
+          <PEFADigitalLetterhead verificationId="PEFA">
 
             <div className="referral-print-document">
 
@@ -5099,7 +5489,7 @@ const outstandingReferralPatients =
                     <th>S/N</th>
                     <th>Lab No.</th>
                     <th>Patient</th>
-                    <th>Test / Service</th>
+                    <th>Tests / Services</th>
                     <th>Amount Due</th>
                   </tr>
                 </thead>
@@ -5204,7 +5594,7 @@ const outstandingReferralPatients =
 
             </div>
 
-          </LetterHeadDocument>
+          </PEFADigitalLetterhead>
         )}
 
       </div>
@@ -5226,10 +5616,7 @@ const outstandingReferralPatients =
       >
 
         {printReceiptData && (
-          <LetterHeadDocument
-            showHeader={true}
-            showFooter={true}
-          >
+          <PEFADigitalLetterhead verificationId="PEFA">
 
             <div className="premium-receipt">
 
@@ -5385,7 +5772,7 @@ const outstandingReferralPatients =
 
                 <div>
                   <span>
-                    TEST / SERVICE
+                    TESTS / SERVICES
                   </span>
 
                   <strong>
@@ -5542,7 +5929,7 @@ const outstandingReferralPatients =
 
             </div>
 
-          </LetterHeadDocument>
+          </PEFADigitalLetterhead>
         )}
 
       </div>
@@ -5562,10 +5949,7 @@ const outstandingReferralPatients =
       >
 
         {printCommissionData && (
-          <LetterHeadDocument
-            showHeader={true}
-            showFooter={true}
-          >
+          <PEFADigitalLetterhead verificationId="PEFA">
 
             <div className="premium-receipt">
 
@@ -5729,7 +6113,7 @@ const outstandingReferralPatients =
 
             </div>
 
-          </LetterHeadDocument>
+          </PEFADigitalLetterhead>
         )}
 
       </div>

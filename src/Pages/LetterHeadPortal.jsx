@@ -1,19 +1,20 @@
 import { Printer, Download } from "lucide-react";
 
-import LetterHeadDocument from "../components/printing/LetterHeadDocument";
+import PEFADigitalLetterhead from "../components/printing/PEFADigitalLetterhead";
+import PEFAReportFooter from "../components/printing/PEFAReportFooter";
 import PrintEngine from "../utils/PrintEngine";
 
 import "../styles/LetterHeadPortal.css";
 
-export default function LetterHeadPortal() {
-  const PRINT_ID = "letterhead-print-root";
+const PRINT_ID = "letterhead-print-root";
 
+export default function LetterHeadPortal() {
   const handlePrint = () => {
     PrintEngine.print(PRINT_ID);
   };
 
-  const handleDownload = () => {
-    PrintEngine.download(
+  const handleDownload = async () => {
+    await PrintEngine.download(
       PRINT_ID,
       "PEFA-LetterHead.pdf"
     );
@@ -22,44 +23,27 @@ export default function LetterHeadPortal() {
   return (
     <div className="letterhead-page">
 
-      {/* ======================================================
-          TOOLBAR
-      ====================================================== */}
-
-      <header className="letterhead-toolbar">
-
+      {/* =====================================================
+          TOOLBAR — SCREEN ONLY
+      ===================================================== */}
+      <div className="letterhead-toolbar no-print">
         <div className="letterhead-info">
-
-          <h2>
-            PEFA Letter Head Printing
-          </h2>
-
+          <h2>PEFA Letter Head Printing</h2>
           <p>
-            Print or download the official PEFA Medical Diagnostic
-            Services letterhead. This template should be used as the
-            reference when configuring report spacing for record copies.
+            Print or download the official PEFA Medical
+            Diagnostic Services letterhead.
           </p>
-
         </div>
 
         <div className="letterhead-actions">
-
-          {/* ==================================================
-              DOWNLOAD PDF
-          ================================================== */}
-
           <button
             type="button"
             className="letterhead-download-btn"
             onClick={handleDownload}
           >
             <Download size={18} />
-            <span>Download PDF</span>
+            Download PDF
           </button>
-
-          {/* ==================================================
-              PRINT LETTERHEAD
-          ================================================== */}
 
           <button
             type="button"
@@ -67,34 +51,43 @@ export default function LetterHeadPortal() {
             onClick={handlePrint}
           >
             <Printer size={18} />
-            <span>Print Letter Head</span>
+            Print Letter Head
           </button>
-
         </div>
+      </div>
 
-      </header>
+      {/* =====================================================
+          OFFICIAL A4 LETTERHEAD
+          -----------------------------------------------------
+          IMPORTANT:
+          The middle spacer is intentional.
 
-      {/* ======================================================
-          PRINT PREVIEW
-      ====================================================== */}
-
+          The footer is NOT part of the header.
+          It is a separate element and is pushed to the
+          physical bottom of the A4 page by flex: 1.
+      ===================================================== */}
       <section
         id={PRINT_ID}
         className="letterhead-preview"
       >
-
-        {/* ==================================================
-            A4 SHEET
-        ================================================== */}
-
         <article className="letterhead-a4">
 
-          <LetterHeadDocument />
+          {/* TOP ONLY */}
+          <PEFADigitalLetterhead
+            verificationId="PEFA-LETTERHEAD"
+          />
+
+          {/* EMPTY FLEXIBLE PAGE AREA */}
+          <div
+            className="letterhead-middle-space"
+            aria-hidden="true"
+          />
+
+          {/* BOTTOM ONLY */}
+          <PEFAReportFooter />
 
         </article>
-
       </section>
-
     </div>
   );
 }

@@ -1,581 +1,1180 @@
-/* ==========================================================
-   PEFA LAB — PREMIUM REGISTRATION EXPERIENCE
-   ----------------------------------------------------------
-   Visual layer only. Preserves existing RegistrationPortal
-   logic, data flow, component interfaces and database behavior.
-   ========================================================== */
+/* =========================================================
+   PEFA ENTERPRISE LIS
+   REFERRAL DASHBOARD — PREMIUM / EYE-FRIENDLY
+   Version 2
+   - Designed for the actual ReferralDashboard.jsx classes
+   - Keeps content clear of a fixed 260px sidebar
+   - Soft contrast, clean spacing, readable tables
+   ========================================================= */
 
-.registration-page,
-.ultrasound-registration {
-  --pefa-blue: #0b63ce;
-  --pefa-blue-deep: #084b9b;
-  --pefa-green: #0b8f55;
-  --pefa-ink: #122033;
-  --pefa-muted: #64748b;
-  --pefa-line: #dbe5ef;
-  --pefa-soft: #f5f8fc;
-  --pefa-card: rgba(255,255,255,.94);
-  max-width: 1480px;
-  margin: 0 auto;
-  padding: 26px 28px 52px;
-  color: var(--pefa-ink);
-  background:
-    radial-gradient(circle at 8% 0%, rgba(11,99,206,.11), transparent 28%),
-    radial-gradient(circle at 96% 12%, rgba(11,143,85,.08), transparent 25%),
-    linear-gradient(180deg, #f7faff 0%, #f2f6fb 100%);
-  min-height: calc(100vh - 20px);
-  box-sizing: border-box;
+:root {
+  --ref-sidebar-width: 260px;
+
+  --ref-navy: #123f5c;
+  --ref-navy-dark: #0d3046;
+  --ref-teal: #168b87;
+  --ref-teal-soft: #e9f7f5;
+
+  --ref-bg: #f5f7f9;
+  --ref-card: #ffffff;
+  --ref-card-soft: #f9fbfc;
+
+  --ref-text: #24323d;
+  --ref-text-2: #61707c;
+  --ref-text-3: #8996a0;
+
+  --ref-border: #e3e9ee;
+  --ref-border-dark: #d3dde4;
+
+  --ref-green: #16845c;
+  --ref-green-soft: #edf8f3;
+
+  --ref-orange: #a86d12;
+  --ref-orange-soft: #fff7e8;
+
+  --ref-red: #b74747;
+  --ref-red-soft: #fff2f2;
+
+  --ref-blue: #2c6f9e;
+  --ref-blue-soft: #edf6fc;
+
+  --ref-shadow: 0 5px 20px rgba(27, 55, 73, 0.07);
+  --ref-shadow-hover: 0 9px 28px rgba(27, 55, 73, 0.11);
+
+  --ref-radius: 14px;
+  --ref-radius-sm: 9px;
 }
 
-.registration-page *,
-.ultrasound-registration * {
-  box-sizing: border-box;
-}
+/* =========================================================
+   MAIN PAGE / SIDEBAR CLEARANCE
+   ========================================================= */
 
-/* ---------- Hero ---------- */
-.registration-page > .registration-header,
-.ultrasound-registration > .registration-header {
-  position: relative;
-  overflow: hidden;
-  display: flex;
-  align-items: center;
-  min-height: 126px;
-  padding: 28px 34px;
-  margin-bottom: 18px;
-  border: 1px solid rgba(255,255,255,.42);
-  border-radius: 24px;
-  color: #fff;
-  background:
-    radial-gradient(circle at 82% 18%, rgba(255,255,255,.18), transparent 25%),
-    linear-gradient(135deg, #063d83 0%, #0b63ce 52%, #087e59 100%);
-  box-shadow: 0 18px 45px rgba(17,55,96,.18), inset 0 1px 0 rgba(255,255,255,.2);
-}
-
-.registration-page > .registration-header::before,
-.ultrasound-registration > .registration-header::before {
-  content: "";
-  position: absolute;
-  width: 210px;
-  height: 210px;
-  right: -62px;
-  top: -78px;
-  border: 1px solid rgba(255,255,255,.18);
-  border-radius: 50%;
-  box-shadow: 0 0 0 24px rgba(255,255,255,.04), 0 0 0 48px rgba(255,255,255,.025);
-}
-
-.registration-page > .registration-header > div,
-.ultrasound-registration > .registration-header > div {
+.referral-dashboard {
   position: relative;
   z-index: 1;
-}
 
-.registration-page > .registration-header h1,
-.ultrasound-registration > .registration-header h1 {
-  margin: 0;
-  font-size: clamp(25px, 3vw, 34px);
-  line-height: 1.1;
-  letter-spacing: -.035em;
-  font-weight: 800;
-}
+  /* Prevent the page from disappearing underneath a fixed sidebar. */
+  margin-left: var(--ref-sidebar-width);
+  width: calc(100% - var(--ref-sidebar-width));
 
-.registration-page > .registration-header p,
-.ultrasound-registration > .registration-header p {
-  margin: 9px 0 0;
-  color: rgba(255,255,255,.82);
+  min-height: 100vh;
+  padding: 26px 28px 40px;
+
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      rgba(22, 139, 135, 0.045),
+      transparent 28%
+    ),
+    var(--ref-bg);
+
+  color: var(--ref-text);
+
+  font-family:
+    Inter,
+    "Segoe UI",
+    Roboto,
+    Arial,
+    sans-serif;
+
   font-size: 14px;
-  font-weight: 600;
-  letter-spacing: .02em;
+  line-height: 1.5;
 }
 
-/* ---------- Main cards ---------- */
-.registration-page .registration-card,
-.ultrasound-registration .registration-card {
-  position: relative;
-  border: 1px solid rgba(219,229,239,.92);
-  border-radius: 20px;
-  padding: 23px;
-  margin-bottom: 18px;
-  background: var(--pefa-card);
-  box-shadow: 0 10px 30px rgba(15,39,66,.07), 0 1px 2px rgba(15,39,66,.04);
-  backdrop-filter: blur(14px);
+/* If your DashboardLayout already applies the sidebar offset,
+   add class "referral-dashboard-contained" to the wrapper and
+   this prevents double spacing. */
+.referral-dashboard.referral-dashboard-contained {
+  margin-left: 0;
+  width: 100%;
 }
 
-.registration-page .registration-card::after,
-.ultrasound-registration .registration-card::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  top: 20px;
-  bottom: 20px;
-  width: 3px;
-  border-radius: 0 4px 4px 0;
-  background: linear-gradient(180deg, var(--pefa-blue), var(--pefa-green));
-  opacity: .8;
+.referral-dashboard *,
+.referral-dashboard *::before,
+.referral-dashboard *::after {
+  box-sizing: border-box;
 }
 
-.registration-page .registration-card:hover,
-.ultrasound-registration .registration-card:hover {
-  box-shadow: 0 16px 36px rgba(15,39,66,.09), 0 1px 2px rgba(15,39,66,.04);
+.referral-dashboard button,
+.referral-dashboard input,
+.referral-dashboard select,
+.referral-dashboard textarea {
+  font-family: inherit;
 }
 
-/* ---------- Section headings ---------- */
-.registration-page .section-title,
-.ultrasound-registration .registration-card > h2,
-.registration-page .registration-card > h2 {
+/* =========================================================
+   HEADER
+   ========================================================= */
+
+.referral-header {
   display: flex;
   align-items: center;
-  gap: 11px;
-  margin: 0 0 18px;
-  color: var(--pefa-ink);
+  justify-content: space-between;
+  gap: 24px;
+
+  min-height: 94px;
+  margin-bottom: 22px;
+  padding: 22px 24px;
+
+  border: 1px solid #dce7ed;
+  border-radius: var(--ref-radius);
+
+  background:
+    linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #f9fcfd 65%,
+      #f1f9f8 100%
+    );
+
+  box-shadow: var(--ref-shadow);
 }
 
-.registration-page .section-title h2,
-.ultrasound-registration .registration-card > h2,
-.registration-page .registration-card > h2 {
-  font-size: 17px;
-  font-weight: 800;
-  letter-spacing: -.015em;
-}
-
-.registration-page .section-title h2::before,
-.ultrasound-registration .registration-card > h2::before,
-.registration-page .registration-card > h2::before {
-  content: "";
-  width: 34px;
-  height: 34px;
-  flex: 0 0 34px;
-  border-radius: 11px;
-  background: linear-gradient(145deg, rgba(11,99,206,.13), rgba(11,143,85,.13));
-  box-shadow: inset 0 0 0 1px rgba(11,99,206,.08);
-}
-
-/* ---------- Registration type ---------- */
-.registration-page > .registration-card:first-of-type {
-  display: flex;
-  align-items: center;
-  padding: 17px 22px;
-}
-
-.registration-page > .registration-card:first-of-type .form-group {
-  width: 100%;
-  display: grid;
-  grid-template-columns: minmax(150px, 220px) minmax(260px, 420px);
-  gap: 18px;
-  align-items: center;
+.referral-header h1 {
   margin: 0;
-}
-
-.registration-page > .registration-card:first-of-type label {
-  margin: 0;
-  font-size: 12px;
+  color: var(--ref-navy-dark);
+  font-size: 25px;
+  line-height: 1.15;
   font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-  color: #475569;
+  letter-spacing: -0.4px;
 }
 
-/* ---------- Inputs / selects ---------- */
-.registration-page input,
-.registration-page select,
-.registration-page textarea,
-.ultrasound-registration input,
-.ultrasound-registration select,
-.ultrasound-registration textarea {
-  width: 100%;
-  min-height: 44px;
-  border: 1px solid var(--pefa-line);
-  border-radius: 12px;
-  padding: 10px 13px;
-  outline: none;
-  color: #172033;
-  background: #fff;
-  font: inherit;
+.referral-header p {
+  margin: 7px 0 0;
+  color: var(--ref-text-2);
   font-size: 13px;
-  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease, background .18s ease;
 }
 
-.registration-page input::placeholder,
-.registration-page textarea::placeholder,
-.ultrasound-registration input::placeholder,
-.ultrasound-registration textarea::placeholder {
-  color: #94a3b8;
-}
-
-.registration-page input:focus,
-.registration-page select:focus,
-.registration-page textarea:focus,
-.ultrasound-registration input:focus,
-.ultrasound-registration select:focus,
-.ultrasound-registration textarea:focus {
-  border-color: rgba(11,99,206,.62);
-  box-shadow: 0 0 0 4px rgba(11,99,206,.09);
-  background: #fff;
-}
-
-.registration-page input[readonly],
-.ultrasound-registration input[readonly] {
-  color: #31506e;
-  background: #f7fafd;
-  font-weight: 700;
-}
-
-/* ---------- Grids ---------- */
-.registration-page .registration-grid,
-.ultrasound-registration .registration-grid {
-  gap: 13px;
-}
-
-/* ---------- Patient information inline component ---------- */
-.registration-page > div:not(.registration-header):not(.registration-card):not(.registration-summary) > div {
-  max-width: 100%;
-}
-
-.registration-page .registration-card + div {
-  max-width: 100%;
-}
-
-/* PatientInformation is currently inline-styled; strengthen its visual treatment. */
-.registration-page > div[style*="background"] {
-  border: 1px solid var(--pefa-line) !important;
-  border-radius: 20px !important;
-  padding: 21px !important;
-  margin-bottom: 18px !important;
-  background: rgba(255,255,255,.96) !important;
-  box-shadow: 0 10px 30px rgba(15,39,66,.07) !important;
-}
-
-/* ---------- Laboratory catalogue ---------- */
-.registration-page .search-box {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  min-height: 48px;
-  padding: 5px 13px;
-  margin-bottom: 13px;
-  border: 1px solid var(--pefa-line);
-  border-radius: 14px;
-  background: #f8fbff;
-  color: #64748b;
-  box-shadow: inset 0 1px 2px rgba(15,39,66,.025);
-}
-
-.registration-page .search-box input {
-  min-height: 36px;
-  padding: 7px 4px;
-  border: 0;
-  box-shadow: none;
-  background: transparent;
-}
-
-.registration-page .search-box:focus-within {
-  border-color: rgba(11,99,206,.52);
-  box-shadow: 0 0 0 4px rgba(11,99,206,.08);
-  background: #fff;
-}
-
-.registration-page .search-results {
-  overflow: auto;
-  max-height: 465px;
-  padding: 4px;
-  border: 1px solid #e4ebf3;
-  border-radius: 16px;
-  background: #f8fafc;
-}
-
-.registration-page .test-result {
-  display: flex;
-  gap: 13px;
-  align-items: center;
-  padding: 15px;
-  margin: 5px 0;
-  border: 1px solid transparent;
-  border-radius: 14px;
-  background: #fff;
-  box-shadow: 0 2px 8px rgba(15,39,66,.035);
-  transition: transform .16s ease, border-color .16s ease, box-shadow .16s ease;
-}
-
-.registration-page .test-result:hover {
-  transform: translateY(-1px);
-  border-color: #cfe0f1;
-  box-shadow: 0 8px 20px rgba(15,39,66,.08);
-}
-
-.registration-page .test-result h4 {
-  margin: 0 0 3px;
-  font-size: 14px;
-  color: #16253a;
-}
-
-.registration-page .test-result small {
-  color: #718096 !important;
-  font-size: 11px;
-}
-
-.registration-page .add-btn,
-.registration-page .remove-btn {
-  width: 40px;
-  height: 40px;
-  min-width: 40px;
+.add-referral-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 7px;
+
+  min-height: 42px;
+  padding: 0 17px;
+
   border: 0;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: transform .15s ease, box-shadow .15s ease, opacity .15s ease;
-}
+  border-radius: 9px;
 
-.registration-page .add-btn {
+  background: var(--ref-navy);
   color: #fff;
-  background: linear-gradient(135deg, #0b63ce, #087e59);
-  box-shadow: 0 6px 14px rgba(11,99,206,.2);
+
+  font-size: 13px;
+  font-weight: 750;
+
+  box-shadow: 0 5px 14px rgba(18, 63, 92, 0.18);
+  transition: 160ms ease;
 }
 
-.registration-page .remove-btn {
-  color: #b42318;
-  background: #fff1f0;
+.add-referral-btn:hover {
+  background: var(--ref-navy-dark);
+  transform: translateY(-1px);
 }
 
-.registration-page .add-btn:hover:not(:disabled),
-.registration-page .remove-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-}
+/* =========================================================
+   STATISTICS
+   ========================================================= */
 
-/* ---------- Selected tests ---------- */
-.registration-page .selected-tests {
+.stats-grid {
   display: grid;
-  gap: 9px;
-  margin-top: 14px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 15px;
+  margin-bottom: 18px;
 }
 
-.registration-page .selected-test-card {
+.stat-card {
+  position: relative;
+  min-width: 0;
+  padding: 18px 18px 17px;
+
+  border: 1px solid var(--ref-border);
+  border-radius: var(--ref-radius);
+
+  background: var(--ref-card);
+  box-shadow: var(--ref-shadow);
+
+  overflow: hidden;
+  transition: 160ms ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--ref-shadow-hover);
+}
+
+.stat-card > svg {
+  width: 21px;
+  height: 21px;
+  margin-bottom: 12px;
+  padding: 5px;
+  box-sizing: content-box;
+
+  border-radius: 9px;
+  background: var(--ref-teal-soft);
+  color: var(--ref-teal);
+}
+
+.stat-title {
+  margin-top: 0;
+  color: var(--ref-text-2);
+  font-size: 11px;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.stat-value {
+  margin-top: 4px;
+  color: var(--ref-navy-dark);
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* =========================================================
+   RANKING
+   ========================================================= */
+
+.ranking-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.ranking-card {
+  min-width: 0;
+  padding: 17px 18px;
+
+  border: 1px solid var(--ref-border);
+  border-radius: var(--ref-radius);
+
+  background: var(--ref-card);
+  box-shadow: var(--ref-shadow);
+}
+
+.ranking-card span {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--ref-text-2);
+  font-size: 11px;
+  font-weight: 750;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.ranking-card h3 {
+  margin: 0;
+  overflow: hidden;
+  color: var(--ref-navy);
+  font-size: 15px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ranking-card p {
+  margin: 5px 0 0;
+  color: var(--ref-teal);
+  font-size: 16px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+/* =========================================================
+   SEARCH
+   ========================================================= */
+
+.search-section {
   display: flex;
-  gap: 13px;
+  align-items: center;
+  gap: 12px;
+
+  margin-bottom: 10px;
   padding: 14px;
-  border: 1px solid #dfe8f1;
-  border-radius: 14px;
-  background: linear-gradient(180deg, #fff, #f9fbfd);
+
+  border: 1px solid var(--ref-border);
+  border-radius: var(--ref-radius);
+
+  background: var(--ref-card);
+  box-shadow: var(--ref-shadow);
 }
 
-.registration-page .selected-test-card strong {
-  color: #14263b;
+.search-input {
+  width: 100%;
+  height: 42px;
+  padding: 0 13px;
+
+  border: 1px solid var(--ref-border-dark);
+  border-radius: 9px;
+
+  outline: none;
+  background: #fff;
+  color: var(--ref-text);
+
+  font-size: 13px;
+
+  transition: 160ms ease;
 }
 
-.registration-page .selected-test-card small {
-  color: #718096;
+.search-input::placeholder {
+  color: #9aa5ae;
 }
 
-.registration-page .selected-test-card input[type="number"] {
-  width: 70px !important;
-  min-height: 40px;
+.search-input:focus {
+  border-color: #67b9b5;
+  box-shadow: 0 0 0 3px rgba(22, 139, 135, 0.1);
+}
+
+/* =========================================================
+   FILTERS
+   ========================================================= */
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+
+  margin-bottom: 18px;
+}
+
+.filter-btn {
+  min-height: 34px;
+  padding: 0 13px;
+
+  border: 1px solid var(--ref-border-dark);
+  border-radius: 999px;
+
+  background: #fff;
+  color: var(--ref-text-2);
+
+  font-size: 12px;
+  font-weight: 700;
+
+  transition: 150ms ease;
+}
+
+.filter-btn:hover {
+  border-color: #9bb3c0;
+  color: var(--ref-navy);
+}
+
+.filter-btn.active {
+  border-color: var(--ref-navy);
+  background: var(--ref-navy);
+  color: #fff;
+  box-shadow: 0 3px 8px rgba(18, 63, 92, 0.15);
+}
+
+/* =========================================================
+   TABLE CARD
+   ========================================================= */
+
+.table-card {
+  margin-bottom: 20px;
+  overflow: hidden;
+
+  border: 1px solid var(--ref-border);
+  border-radius: var(--ref-radius);
+
+  background: var(--ref-card);
+  box-shadow: var(--ref-shadow);
+}
+
+.table-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+
+  padding: 18px 20px;
+
+  border-bottom: 1px solid var(--ref-border);
+  background: #fff;
+}
+
+.table-card-header h2 {
+  margin: 0;
+  color: var(--ref-navy-dark);
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.table-card-header p {
+  margin: 4px 0 0;
+  color: var(--ref-text-3);
+  font-size: 12px;
+}
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: visible;
+}
+
+/* =========================================================
+   MAIN REFERRAL TABLE
+   ========================================================= */
+
+.table-wrapper table {
+  width: 100%;
+  min-width: 820px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table-wrapper th {
+  padding: 12px 15px;
+
+  border-bottom: 1px solid var(--ref-border);
+
+  background: #f7f9fa;
+  color: #687782;
+
+  font-size: 10.5px;
+  font-weight: 800;
+  text-align: left;
+  text-transform: uppercase;
+  letter-spacing: 0.055em;
+  white-space: nowrap;
+}
+
+.table-wrapper td {
+  padding: 14px 15px;
+
+  border-bottom: 1px solid #edf1f3;
+
+  color: var(--ref-text);
+  font-size: 13px;
+  vertical-align: middle;
+}
+
+.table-wrapper tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.table-wrapper tbody tr {
+  transition: 120ms ease;
+}
+
+.table-wrapper tbody tr:hover {
+  background: #f9fbfc;
+}
+
+.table-wrapper td strong {
+  color: var(--ref-navy-dark);
+  font-weight: 750;
+}
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+.status-active,
+.status-inactive {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 26px;
+  padding: 3px 9px;
+
+  border-radius: 999px;
+
+  font-size: 10.5px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.status-active {
+  border: 1px solid #bfe4d2;
+  background: var(--ref-green-soft);
+  color: var(--ref-green);
+}
+
+.status-inactive {
+  border: 1px solid #e2d8d8;
+  background: #f7f4f4;
+  color: #7d6868;
+}
+
+/* =========================================================
+   ACTIONS
+   ========================================================= */
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.view-btn,
+.payment-btn,
+.invoice-btn,
+.receipt-btn,
+.statement-btn,
+.commission-btn,
+.edit-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+
+  min-height: 34px;
+  padding: 0 10px;
+
+  border: 1px solid var(--ref-border-dark);
+  border-radius: 8px;
+
+  background: #fff;
+  color: var(--ref-navy);
+
+  font-size: 11.5px;
+  font-weight: 750;
+
+  transition: 150ms ease;
+}
+
+.view-btn:hover,
+.payment-btn:hover,
+.invoice-btn:hover,
+.receipt-btn:hover,
+.statement-btn:hover,
+.commission-btn:hover,
+.edit-btn:hover {
+  border-color: #9eb8c5;
+  background: #f5f9fb;
+  transform: translateY(-1px);
+}
+
+/* =========================================================
+   ANALYTICS
+   ========================================================= */
+
+.analytics-card {
+  min-height: 380px;
+  margin-bottom: 20px;
+  padding: 20px;
+
+  border: 1px solid var(--ref-border);
+  border-radius: var(--ref-radius);
+
+  background: var(--ref-card);
+  box-shadow: var(--ref-shadow);
+}
+
+.analytics-card h2 {
+  margin: 0 0 15px;
+  color: var(--ref-navy-dark);
+  font-size: 17px;
+  font-weight: 800;
+}
+
+/* =========================================================
+   DETAIL MODAL / GENERAL MODALS
+   ========================================================= */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 24px;
+
+  background: rgba(16, 31, 43, 0.54);
+  backdrop-filter: blur(3px);
+}
+
+.modal-content {
+  width: min(1100px, 100%);
+  max-height: calc(100vh - 48px);
+
+  overflow: auto;
+
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  border-radius: 17px;
+
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(9, 30, 45, 0.2);
+
+  animation: referralModalIn 170ms ease-out;
+}
+
+.modal-content:not(.document-viewer-modal) {
+  width: min(1050px, 100%);
+}
+
+@keyframes referralModalIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.99);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.modal-header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+
+  min-height: 62px;
+  padding: 14px 20px;
+
+  border-bottom: 1px solid var(--ref-border);
+
+  background: rgba(255, 255, 255, 0.97);
+  backdrop-filter: blur(8px);
+}
+
+.modal-header h2,
+.modal-header h3 {
+  margin: 0;
+  color: var(--ref-navy-dark);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.close-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 34px;
+  height: 34px;
+  padding: 0;
+
+  border: 1px solid var(--ref-border-dark);
+  border-radius: 8px;
+
+  background: #fff;
+  color: var(--ref-text-2);
+
+  transition: 150ms ease;
+}
+
+.close-btn:hover {
+  background: var(--ref-red-soft);
+  border-color: #e2baba;
+  color: var(--ref-red);
+}
+
+/* =========================================================
+   DETAIL CONTENT
+   ========================================================= */
+
+.referral-detail-modal {
+  color: var(--ref-text);
+}
+
+.referral-detail-modal section,
+.referral-detail-modal .section {
+  margin: 18px;
+  padding: 17px;
+
+  border: 1px solid var(--ref-border);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.referral-detail-modal h3,
+.referral-detail-modal h4 {
+  color: var(--ref-navy);
+}
+
+.referral-detail-modal table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.referral-detail-modal table th {
+  padding: 11px;
+  border-bottom: 1px solid var(--ref-border);
+  background: #f7f9fa;
+  color: #687782;
+  font-size: 10.5px;
+  font-weight: 800;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.referral-detail-modal table td {
+  padding: 11px;
+  border-bottom: 1px solid #edf1f3;
+}
+
+/* =========================================================
+   PAYMENT / COMMISSION BOXES
+   ========================================================= */
+
+.commission-summary,
+.commission-form,
+.payment-manager,
+.payment-box,
+.receipt-payment-box {
+  padding: 15px;
+
+  border: 1px solid var(--ref-border);
+  border-radius: 11px;
+
+  background: var(--ref-card-soft);
+}
+
+.commission-summary {
+  margin-bottom: 14px;
+}
+
+.invoice-total-payable {
+  color: var(--ref-teal);
+  font-size: 20px;
+  font-weight: 850;
+  font-variant-numeric: tabular-nums;
+}
+
+.referral-invoice-financial-summary,
+.referral-invoice-due-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.print-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+/* =========================================================
+   INVOICE / DOCUMENT VIEWER
+   ========================================================= */
+
+.document-viewer-overlay {
+  z-index: 6000;
+}
+
+.document-viewer-modal {
+  width: min(1120px, 100%);
+}
+
+.document-viewer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.document-viewer-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.document-viewer-paper {
+  margin: 18px auto;
+  width: min(900px, calc(100% - 36px));
+  min-height: 500px;
+  padding: 28px;
+
+  border: 1px solid #e1e6ea;
+  background: #fff;
+
+  box-shadow: 0 7px 25px rgba(22, 48, 64, 0.09);
+}
+
+.document-viewer-render {
+  width: 100%;
+}
+
+.referral-invoice-pending-banner,
+.paid-document-banner {
+  margin: 14px 18px;
+  padding: 11px 13px;
+
+  border-radius: 9px;
+
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.referral-invoice-pending-banner {
+  border: 1px solid #efd8a9;
+  background: var(--ref-orange-soft);
+  color: #805c18;
+}
+
+.paid-document-banner {
+  border: 1px solid #c1e3d1;
+  background: var(--ref-green-soft);
+  color: #24684e;
+}
+
+.invoice-commission-note {
+  margin-top: 10px;
+  color: var(--ref-text-2);
+  font-size: 11px;
+}
+
+/* =========================================================
+   PRINT TABLE
+   ========================================================= */
+
+.premium-print-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.premium-print-table th {
+  padding: 8px;
+  border: 1px solid #d7dee3;
+  background: #f5f7f8;
+  color: #3e4e59;
+  font-size: 10px;
+  font-weight: 800;
+  text-align: left;
+}
+
+.premium-print-table td {
+  padding: 8px;
+  border: 1px solid #dfe5e9;
+  font-size: 11px;
+}
+
+/* =========================================================
+   RECEIPT
+   ========================================================= */
+
+.premium-receipt {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 25px;
+
+  border: 1px solid var(--ref-border);
+  background: #fff;
+}
+
+.premium-receipt-banner {
+  padding: 12px;
+  margin-bottom: 15px;
+
+  border-radius: 9px;
+  background: var(--ref-green-soft);
+  color: var(--ref-green);
+
   text-align: center;
   font-weight: 800;
 }
 
-.registration-page .empty-text {
-  padding: 28px 18px;
-  text-align: center;
-  color: #94a3b8;
-  font-size: 13px;
-  font-weight: 600;
+.receipt-paid {
+  color: var(--ref-green);
+  font-size: 20px;
+  font-weight: 850;
 }
 
-/* ---------- Billing ---------- */
-.registration-page .billing-card {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-top: 17px;
-  padding: 18px;
-  border: 1px solid #dce7f0;
-  border-radius: 16px;
-  background: linear-gradient(135deg, #f5f9ff, #f4fbf7);
+.receipt-status {
+  display: inline-flex;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--ref-green-soft);
+  color: var(--ref-green);
+  font-size: 11px;
+  font-weight: 800;
 }
 
-.registration-page .billing-card > div {
-  padding: 12px 14px;
-  border-radius: 13px;
-  background: rgba(255,255,255,.82);
+.receipt-reference,
+.receipt-security-note,
+.receipt-thank-you,
+.print-note {
+  color: var(--ref-text-2);
+  font-size: 11px;
 }
 
-.registration-page .billing-card strong,
-.registration-page .registration-summary strong {
-  display: block;
-  color: #64748b;
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: .08em;
-}
-
-.registration-page .billing-card p,
-.registration-page .billing-card h2,
-.registration-page .registration-summary h2,
-.registration-page .registration-summary h3 {
-  margin: 5px 0 0;
-  color: #13253a;
-}
-
-/* ---------- Bottom summary ---------- */
-.registration-page .registration-summary {
-  position: sticky;
-  bottom: 16px;
-  z-index: 20;
-  display: grid;
-  grid-template-columns: 1fr 1.35fr;
-  gap: 12px;
+.receipt-patient-card {
+  margin: 14px 0;
   padding: 14px;
-  margin: 20px 0 12px;
-  border: 1px solid rgba(255,255,255,.72);
-  border-radius: 18px;
-  background: rgba(13,34,58,.94);
-  color: #fff;
-  box-shadow: 0 18px 42px rgba(10,30,53,.25);
-  backdrop-filter: blur(18px);
+
+  border: 1px solid var(--ref-border);
+  border-radius: 10px;
+  background: var(--ref-card-soft);
 }
 
-.registration-page .registration-summary > div {
-  padding: 12px 15px;
-  border: 1px solid rgba(255,255,255,.1);
-  border-radius: 13px;
-  background: rgba(255,255,255,.055);
+.receipt-signatures {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 30px;
+  margin-top: 25px;
 }
 
-.registration-page .registration-summary strong {
-  color: rgba(255,255,255,.6);
+.receipt-manager-signature-image {
+  max-width: 150px;
+  max-height: 55px;
+  object-fit: contain;
 }
 
-.registration-page .registration-summary h2,
-.registration-page .registration-summary h3 {
-  color: #fff;
+/* =========================================================
+   MANAGER SIGNATURE
+   ========================================================= */
+
+.payment-manager {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-/* ---------- Primary save action ---------- */
-.registration-page .primary-btn {
-  min-height: 52px !important;
-  min-width: 245px !important;
-  padding: 0 24px !important;
-  border: 0 !important;
-  border-radius: 15px !important;
-  color: #fff !important;
-  background: linear-gradient(135deg, #084b9b 0%, #0b63ce 52%, #087e59 100%) !important;
-  box-shadow: 0 12px 25px rgba(11,99,206,.22) !important;
-  font-weight: 800 !important;
-  letter-spacing: .01em;
-  cursor: pointer;
-  transition: transform .16s ease, box-shadow .16s ease, filter .16s ease;
+.invoice-manager-signature-image,
+.receipt-manager-signature-image {
+  display: block;
 }
 
-.registration-page .primary-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  filter: brightness(1.03);
-  box-shadow: 0 16px 30px rgba(11,99,206,.28) !important;
+.invoice-manager-signature-missing {
+  color: var(--ref-orange);
+  font-size: 11px;
 }
 
-.registration-page .primary-btn:disabled {
-  opacity: .6;
-  cursor: not-allowed;
-  box-shadow: none !important;
+.invoice-manager-name {
+  color: var(--ref-navy);
+  font-weight: 800;
 }
 
-.registration-page .spin {
-  animation: pefa-registration-spin 1s linear infinite;
+.invoice-manager-role,
+.invoice-manager-signature-label {
+  color: var(--ref-text-3);
+  font-size: 11px;
 }
 
-@keyframes pefa-registration-spin {
-  to { transform: rotate(360deg); }
+.invoice-manager-signature-line {
+  border-top: 1px solid var(--ref-border-dark);
 }
 
-/* ---------- Scrollbars ---------- */
-.registration-page .search-results::-webkit-scrollbar,
-.ultrasound-registration::-webkit-scrollbar {
-  width: 8px;
+/* =========================================================
+   EXPORT BAR
+   ========================================================= */
+
+.export-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  margin-bottom: 14px;
 }
 
-.registration-page .search-results::-webkit-scrollbar-thumb,
-.ultrasound-registration::-webkit-scrollbar-thumb {
-  border-radius: 99px;
-  background: #c8d5e2;
+.export-btn {
+  min-height: 36px;
+  padding: 0 12px;
+
+  border: 1px solid var(--ref-border-dark);
+  border-radius: 8px;
+
+  background: #fff;
+  color: var(--ref-navy);
+
+  font-size: 12px;
+  font-weight: 750;
 }
 
-/* ---------- Responsive ---------- */
+.export-btn:hover {
+  background: #f5f9fb;
+}
+
+/* =========================================================
+   GENERAL INPUTS
+   ========================================================= */
+
+.referral-dashboard input:not([type="checkbox"]):not([type="radio"]),
+.referral-dashboard select,
+.referral-dashboard textarea {
+  outline: none;
+}
+
+.referral-dashboard input:not([type="checkbox"]):not([type="radio"]):focus,
+.referral-dashboard select:focus,
+.referral-dashboard textarea:focus {
+  border-color: #65b6b2;
+  box-shadow: 0 0 0 3px rgba(22, 139, 135, 0.09);
+}
+
+/* =========================================================
+   SCROLLBARS
+   ========================================================= */
+
+.referral-dashboard,
+.modal-content,
+.table-wrapper {
+  scrollbar-width: thin;
+  scrollbar-color: #c8d3da transparent;
+}
+
+.referral-dashboard::-webkit-scrollbar,
+.modal-content::-webkit-scrollbar,
+.table-wrapper::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+.referral-dashboard::-webkit-scrollbar-track,
+.modal-content::-webkit-scrollbar-track,
+.table-wrapper::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.referral-dashboard::-webkit-scrollbar-thumb,
+.modal-content::-webkit-scrollbar-thumb,
+.table-wrapper::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: #c8d3da;
+}
+
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
+
+@media (max-width: 1250px) {
+  .referral-dashboard {
+    padding: 22px 20px 35px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ranking-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .referral-invoice-financial-summary,
+  .referral-invoice-due-summary,
+  .print-summary-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 @media (max-width: 900px) {
-  .registration-page,
-  .ultrasound-registration {
-    padding: 16px 14px 40px;
-  }
-
-  .registration-page > .registration-header,
-  .ultrasound-registration > .registration-header {
-    min-height: 112px;
-    padding: 24px;
-    border-radius: 20px;
-  }
-
-  .registration-page .registration-card,
-  .ultrasound-registration .registration-card {
-    padding: 17px;
-    border-radius: 17px;
-  }
-
-  .registration-page > .registration-card:first-of-type .form-group {
-    grid-template-columns: 1fr;
-    gap: 8px;
-  }
-
-  .registration-page .billing-card,
-  .registration-page .registration-summary {
-    grid-template-columns: 1fr;
-  }
-
-  .registration-page .registration-summary {
-    position: static;
-  }
-
-  .registration-page .test-result,
-  .registration-page .selected-test-card {
-    align-items: flex-start;
-  }
-}
-
-@media (max-width: 560px) {
-  .registration-page > .registration-header h1,
-  .ultrasound-registration > .registration-header h1 {
-    font-size: 24px;
-  }
-
-  .registration-page .test-result {
-    gap: 9px;
-    padding: 12px;
-  }
-
-  .registration-page .add-btn,
-  .registration-page .remove-btn {
-    width: 36px;
-    min-width: 36px;
-    height: 36px;
-  }
-
-  .registration-page .selected-test-card {
-    flex-wrap: wrap;
-  }
-
-  .registration-page .selected-test-card > input[type="number"] {
-    order: 2;
-  }
-
-  .registration-page .primary-btn {
+  .referral-dashboard {
+    margin-left: 0;
     width: 100%;
-    min-width: 0 !important;
+    padding: 18px 15px 30px;
+  }
+
+  .referral-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .add-referral-btn {
+    width: 100%;
+  }
+
+  .ranking-grid {
+    grid-template-columns: 1fr;
   }
 }
 
-/* ---------- Reduced motion ---------- */
-@media (prefers-reduced-motion: reduce) {
-  .registration-page *,
-  .ultrasound-registration * {
-    transition: none !important;
-    animation: none !important;
+@media (max-width: 650px) {
+  .referral-dashboard {
+    padding: 12px 10px 25px;
+  }
+
+  .referral-header {
+    padding: 17px;
+  }
+
+  .referral-header h1 {
+    font-size: 21px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .search-section {
+    padding: 10px;
+  }
+
+  .table-card-header {
+    padding: 15px;
+  }
+
+  .referral-invoice-financial-summary,
+  .referral-invoice-due-summary,
+  .print-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-overlay {
+    padding: 8px;
+  }
+
+  .modal-content {
+    max-height: calc(100vh - 16px);
+    border-radius: 13px;
+  }
+
+  .modal-header {
+    padding: 12px 14px;
+  }
+
+  .document-viewer-paper {
+    width: calc(100% - 20px);
+    padding: 15px;
+  }
+
+  .receipt-signatures {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================================
+   PRINT
+   ========================================================= */
+
+@media print {
+  .referral-dashboard {
+    width: 100%;
+    margin-left: 0;
+    padding: 0;
+    background: #fff;
+  }
+
+  .referral-header,
+  .stats-grid,
+  .ranking-grid,
+  .search-section,
+  .filter-bar,
+  .export-bar,
+  .dashboard-actions,
+  .document-viewer-actions,
+  .action-buttons,
+  .close-btn {
+    display: none !important;
+  }
+
+  .table-card,
+  .analytics-card,
+  .modal-content,
+  .document-viewer-paper {
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .table-wrapper {
+    overflow: visible !important;
   }
 }

@@ -1,0 +1,193 @@
+/* =========================================================
+   PEFA SHARED DIGITAL LETTERHEAD
+   Single source of truth for all PEFA report/letterhead views.
+   ========================================================= */
+
+.pefa-report-letterhead {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  color: #111827;
+  font-family: Arial, Helvetica, sans-serif;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.pefa-letterhead-top {
+  display: grid;
+  grid-template-columns: 78px 1fr 70px;
+  gap: 12px;
+  align-items: center;
+}
+
+.pefa-letterhead-logo-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pefa-letterhead-logo {
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+}
+
+.pefa-letterhead-title {
+  text-align: center;
+}
+
+.pefa-letterhead-title h1 {
+  margin: 0;
+  font-size: 25px;
+  line-height: 1.05;
+  font-weight: 900;
+  letter-spacing: .02em;
+}
+
+.pefa-letterhead-title h2 {
+  margin: 3px 0 4px;
+  font-size: 14px;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: .08em;
+}
+
+.pefa-letterhead-qr {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.pefa-service-strip {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+}
+
+.pefa-service-strip span,
+.pefa-service-strip b {
+  padding: 3px 6px;
+  border: 1px solid #dbe5ef;
+  border-radius: 4px;
+  font-size: 7.5px;
+  line-height: 1;
+  box-sizing: border-box;
+}
+
+.pefa-service-strip b {
+  font-weight: 800;
+}
+
+.pefa-office-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+  margin-top: 3px;
+}
+
+.pefa-office-row > div {
+  padding: 4px 6px;
+  border: 1px solid #dbe5ef;
+  border-radius: 5px;
+  box-sizing: border-box;
+}
+
+.pefa-office-row strong {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 7.5px;
+  letter-spacing: .05em;
+}
+
+.pefa-office-row span {
+  display: block;
+  color: #475569;
+  font-size: 7.5px;
+  line-height: 1.35;
+}
+
+.pefa-contact-strip {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 3px;
+  color: #334155;
+  font-size: 7.5px;
+}
+
+.pefa-header-ribbon {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  height: 4px;
+  margin-top: 4px;
+  overflow: hidden;
+  border-radius: 2px;
+}
+
+.pefa-header-ribbon i:nth-child(1) { background: #1769aa; }
+.pefa-header-ribbon i:nth-child(2) { background: #f59e0b; }
+.pefa-header-ribbon i:nth-child(3) { background: #16a34a; }
+
+/* The tagline belongs to the letterhead header, directly below the ribbon. */
+.pefa-report-letterhead > .pefa-letterhead-footer {
+  width: 100%;
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 3px solid #1769aa;
+  text-align: center;
+  box-sizing: border-box;
+  color: #475569;
+  font-size: 8px;
+  line-height: 1.25;
+  font-weight: 600;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+@media (max-width: 800px) {
+  .pefa-letterhead-top {
+    grid-template-columns: 55px 1fr 52px;
+    gap: 7px;
+  }
+
+  .pefa-letterhead-logo {
+    width: 50px;
+    height: 50px;
+  }
+
+  .pefa-letterhead-title h1 {
+    font-size: 18px;
+  }
+
+  .pefa-letterhead-title h2 {
+    font-size: 10px;
+  }
+
+  .pefa-office-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media print {
+  .pefa-report-letterhead {
+    margin: 0 !important;
+    padding: 0 !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .pefa-report-letterhead > .pefa-letterhead-footer {
+    position: static !important;
+    width: 100% !important;
+    margin-top: 4px !important;
+    padding-top: 4px !important;
+    border-top: 3px solid #1769aa !important;
+    text-align: center !important;
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+}
